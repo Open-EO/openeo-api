@@ -3,7 +3,7 @@ This repository provides a draft [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-
 
 # Documentation and Editing
 You can user [swagger-ui](https://github.com/swagger-api/swagger-ui) and [swagger-editor]() to
-inspect and edit the API specification. Using Docker, the following command will run `swagger-ui` on localhost at port 80. 
+inspect and edit the API specification. Using Docker, the following command will run swagger-ui on localhost at port 80. 
 
 ```
 docker run -p 80:8080 -e SWAGGER_JSON=/api/openapi.json -v $PWD:/api swaggerapi/swagger-ui
