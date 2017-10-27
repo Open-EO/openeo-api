@@ -9,4 +9,4 @@ inspect and edit the API specification. Using Docker, the following command will
 docker run -p 80:8080 -e SWAGGER_JSON=/api/openapi.json -v $PWD:/api swaggerapi/swagger-ui
 ```
 
-You may also import the URL `https://github.com/appelmar/openeo-api-poc/blob/master/apenapi.json` directly in [editor.swagger.io](https://editor.swagger.io/).
+You may also import the URL `https://github.com/appelmar/openeo-api-poc/blob/master/openapi.json` directly in [editor.swagger.io](https://editor.swagger.io/) or in the [swagger-ui demo](http://petstore.swagger.io/).
