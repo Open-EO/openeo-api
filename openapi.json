@@ -115,6 +115,46 @@
                   "type": "boolean",
                   "default": true,
                   "description": "Defines whether an argument is required or optional."
+                },
+                "default": {
+                  "description": "Defines the default argument value used for optional unspecified arguments.",
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/task"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "product_id"
+                      ],
+                      "description": "If the argument refers to an EO dataset provided by the back-end, this object specifies the unqiue identifier of the product.",
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/arg_value"
+                      },
+                      "description": "Argument values can be arrays of scalars, input datasets, and tasks,"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
                 }
               }
             }
@@ -166,11 +206,8 @@
           "process_graph": {
             "$ref": "#/components/schemas/process_graph"
           },
-          "space_view": {
-            "$ref": "#/components/schemas/space_view"
-          },
-          "time_view": {
-            "$ref": "#/components/schemas/time_view"
+          "view": {
+            "$ref": "#/components/schemas/view"
           }
         }
       },
@@ -292,11 +329,8 @@
           "task": {
             "$ref": "#/components/schemas/task"
           },
-          "space_view": {
-            "$ref": "#/components/schemas/space_view"
-          },
-          "time_view": {
-            "$ref": "#/components/schemas/space_view"
+          "view": {
+            "$ref": "#/components/schemas/view"
           },
           "submitted": {
             "type": "string",
@@ -338,117 +372,124 @@
           "last_update": "2017-01-01 09:36:18"
         }
       },
-      "space_view": {
-        "description": "Defines spatial resolution, window, and resampling method used for running processes on small sub datasets",
+      "view": {
         "type": "object",
+        "description": "The view defines how we look at the data (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subdataset.",
         "properties": {
-          "srs": {
-            "type": "string",
-            "description": "Spatial reference system as proj4 string or epsg code such as `'EPSG:3857'`"
-          },
-          "window": {
+          "space": {
+            "description": "Defines spatial resolution, window, and resampling method used for running processes on small sub datasets",
             "type": "object",
-            "description": "boundaries of the spatial window as coordinates expressed in the given reference system.",
-            "required": [
-              "left",
-              "top",
-              "right",
-              "bottom"
-            ],
             "properties": {
-              "left": {
+              "srs": {
+                "type": "string",
+                "description": "Spatial reference system as proj4 string or epsg code such as `'EPSG:3857'`"
+              },
+              "window": {
+                "type": "object",
+                "description": "boundaries of the spatial window as coordinates expressed in the given reference system.",
+                "required": [
+                  "left",
+                  "top",
+                  "right",
+                  "bottom"
+                ],
+                "properties": {
+                  "left": {
+                    "type": "number"
+                  },
+                  "top": {
+                    "type": "number"
+                  },
+                  "right": {
+                    "type": "number"
+                  },
+                  "bottom": {
+                    "type": "number"
+                  }
+                }
+              },
+              "cell_size": {
                 "type": "number"
               },
-              "top": {
-                "type": "number"
-              },
-              "right": {
-                "type": "number"
-              },
-              "bottom": {
-                "type": "number"
+              "resampling": {
+                "type": "string",
+                "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
+                "default": "nearest",
+                "enum": [
+                  "nearest",
+                  "bilinear",
+                  "cubic",
+                  "cubicspline",
+                  "lanczos",
+                  "average",
+                  "mode"
+                ]
               }
+            },
+            "example": {
+              "srs": "EPSG:4326",
+              "window": {
+                "left": -10.21,
+                "top": 53.23,
+                "right": 12.542,
+                "bottom": 12.32
+              },
+              "resolution": 0.25,
+              "resampling": "nearest"
             }
           },
-          "resolution": {
-            "type": "number"
-          },
-          "resampling": {
-            "type": "string",
-            "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
-            "default": "nearest",
-            "enum": [
-              "nearest",
-              "bilinear",
-              "cubic",
-              "cubicspline",
-              "lanczos",
-              "average",
-              "mode"
-            ]
-          }
-        },
-        "example": {
-          "srs": "EPSG:4326",
-          "window": {
-            "left": -10.21,
-            "top": 53.23,
-            "right": 12.542,
-            "bottom": 12.32
-          },
-          "resolution": 0.25,
-          "resampling": "nearest"
-        }
-      },
-      "time_view": {
-        "description": "Defines temporal resolution, window, and resampling method used for running processes on small sub datasets",
-        "type": "object",
-        "properties": {
-          "window": {
+          "time": {
+            "description": "Defines temporal resolution, window, and resampling method used for running processes on small sub datasets",
             "type": "object",
-            "description": "Start and end date in ISO 8601 format",
-            "required": [
-              "start",
-              "end"
-            ],
             "properties": {
-              "start": {
-                "type": "string",
-                "format": "dateTime"
+              "window": {
+                "type": "object",
+                "description": "Start and end date in ISO 8601 format",
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "dateTime"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "dateTime"
+                  }
+                }
               },
-              "end": {
+              "time_step": {
                 "type": "string",
-                "format": "dateTime"
+                "description": "temporal granularity given as ISO 8601 time duration"
+              },
+              "resampling": {
+                "type": "string",
+                "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
+                "default": "nearest",
+                "enum": [
+                  "nearest",
+                  "bilinear",
+                  "cubic",
+                  "cubicspline",
+                  "lanczos",
+                  "average",
+                  "mode"
+                ]
               }
+            },
+            "example": {
+              "window": {
+                "start": "2017-01-01",
+                "end": "2018-01-01"
+              },
+              "resolution": "P1M",
+              "resampling": "nearest"
             }
-          },
-          "resolution": {
-            "type": "string",
-            "description": "temporal resolution given as ISO 8601 time period"
-          },
-          "resampling": {
-            "type": "string",
-            "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
-            "default": "nearest",
-            "enum": [
-              "nearest",
-              "bilinear",
-              "cubic",
-              "cubicspline",
-              "lanczos",
-              "average",
-              "mode"
-            ]
           }
         },
-        "example": {
-          "window": {
-            "start": "2017-01-01",
-            "end": "2018-01-01"
-          },
-          "resolution": "P1M",
-          "resampling": "nearest"
-        }
+        "additionalProperties": true
       }
     }
   },
@@ -466,8 +507,8 @@
             "content": {
               "application/json": {
                 "example": [
-                  "/eodata",
-                  "/eodata/{product_id}",
+                  "/data",
+                  "/data/{product_id}",
                   "/processes"
                 ]
               }
@@ -501,7 +542,7 @@
         }
       }
     },
-    "/eodata": {
+    "/data": {
       "get": {
         "summary": "Returns basic information about EO datasets that are available at the back-end and offers simple search by time, space, and product name.",
         "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and product name with very simple search expressions.",
@@ -584,7 +625,7 @@
         }
       }
     },
-    "/eodata/opensearch": {
+    "/data/opensearch": {
       "get": {
         "summary": "OpenSearch endpoint to receive standardized data search results.",
         "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant RSS XML format.",
@@ -640,7 +681,7 @@
         }
       }
     },
-    "/eodata/{product_id}": {
+    "/data/{product_id}": {
       "get": {
         "summary": "Returns further information on a given EO product available at the back-end.",
         "description": "The request will ask the back-end for further details about a product specified by identifier",
@@ -1039,7 +1080,7 @@
                         "dem": {
                           "process_id": "filter_bbox",
                           "args": {
-                            "imagery": "/eodata/srtm90m",
+                            "imagery": "/data/srtm90m",
                             "srs": "EPSG:4326",
                             "left": 6.301,
                             "right": 7.232,
