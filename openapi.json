@@ -37,7 +37,7 @@
     },
     {
       "name": "User Content",
-      "description": "Services working with user content"
+      "description": "Services working with of user content"
     },
     {
       "name": "Authentication",
@@ -80,7 +80,7 @@
     },
     "schemas": {
       "process_description": {
-        "description": "Defines and describes a process including it's expected input arguments. Arguements ",
+        "description": "Defines and describes a process including it's expected input arguments. Arguments ",
         "type": "object",
         "required": [
           "process_id",
@@ -130,6 +130,28 @@
             },
             "expr": {
               "description": "expressions as array, the result will have as many bands as the number of given expressions."
+            }
+          }
+        }
+      },
+      "udf_schema_description": {
+        "description": "Defines and describes a UDF using the same schema as the description of processes offered by the back-end.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/process_description"
+          }
+        ],
+        "example": {
+          "process_id": "udf/R/reduce_time",
+          "description": "Applies an R function independently over all input time series that produces a zero-dimensional value (scalar or multi-band tuple) as output (per time series).",
+          "args": {
+            "imagery": {
+              "description": "input (image) time series",
+              "required": true
+            },
+            "script": {
+              "description": "Script resource that has been uploaded to user space before. ",
+              "required": true
             }
           }
         }
@@ -1582,7 +1604,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/process_description"
+                  "$ref": "#/components/schemas/udf_schema_description"
                 },
                 "example": {
                   "process_id": "/udf/R/reduce_time",
