@@ -174,7 +174,23 @@
           }
         }
       },
-      "udf_schema_description": {
+      "udf_type": {
+        "type": "string",
+        "description": "The UDF types define how UDFs can be exposed to the data, how they can be parallelized, and how the result schema should be structured.",
+        "enum": [
+          "apply_pixel",
+          "apply_scene",
+          "reduce_time",
+          "reduce_space",
+          "window_time",
+          "window_space",
+          "window_spacetime",
+          "scale_time",
+          "scale_space",
+          "scale_spacetime"
+        ]
+      },
+      "udf_description": {
         "description": "Defines and describes a UDF using the same schema as the description of processes offered by the back-end.",
         "oneOf": [
           {
@@ -444,7 +460,7 @@
             "properties": {
               "window": {
                 "type": "object",
-                "description": "Start and end date in ISO 8601 format",
+                "description": "Start and end date/time in ISO 8601 format",
                 "required": [
                   "start",
                   "end"
@@ -462,7 +478,7 @@
               },
               "time_step": {
                 "type": "string",
-                "description": "temporal granularity given as ISO 8601 time duration"
+                "description": "temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `'P1M30DT24H'` only a single integer number with date/time component such as `'P1M'`, `'P30D'`, `'PT24H'` should be specified."
               },
               "resampling": {
                 "type": "string",
@@ -1496,7 +1512,7 @@
     },
     "/udf": {
       "get": {
-        "summary": "Describe how custom user-defined functions can be exposed to the data and which languages are supported by the back-end.",
+        "summary": "Describes how custom user-defined functions can be exposed to the data and which languages are supported by the back-end.",
         "tags": [
           "UDF"
         ],
@@ -1513,23 +1529,10 @@
                     "additionalProperties": {
                       "type": "object",
                       "properties": {
-                        "udf_schemas": {
+                        "udf_types": {
                           "type": "array",
                           "items": {
-                            "type": "string",
-                            "description": "These strings define how UDFs can be exposed to the data, how they can be parallelized, and how the result schema should be shaped.",
-                            "enum": [
-                              "reduce_time",
-                              "reduce_space",
-                              "apply_pixel",
-                              "apply_scene",
-                              "window_time",
-                              "window_space",
-                              "window_spacetime",
-                              "rescale_time",
-                              "rescale_space",
-                              "rescale_spacetime"
-                            ]
+                            "$ref": "#/components/schemas/udf_type"
                           }
                         },
                         "versions": {
@@ -1552,7 +1555,7 @@
                   },
                   "example": {
                     "R": {
-                      "udf_schemas": [
+                      "udf_types": [
                         "reduce_time",
                         "reduce_space",
                         "apply_pixel"
@@ -1597,7 +1600,7 @@
         }
       }
     },
-    "/udf/{lang}/{udf_schema}": {
+    "/udf/{lang}/{udf_type}": {
       "get": {
         "summary": "Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data.",
         "tags": [
@@ -1618,23 +1621,11 @@
             "required": true
           },
           {
-            "name": "udf_schema",
+            "name": "udf_type",
             "in": "path",
             "description": "The UDF schema defines how UDFs can be exposed to the data, how they can be parallelized, and how the result schema should be shaped.",
             "schema": {
-              "type": "string",
-              "enum": [
-                "reduce_time",
-                "reduce_space",
-                "apply_pixel",
-                "apply_scene",
-                "window_time",
-                "window_space",
-                "window_spacetime",
-                "rescale_time",
-                "rescale_space",
-                "rescale_spacetime"
-              ]
+              "$ref": "#/components/schemas/udf_type"
             },
             "required": true
           }
@@ -1645,7 +1636,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/udf_schema_description"
+                  "$ref": "#/components/schemas/udf_description"
                 },
                 "example": {
                   "process_id": "/udf/R/reduce_time",
