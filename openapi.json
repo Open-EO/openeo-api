@@ -338,7 +338,8 @@
               "finished",
               "canceled",
               "error",
-              "unknown"
+              "unknown",
+              "waiting"
             ],
             "description": "The current status of the job."
           },
@@ -361,6 +362,10 @@
           "user_id": {
             "type": "string",
             "description": "Identifier of the user, who submitted the job and pays incurred costs if needed."
+          },
+          "consumed_credits": {
+            "type": "number",
+            "description": "Credits consumed by this process"
           }
         },
         "additionalProperties": true,
@@ -988,6 +993,22 @@
         "tags": [
           "Job Management"
         ],
+        "parameters": [
+          {
+            "name": "evaluate",
+            "in": "query",
+            "description": "Defines how the job should be evaluated. Can be `'lazy'` (the default) or `'batch'`, where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lazy",
+                "batch"
+              ],
+              "default": "lazy"
+            },
+            "required": false
+          }
+        ],
         "requestBody": {
           "description": "Description of one or more (chained) processes including their input arguments",
           "content": {
@@ -1249,6 +1270,46 @@
         "responses": {
           "200": {
             "description": "A valid WCS response"
+          },
+          "401": {
+            "$ref": "#/components/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/components/responses/access_denied"
+          },
+          "404": {
+            "description": "Job with specified identifier is not available"
+          },
+          "501": {
+            "$ref": "#/components/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/download/wmts/{job_id}": {
+      "get": {
+        "summary": "WMTS compliant endpoint to download job results",
+        "description": "This request will ask the back-end to fetch job result data as a WMTS service that takes zoom level, tile indexes, visuallization parameters, and time if needed as input arguments.",
+        "tags": [
+          "Data Download"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "job identifier string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A valid WMTS response"
           },
           "401": {
             "$ref": "#/components/responses/auth_required"
