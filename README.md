@@ -1,4 +1,7 @@
 # OpenEO API prototype for proof of concept
+
+[![Status](https://img.shields.io/badge/Status-proof--of--concept-yellow.svg)]()
+
 This repository provides a draft [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) definition of the [OpenEO](http://openeo.org) API for rapid prototyping and a proof of concept. The complete API is described in `openapi.json`.
 
 # Documentation and Editing
