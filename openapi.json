@@ -372,7 +372,7 @@
         "example": {
           "job_id": "748df7caa8c84a7ff6e",
           "user_id": "bd6f9faf93b4",
-          "status": "scheduled",
+          "status": "running",
           "task": {
             "process_id": "filter_daterange",
             "args": [
@@ -390,7 +390,8 @@
             ]
           },
           "submitted": "2017-01-01 09:32:12",
-          "last_update": "2017-01-01 09:36:18"
+          "last_update": "2017-01-01 09:36:18",
+          "consumed_credits": "392"
         }
       },
       "view": {
@@ -1249,6 +1250,46 @@
         }
       }
     },
+    "/jobs/{job_id}/cancel": {
+      "get": {
+        "summary": "Cancels any back-end computations of a job",
+        "description": "This request cancels all related computations at the back-end. It will stop generating additional costs for processing. Results of batch jobs might still be accessible whereas lazy jobs will generally not respond to s following download calls.  ",
+        "tags": [
+          "Job Management"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "job identifier string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully canceled."
+          },
+          "401": {
+            "$ref": "#/components/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/components/responses/access_denied"
+          },
+          "404": {
+            "description": "Job with specified identifier is not available"
+          },
+          "501": {
+            "$ref": "#/components/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
+          }
+        }
+      }
+    },
     "/download/wcs/{job_id}": {
       "get": {
         "summary": "WCS compliant endpoint to download job results",
@@ -1561,6 +1602,45 @@
           },
           "404": {
             "description": "Job with specified identifier is not available"
+          },
+          "501": {
+            "$ref": "#/components/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/credits": {
+      "get": {
+        "summary": "Returns available user credits",
+        "description": "For back-ends that involve accounting, this service will return the currently available credits. Other back-ends may simply return `Infinity`.",
+        "tags": [
+          "User Content"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available credits",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "description": "Available credits",
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/components/responses/access_denied"
           },
           "501": {
             "$ref": "#/components/responses/not_implemented"
