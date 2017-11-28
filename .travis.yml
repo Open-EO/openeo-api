@@ -1,0 +1,33 @@
+sudo: required
+services:
+- docker
+
+env:
+  global:
+  - GIT_NAME: "'TravisCI Documentation'"
+  - GIT_EMAIL: djw8605@gmail.com
+  - GH_REF: https://github.com/Open-EO/openeo-api-poc.git
+
+before_install:
+- openssl aes-256-cbc -K $encrypted_cc1eefc65230_key -iv $encrypted_cc1eefc65230_iv -in docs/deploy_key.enc -out deploy_key -d
+- chmod 600 deploy_key
+- eval "$(ssh-agent -s)
+- ssh-add deploy_key
+
+install:
+- cd docs
+- docker build -t openeo/apidocs .
+
+script:
+- rm -rf site
+- docker run -v $PWD:/shared openeo/apidocs
+- cd site
+- git init
+- git config user.name "Travis CI Documentation Builder"
+- git config user.email "marius.appel@uni-muenster.de"
+- git add .
+- git commit -m "Automated documentation build[ci skip]"
+- git push --force --quiet "${GH_REF}" master:gh-pages
+
+
+
