@@ -6,7 +6,7 @@ env:
   global:
   - GIT_NAME: "TravisCI Documentation"
   - GIT_EMAIL: marius.appel@uni-muenster.de
-  - GH_REF: https://github.com/Open-EO/openeo-api-poc.git
+  - GH_REF: git@gihub.com:Open-EO/openeo-api-poc.git
 
 before_install:
 - openssl aes-256-cbc -K $encrypted_cc1eefc65230_key -iv $encrypted_cc1eefc65230_iv -in docs/deploy_key.enc -out deploy_key -d
@@ -23,14 +23,12 @@ script:
 - cd site
 - eval "$(ssh-agent -s)"
 - ssh-add $TRAVIS_BUILD_DIR/deploy_key
-- ls $TRAVIS_BUILD_DIR/ ###
 - git init
-- git remote add gh-token "${GH_REF}"
 - git config user.name "Travis CI Documentation Builder"
 - git config user.email "marius.appel@uni-muenster.de"
 - git add .
 - git commit -m "Automated documentation build[ci skip]"
-- git push --force --quiet "${GH_REF}" master:gh-pages
-#GIT_SSH_COMMAND='ssh -i ../../deploy_key' 
+- GIT_SSH_COMMAND='ssh -i ${TRAVIS_BUILD_DIR}/deploy_key' git push --force --quiet "${GH_REF}" master:gh-pages
+
 
 
