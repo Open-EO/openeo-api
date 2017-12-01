@@ -333,7 +333,7 @@ Body:
 ```
 
 
-#### 2. Ask the back-end whether it supports Python UDFs of type scale_time and get details about expected parameters
+#### 2. Ask the back-end whether it supports Python UDFs of type aggregate_time and get details about expected parameters
 
 **Request**
 ```
@@ -349,7 +349,7 @@ Body:
   "Python": {
     "udf_types": [
       "reduce_time",
-      "scale_time",
+      "aggregate_time",
       "apply_pixel",
       "
     ],
@@ -372,7 +372,7 @@ Body:
 
 **Request**
 ```
-GET /udf/Python/scale_time
+GET /udf/Python/aggregate_time
 ``` 
 
 
@@ -380,14 +380,14 @@ GET /udf/Python/scale_time
 ```
 HTTP 200/OK
 {
-  "process_id": "/udf/Python/scale_time",
+  "process_id": "/udf/Python/aggregate_time",
   "description": "Runs a Python script for each time series of the input dataset.",
   "args": {
     "imagery": {
       "description": "input image or image collection"
     },
     "script": {
-      "description": "Python script that will be executed over all time series, gets time series as (Pandas) DataFrame and outputis expected as another DataFrame."
+      "description": "Python script that will be executed over all time series, gets time series as (Pandas) DataFrame and expects a new DataFrame as output."
     },
     "version" : {
        "description" : "Python version to use, defaults to the latest available version."
@@ -422,7 +422,7 @@ POST /jobs?evaluate=lazy
 Body:
 {
     "process_graph": {
-        "process_id": "/udf/Python/scale_time",
+        "process_id": "/udf/Python/aggregate_time",
         "args": {
             "script" : "/users/me/files/s1_aggregate.py",        
             "imagery": {

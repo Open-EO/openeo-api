@@ -10,9 +10,13 @@ data are passed to the function, how the function execution is parallelized, and
 - [window_time](#window_time)
 - [window_space](#window_space)
 - [window_spacetime](#window_spacetime)
-- [scale_time](#scale_time)
-- [scale_space](#scale_space)
-- [scale_spacetime](#scale_spacetime)
+- [aggregate_time](#aggregate_time)
+- [aggregate_space](#aggregate_space)
+- [aggregate_spacetime](#aggregate_spacetime)
+- [chunkreduce_time](#chunkreduce_time)
+- [chunkreduce_space](#chunkreduce_space)
+- [chunkreduce_spacetime](#chunkreduce_spacetime)
+
 
 This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDF's will report, which types they support. For example applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.  
 
@@ -36,15 +40,20 @@ The provided UDF is called for each pixel and will receive values from pixels wi
 The provided UDF is called for each pixel and will receive values from pixels within a spatial neighborhood of specified size around that pixel. Neighboring values can be used to derive a new value of the center pixel, which can be a single scalar value or a (multiband) tuple. Windows at boundary regions should be filled with NA values. 
 
 ### window_spacetime
-Similar to `window_time` and `window_space`, this type derives a new value for the central pixel of a spatiotemporal window of specified size. The provided function receives a (multispectral) spacetime array as input and produces a single value (either scalar or multspectral) as output. The result has the same number of pixels as the input dataset. Windows at boundary regions should be filled with NA values. 
+Similar to `window_time` and `window_space`, this type derives a new value for the central pixel of a spatiotemporal window of specified size. The provided function receives a (multispectral) spacetime array as input and produces a single value (either scalar or multispectral) as output. The result has the same number of pixels as the input dataset. Windows at boundary regions should be filled with NA values. 
 
-### scale_time
-Partitions the input data into equally sized temporal chunks and aggregates them to a single value or tuple. The function must return a single scalar or tuple (multiband) output. Examples of this UDF type include the generation of monthly aggregates from 16 day data.  The result has the same spatial but a coarser temporal resolution.
+### aggregate_time
+Similar to `reduce_time` this type applies the given UDF independently on pixel time series of the input data but produces a new time series with different temporal resolution. `reduce_time` can be seen as a special case of `aggregate_time` where the temporal dimension is dropped.
+Examples of this UDF type include the generation of monthly aggregates from 16 day data.  The result has the same spatial resolution.
 
+### aggregate_space
+Similar to `aggregate_time`, this type applies the provided function on temporal snapshots of the data and generates an image with different spatial resolution. The result will have the same temporal resolution.
 
-### scale_space
-Similar to `scale_time`, this type applies the provided function on spatial chunks of the data and generates an aggregated value or tuple. to aggregate. The result will have the same temporal but a coarser spatial resultion. Examples of this type include the generation of image pyramids.
+### chunkreduce_time
+Partitions the input data into equally sized temporal chunks and aggregates them to a single value or tuple. The function must return a single scalar or tuple (multiband) output. The result has the same spatial but a coarser temporal resolution.
 
+### chunkreduce_space
+Similar to `chunkreduce_time`, this type applies the provided function on spatial chunks of the data and generates an aggregated value or tuple. to aggregate. The result will have the same temporal but a coarser spatial resolution. Examples of this type include the generation of image pyramids.
 
-### scale_spacetime
-Similar to `scale_time` and `scale_space`,  UDFs of this type receive spatiotemporal chunks such that the output has lower spatial and lower temporal resolution.
+### chunkreduce_spacetime
+Similar to `chunkreduce_space` and `chunkreduce_time`, UDFs of this type receive spatiotemporal chunks such that the output has lower spatial and lower temporal resolution.
