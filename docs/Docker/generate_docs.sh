@@ -3,7 +3,7 @@ export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
 cd /opt/widdershins
-node widdershins https://raw.githubusercontent.com/Open-EO/openeo-api-poc/master/openapi.json -o /tmp/widdershins.md
+node widdershins https://raw.githubusercontent.com/Open-EO/openeo-api-poc/master/swagger.json -o /tmp/widdershins.md
 
 cd /opt/shins
 mv /tmp/widdershins.md source/index.html.md
