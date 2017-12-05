@@ -2,11 +2,13 @@
 
 The OpenEO core API defines a language how clients communicate to back-ends in order to analyze large Earth observation datasets. The API will be implemented by drivers for specific back-ends. Some first architecture considerations are listed below.
 
-1. Each back-end runs its own API instance including the specific back-end driver. There is no API instance that runs more than one driver.
-2. Clients in R, Python, and JavaScript connect to the API over HTTP.
-3. API instances can run on back-end servers or additional intermediate layers, which then communicate to back-ends in a back-end specific way.
-4. Back-ends may add functionality and extend the core API wherever there is need.
-
+1. The OpenEO core API is a contract betewen clients and backends that describes the communication only
+2. Each back-end runs its own API instance including the specific back-end driver. There is no core API instance that runs more than one driver.
+3. Clients in R, Python, and JavaScript connect directly to the backends and communicate with the backends over HTTP(s) acoording to the OpenEO core API specification.
+4. API instances can run on back-end servers or additional intermediate layers, which then communicate to back-ends in a back-end specific way.
+5. Back-ends may add functionality and extend the core API wherever there is need.
+6. There will be a central backend registry service, to allow users to search for backends with specific functionality and or data. 
+7. The OpenEO core API will define _profiles_ in order group specific functionality.
 
 ![Architecture](arch.png)
 
@@ -22,4 +24,4 @@ The OpenEO core API defines a language how clients communicate to back-ends in o
 | Process Discovery  | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data.  |
 | Job Management  | Organizes and manages jobs that run processes on back-ends |
 | Download  | Services to download data and job results e.g. as WCS or WMTS service. |
-| User Data Management  | Manage user content and accounting  |
+| User Data Management  | Manage user content and accounting, all  |
