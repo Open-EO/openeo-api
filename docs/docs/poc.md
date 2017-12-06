@@ -120,8 +120,8 @@ Body:
     "process_id": "filter_bbox",
     "description": "Drops observations from a collection that are located outside of a given bounding box.",
     "args": {
-        "imagery": {
-            "description" : "input imagery"
+       "collections": {
+            "description": "array of input collections with one element"
         },
         "left" : {
             "description" : "left boundary (longitude / easting)"
@@ -155,8 +155,8 @@ Body:
     "process_id": "filter_daterange",
     "description": "Drops observations from a collection that have been captured before a start or after a given end date.",
     "args": {
-        "imagery": {
-            "description" : "input imagery"
+        "collections": {
+            "description": "array of input collections with one element"
         },
         "from" : {
             "description" : "start date"
@@ -183,8 +183,8 @@ Body:
     "process_id": "NDVI",
     "description": "Finds the minimum value of time series for all bands of the input dataset.",
     "args": {
-        "imagery": {
-            "description" : "input imagery"
+        "collections": {
+            "description": "array of input collections with one element"
         },
         "red" : {
             "description" : "reference to the red band"
@@ -209,9 +209,9 @@ Body:
     "process_id": "min_time",
     "description": "Finds the minimum value of time series for all bands of the input dataset.",
     "args": {
-        "time_series": {
-            "description": "input product (time series)"
-        }
+       "collections": {
+            "description": "array of input collections with one element"
+        },
     }
 }
 ```
@@ -222,37 +222,38 @@ Body:
 ```
 POST /jobs&evaluate=lazy
 Body:
+```
 {
   "process_graph": {
     "process_id": "min_time",
     "args": {
-      "time_series": {
+      "collections": [{
         "process_id": "NDVI",
         "args": {
-          "imagery": {
+          "collections": [{
             "process_id": "filter_daterange",
             "args": {
-              "imagery": {
+              "collections": [{
                 "process_id": "filter_bbox",
                 "args": {
-                "imagery": {
-                    "product_id": "Sentinel2A-L1C"
-                },
-                "left" : ‎ 16.1,
-                "right" : ‎16.6,
-                "top" : 48.6,
-                "bottom" : 47.9,
-                "srs" : "EPSG:4326"
-                },
-              }
-            },
-            "from": "2017-01-01",
-            "to": "2017-01-31"
-          }
-        },
-        "red": "4",
-        "nir": "8"
-      }
+                "collections": [{
+                    "product_id": "S2_L2A_T32TPS_20M"
+                }],
+                "left" : 652000,
+                "right" :672000,
+                "top" : 5161000,
+                "bottom" : 5181000,
+                "srs" : "EPSG:32632"
+                }
+              }],
+	      "from": "2017-01-01",
+              "to": "2017-01-31"
+            }
+          }],
+          "red": "B04",
+          "nir": "B8A"
+        }
+      }]
     }
   }
 }
@@ -383,8 +384,8 @@ HTTP 200/OK
   "process_id": "/udf/Python/aggregate_time",
   "description": "Runs a Python script for each time series of the input dataset.",
   "args": {
-    "imagery": {
-      "description": "input image or image collection"
+    "collections": {
+      "description": "array of input collections with one element"
     },
     "script": {
       "description": "Python script that will be executed over all time series, gets time series as (Pandas) DataFrame and expects a new DataFrame as output."
@@ -425,26 +426,26 @@ Body:
         "process_id": "/udf/Python/aggregate_time",
         "args": {
             "script" : "/users/me/files/s1_aggregate.py",        
-            "imagery": {
+            "collections": [{
                 "process_id": "filter_daterange",
                 "args": {
-                    "imagery": {
+                    "collections": [{
                         "process_id": "filter_bbox",
                         "args": {
-                            "imagery": {
+                            "collections": [{
                                 "product_id": "Sentinel1-L1-IW-GRD"
-                            },
+                            }],
                             "left" : ‎ 16.1,
                             "right" : ‎16.6,
                             "top" : 48.6,
                             "bottom" : 47.2,
                             "srs" : "EPSG:4326"
                         },
-                    }
-                },
-                "from": "2017-01-01",
-                "to": "2017-01-31"
-            }
+                    }],
+                    "from": "2017-01-01",
+                    "to": "2017-01-31"
+                }
+            }]
         }
     }
 }
@@ -590,8 +591,8 @@ HTTP 200/OK
   "process_id": "zonal_statistics",
   "description": "Runs a Python script for each time series of the input dataset.",
   "args": {
-    "imagery": {
-      "description": "input image or image collection"
+    "collections": {
+      "description": "array of input collections with one element"
     },
     "regions": {
       "description": "Polygon file readable by OGR"
@@ -636,26 +637,34 @@ Body:
     "process_graph": {
         "process_id": "zonal_statistics",
         "args": {        
-            "imagery": {
+            "collections": [{
                 "process_id": "filter_daterange",
                 "args": {
-                    "imagery": {
+                    "collections": [{
                         "process_id": "filter_bbox",
                         "args": {
-                            "imagery": {
-                                "product_id": "Sentinel2-L1C"
-                            },
+                            "collections": [{
+                                "process_id" : "filter_bands",
+                                "args" : {
+                                    "collections" : [
+                                        {
+                                            "product_id": "Sentinel2-L1C"
+                                        }
+                                    ],
+                                    "bands": 8
+                                }
+                            }],
                             "left" : ‎ 16.1,
                             "right" : ‎16.6,
                             "top" : 48.6,
                             "bottom" : 47.2,
                             "srs" : "EPSG:4326"
                         },
-                    }
-                },
-                "from": "2017-01-01",
-                "to": "2017-01-31"
-            },
+                    }],
+                    "from": "2017-01-01",
+                    "to": "2017-01-31"
+                }          
+            }],
             "regions" : "/users/me/files/,
             "func" : "avg",
             "outformat" : "GPKG"
@@ -689,32 +698,42 @@ Body:
   "user_id": "bd6f9faf93b4",
   "status": "running",
   "task": {
-   "process_id": "zonal_statistics",
+    "process_graph": {
+        "process_id": "zonal_statistics",
         "args": {        
-            "imagery": {
+            "collections": [{
                 "process_id": "filter_daterange",
                 "args": {
-                    "imagery": {
+                    "collections": [{
                         "process_id": "filter_bbox",
                         "args": {
-                            "imagery": {
-                                "product_id": "Sentinel2-L1C"
-                            },
+                            "collections": [{
+                                "process_id" : "filter_bands",
+                                "args" : {
+                                    "collections" : [
+                                        {
+                                            "product_id": "Sentinel2-L1C"
+                                        }
+                                    ],
+                                    "bands": 8
+                                }
+                            }],
                             "left" : ‎ 16.1,
                             "right" : ‎16.6,
                             "top" : 48.6,
                             "bottom" : 47.2,
                             "srs" : "EPSG:4326"
                         },
-                    },
+                    }],
                     "from": "2017-01-01",
                     "to": "2017-01-31"
-                }
-            },
+                }          
+            }],
             "regions" : "/users/me/files/,
             "func" : "avg",
             "outformat" : "GPKG"
         }
+    }
   },
   "submitted": "2017-01-01 09:32:12",
   "last_update": "2017-01-01 09:36:18",
@@ -736,36 +755,42 @@ Body:
   "user_id": "bd6f9faf93b4",
   "status": "finished",
   "task": {
-   "process_id": "zonal_statistics",
+   "process_graph": {
+        "process_id": "zonal_statistics",
         "args": {        
-            "imagery": {
+            "collections": [{
                 "process_id": "filter_daterange",
                 "args": {
-                    "imagery": {
+                    "collections": [{
                         "process_id": "filter_bbox",
                         "args": {
-                            "imagery": {
-                                "process_id": "filter_bands",
-                                 "args": {
-                                    "product_id": "Sentinel2-L1C",
-                                    "bands" : 8
-                                 }
-                            },
+                            "collections": [{
+                                "process_id" : "filter_bands",
+                                "args" : {
+                                    "collections" : [
+                                        {
+                                            "product_id": "Sentinel2-L1C"
+                                        }
+                                    ],
+                                    "bands": 8
+                                }
+                            }],
                             "left" : ‎ 16.1,
                             "right" : ‎16.6,
                             "top" : 48.6,
                             "bottom" : 47.2,
                             "srs" : "EPSG:4326"
                         },
-                    },
+                    }],
                     "from": "2017-01-01",
                     "to": "2017-01-31"
-                }
-            },
+                }          
+            }],
             "regions" : "/users/me/files/,
             "func" : "avg",
             "outformat" : "GPKG"
         }
+    }
   },
   "submitted": "2017-01-01 09:32:12",
   "last_update": "2017-01-01 09:36:57",
