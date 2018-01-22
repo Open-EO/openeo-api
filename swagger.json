@@ -1121,11 +1121,12 @@
           {
             "name": "evaluate",
             "in": "query",
-            "description": "Defines how the job should be evaluated. Can be `lazy` (the default) or `batch`, where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end.",
+            "description": "Defines how the job should be evaluated. Can be `lazy` (the default), `batch`, or `sync` where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end. Synchronous jobs will be immediately executed and return the result data.",
             "type": "string",
             "enum": [
               "lazy",
-              "batch"
+              "batch",
+              "sync"
             ],
             "default": "lazy",
             "required": false
@@ -1137,23 +1138,26 @@
             "schema": {
               "$ref": "#/definitions/process_graph"
             }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Description of the desired output format",
+            "type": "string",
+            "enum": [
+              "nc",
+              "json",
+              "wcs",
+              "wmts",
+              "tms",
+              "tif"
+            ],
+            "required": false
           }
         ],
         "responses": {
           "200": {
-            "description": "unique job identifier",
-            "schema": {
-              "type": "object",
-              "required": [
-                "job_id"
-              ],
-              "properties": {
-                "job_id": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": true
-            },
+            "description": "Depending on the job evaluation type, the result of posting jobs can be either a json description of the job (for lazy and batch jobs) or a result object such as a NetCDF file (for sync jobs).",
             "examples": {
               "application/json": {
                 "job_id": "42d5k3nd92mk49dmj294md"
