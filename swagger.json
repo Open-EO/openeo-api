@@ -88,7 +88,7 @@
   },
   "definitions": {
     "process_description": {
-      "description": "Defines and describes a process including it's expected input arguments.",
+      "description": "Defines and describes a process including it's expected input arguments. Arguments ",
       "type": "object",
       "required": [
         "process_id",
@@ -219,7 +219,62 @@
       ]
     },
     "udf_description": {
-      "$ref": "#/definitions/process_description"
+      "description": "Defines and describes a UDF using the same schema as the description of processes offered by the back-end.",
+      "type": "object",
+      "required": [
+        "process_id",
+        "description"
+      ],
+      "properties": {
+        "process_id": {
+          "type": "string",
+          "description": "The unique identifier of the process."
+        },
+        "description": {
+          "type": "string",
+          "description": "A short and concise description of what the process does and how the output looks like."
+        },
+        "link": {
+          "type": "string",
+          "description": "Reference to an external process definition if the process has been defined over different back ends within OpenEO"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "description"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "A short and concise description of the process argument."
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Defines whether an argument is required or optional."
+              }
+            },
+            "additionalProperties": true,
+            "description": "**DEFAULT VALUES FOR ARGUMENTS ARE NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**"
+          }
+        }
+      },
+      "example": {
+        "process_id": "udf/R/reduce_time",
+        "description": "Applies an R function independently over all input time series that produces a zero-dimensional value (scalar or multi-band tuple) as output (per time series).",
+        "args": {
+          "imagery": {
+            "description": "input (image) time series",
+            "required": true
+          },
+          "script": {
+            "description": "Script resource that has been uploaded to user space before. ",
+            "required": true
+          }
+        }
+      }
     },
     "process_graph": {
       "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
@@ -1475,6 +1530,9 @@
           "403": {
             "$ref": "#/responses/access_denied"
           },
+          "404": {
+            "description": "User with specified user id is not available."
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1520,7 +1578,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available"
+            "description": "File or user with specified identifier is not available"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1569,10 +1627,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available."
+            "description": "User with specified identifier is not available."
           },
-          "415": {
-            "description": "File type that is being uploaded is not allowed."
+          "422": {
+            "description": "File is rejected."
           },
           "423": {
             "description": "The file that is being accessed is locked."
@@ -1617,7 +1675,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available"
+            "description": "File or user with specified identifier is not available."
           },
           "423": {
             "description": "The file that is being accessed is locked."
@@ -1662,7 +1720,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "User with specified identifier is not available."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1704,6 +1762,9 @@
           },
           "403": {
             "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "User with specified identifier is not available."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1868,7 +1929,7 @@
             "description": "UDF type with specified identifier is not available"
           },
           "501": {
-            "description": "This API feature or language is not supported by the back-end."
+            "description": "This API feature, language or UDF type is not supported by the back-end."
           },
           "503": {
             "$ref": "#/responses/unavailable"
