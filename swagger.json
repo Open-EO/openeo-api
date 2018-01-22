@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.0.1",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * and  how OpenSearch is interfaced",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled, \n * and how OpenSearch is interfaced",
     "contact": {
       "name": "Marius Appel",
       "url": "https://github.com/open-eo/openeo-api-poc",
@@ -48,7 +48,7 @@
     },
     {
       "name": "User Content",
-      "description": "Services working with of user content"
+      "description": "Services working with user content"
     },
     {
       "name": "Authentication",
@@ -220,7 +220,47 @@
     },
     "udf_description": {
       "description": "Defines and describes a UDF using the same schema as the description of processes offered by the back-end.",
-      "$ref": "#/definitions/process_description",
+      "type": "object",
+      "required": [
+        "process_id",
+        "description"
+      ],
+      "properties": {
+        "process_id": {
+          "type": "string",
+          "description": "The unique identifier of the process."
+        },
+        "description": {
+          "type": "string",
+          "description": "A short and concise description of what the process does and how the output looks like."
+        },
+        "link": {
+          "type": "string",
+          "description": "Reference to an external process definition if the process has been defined over different back ends within OpenEO"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "description"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "A short and concise description of the process argument."
+              },
+              "required": {
+                "type": "boolean",
+                "default": true,
+                "description": "Defines whether an argument is required or optional."
+              }
+            },
+            "additionalProperties": true,
+            "description": "**DEFAULT VALUES FOR ARGUMENTS ARE NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**"
+          }
+        }
+      },
       "example": {
         "process_id": "udf/R/reduce_time",
         "description": "Applies an R function independently over all input time series that produces a zero-dimensional value (scalar or multi-band tuple) as output (per time series).",
@@ -371,7 +411,7 @@
           "properties": {
             "srs": {
               "type": "string",
-              "description": "Spatial reference system as proj4 string or epsg code such as `'EPSG:3857'`"
+              "description": "Spatial reference system as proj4 string or epsg code such as `EPSG:3857`"
             },
             "window": {
               "type": "object",
@@ -451,7 +491,7 @@
             },
             "time_step": {
               "type": "string",
-              "description": "temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `'P1M30DT24H'` only a single integer number with date/time component such as `'P1M'`, `'P30D'`, `'PT24H'` should be specified."
+              "description": "temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `P1M30DT24H` only a single integer number with date/time component such as `P1M`, `P30D`, `PT24H` should be specified."
             },
             "resampling": {
               "type": "string",
@@ -505,8 +545,8 @@
     },
     "/auth/login": {
       "get": {
-        "summary": "Check whether a user is registered at the back-end.  ",
-        "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `'me'`.",
+        "summary": "Check whether a user is registered at the back-end.",
+        "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`.",
         "tags": [
           "Authentication"
         ],
@@ -523,7 +563,7 @@
               "text/plain; charset=utf-8": "b34ba2bdf9ac9ee1"
             }
           },
-          "404": {
+          "403": {
             "description": "Login failed"
           }
         }
@@ -622,14 +662,12 @@
     "/data/opensearch": {
       "get": {
         "summary": "OpenSearch endpoint to receive standardized data search results.",
-        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant RSS XML format.",
+        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
         "tags": [
           "EO Data Discovery"
         ],
         "produces": [
-          "application/rss+xml",
-          "application/atom+xml",
-          "application/xml"
+          "application/atom+xml"
         ],
         "parameters": [
           {
@@ -658,7 +696,7 @@
           "200": {
             "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
             "examples": {
-              "application/rss+xml": {}
+              "application/atom+xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO datasets by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/data/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/data/opensearch/description.xml\"/>\n  <opensearch:totalResults>3</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>MOD09Q1</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/MOD09Q1\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2017-09-18T10:30:00Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006</rights>\n    <summary type=\"text\">MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V00 </summary>\n  </entry>\n  <entry>\n    <title>SENTINEL2-1C</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/SENTINEL2-1C\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2017-12-01T01:00:00Z</updated>\n    <rights type=\"text\">European Space Agency (ESA)</rights>\n    <summary type=\"text\">Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry</summary>\n  </entry>\n  <entry>\n    <title>LandsatETM+</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/LandsatETM%2B\"/>\n    <id>urn:uuid:1225c695-cfd8-4ebb-cccc-70da344efa6c</id>\n    <updated>2015-01-10T22:45:12Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS)</rights>\n    <summary type=\"text\">Landsat Enhanced Thematic Mapper Plus (ETM+)</summary>\n  </entry>\n</feed>"
             }
           },
           "401": {
@@ -676,7 +714,7 @@
     "/data/{product_id}": {
       "get": {
         "summary": "Returns further information on a given EO product available at the back-end.",
-        "description": "The request will ask the back-end for further details about a product specified by identifier",
+        "description": "The request will ask the back-end for further details about a product specified by the identifier `product_id`.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -685,7 +723,7 @@
             "name": "product_id",
             "in": "path",
             "type": "string",
-            "description": "product identifier string such as `'MOD18Q1'`",
+            "description": "product identifier string such as `MOD18Q1`",
             "required": true
           }
         ],
@@ -711,7 +749,7 @@
                   "type": "string"
                 },
                 "extent": {
-                  "description": "spatial extent of the available imagery as ",
+                  "description": "spatial extent of the available imagery",
                   "type": "object",
                   "properties": {
                     "srs": {
@@ -977,7 +1015,7 @@
     "/processes/opensearch": {
       "get": {
         "summary": "OpenSearch endpoint to request standardized process search results.",
-        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant RSS XML format.",
+        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
         "tags": [
           "Process Discovery"
         ],
@@ -1008,7 +1046,7 @@
           "200": {
             "description": "OpenSearch response",
             "examples": {
-              "application/rss+xml": {}
+              "application/atom+xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO processes by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/processes/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/processes/opensearch/description.xml\"/>\n  <opensearch:totalResults>2</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>NDVI</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/processes/NDVI\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Computes the normalized difference vegetation index (NDVI) for all pixels of the input dataset.</summary>\n  </entry>\n  <entry>\n    <title>median_time</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/median_time\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Applies median aggregation to pixel time series for all bands of the input dataset.</summary>\n  </entry>\n</feed>"
             }
           },
           "401": {
@@ -1035,7 +1073,7 @@
             "name": "process_id",
             "in": "path",
             "type": "string",
-            "description": "process identifier string such as 'NDVI'",
+            "description": "process identifier string such as `NDVI`",
             "required": true
           }
         ],
@@ -1083,7 +1121,7 @@
           {
             "name": "evaluate",
             "in": "query",
-            "description": "Defines how the job should be evaluated. Can be `'lazy'` (the default), `'batch'`, or `'sync'` where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end. Synchronous jobs will be immediately executed and return the result data.",
+            "description": "Defines how the job should be evaluated. Can be `lazy` (the default), `batch`, or `sync` where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end. Synchronous jobs will be immediately executed and return the result data.",
             "type": "string",
             "enum": [
               "lazy",
@@ -1443,7 +1481,7 @@
     "/users/{user_id}/files": {
       "get": {
         "summary": "List user-uploaded files",
-        "description": "This service lists all user-uploaded files that are stored at the back-end",
+        "description": "This service lists all user-uploaded files that are stored at the back-end.",
         "tags": [
           "User Content"
         ],
@@ -1454,7 +1492,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as file size.",
+            "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as the file size and the timestamp of the last modification. All properties except the name are optional.",
             "schema": {
               "type": "array",
               "items": {
@@ -1474,15 +1512,18 @@
               "application/json": [
                 {
                   "name": "test.txt",
-                  "size": 182
+                  "size": 182,
+                  "modified": "2015-10-20 17:22:10"
                 },
                 {
                   "name": "test.tif",
-                  "size": 183142
+                  "size": 183142,
+                  "modified": "2017-01-01 09:36:18"
                 },
                 {
                   "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
-                  "size": 4183353142
+                  "size": 4183353142,
+                  "modified": "2018-01-03 10:55:29"
                 }
               ]
             }
@@ -1494,7 +1535,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "User with specified user id is not available."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1532,9 +1573,6 @@
             "description": "file from user storage",
             "schema": {
               "type": "file"
-            },
-            "examples": {
-              "application/octet-stream": {}
             }
           },
           "401": {
@@ -1544,7 +1582,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available"
+            "description": "File or user with specified identifier is not available"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1593,13 +1631,22 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available"
+            "description": "User with specified identifier is not available."
+          },
+          "422": {
+            "description": "File is rejected."
+          },
+          "423": {
+            "description": "The file that is being accessed is locked."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
           "503": {
             "$ref": "#/responses/unavailable"
+          },
+          "507": {
+            "description": "User exceeded his storage limit."
           }
         }
       },
@@ -1632,7 +1679,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "File with specified path is not available"
+            "description": "File or user with specified identifier is not available."
+          },
+          "423": {
+            "description": "The file that is being accessed is locked."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1674,7 +1724,7 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "User with specified identifier is not available."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1717,6 +1767,9 @@
           "403": {
             "$ref": "#/responses/access_denied"
           },
+          "404": {
+            "description": "User with specified identifier is not available."
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1739,7 +1792,7 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "description": "A map with language identifiers such as `'R'`as keys and an object that defines available versions, extension packages, and UDF schemas.",
+                "description": "A map with language identifiers such as `R` as keys and an object that defines available versions, extension packages, and UDF schemas.",
                 "additionalProperties": {
                   "type": "object",
                   "properties": {
@@ -1802,9 +1855,6 @@
           "403": {
             "$ref": "#/responses/access_denied"
           },
-          "404": {
-            "description": "Job with specified identifier is not available"
-          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1824,7 +1874,7 @@
           {
             "name": "lang",
             "in": "path",
-            "description": "Language identifier such as `'R'`",
+            "description": "Language identifier such as `R`",
             "type": "string",
             "enum": [
               "python",
@@ -1880,10 +1930,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "UDF type with specified identifier is not available"
           },
           "501": {
-            "$ref": "#/responses/not_implemented"
+            "description": "This API feature, language or UDF type is not supported by the back-end."
           },
           "503": {
             "$ref": "#/responses/unavailable"
