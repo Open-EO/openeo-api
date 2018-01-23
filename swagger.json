@@ -359,12 +359,12 @@
         "submitted": {
           "type": "string",
           "format": "dateTime",
-          "description": "Date and time of job submission"
+          "description": "Date and time of job submission in ISO 8601 format"
         },
         "last_update": {
           "type": "string",
           "format": "dateTime",
-          "description": "Date and time of last status change"
+          "description": "Date and time of last status change in ISO 8601 format"
         },
         "user_id": {
           "type": "string",
@@ -396,8 +396,8 @@
             }
           ]
         },
-        "submitted": "2017-01-01 09:32:12",
-        "last_update": "2017-01-01 09:36:18",
+        "submitted": "2017-01-01T09:32:12Z",
+        "last_update": "2017-01-01T09:36:18Z",
         "consumed_credits": "392"
       }
     },
@@ -774,10 +774,12 @@
                   "type": "object",
                   "properties": {
                     "from": {
+                      "description": "Date/time in ISO 8601 format",
                       "type": "string",
                       "format": "date-time"
                     },
                     "to": {
+                      "description": "Date/time in ISO 8601 format",
                       "type": "string",
                       "format": "date-time"
                     }
@@ -1142,7 +1144,7 @@
           {
             "name": "format",
             "in": "query",
-            "description": "Description of the desired output format",
+            "description": "Description of the desired output format. Required in case `evaluate` is set to `sync`. If not specified the format has to be specified in the download request.",
             "type": "string",
             "enum": [
               "nc",
@@ -1150,7 +1152,9 @@
               "wcs",
               "wmts",
               "tms",
-              "tif"
+              "tif",
+              "png",
+              "jpeg"
             ],
             "required": false
           }
@@ -1163,6 +1167,9 @@
                 "job_id": "42d5k3nd92mk49dmj294md"
               }
             }
+          },
+          "406": {
+            "description": "The server is not capable to deliver the requested format."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1251,7 +1258,7 @@
                     }
                   }
                 },
-                "submitted": "2017-01-01 09:32:12",
+                "submitted": "2017-01-01T09:32:12Z",
                 "user_id": "ab32e5f3a2bc2847s2"
               }
             }
@@ -1401,53 +1408,32 @@
         }
       }
     },
-    "/download/wcs/{job_id}": {
+    "/download/{format}/{job_id}": {
       "get": {
-        "summary": "WCS compliant endpoint to download job results",
-        "description": "This request will ask the back-end to fetch job result data as a WCS service.",
+        "summary": "Endpoint to download job results in the specified format.",
+        "description": "This request will ask the back-end to fetch job result data in the specified format.  Input arguments depend on the format requested, e.g., for a WMTS service it takes zoom level, tile indexes, visuallization parameters, and time if needed.",
         "tags": [
           "Data Download"
         ],
         "produces": [],
         "parameters": [
           {
-            "name": "job_id",
+            "name": "format",
             "in": "path",
             "type": "string",
-            "description": "job identifier string",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A valid WCS response"
+            "description": "string specifying the data format to deliver",
+            "required": true,
+            "enum": [
+              "nc",
+              "json",
+              "wcs",
+              "wmts",
+              "tms",
+              "tif",
+              "png",
+              "jpeg"
+            ]
           },
-          "401": {
-            "$ref": "#/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/responses/access_denied"
-          },
-          "404": {
-            "description": "Job with specified identifier is not available"
-          },
-          "501": {
-            "$ref": "#/responses/not_implemented"
-          },
-          "503": {
-            "$ref": "#/responses/unavailable"
-          }
-        }
-      }
-    },
-    "/download/wmts/{job_id}": {
-      "get": {
-        "summary": "WMTS compliant endpoint to download job results",
-        "description": "This request will ask the back-end to fetch job result data as a WMTS service that takes zoom level, tile indexes, visuallization parameters, and time if needed as input arguments.",
-        "tags": [
-          "Data Download"
-        ],
-        "parameters": [
           {
             "name": "job_id",
             "in": "path",
@@ -1458,7 +1444,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A valid WMTS response"
+            "description": "A valid response"
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1467,7 +1453,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "Job with specified identifier is not available."
+          },
+          "406": {
+            "description": "The server is not capable to deliver the requested format."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1513,17 +1502,17 @@
                 {
                   "name": "test.txt",
                   "size": 182,
-                  "modified": "2015-10-20 17:22:10"
+                  "modified": "2015-10-20T17:22:10Z"
                 },
                 {
                   "name": "test.tif",
                   "size": 183142,
-                  "modified": "2017-01-01 09:36:18"
+                  "modified": "2017-01-01T09:36:18Z"
                 },
                 {
                   "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
                   "size": 4183353142,
-                  "modified": "2018-01-03 10:55:29"
+                  "modified": "2018-01-03T10:55:29Z"
                 }
               ]
             }
