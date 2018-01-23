@@ -23,9 +23,19 @@ Alternatively, you may import the URL `https://raw.githubusercontent.com/Open-EO
 **NodeJS**
 
 ```
-git clone https://github.com/appelmar/openeo-api-poc && cd openeo-api-poc
+git clone https://github.com/Open-EO/openeo-api-poc.git && cd openeo-api-poc
 docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate -i https://raw.githubusercontent.com/Open-EO/openeo-api-poc/master/swagger.json -l nodejs-server -o /local/
 npm start
+```
+
+**JAVA JAXRS**
+
+```
+git clone https://github.com/swagger-api/swagger-codegen.git && cd swagger-codegen
+mvn clean package
+cd ..
+git clone https://github.com/Open-EO/openeo-api-poc.git && cd openeo-api-poc
+java -jar ./swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i ./openeo-api-poc/swagger.json -l jaxrs -o ./openEO_swagger/java -c ./openeo-api-poc/java_conf.json
 ```
 
 
