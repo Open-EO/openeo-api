@@ -11,7 +11,7 @@ You can use [swagger-ui](https://github.com/swagger-api/swagger-ui) and [swagger
 inspect and edit the API specification. Using Docker, the following commands will run swagger-ui on localhost at port 80. 
 
 ```
-git clone https://github.com/appelmar/openeo-api-poc && cd openeo-api-poc
+git clone https://github.com/Open-EO/openeo-api-poc.git && cd openeo-api-poc
 docker run -p 80:8080 -e SWAGGER_JSON=/api/swagger.json -v $PWD:/api swaggerapi/swagger-ui
 # -> open browser at http://localhost
 ```
