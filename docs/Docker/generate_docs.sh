@@ -2,6 +2,7 @@
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 BRANCH=${TRAVIS_BRANCH:-master}
+echo -e "Generating documentation for branch ${BRANCH}"
 
 cd /opt/spectacle
 curl https://raw.githubusercontent.com/Open-EO/openeo-api-poc/$BRANCH/swagger.json -O
