@@ -20,15 +20,16 @@ install:
 script:
 - rm -rf site
 - docker run -v $PWD:/shared openeo/apidocs
-- cd site
 - eval "$(ssh-agent -s)"
 - ssh-add $TRAVIS_BUILD_DIR/deploy_key
-- git init
+- git clone --branch gh-pages https://github.com/Open-EO/openeo-api-poc /tmp/gh-pages
+- if [ $TRAVIS_BRANCH == master ] ; then rm -rf /tmp/gh-pages/* ; else ; rm -rf /tmp/gh-pages/${TRAVIS_BRANCH} ; fi
+- if [ $TRAVIS_BRANCH == master ] ; then cp -R site /tmp/gh-pages ; else ; cp -R site /tmp/gh-pages/${TRAVIS_BRANCH} ; fi
 - git config user.name "Travis CI Documentation Builder"
 - git config user.email "marius.appel@uni-muenster.de"
-- git add .
+- cd /tmp/gh-pages && git add .
 - git commit -m "Automated documentation build[ci skip]"
-- git push --force "${GH_REF}" master:gh-pages
+- git push --force "${GH_REF}" gh-pages:gh-pages
 
 
 
