@@ -35,7 +35,7 @@ git clone https://github.com/swagger-api/swagger-codegen.git && cd swagger-codeg
 mvn clean package
 cd ..
 git clone https://github.com/Open-EO/openeo-api-poc.git && cd openeo-api-poc
-java -jar ./swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i ./openeo-api-poc/swagger.json -l jaxrs -o ./openEO_swagger/java -c ./openeo-api-poc/java_conf.json
+java -jar ./swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i ./openeo-api-poc/swagger.json -l jaxrs -o ./openEO_swagger/java -c ./openeo-api-poc/java_jaxrs_generator.conf
 ```
 
 
