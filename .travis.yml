@@ -23,8 +23,8 @@ script:
 - eval "$(ssh-agent -s)"
 - ssh-add $TRAVIS_BUILD_DIR/deploy_key
 - git clone --branch gh-pages https://github.com/Open-EO/openeo-api-poc /tmp/gh-pages
-- if [ $TRAVIS_BRANCH == "master" ] ; then rm -rf /tmp/gh-pages/* ; else  rm -rf /tmp/gh-pages/$TRAVIS_BRANCH ; fi
-- if [ $TRAVIS_BRANCH == "master" ] ; then cp -R site/* /tmp/gh-pages/ ; else  mkdir /tmp/gh-pages/$TRAVIS_BRANCH/ && cp -R site/* /tmp/gh-pages/$TRAVIS_BRANCH/ ; fi
+- rm -rf /tmp/gh-pages/$TRAVIS_BRANCH
+- mkdir /tmp/gh-pages/$TRAVIS_BRANCH/ && cp -R site/* /tmp/gh-pages/$TRAVIS_BRANCH/ 
 - git config user.name "Travis CI Documentation Builder"
 - git config user.email "marius.appel@uni-muenster.de"
 - cd /tmp/gh-pages && git add .
