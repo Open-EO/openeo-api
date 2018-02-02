@@ -43,8 +43,12 @@
       "description": "Discovery of processes that are available at the back-end"
     },
     {
-      "name": "UDF",
-      "description": "Interfacing end executing user-defined functions at the back-end."
+      "name": "Service Discovery",
+      "description": "Discovery of service types that are available at the back-end"
+    },
+    {
+      "name": "UDF Runtime Discovery",
+      "description": "Discovery of programming languages and their runtime environments to execute user-defined functions at the back-end."
     },
     {
       "name": "User Content",
@@ -55,12 +59,16 @@
       "description": "Authentication of users"
     },
     {
-      "name": "Execution",
-      "description": "Services to run computations at back-ends"
+      "name": "Job Management",
+      "description": "Services to manage jobs and their computations"
     },
     {
       "name": "Result Access",
       "description": "Services to access processing results"
+    },
+    {
+      "name": "Services",
+      "description": "Services working with result access services"
     }
   ],
   "responses": {
@@ -619,9 +627,9 @@
         }
       }
     },
-    "/auth/login": {
+    "/users/login": {
       "get": {
-        "summary": "Check whether a user is registered at the back-end.",
+        "summary": "Check whether the user is registered with the specified credentials at the back-end.",
         "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`.",
         "tags": [
           "Authentication"
@@ -1312,7 +1320,8 @@
         "summary": "Execute a process graph synchronously",
         "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. The process graph must be specified either directy in the request body or by its URI as query parameter",
         "tags": [
-          "Execution"
+          "Result Access",
+          "Job Management"
         ],
         "produces": [],
         "parameters": [
@@ -1365,42 +1374,45 @@
     "/services": {
       "post": {
         "summary": "Publish an interactive web service to access result data and run computations on request",
-        "description": "Calling this endpoint will enable to access results of processing graphs as a web service such as WMTS TMS or WCS. Whre possible, this should result in lazy evaluaiton in the sense that the graph is only evaluated for the requested spatial / temporal extent and resolution.",
+        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the  specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
         "tags": [
-          "Execution",
-          "Result Access"
+          "Services",
+          "Job Management"
         ],
         "produces": [
           "application/json"
         ],
+        "consumes": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "name": "process_graph",
             "in": "body",
-            "description": "Description of one or more (chained) processes including their input arguments",
+            "name": "service",
+            "description": "The base data for the service to create",
             "schema": {
-              "$ref": "#/definitions/process_graph"
+              "type": "object",
+              "required": [
+                "job_id",
+                "type"
+              ],
+              "properties": {
+                "job_id": {
+                  "type": "string",
+                  "description": "Job identifier string",
+                  "example": "42d5k3nd92mk49dmj294md"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Definintion of one of the possible web services to access result data",
+                  "example": "wms"
+                },
+                "args": {
+                  "type": "object",
+                  "description": "Definintion of additional arguments a web services might need to be created"
+                }
+              }
             }
-          },
-          {
-            "name": "graph",
-            "in": "query",
-            "type": "string",
-            "description": "URI of the process graph",
-            "required": false
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "description": "Definintion of possible web services to access result data",
-            "type": "string",
-            "enum": [
-              "wms",
-              "tms",
-              "wmts",
-              "wcs"
-            ],
-            "required": true
           }
         ],
         "responses": {
@@ -1434,12 +1446,44 @@
         }
       }
     },
+    "/services/types": {
+      "get": {
+        "summary": "Returns service types supported by the back-end",
+        "description": "The request will ask the back-end for supported service types, e.g. wms, tms, wmts or wcs. The response is an array of available services.",
+        "tags": [
+          "Services",
+          "Service Discovery"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of implemented API endpoints",
+            "schema": {
+              "example": [
+                "tms",
+                "wcs",
+                "wms",
+                "wmts"
+              ]
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
     "/services/{service_id}": {
       "get": {
         "summary": "Get service information by id",
         "description": "Requests to this endpoint will return JSON description of the service.",
         "tags": [
-          "Execution",
+          "Services",
           "Result Access"
         ],
         "produces": [
@@ -1482,7 +1526,7 @@
         "summary": "Stop a given service by id",
         "description": "Calling this endpoint will stop a given web service to access result data.",
         "tags": [
-          "Execution"
+          "Services"
         ],
         "parameters": [
           {
@@ -1518,9 +1562,9 @@
     "/jobs": {
       "post": {
         "summary": "submits a new job to the back-end",
-        "description": "creates a new job from one or more (chained) processes at the back-end, which will eventually run the computations",
+        "description": "creates a new job from one or more (chained) processes at the back-end. Jobs are initially always lazy jobs and will not run the computations until on demand  requests or separately queueing it. Queueing it converts a lazy job to a batch job.",
         "tags": [
-          "Execution"
+          "Job Management"
         ],
         "parameters": [
           {
@@ -1541,7 +1585,7 @@
           {
             "name": "format",
             "in": "query",
-            "description": "Description of the desired output format. Required in case `evaluate` is set to `sync`. If not specified the format has to be specified in the download request.",
+            "description": "Description of the desired output format. If not specified the format has to be specified in the download request.",
             "type": "string",
             "enum": [
               "nc",
@@ -1555,7 +1599,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Depending on the job evaluation type, the result of posting jobs can be either a json description of the job (for lazy and batch jobs) or a result object such as a NetCDF file (for sync jobs).",
+            "description": "The result of posting jobs is a json description of the job, including the `job_id`.",
             "examples": {
               "application/json": {
                 "job_id": "42d5k3nd92mk49dmj294md"
@@ -1577,9 +1621,9 @@
     "/jobs/{job_id}": {
       "get": {
         "summary": "Returns information about a submitted job",
-        "description": "Returns detailed information about a submitted job including its current status and the underlying task",
+        "description": "Returns detailed information about a submitted job including its current status and the underlying process graph",
         "tags": [
-          "Execution"
+          "Job Management"
         ],
         "parameters": [
           {
@@ -1613,66 +1657,6 @@
             "$ref": "#/responses/unavailable"
           }
         }
-      },
-      "delete": {
-        "summary": "Deletes a submitted job",
-        "description": "Deleting a job  will cancel execution at the back-end regardless of its status. For finished jobs, this will also delete resulting data.",
-        "tags": [
-          "Execution"
-        ],
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "JSON object with job information.",
-            "examples": {
-              "application/json": {
-                "job_id": "42d5k3nd92mk49dmj294md",
-                "status": "scheduled",
-                "process_graph": {
-                  "process_id": "slope",
-                  "args": {
-                    "dem": {
-                      "process_id": "filter_bbox",
-                      "args": {
-                        "imagery": "/data/srtm90m",
-                        "srs": "EPSG:4326",
-                        "left": 6.301,
-                        "right": 7.232,
-                        "top": 53.87,
-                        "bottom": 50.223
-                      }
-                    }
-                  }
-                },
-                "submitted": "2017-01-01T09:32:12Z",
-                "user_id": "ab32e5f3a2bc2847s2"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/responses/access_denied"
-          },
-          "404": {
-            "description": "Job with specified identifier is not available"
-          },
-          "501": {
-            "$ref": "#/responses/not_implemented"
-          },
-          "503": {
-            "$ref": "#/responses/unavailable"
-          }
-        }
       }
     },
     "/jobs/{job_id}/subscribe": {
@@ -1683,7 +1667,7 @@
           "wss"
         ],
         "tags": [
-          "Execution"
+          "Job Management"
         ],
         "produces": [],
         "parameters": [
@@ -1764,12 +1748,12 @@
         }
       }
     },
-    "/jobs/{job_id}/cancel": {
+    "/jobs/{job_id}/queue": {
       "get": {
-        "summary": "Cancels any back-end computations of a job",
-        "description": "This request cancels all related computations at the back-end. It will stop generating additional costs for processing. Results of batch jobs might still be accessible whereas lazy jobs will generally not respond to s following download calls.  ",
+        "summary": "Running a job in batch mode.",
+        "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
         "tags": [
-          "Execution"
+          "Job Management"
         ],
         "parameters": [
           {
@@ -1782,7 +1766,89 @@
         ],
         "responses": {
           "200": {
-            "description": "The job has been successfully canceled."
+            "description": "The job has been successfully queued."
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "Job with specified identifier is not available"
+          },
+          "410": {
+            "description": "Job with specified identifier can't be resumed"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/pause": {
+      "get": {
+        "summary": "Pausing a batch job.",
+        "description": "This request pauses a batch job. Execution is stopped, but might be resumed later by queueing it again. Intermediate results are stored for resuming. This job won't generate additional costs for processing.",
+        "tags": [
+          "Job Management"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "type": "string",
+            "description": "job identifier string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully queued."
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "Job with specified identifier is not available"
+          },
+          "428": {
+            "description": "Job with specified identifier is queued or is not running"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/cancel": {
+      "get": {
+        "summary": "Cancels any back-end computations of a job",
+        "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing. Results of batch jobs might be discarded and deleted by the back-end.",
+        "tags": [
+          "Job Management"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "type": "string",
+            "description": "job identifier string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully canceled"
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1840,6 +1906,9 @@
           },
           "404": {
             "description": "Job with specified identifier is not available"
+          },
+          "410": {
+            "description": "Job with specified identifier has been canceled"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -2070,7 +2139,7 @@
         "summary": "List all jobs that have been submitted by the user",
         "description": "Requests to this service will list all jobs submitted by a user with given id.",
         "tags": [
-          "Execution",
+          "Job Management",
           "User Content"
         ],
         "parameters": [
@@ -2112,9 +2181,8 @@
         "summary": "List all running services that have been submitted by the user",
         "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
         "tags": [
-          "Execution",
-          "User Content",
-          "Result Access"
+          "Services",
+          "User Content"
         ],
         "parameters": [
           {
@@ -2194,15 +2262,15 @@
         }
       }
     },
-    "/udf": {
+    "/udf_runtimes": {
       "get": {
-        "summary": "Describes how custom user-defined functions can be exposed to the data and which languages are supported by the back-end.",
+        "summary": "Describes how custom user-defined functions can be exposed to the data and which programming languages and environments are supported by the back-end.",
         "tags": [
-          "UDF"
+          "UDF Runtime Discovery"
         ],
         "responses": {
           "200": {
-            "description": "Description of UDF support",
+            "description": "Description of UDF runtime support",
             "schema": {
               "type": "array",
               "items": {
@@ -2279,11 +2347,11 @@
         }
       }
     },
-    "/udf/{lang}/{udf_type}": {
+    "/udf_runtimes/{lang}/{udf_type}": {
       "get": {
         "summary": "Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data.",
         "tags": [
-          "UDF"
+          "UDF Runtime Discovery"
         ],
         "parameters": [
           {
