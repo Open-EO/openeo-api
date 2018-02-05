@@ -98,6 +98,9 @@
     "method_not_allowed": {
       "description": "The requested HTTP method is not supported or allowed to be requested."
     },
+    "format_not_supported": {
+      "description": "The server is not capable to deliver the requested format."
+    },
     "cors_options": {
       "description": "Gives internet browsers the permission to access the requested resource.",
       "headers": {
@@ -168,6 +171,20 @@
       "type": "string",
       "description": "Path relative to the user's root directory, must be URL encoded",
       "required": true
+    },
+    "output_format": {
+      "name": "format",
+      "in": "query",
+      "description": "Description of the desired output format. If not specified the back-end uses the format specified in a prior `/jobs/{job_id}/queue` call (if applicable) or uses its default file format. The mentioned list of formats in this API is non-exclusive.",
+      "type": "string",
+      "enum": [
+        "nc",
+        "json",
+        "tif",
+        "png",
+        "jpeg"
+      ],
+      "required": false
     }
   },
   "definitions": {
@@ -1761,21 +1778,7 @@
             "required": false
           },
           {
-            "name": "format",
-            "in": "query",
-            "description": "Description of the desired output format. Required in case `evaluate` is set to `sync`. If not specified the format has to be specified in the download request.",
-            "type": "string",
-            "enum": [
-              "nc",
-              "json",
-              "wcs",
-              "wmts",
-              "tms",
-              "tif",
-              "png",
-              "jpeg"
-            ],
-            "required": true
+            "$ref": "#/parameters/output_format"
           }
         ],
         "responses": {
@@ -1799,6 +1802,9 @@
           },
           "403": {
             "$ref": "#/responses/access_denied"
+          },
+          "406": {
+            "$ref": "#/responses/format_not_supported"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -2142,20 +2148,6 @@
             "type": "string",
             "description": "URI of the process graph",
             "required": false
-          },
-          {
-            "name": "format",
-            "in": "query",
-            "description": "Description of the desired output format. If not specified the format has to be specified in the download request.",
-            "type": "string",
-            "enum": [
-              "nc",
-              "json",
-              "tif",
-              "png",
-              "jpeg"
-            ],
-            "required": false
           }
         ],
         "responses": {
@@ -2184,9 +2176,6 @@
           },
           "403": {
             "$ref": "#/responses/access_denied"
-          },
-          "406": {
-            "description": "The server is not capable to deliver the requested format."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -2377,6 +2366,9 @@
       "parameters": [
         {
           "$ref": "#/parameters/job_id"
+        },
+        {
+          "$ref": "#/parameters/output_format"
         }
       ],
       "options": {
@@ -2390,6 +2382,9 @@
           },
           "405": {
             "$ref": "#/responses/method_not_allowed"
+          },
+          "406": {
+            "$ref": "#/responses/format_not_supported"
           }
         }
       },
@@ -2579,6 +2574,9 @@
       "parameters": [
         {
           "$ref": "#/parameters/job_id"
+        },
+        {
+          "$ref": "#/parameters/output_format"
         }
       ],
       "options": {
@@ -2592,6 +2590,9 @@
           },
           "405": {
             "$ref": "#/responses/method_not_allowed"
+          },
+          "406": {
+            "$ref": "#/responses/format_not_supported"
           }
         }
       },
