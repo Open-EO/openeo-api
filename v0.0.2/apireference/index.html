@@ -59,13 +59,21 @@
             </ul>
           </section>
           <section>
-            <a href="#tag-UDF">UDF</a>
+            <a href="#tag-Service-Discovery">Service Discovery</a>
             <ul>
               <li>
-                <a href="#operation--udf-get"> Describes how custom user-defined functions can be exposed to the data and which languages are supported by the back-end. </a>
+                <a href="#operation--services-types-get"> Returns service types supported by the back-end </a>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <a href="#tag-UDF-Runtime-Discovery">UDF Runtime Discovery</a>
+            <ul>
+              <li>
+                <a href="#operation--udf_runtimes-get"> Describes how custom user-defined functions can be exposed to the data and which programming languages and environments are supported by the back-end. </a>
               </li>
               <li>
-                <a href="#operation--udf--lang---udf_type--get"> Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data. </a>
+                <a href="#operation--udf_runtimes--lang---udf_type--get"> Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data. </a>
               </li>
             </ul>
           </section>
@@ -108,12 +116,12 @@
             <a href="#tag-Authentication">Authentication</a>
             <ul>
               <li>
-                <a href="#operation--auth-login-get"> Check whether a user is registered at the back-end. </a>
+                <a href="#operation--auth-verify-get"> Check whether the user is registered with the specified credentials at the back-end. </a>
               </li>
             </ul>
           </section>
           <section>
-            <a href="#tag-Execution">Execution</a>
+            <a href="#tag-Job-Management">Job Management</a>
             <ul>
               <li>
                 <a href="#operation--execute-post"> Execute a process graph synchronously </a>
@@ -122,22 +130,19 @@
                 <a href="#operation--services-post"> Publish an interactive web service to access result data and run computations on request </a>
               </li>
               <li>
-                <a href="#operation--services--service_id--get"> Get service information by id </a>
-              </li>
-              <li>
-                <a href="#operation--services--service_id--delete"> Stop a given service by id </a>
-              </li>
-              <li>
                 <a href="#operation--jobs-post"> submits a new job to the back-end </a>
               </li>
               <li>
                 <a href="#operation--jobs--job_id--get"> Returns information about a submitted job </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--delete"> Deletes a submitted job </a>
+                <a href="#operation--jobs--job_id--subscribe-get"> Subscribes to job execution updates that are communicated over WebSockets </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--subscribe-get"> Subscribes to job execution updates that are communicated over WebSockets </a>
+                <a href="#operation--jobs--job_id--queue-get"> Running a job in batch mode. </a>
+              </li>
+              <li>
+                <a href="#operation--jobs--job_id--pause-get"> Pausing a batch job. </a>
               </li>
               <li>
                 <a href="#operation--jobs--job_id--cancel-get"> Cancels any back-end computations of a job </a>
@@ -145,22 +150,36 @@
               <li>
                 <a href="#operation--users--user_id--jobs-get"> List all jobs that have been submitted by the user </a>
               </li>
-              <li>
-                <a href="#operation--users--user_id--services-get"> List all running services that have been submitted by the user </a>
-              </li>
             </ul>
           </section>
           <section>
             <a href="#tag-Result-Access">Result Access</a>
             <ul>
               <li>
-                <a href="#operation--services-post"> Publish an interactive web service to access result data and run computations on request </a>
+                <a href="#operation--execute-post"> Execute a process graph synchronously </a>
               </li>
               <li>
                 <a href="#operation--services--service_id--get"> Get service information by id </a>
               </li>
               <li>
                 <a href="#operation--jobs--job_id--download-get"> Request download links for results of batch jobs either as simple JSON array of URLs or as metalink XML document. </a>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <a href="#tag-Services">Services</a>
+            <ul>
+              <li>
+                <a href="#operation--services-post"> Publish an interactive web service to access result data and run computations on request </a>
+              </li>
+              <li>
+                <a href="#operation--services-types-get"> Returns service types supported by the back-end </a>
+              </li>
+              <li>
+                <a href="#operation--services--service_id--get"> Get service information by id </a>
+              </li>
+              <li>
+                <a href="#operation--services--service_id--delete"> Stop a given service by id </a>
               </li>
               <li>
                 <a href="#operation--users--user_id--services-get"> List all running services that have been submitted by the user </a>
@@ -1027,29 +1046,38 @@
               </div>
             </div>
           </div>
-          <h1 id="tag-UDF" class="swagger-summary-tag" data-traverse-target="tag-UDF">UDF</h1>
+          <h1 id="tag-Service-Discovery" class="swagger-summary-tag" data-traverse-target="tag-Service-Discovery">Service Discovery</h1>
           <div class="tag-description doc-row">
             <div class="doc-copy">
-              <p>Interfacing end executing user-defined functions at the back-end.</p>
+              <p>Discovery of service types that are available at the back-end</p>
             </div>
           </div>
-          <div id="operation--udf-get" class="operation panel" data-traverse-target="operation--udf-get">
+          <div id="operation--services-types-get" class="operation panel" data-traverse-target="operation--services-types-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-UDF">UDF</a>
+              <a class="label" href="#tag-Services">Services</a>
+              <!--, -->
+              <a class="label" href="#tag-Service-Discovery">Service Discovery</a>
               <!---->
             </div>
             <!-- </div> -->
             <!-- </section> -->
             <h2 class="operation-title">
-              <span class="operation-summary">Describes how custom user-defined functions can be exposed to the data and which languages are supported by the back-end.</span>
+              <span class="operation-summary">Returns service types supported by the back-end</span>
             </h2>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/udf</span>
+                  <span class="operation-path">/services/types</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>The request will ask the back-end for supported service types, e.g. wms, tms, wmts or wcs. The response is an array of available services.</p>
                 </section>
               </div>
             </div>
@@ -1067,7 +1095,87 @@
                       <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
                     </div>
                     <div class="prop-value">
-                      <p>Description of UDF support</p>
+                      <p>An array of implemented API endpoints</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">[
+  <span class="hljs-string">&quot;tms&quot;</span>,
+  <span class="hljs-string">&quot;wcs&quot;</span>,
+  <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-string">&quot;wmts&quot;</span>
+]
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+          </div>
+          <h1 id="tag-UDF-Runtime-Discovery" class="swagger-summary-tag" data-traverse-target="tag-UDF-Runtime-Discovery">UDF Runtime Discovery</h1>
+          <div class="tag-description doc-row">
+            <div class="doc-copy">
+              <p>Discovery of programming languages and their runtime environments to execute user-defined functions at the back-end.</p>
+            </div>
+          </div>
+          <div id="operation--udf_runtimes-get" class="operation panel" data-traverse-target="operation--udf_runtimes-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-UDF-Runtime-Discovery">UDF Runtime Discovery</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Describes how custom user-defined functions can be exposed to the data and which programming languages and environments are supported by the back-end.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/udf_runtimes</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>Description of UDF runtime support</p>
                     </div>
                   </div>
                   <div class="prop-row prop-inner">
@@ -1117,11 +1225,11 @@
               </div>
             </div>
           </div>
-          <div id="operation--udf--lang---udf_type--get" class="operation panel" data-traverse-target="operation--udf--lang---udf_type--get">
+          <div id="operation--udf_runtimes--lang---udf_type--get" class="operation panel" data-traverse-target="operation--udf_runtimes--lang---udf_type--get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-UDF">UDF</a>
+              <a class="label" href="#tag-UDF-Runtime-Discovery">UDF Runtime Discovery</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -1133,7 +1241,7 @@
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/udf/{lang}/{udf_type}</span>
+                  <span class="operation-path">/udf_runtimes/{lang}/{udf_type}</span>
                 </section>
               </div>
             </div>
@@ -2151,7 +2259,7 @@
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!--, -->
               <a class="label" href="#tag-User-Content">User Content</a>
               <!---->
@@ -2303,11 +2411,9 @@
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Services">Services</a>
               <!--, -->
               <a class="label" href="#tag-User-Content">User Content</a>
-              <!--, -->
-              <a class="label" href="#tag-Result-Access">Result Access</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -2579,7 +2685,7 @@
               <p>Authentication of users</p>
             </div>
           </div>
-          <div id="operation--auth-login-get" class="operation panel" data-traverse-target="operation--auth-login-get">
+          <div id="operation--auth-verify-get" class="operation panel" data-traverse-target="operation--auth-verify-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -2589,13 +2695,13 @@
             <!-- </div> -->
             <!-- </section> -->
             <h2 class="operation-title">
-              <span class="operation-summary">Check whether a user is registered at the back-end.</span>
+              <span class="operation-summary">Check whether the user is registered with the specified credentials at the back-end.</span>
             </h2>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/auth/login</span>
+                  <span class="operation-path">/auth/verify</span>
                 </section>
               </div>
             </div>
@@ -2655,17 +2761,19 @@
               </div>
             </div>
           </div>
-          <h1 id="tag-Execution" class="swagger-summary-tag" data-traverse-target="tag-Execution">Execution</h1>
+          <h1 id="tag-Job-Management" class="swagger-summary-tag" data-traverse-target="tag-Job-Management">Job Management</h1>
           <div class="tag-description doc-row">
             <div class="doc-copy">
-              <p>Services to run computations at back-ends</p>
+              <p>Services to manage jobs and their computations</p>
             </div>
           </div>
           <div id="operation--execute-post" class="operation panel" data-traverse-target="operation--execute-post">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Result-Access">Result Access</a>
+              <!--, -->
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -2808,9 +2916,9 @@
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Services">Services</a>
               <!--, -->
-              <a class="label" href="#tag-Result-Access">Result Access</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -2829,88 +2937,56 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>Calling this endpoint will enable to access results of processing graphs as a web service such as WMTS TMS or WCS. Whre possible, this should result in lazy evaluaiton in the sense that the graph is only evaluated for the requested spatial / temporal extent and resolution.</p>
+                  <p>Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.</p>
                 </section>
               </div>
             </div>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <div class="prop-row">
-                    <div class="prop-name">
-                      <div class="swagger-request-model">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="prop-value columns small-6">
-                      <!-- <div class="swagger-request-description"> -->
-                      <p>Description of one or more (chained) processes including their input arguments</p>
-                      <!-- </div> -->
-                    </div>
-                  </div>
-                </section>
-                <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">graph</div>
-                      <div class="prop-subtitle"> in query </div>
-                      <div class="prop-subtitle">
+                  <p>The base data for the service to create</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="job_id" class="has-description">
+                        <span class="json-property-name">job_id:</span>
                         <span class="json-property-type">string</span>
                         <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>URI of the process graph</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">type</div>
-                      <span class="json-property-required"></span>
-                      <div class="prop-subtitle"> in query </div>
-                      <div class="prop-subtitle">
+                        <span class="json-property-required"></span>
+                      </dt>
+                      <dd>
+                        <p>Job identifier string</p>
+                      </dd>
+                      <dt data-property-name="type" class="has-description">
+                        <span class="json-property-name">type:</span>
                         <span class="json-property-type">string</span>
-                        <span class="json-property-enum" title="Possible values">
-                          <span class="json-property-enum-item">wms</span>,
-                          <span class="json-property-enum-item">tms</span>,
-                          <span class="json-property-enum-item">wmts</span>,
-                          <span class="json-property-enum-item">wcs</span>
-                        </span>
                         <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>Definintion of possible web services to access result data</p>
-                    </div>
-                  </div>
+                        <span class="json-property-required"></span>
+                      </dt>
+                      <dd>
+                        <p>Definintion of one of the possible web services to access result data</p>
+                      </dd>
+                      <dt data-property-name="args" class="has-description">
+                        <span class="json-property-name">args:</span>
+                        <span class="json-property-type">object</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dd>
+                        <p>Definintion of additional arguments a web services might need to be created</p>
+                      </dd>
+                    </dl>
+                  </section>
                 </section>
               </div>
               <div class="doc-examples">
                 <section>
+                  <h5>Request Content-Types:
+                    <span>application/json</span>
+                  </h5>
                   <h5>Request Example</h5>
                   <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
-  <span class="hljs-attr">&quot;args&quot;</span>: {
-    <span class="hljs-attr">&quot;imagery&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: {
-        <span class="hljs-attr">&quot;imagery&quot;</span>: {
-          <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-          <span class="hljs-attr">&quot;args&quot;</span>: {
-            <span class="hljs-attr">&quot;imagery&quot;</span>: {
-              <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-            }
-          },
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      },
-      <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
-      <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
-    }
-  }
+  <span class="hljs-attr">&quot;job_id&quot;</span>: <span class="hljs-string">&quot;42d5k3nd92mk49dmj294md&quot;</span>,
+  <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-attr">&quot;args&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>
 }
 </code></pre>
                   <!-- </div> -->
@@ -2973,246 +3049,11 @@
               </div>
             </div>
           </div>
-          <div id="operation--services--service_id--get" class="operation panel" data-traverse-target="operation--services--service_id--get">
-            <!-- <section class="operation-tags row"> -->
-            <!-- <div class="doc-copy"> -->
-            <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
-              <!--, -->
-              <a class="label" href="#tag-Result-Access">Result Access</a>
-              <!---->
-            </div>
-            <!-- </div> -->
-            <!-- </section> -->
-            <h2 class="operation-title">
-              <span class="operation-summary">Get service information by id</span>
-            </h2>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
-                  <span class="operation-path">/services/{service_id}</span>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-description">
-                  <p>Requests to this endpoint will return JSON description of the service.</p>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">service_id</div>
-                      <span class="json-property-required"></span>
-                      <div class="prop-subtitle"> in path </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>service identifier`</p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"></div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-responses">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">200 OK</div>
-                      <div class="prop-ref">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/service">service</a>
-                        </span>
-                      </div>
-                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
-                    </div>
-                    <div class="prop-value">
-                      <p>Details of the created service</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">404 Not Found</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>Service with given id is not available</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">501 Not Implemented</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">503 Service Unavailable</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples">
-                <h5>Response Content-Types:
-                  <span>application/json</span>
-                </h5>
-                <section>
-                  <h5>Response Example
-                    <span>(200 OK)</span>
-                  </h5>
-                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;service_id&quot;</span>: <span class="hljs-string">&quot;91f3caa3b5281a&quot;</span>,
-  <span class="hljs-attr">&quot;user_id&quot;</span>: <span class="hljs-string">&quot;bd6f9faf93b4&quot;</span>,
-  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
-    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-    <span class="hljs-attr">&quot;args&quot;</span>: [
-      {
-        <span class="hljs-attr">&quot;A&quot;</span>: {
-          <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-        }
-      },
-      {
-        <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>
-      },
-      {
-        <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-      }
-    ]
-  },
-  <span class="hljs-attr">&quot;service_type&quot;</span>: <span class="hljs-string">&quot;wms&quot;</span>,
-  <span class="hljs-attr">&quot;submitted&quot;</span>: <span class="hljs-string">&quot;2018-01-01T09:32:12Z&quot;</span>,
-  <span class="hljs-attr">&quot;service_url&quot;</span>: <span class="hljs-string">&quot;https://openeo.org/wms/91f3caa3b5281a&quot;</span>,
-  <span class="hljs-attr">&quot;consumed_credits&quot;</span>: <span class="hljs-string">&quot;392&quot;</span>
-}
-</code></pre>
-                  <!-- </div> -->
-                </section>
-              </div>
-            </div>
-          </div>
-          <div id="operation--services--service_id--delete" class="operation panel" data-traverse-target="operation--services--service_id--delete">
-            <!-- <section class="operation-tags row"> -->
-            <!-- <div class="doc-copy"> -->
-            <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
-              <!---->
-            </div>
-            <!-- </div> -->
-            <!-- </section> -->
-            <h2 class="operation-title">
-              <span class="operation-summary">Stop a given service by id</span>
-            </h2>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-path">
-                  <span class="operation-method">DELETE</span>
-                  <span class="operation-path">/services/{service_id}</span>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-description">
-                  <p>Calling this endpoint will stop a given web service to access result data.</p>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">service_id</div>
-                      <span class="json-property-required"></span>
-                      <div class="prop-subtitle"> in path </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>service identifier`</p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"></div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-responses">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">200 OK</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>The service has been successfully deleted.</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">404 Not Found</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>Service with given id is not available</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">501 Not Implemented</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">503 Service Unavailable</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"> </div>
-            </div>
-          </div>
           <div id="operation--jobs-post" class="operation panel" data-traverse-target="operation--jobs-post">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -3231,7 +3072,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>creates a new job from one or more (chained) processes at the back-end, which will eventually run the computations</p>
+                  <p>creates a new job from one or more (chained) processes at the back-end. Jobs are initially always lazy jobs and will not run the computations until on demand requests or separately queueing it. Queueing it converts a lazy job to a batch job.</p>
                 </section>
               </div>
             </div>
@@ -3284,7 +3125,7 @@
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>Description of the desired output format. Required in case <code>evaluate</code> is set to <code>sync</code>. If not specified the format has to be specified in the download request.</p>
+                      <p>Description of the desired output format. If not specified the format has to be specified in the download request.</p>
                     </div>
                   </div>
                 </section>
@@ -3327,7 +3168,7 @@
                       <div class="prop-title">200 OK</div>
                     </div>
                     <div class="prop-value">
-                      <p>Depending on the job evaluation type, the result of posting jobs can be either a json description of the job (for lazy and batch jobs) or a result object such as a NetCDF file (for sync jobs).</p>
+                      <p>The result of posting jobs is a json description of the job, including the <code>job_id</code>.</p>
                     </div>
                   </div>
                   <div class="prop-row prop-group">
@@ -3359,7 +3200,7 @@
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -3378,7 +3219,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>Returns detailed information about a submitted job including its current status and the underlying task</p>
+                  <p>Returns detailed information about a submitted job including its current status and the underlying process graph</p>
                 </section>
               </div>
             </div>
@@ -3489,107 +3330,11 @@
               </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--delete" class="operation panel" data-traverse-target="operation--jobs--job_id--delete">
-            <!-- <section class="operation-tags row"> -->
-            <!-- <div class="doc-copy"> -->
-            <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
-              <!---->
-            </div>
-            <!-- </div> -->
-            <!-- </section> -->
-            <h2 class="operation-title">
-              <span class="operation-summary">Deletes a submitted job</span>
-            </h2>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-path">
-                  <span class="operation-method">DELETE</span>
-                  <span class="operation-path">/jobs/{job_id}</span>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-description">
-                  <p>Deleting a job will cancel execution at the back-end regardless of its status. For finished jobs, this will also delete resulting data.</p>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">job_id</div>
-                      <span class="json-property-required"></span>
-                      <div class="prop-subtitle"> in path </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>job identifier string</p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"></div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-responses">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">200 OK</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>JSON object with job information.</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">404 Not Found</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>Job with specified identifier is not available</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">501 Not Implemented</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">503 Service Unavailable</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"> </div>
-            </div>
-          </div>
           <div id="operation--jobs--job_id--subscribe-get" class="operation panel" data-traverse-target="operation--jobs--job_id--subscribe-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -3763,30 +3508,30 @@
               <div class="doc-examples"> </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--cancel-get" class="operation panel" data-traverse-target="operation--jobs--job_id--cancel-get">
+          <div id="operation--jobs--job_id--queue-get" class="operation panel" data-traverse-target="operation--jobs--job_id--queue-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
             <!-- </section> -->
             <h2 class="operation-title">
-              <span class="operation-summary">Cancels any back-end computations of a job</span>
+              <span class="operation-summary">Running a job in batch mode.</span>
             </h2>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/jobs/{job_id}/cancel</span>
+                  <span class="operation-path">/jobs/{job_id}/queue</span>
                 </section>
               </div>
             </div>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>This request cancels all related computations at the back-end. It will stop generating additional costs for processing. Results of batch jobs might still be accessible whereas lazy jobs will generally not respond to s following download calls. </p>
+                  <p>This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.</p>
                 </section>
               </div>
             </div>
@@ -3819,7 +3564,215 @@
                       <div class="prop-title">200 OK</div>
                     </div>
                     <div class="prop-value">
-                      <p>The job has been successfully canceled.</p>
+                      <p>The job has been successfully queued.</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">403 Forbidden</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">404 Not Found</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Job with specified identifier is not available</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">410 Gone</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Job with specified identifier can&#39;t be resumed</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"> </div>
+            </div>
+          </div>
+          <div id="operation--jobs--job_id--pause-get" class="operation panel" data-traverse-target="operation--jobs--job_id--pause-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Job-Management">Job Management</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Pausing a batch job.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/jobs/{job_id}/pause</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>This request pauses a batch job. Execution is stopped, but might be resumed later by queueing it again. Intermediate results are stored for resuming. This job won&#39;t generate additional costs for processing.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-params">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">job_id</div>
+                      <span class="json-property-required"></span>
+                      <div class="prop-subtitle"> in path </div>
+                      <div class="prop-subtitle">
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </div>
+                    </div>
+                    <div class="prop-value">
+                      <p>job identifier string</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>The job has been successfully queued.</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">403 Forbidden</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">404 Not Found</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Job with specified identifier is not available</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">428 Precondition Required</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Job with specified identifier is queued or is not running</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"> </div>
+            </div>
+          </div>
+          <div id="operation--jobs--job_id--cancel-get" class="operation panel" data-traverse-target="operation--jobs--job_id--cancel-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Job-Management">Job Management</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Cancels any back-end computations of a job</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/jobs/{job_id}/cancel</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won&#39;t generate additional costs for processing. Results of batch jobs might be discarded and deleted by the back-end.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-params">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">job_id</div>
+                      <span class="json-property-required"></span>
+                      <div class="prop-subtitle"> in path </div>
+                      <div class="prop-subtitle">
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </div>
+                    </div>
+                    <div class="prop-value">
+                      <p>job identifier string</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>The job has been successfully canceled</p>
                     </div>
                   </div>
                   <div class="prop-row prop-group">
@@ -3863,7 +3816,7 @@
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!--, -->
               <a class="label" href="#tag-User-Content">User Content</a>
               <!---->
@@ -4011,192 +3964,38 @@
               </div>
             </div>
           </div>
-          <div id="operation--users--user_id--services-get" class="operation panel" data-traverse-target="operation--users--user_id--services-get">
-            <!-- <section class="operation-tags row"> -->
-            <!-- <div class="doc-copy"> -->
-            <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
-              <!--, -->
-              <a class="label" href="#tag-User-Content">User Content</a>
-              <!--, -->
-              <a class="label" href="#tag-Result-Access">Result Access</a>
-              <!---->
-            </div>
-            <!-- </div> -->
-            <!-- </section> -->
-            <h2 class="operation-title">
-              <span class="operation-summary">List all running services that have been submitted by the user</span>
-            </h2>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
-                  <span class="operation-path">/users/{user_id}/services</span>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-description">
-                  <p>Requests to this endpoint will list all running services submitted by a user with given id.</p>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title"></div>
-                      <div class="prop-subtitle"> in </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">
-                          <span class="">
-                            <a class="json-schema-ref" href="#/parameters/user_id">#/parameters/user_id</a>
-                          </span>
-                        </span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p class="no-description">(no description)</p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples"></div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-responses">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">200 OK</div>
-                      <div class="prop-ref">
-                        <span class="json-schema-ref-array">
-                          <a class="json-schema-ref" href="#/definitions/service">service</a>
-                        </span>
-                      </div>
-                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
-                    </div>
-                    <div class="prop-value">
-                      <p>Array of service descriptions</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-inner">
-                    <div class="prop-name">type</div>
-                    <div class="prop-value">
-                      <span class="json-property-type">
-                        <span class="json-schema-ref-array">
-                          <a class="json-schema-ref" href="#/definitions/service">service</a>
-                        </span>
-                      </span>
-                      <span class="json-property-range" title="Value limits"></span>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">404 Not Found</div>
-                    </div>
-                    <div class="prop-value">
-                      <p>User with specified identifier is not available.</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">501 Not Implemented</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">503 Service Unavailable</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples">
-                <section>
-                  <h5>Response Example
-                    <span>(200 OK)</span>
-                  </h5>
-                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">[
-  {
-    <span class="hljs-attr">&quot;service_id&quot;</span>: <span class="hljs-string">&quot;91f3caa3b5281a&quot;</span>,
-    <span class="hljs-attr">&quot;user_id&quot;</span>: <span class="hljs-string">&quot;bd6f9faf93b4&quot;</span>,
-    <span class="hljs-attr">&quot;process_graph&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: [
-        {
-          <span class="hljs-attr">&quot;A&quot;</span>: {
-            <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-          }
-        },
-        {
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>
-        },
-        {
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      ]
-    },
-    <span class="hljs-attr">&quot;service_type&quot;</span>: <span class="hljs-string">&quot;wms&quot;</span>,
-    <span class="hljs-attr">&quot;submitted&quot;</span>: <span class="hljs-string">&quot;2018-01-01T09:32:12Z&quot;</span>,
-    <span class="hljs-attr">&quot;service_url&quot;</span>: <span class="hljs-string">&quot;https://openeo.org/wms/91f3caa3b5281a&quot;</span>,
-    <span class="hljs-attr">&quot;consumed_credits&quot;</span>: <span class="hljs-string">&quot;392&quot;</span>
-  }
-]
-</code></pre>
-                  <!-- </div> -->
-                </section>
-              </div>
-            </div>
-          </div>
           <h1 id="tag-Result-Access" class="swagger-summary-tag" data-traverse-target="tag-Result-Access">Result Access</h1>
           <div class="tag-description doc-row">
             <div class="doc-copy">
               <p>Services to access processing results</p>
             </div>
           </div>
-          <div id="operation--services-post" class="operation panel" data-traverse-target="operation--services-post">
+          <div id="operation--execute-post" class="operation panel" data-traverse-target="operation--execute-post">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
-              <!--, -->
               <a class="label" href="#tag-Result-Access">Result Access</a>
+              <!--, -->
+              <a class="label" href="#tag-Job-Management">Job Management</a>
               <!---->
             </div>
             <!-- </div> -->
             <!-- </section> -->
             <h2 class="operation-title">
-              <span class="operation-summary">Publish an interactive web service to access result data and run computations on request</span>
+              <span class="operation-summary">Execute a process graph synchronously</span>
             </h2>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">POST</span>
-                  <span class="operation-path">/services</span>
+                  <span class="operation-path">/execute</span>
                 </section>
               </div>
             </div>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>Calling this endpoint will enable to access results of processing graphs as a web service such as WMTS TMS or WCS. Whre possible, this should result in lazy evaluaiton in the sense that the graph is only evaluated for the requested spatial / temporal extent and resolution.</p>
+                  <p>Process graphs will be executed directly and the result will be downloaded in the specified format. The process graph must be specified either directy in the request body or by its URI as query parameter</p>
                 </section>
               </div>
             </div>
@@ -4234,22 +4033,26 @@
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
-                      <div class="prop-title">type</div>
+                      <div class="prop-title">format</div>
                       <span class="json-property-required"></span>
                       <div class="prop-subtitle"> in query </div>
                       <div class="prop-subtitle">
                         <span class="json-property-type">string</span>
                         <span class="json-property-enum" title="Possible values">
-                          <span class="json-property-enum-item">wms</span>,
-                          <span class="json-property-enum-item">tms</span>,
+                          <span class="json-property-enum-item">nc</span>,
+                          <span class="json-property-enum-item">json</span>,
+                          <span class="json-property-enum-item">wcs</span>,
                           <span class="json-property-enum-item">wmts</span>,
-                          <span class="json-property-enum-item">wcs</span>
+                          <span class="json-property-enum-item">tms</span>,
+                          <span class="json-property-enum-item">tif</span>,
+                          <span class="json-property-enum-item">png</span>,
+                          <span class="json-property-enum-item">jpeg</span>
                         </span>
                         <span class="json-property-range" title="Value limits"></span>
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>Definintion of possible web services to access result data</p>
+                      <p>Description of the desired output format. Required in case <code>evaluate</code> is set to <code>sync</code>. If not specified the format has to be specified in the download request.</p>
                     </div>
                   </div>
                 </section>
@@ -4290,24 +4093,10 @@
                   <div class="prop-row prop-group">
                     <div class="prop-name">
                       <div class="prop-title">200 OK</div>
-                      <div class="prop-ref"></div>
-                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
                     </div>
                     <div class="prop-value">
-                      <p>Details of the created service</p>
+                      <p>Result data in the specified output format</p>
                     </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
@@ -4323,28 +4112,14 @@
                   </div>
                 </section>
               </div>
-              <div class="doc-examples">
-                <h5>Response Content-Types:
-                  <span>application/json</span>
-                </h5>
-                <section>
-                  <h5>Response Example
-                    <span>(200 OK)</span>
-                  </h5>
-                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;service_url&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>
-}
-</code></pre>
-                  <!-- </div> -->
-                </section>
-              </div>
+              <div class="doc-examples"> </div>
             </div>
           </div>
           <div id="operation--services--service_id--get" class="operation panel" data-traverse-target="operation--services--service_id--get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Services">Services</a>
               <!--, -->
               <a class="label" href="#tag-Result-Access">Result Access</a>
               <!---->
@@ -4560,6 +4335,14 @@
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
+                      <div class="prop-title">410 Gone</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Job with specified identifier has been canceled</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
                       <div class="prop-title">501 Not Implemented</div>
                     </div>
                     <div class="prop-value"> undefined </div>
@@ -4579,15 +4362,474 @@
               </div>
             </div>
           </div>
+          <h1 id="tag-Services" class="swagger-summary-tag" data-traverse-target="tag-Services">Services</h1>
+          <div class="tag-description doc-row">
+            <div class="doc-copy">
+              <p>Management of web-services for accessing job results.</p>
+            </div>
+          </div>
+          <div id="operation--services-post" class="operation panel" data-traverse-target="operation--services-post">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Services">Services</a>
+              <!--, -->
+              <a class="label" href="#tag-Job-Management">Job Management</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Publish an interactive web service to access result data and run computations on request</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">POST</span>
+                  <span class="operation-path">/services</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-body">
+                  <p>The base data for the service to create</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="job_id" class="has-description">
+                        <span class="json-property-name">job_id:</span>
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                        <span class="json-property-required"></span>
+                      </dt>
+                      <dd>
+                        <p>Job identifier string</p>
+                      </dd>
+                      <dt data-property-name="type" class="has-description">
+                        <span class="json-property-name">type:</span>
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                        <span class="json-property-required"></span>
+                      </dt>
+                      <dd>
+                        <p>Definintion of one of the possible web services to access result data</p>
+                      </dd>
+                      <dt data-property-name="args" class="has-description">
+                        <span class="json-property-name">args:</span>
+                        <span class="json-property-type">object</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dd>
+                        <p>Definintion of additional arguments a web services might need to be created</p>
+                      </dd>
+                    </dl>
+                  </section>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Request Content-Types:
+                    <span>application/json</span>
+                  </h5>
+                  <h5>Request Example</h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
+  <span class="hljs-attr">&quot;job_id&quot;</span>: <span class="hljs-string">&quot;42d5k3nd92mk49dmj294md&quot;</span>,
+  <span class="hljs-attr">&quot;type&quot;</span>: <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-attr">&quot;args&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>
+}
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>Details of the created service</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">403 Forbidden</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <h5>Response Content-Types:
+                  <span>application/json</span>
+                </h5>
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
+  <span class="hljs-attr">&quot;service_url&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>
+}
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--services-types-get" class="operation panel" data-traverse-target="operation--services-types-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Services">Services</a>
+              <!--, -->
+              <a class="label" href="#tag-Service-Discovery">Service Discovery</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Returns service types supported by the back-end</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/services/types</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>The request will ask the back-end for supported service types, e.g. wms, tms, wmts or wcs. The response is an array of available services.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>An array of implemented API endpoints</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">[
+  <span class="hljs-string">&quot;tms&quot;</span>,
+  <span class="hljs-string">&quot;wcs&quot;</span>,
+  <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-string">&quot;wmts&quot;</span>
+]
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--services--service_id--get" class="operation panel" data-traverse-target="operation--services--service_id--get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Services">Services</a>
+              <!--, -->
+              <a class="label" href="#tag-Result-Access">Result Access</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Get service information by id</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/services/{service_id}</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>Requests to this endpoint will return JSON description of the service.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-params">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">service_id</div>
+                      <span class="json-property-required"></span>
+                      <div class="prop-subtitle"> in path </div>
+                      <div class="prop-subtitle">
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </div>
+                    </div>
+                    <div class="prop-value">
+                      <p>service identifier`</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref">
+                        <span class="">
+                          <a class="json-schema-ref" href="#/definitions/service">service</a>
+                        </span>
+                      </div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>Details of the created service</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">403 Forbidden</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">404 Not Found</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Service with given id is not available</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <h5>Response Content-Types:
+                  <span>application/json</span>
+                </h5>
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
+  <span class="hljs-attr">&quot;service_id&quot;</span>: <span class="hljs-string">&quot;91f3caa3b5281a&quot;</span>,
+  <span class="hljs-attr">&quot;user_id&quot;</span>: <span class="hljs-string">&quot;bd6f9faf93b4&quot;</span>,
+  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
+    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
+    <span class="hljs-attr">&quot;args&quot;</span>: [
+      {
+        <span class="hljs-attr">&quot;A&quot;</span>: {
+          <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
+        }
+      },
+      {
+        <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>
+      },
+      {
+        <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
+      }
+    ]
+  },
+  <span class="hljs-attr">&quot;service_type&quot;</span>: <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-attr">&quot;submitted&quot;</span>: <span class="hljs-string">&quot;2018-01-01T09:32:12Z&quot;</span>,
+  <span class="hljs-attr">&quot;service_url&quot;</span>: <span class="hljs-string">&quot;https://openeo.org/wms/91f3caa3b5281a&quot;</span>,
+  <span class="hljs-attr">&quot;consumed_credits&quot;</span>: <span class="hljs-string">&quot;392&quot;</span>
+}
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--services--service_id--delete" class="operation panel" data-traverse-target="operation--services--service_id--delete">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Services">Services</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Stop a given service by id</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">DELETE</span>
+                  <span class="operation-path">/services/{service_id}</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>Calling this endpoint will stop a given web service to access result data.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-params">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">service_id</div>
+                      <span class="json-property-required"></span>
+                      <div class="prop-subtitle"> in path </div>
+                      <div class="prop-subtitle">
+                        <span class="json-property-type">string</span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </div>
+                    </div>
+                    <div class="prop-value">
+                      <p>service identifier`</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>The service has been successfully deleted.</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">401 Unauthorized</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">403 Forbidden</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">404 Not Found</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Service with given id is not available</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"> </div>
+            </div>
+          </div>
           <div id="operation--users--user_id--services-get" class="operation panel" data-traverse-target="operation--users--user_id--services-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Execution">Execution</a>
+              <a class="label" href="#tag-Services">Services</a>
               <!--, -->
               <a class="label" href="#tag-User-Content">User Content</a>
-              <!--, -->
-              <a class="label" href="#tag-Result-Access">Result Access</a>
               <!---->
             </div>
             <!-- </div> -->
