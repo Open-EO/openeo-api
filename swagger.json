@@ -83,6 +83,9 @@
     },
     "unavailable": {
       "description": "The service is currently unavailable."
+    },
+    "method_not_allowed": {
+      "description": "The requested HTTP method is not supported or allowed to be requested."
     }
   },
   "parameters": {
@@ -91,6 +94,27 @@
       "in": "path",
       "type": "string",
       "description": "user identifier, the special value `me` automatically refers to the own ID based on the provided HTTP `Authorization` header.",
+      "required": true
+    },
+    "process_graph_id": {
+      "name": "process_graph_id",
+      "in": "path",
+      "type": "string",
+      "description": "Process graph identifier string",
+      "required": true
+    },
+    "service_id": {
+      "name": "service_id",
+      "in": "path",
+      "type": "string",
+      "description": "Service identifier",
+      "required": true
+    },
+    "file_path": {
+      "name": "path",
+      "in": "path",
+      "type": "string",
+      "description": "path relative to the user's root directory, must be URL encoded",
       "required": true
     }
   },
@@ -623,32 +647,6 @@
                 "/processes"
               ]
             }
-          }
-        }
-      }
-    },
-    "/users/login": {
-      "get": {
-        "summary": "Check whether the user is registered with the specified credentials at the back-end.",
-        "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`.",
-        "tags": [
-          "Authentication"
-        ],
-        "produces": [
-          "text/plain; charset=utf-8"
-        ],
-        "responses": {
-          "200": {
-            "description": "User ID of the user that refers to the provided HTTP `Authorization` header. ",
-            "schema": {
-              "type": "string"
-            },
-            "examples": {
-              "text/plain; charset=utf-8": "b34ba2bdf9ac9ee1"
-            }
-          },
-          "403": {
-            "description": "Login failed"
           }
         }
       }
@@ -1196,7 +1194,69 @@
         }
       }
     },
+    "/users/login": {
+      "get": {
+        "summary": "Check whether the user is registered with the specified credentials at the back-end.",
+        "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`.",
+        "tags": [
+          "Authentication"
+        ],
+        "produces": [
+          "text/plain; charset=utf-8"
+        ],
+        "responses": {
+          "200": {
+            "description": "User ID of the user that refers to the provided HTTP `Authorization` header. ",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "text/plain; charset=utf-8": "b34ba2bdf9ac9ee1"
+            }
+          },
+          "403": {
+            "description": "Login failed"
+          }
+        }
+      }
+    },
     "/users/{user_id}/processes": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "User Content"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/user_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `POST`",
+                "default": "POST"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "post": {
         "summary": "submits a new process graph and returns a unqiue identifier",
         "description": "creates a unique resource for a provided process graph that can be reused in other process graphs",
@@ -1233,6 +1293,45 @@
       }
     },
     "/users/{user_id}/processes/{process_graph_id}": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "User Content"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/user_id"
+          },
+          {
+            "$ref": "#/parameters/process_graph_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `GET, DELETE`",
+                "default": "GET, DELETE"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "get a process graph by id",
         "description": "returns a JSON processs graph from its id",
@@ -1247,11 +1346,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "process_graph_id",
-            "in": "path",
-            "type": "string",
-            "description": "process graph identifier string",
-            "required": true
+            "$ref": "#/parameters/process_graph_id"
           }
         ],
         "responses": {
@@ -1292,11 +1387,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "process_graph_id",
-            "in": "path",
-            "type": "string",
-            "description": "process graph identifier string",
-            "required": true
+            "$ref": "#/parameters/process_graph_id"
           }
         ],
         "responses": {
@@ -1316,6 +1407,38 @@
       }
     },
     "/execute": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "Result Access",
+          "Job Management"
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `POST`",
+                "default": "POST"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "post": {
         "summary": "Execute a process graph synchronously",
         "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. The process graph must be specified either directy in the request body or by its URI as query parameter",
@@ -1372,6 +1495,38 @@
       }
     },
     "/services": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "Services",
+          "Job Management"
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `POST`",
+                "default": "POST"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "post": {
         "summary": "Publish an interactive web service to access result data and run computations on request",
         "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the  specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
@@ -1479,6 +1634,42 @@
       }
     },
     "/services/{service_id}": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "Services"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/service_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `GET, DELETE`",
+                "default": "GET, DELETE"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "Get service information by id",
         "description": "Requests to this endpoint will return JSON description of the service.",
@@ -1491,11 +1682,7 @@
         ],
         "parameters": [
           {
-            "name": "service_id",
-            "in": "path",
-            "type": "string",
-            "description": "service identifier`",
-            "required": true
+            "$ref": "#/parameters/service_id"
           }
         ],
         "responses": {
@@ -1560,6 +1747,37 @@
       }
     },
     "/jobs": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "Job Management"
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `POST`",
+                "default": "POST"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "post": {
         "summary": "submits a new job to the back-end",
         "description": "creates a new job from one or more (chained) processes at the back-end. Jobs are initially always lazy jobs and will not run the computations until on demand  requests or separately queueing it. Queueing it converts a lazy job to a batch job.",
@@ -1988,6 +2206,45 @@
       }
     },
     "/users/{user_id}/files/{path}": {
+      "options": {
+        "summary": "Response for the preflight requests by internet browsers.",
+        "description": "Response for the preflight requests by internet browsers, see https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "User Content"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/user_id"
+          },
+          {
+            "$ref": "#/parameters/file_path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gives permission to access the requested resources.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Comma-separated list of HTTP methods allowed to be requested, here: `GET, PUT, DELETE`",
+                "default": "GET, PUT, DELETE"
+              },
+              "Content-Type": {
+                "type": "string",
+                "description": "Should return the content type delivered by the request that permission is requested for."
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "Download a user file",
         "description": "This service downloads a user files identified by its path relative to the user's root directory.",
@@ -2002,11 +2259,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
+            "$ref": "#/parameters/file_path"
           }
         ],
         "responses": {
@@ -2047,11 +2300,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
+            "$ref": "#/parameters/file_path"
           },
           {
             "name": "file",
@@ -2102,11 +2351,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
+            "$ref": "#/parameters/file_path"
           }
         ],
         "responses": {
