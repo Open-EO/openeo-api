@@ -8,7 +8,7 @@ The OpenEO core API defines a RESTful API that lets cloud back-ends with large E
 - download (intermediate) results as web services, and
 - manage user content including accounting.
 
-The API is defined as an [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) JSON file. To simplify and structure the development, the API is divided into a few [microservices](arch.md).
+The API is defined as an [OpenAPI 2.0 (formerly known as Swagger 2.0)](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) JSON file. To simplify and structure the development, the API is divided into a few [microservices](arch.md).
 
 
 ![OpenEO logo](openeo_logo.png)

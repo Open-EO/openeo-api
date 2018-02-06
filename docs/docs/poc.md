@@ -5,7 +5,7 @@ This page gives a detailed description of the OpenEO proof of concept and gives 
 * at least three clearly defined example processes (see below),
 * a prototypical API specification including communication API call sequences of the processes (see below),
 * implementations of the processes on three back-ends (file-based, Spark, EURAC), and
-* prototypical clients in R and Python.
+* prototypical clients in R, Python and potentially JavaScript.
 
 Below, we define the examples processes and how they are translated to sequences of API calls.
 
@@ -17,7 +17,7 @@ Below, we define the examples processes and how they are translated to sequences
 **Request**
 ```
 GET /data/Sentinel2A-L1C
-``` 
+```
 
 **Response**
 ```
@@ -219,8 +219,6 @@ Body:
 }
 ```
 
-
-
 **Request**
 ```
 GET /processes/NDVI
@@ -271,7 +269,7 @@ Body:
 
 **Request**
 ```
-POST /jobs&evaluate=lazy
+POST /jobs
 Body:
 {
   "process_graph": {
@@ -315,11 +313,38 @@ Body:
 {"job_id" : "2a8ffb20c2b235a3f3e3351f"}
 ```
 
-#### 4. Download the data on demand with WCS
+#### 4. Create a WCS service
+
+**Request**
+
+```
+POST /services
+Body:
+{
+  "job_id": "2a8ffb20c2b235a3f3e3351f",
+  "type": "wcs",
+  "args": {
+    "VERSION": "2.0.1"
+  }
+}
+```
+
+**Response**
+
+```
+HTTP 200/OK
+Body:
+{
+  "service_id": "4dab456f6501bbcd",
+  "service_url" : "http://openeo.org/api/v0/services/4dab456f6501bbcd/wcs"
+}
+```
+
+#### 5. Download the data on demand with WCS
 
 **Request**
 ```
-GET /download/2a8ffb20c2b235a3f3e3351f/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities
+GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities
 ```
 
 **Response**
@@ -327,23 +352,23 @@ _omitted_
 
 **Request**
 ```
-GET /download/2a8ffb20c2b235a3f3e3351f/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200)
+GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200)
 ```
 
 
 **Response** 
 _omitted_
 
-
-#### 5. Stop the job
-
+#### 6. Stop the job (and the service)
 
 **Request**
+
 ```
 GET /jobs/2a8ffb20c2b235a3f3e3351f/cancel
 ```
 
 **Response**
+
 ```
 HTTP 200/OK
 ```
@@ -352,14 +377,12 @@ HTTP 200/OK
 
 ## Example Process 2: Create a monthly aggregated Sentinel 1 product from a custom Python script
 
-
-
 #### 1. Ask the back-end for available Sentinel 1 data
 
 **Request**
 ```
 GET /data/Sentinel1-L1-IW-GRD
-``` 
+```
 
 
 **Response**
@@ -388,8 +411,8 @@ Body:
 
 **Request**
 ```
-GET /udf
-``` 
+GET /udf_runtimes
+```
 
 
 **Response**
@@ -401,8 +424,7 @@ Body:
     "udf_types": [
       "reduce_time",
       "aggregate_time",
-      "apply_pixel",
-      "
+      "apply_pixel"
     ],
     "versions": {
       "3.6.3": {
@@ -423,8 +445,8 @@ Body:
 
 **Request**
 ```
-GET /udf/Python/aggregate_time
-``` 
+GET /udf_runtimes/Python/aggregate_time
+```
 
 
 **Response**
@@ -449,14 +471,12 @@ HTTP 200/OK
 }
 ```
 
-
-
 #### 3. Upload python script
 
 **Request**
 ```
 PUT /users/me/files/s1_aggregate.py
-``` 
+```
 
 
 **Response**
@@ -469,7 +489,7 @@ HTTP 200/OK
 
 **Request**
 ```
-POST /jobs?evaluate=lazy
+POST /jobs
 Body:
 {
     "process_graph": {
@@ -499,7 +519,7 @@ Body:
         }
     }
 }
-``` 
+```
 
 
 **Response**
@@ -509,36 +529,51 @@ Body:
 {"job_id" : "3723c32fb7b24698832ca71f2d3f18aa"}
 ```
 
+#### 5. Create a TMS service
 
-#### 5. Download results as TMS
+**Request**
+
+```
+POST /services
+Body:
+{
+  "job_id": "2a8ffb20c2b235a3f3e3351f",
+  "type": "tms"
+}
+```
+
+**Response**
+
+```
+HTTP 200/OK
+Body:
+{
+  "service_id": "9dab4b6f6523",
+  "service_url" : "http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms"
+}
+```
+
+#### 6. Download results as TMS
 
 
 **Example Request**
 ```
-GET /download/3723c32fb7b24698832ca71f2d3f18aa/tms/2017-01-01/12/2232/2668/?bands=1
-``` 
+GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1
+```
 
 **Response**
 _omitted_
 
 
 
-
-
-
-
-
-
 ## Example Process 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons
-
-
 
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
 **Request**
 ```
 GET /data/Sentinel2A-L1C
-``` 
+```
 
 
 **Response**
@@ -725,14 +760,10 @@ PUT /user/me/files/polygon1.json
 HTTP 200/OK
 ```
 
-
-
-
-
-#### 4. Create a job with the computation at the back-end
+#### 4. Create a job and start batch computation at the back-end
 **Request**
 ```
-POST /jobs?evaluate=batch
+POST /jobs
 Body:
 {
     "process_graph": {
@@ -767,8 +798,7 @@ Body:
                 }          
             }],
             "regions" : "/users/me/files/,
-            "func" : "avg",
-            "outformat" : "GPKG"
+            "func" : "avg"
         }
     }
 }
@@ -782,8 +812,19 @@ Body:
 {"job_id" : "f6ea12c5e283438a921b525af826da08"}
 ```
 
+**Request**
 
-#### 5. Check job status
+```
+POST /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
+```
+
+**Response**
+
+```
+HTTP 200/OK
+```
+
+#### 5. Check job status twice
 
 **Request**
 ```
@@ -899,14 +940,32 @@ Body:
 }
 ```
 
-#### 7. Download results
+#### 7. Retrieve download links
 
 
-**Example Request**
+**Request**
 ```
-GET /download/f6ea12c5e283438a921b525af826da08
-``` 
+GET /jobs/f6ea12c5e283438a921b525af826da08/download
+```
+
+**Response**
+
+```
+HTTP 200/OK
+Body:
+[
+  "https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg"
+]
+```
+
+#### 7. Download file(s)
+
+**Request**
+
+```
+GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg
+```
 
 **Response (GPKG file)**
-_omitted_
+_omitted
 
