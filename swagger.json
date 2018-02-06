@@ -1916,14 +1916,19 @@
             "description": "Details of the created service",
             "schema": {
               "properties": {
-                "service_url": {
+                "service_id": {
                   "type": "string"
+                },
+                "service_url": {
+                  "type": "string",
+                  "description": "The service url doesn't necessarily need to be located under the API base url."
                 }
               },
               "additionalProperties": true
             },
             "examples": {
-              "service_url": "http://openeo.org/4a5f6e7c7324/wms",
+              "service_id": "4a5f6e7c7324",
+              "service_url": "http://openeo.org/api/v0/services/4a5f6e7c7324/wms",
               "layer_name": "4a5f6e7c7324"
             },
             "headers": {
@@ -2086,19 +2091,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Details of the updated service",
-            "schema": {
-              "properties": {
-                "service_url": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": true
-            },
-            "examples": {
-              "service_url": "http://openeo.org/4a5f6e7c7324/wms",
-              "layer_name": "4a5f6e7c7324"
-            },
+            "description": "Changes to the service applied successfully.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "type": "string",
@@ -2743,7 +2736,7 @@
       },
       "get": {
         "summary": "Cancels any back-end computations of a job",
-        "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing unless started again using `GET /jobs/{job_id}/queue` (for batch jobs) or updated using `PATCH /jobs`. Results of batch jobs might be discarded and deleted by the back-end.",
+        "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing unless started again using `GET /jobs/{job_id}/queue` (for batch jobs) or updated using `PATCH /jobs`. Results of batch jobs might be discarded and deleted by the back-end. Any service associated with this job might be deleted from the back-end.",
         "tags": [
           "Job Management"
         ],
@@ -2834,7 +2827,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Valid download links have been returned.",
+            "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
             "examples": {
               "application/json": [
                 "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
