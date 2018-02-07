@@ -22,6 +22,6 @@ The API is defined as an [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specificat
 
 
 
-![![img](file:///C:/Dev/openeo-api-poc/docs/docs/openeo_logo.png?lastModify=1517997118)OpenEO logo](openeo_logo.png)
+![OpenEO logo](openeo_logo.png)	
 
 _[OpenEO](https://openeo.org), A Common, Open Source Interface between Earth Observation Data Infrastructures and Front-End Applications is a H2020 project funded under call EO-2-2017: EO Big Data Shift, under proposal number 776242. It will run from Oct 2017 to Sept 2020._
