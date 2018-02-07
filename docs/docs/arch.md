@@ -15,6 +15,8 @@ The OpenEO core API defines a language how clients communicate to back-ends in o
 
 # Microservices
 
+To simplify and structure the development, the API is divided into a few microservices.
+
 | Microservice               | Description                              |
 | -------------------------- | ---------------------------------------- |
 | API Information            | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |

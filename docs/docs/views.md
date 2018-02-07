@@ -5,26 +5,26 @@ The OpenEO API supports to look at datasets from different `views`. Views descri
 ## Example
 The following JSON object describes a coarse resolution (0.25° x 0.25°) view of monthly aggregated data. 
 
-```
+```json
 "view": {
-    "space": {
-      "srs": "EPSG:4326",
-      "window": {
-        "left": -10.21,
-        "top": 53.23,
-        "right": 12.542,
-        "bottom": 12.32
-      },
-      "cell_size": 0.25,
-      "resampling": "nearest"
+  "space": {
+    "srs": "EPSG:4326",
+    "window": {
+      "left": -10.21,
+      "top": 53.23,
+      "right": 12.542,
+      "bottom": 12.32
     },
-    "time": {
-      "window": {
-        "start": "2017-01-01",
-        "end": "2018-01-01"
-      },
-      "time_step": "P1M",
-      "resampling": "nearest"
-    }
+    "cell_size": 0.25,
+    "resampling": "nearest"
+  },
+  "time": {
+    "window": {
+      "start": "2017-01-01",
+      "end": "2018-01-01"
+    },
+    "time_step": "P1M",
+    "resampling": "nearest"
   }
-  ```  
+}
+```
