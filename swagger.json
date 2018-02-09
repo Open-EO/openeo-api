@@ -1582,6 +1582,54 @@
           }
         }
       },
+      "get": {
+        "summary": "Lists user-defined processes.",
+        "description": "This service lists all processes of the user that are stored at the back-end.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON array with process_ids",
+            "examples": {
+              "application/json": [
+                "57d7e8ff91a1134",
+                "12bd7584efa1236"
+              ]
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`.",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
       "post": {
         "summary": "Submits a new process graph and returns a unqiue identifier.",
         "description": "Creates a unique resource for a provided process graph that can be reused in other process graphs.",
@@ -1592,6 +1640,17 @@
           {},
           {
             "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "process_graph",
+            "in": "body",
+            "required": true,
+            "description": "Description of one or more (chained) processes including their input arguments",
+            "schema": {
+              "$ref": "#/definitions/process_graph"
+            }
           }
         ],
         "responses": {
@@ -1699,6 +1758,61 @@
           },
           "404": {
             "description": "Process graph with given id is not available"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "put": {
+        "summary": "Replaces a process graph.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "process_graph",
+            "in": "body",
+            "required": true,
+            "description": "Description of one or more (chained) processes including their input arguments",
+            "schema": {
+              "$ref": "#/definitions/process_graph"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The process graph has been replaced successfully.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`.",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -2330,9 +2444,9 @@
           }
         }
       },
-      "patch": {
-        "summary": "Changes a job at the back-end.",
-        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nModifies an existing job at the back-end. All running calculations are stopped if possible.",
+      "put": {
+        "summary": "Replaces a job at the back-end.",
+        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nReplaces an existing job at the back-end. All running calculations are stopped if possible.",
         "tags": [
           "Job Management"
         ],
