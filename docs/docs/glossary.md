@@ -38,16 +38,16 @@ The terms _process_, _process graph_ and _job_ have different meanings in the Op
 
 A **process** is simply the description of an operation as provided by the back end, similar to a function definition in programming languages. 
 
-A **process graph** includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
-
-A **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs. Jobs furthermore allow to run process graphs from different _data views_ (see section on [data views](views.md)). Views define at which resolution and extent we look at the data during processing and hence allow to try out process graphs on small subsets, or work interactively within web map applications. For more information about jobs and their evaluation types, see the section on [jobs](jobs.md).
-
 In this context OpenEO will:
 
 1. consider, or allow to consider, band as a dimension
 2. consider `collections` to consist of one _or more_ collections, as argument to all functions; allow filtering on a particular collection, or joining them into a single collection
 3. allow filtering on attributes, e.g. on cloud-free pixels, or pixels inside a `MULTIPOLYGON` describing the floodplains of the Danube. This filters on attributes rather than dimensions.
 4. Provide generic aggregate operations that aggregate over one or more dimenions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
+
+A **process graph** includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
+
+A **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs. Jobs furthermore allow to run process graphs from different _data views_ (see section on [data views](views.md)). Views define at which resolution and extent we look at the data during processing and hence allow to try out process graphs on small subsets, or work interactively within web map applications. For more information about jobs and their evaluation types, see the section on [jobs](jobs.md).
 
 ### Aggregation vs. resampling
 
