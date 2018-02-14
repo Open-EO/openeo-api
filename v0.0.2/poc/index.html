@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Proof of Concept - OpenEO - Core API Concepts</title>
+  <title>Proof of Concept - OpenEO - Core Concepts & API</title>
   
 
   <link rel="shortcut icon" href="../favicon.ico">
@@ -39,7 +39,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="icon icon-home"> OpenEO - Core API Concepts</a>
+        <a href="../index.html" class="icon icon-home"> OpenEO - Core Concepts & API</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -53,6 +53,13 @@
             <li>
     <li class="toctree-l1 ">
         <a class="" href="../index.html">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../glossary/index.html">Glossary</a>
         
     </li>
 <li>
@@ -107,13 +114,6 @@
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../drivers/index.html">Driver Features</a>
-        
-    </li>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
         <a class="" href="../apireference/index.html">API Reference</a>
         
     </li>
@@ -129,7 +129,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">OpenEO - Core API Concepts</a>
+        <a href="../index.html">OpenEO - Core Concepts & API</a>
       </nav>
 
       
@@ -161,7 +161,7 @@
 <li>at least three clearly defined example processes (see below),</li>
 <li>a prototypical API specification including communication API call sequences of the processes (see below),</li>
 <li>implementations of the processes on three back-ends (file-based, Spark, EURAC), and</li>
-<li>prototypical clients in R and Python.</li>
+<li>prototypical clients in R, Python and potentially JavaScript.</li>
 </ul>
 <p>Below, we define the examples processes and how they are translated to sequences of API calls.</p>
 <h2 id="example-process-1-deriving-minimum-ndvi-measurements-over-pixel-time-series-of-sentinel-2-imagery">Example Process 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery</h2>
@@ -407,7 +407,7 @@ Body:
 
 <h4 id="3-create-a-job-with-the-computation-at-the-back-end">3. Create a job with the computation at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs&amp;evaluate=lazy
+<pre><code>POST /jobs
 Body:
 {
   &quot;process_graph&quot;: {
@@ -451,20 +451,42 @@ Body:
 {&quot;job_id&quot; : &quot;2a8ffb20c2b235a3f3e3351f&quot;}
 </code></pre>
 
-<h4 id="4-download-the-data-on-demand-with-wcs">4. Download the data on demand with WCS</h4>
+<h4 id="4-create-a-wcs-service">4. Create a WCS service</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /download/2a8ffb20c2b235a3f3e3351f/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCapabilities
+<pre><code>POST /services
+Body:
+{
+  &quot;job_id&quot;: &quot;2a8ffb20c2b235a3f3e3351f&quot;,
+  &quot;type&quot;: &quot;wcs&quot;,
+  &quot;args&quot;: {
+    &quot;VERSION&quot;: &quot;2.0.1&quot;
+  }
+}
+</code></pre>
+
+<p><strong>Response</strong></p>
+<pre><code>HTTP 200/OK
+Body:
+{
+  &quot;service_id&quot;: &quot;4dab456f6501bbcd&quot;,
+  &quot;service_url&quot; : &quot;http://openeo.org/api/v0/services/4dab456f6501bbcd/wcs&quot;
+}
+</code></pre>
+
+<h4 id="5-download-the-data-on-demand-with-wcs">5. Download the data on demand with WCS</h4>
+<p><strong>Request</strong></p>
+<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCapabilities
 </code></pre>
 
 <p><strong>Response</strong>
 <em>omitted</em></p>
 <p><strong>Request</strong></p>
-<pre><code>GET /download/2a8ffb20c2b235a3f3e3351f/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCoverage&amp;COVERAGEID=2a8ffb20c2b235a3f3e3351f&amp;FORMAT=image/tiff&amp;SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&amp;SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&amp;&amp;SIZE=x(200)&amp;SIZE=y(200)
+<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCoverage&amp;COVERAGEID=2a8ffb20c2b235a3f3e3351f&amp;FORMAT=image/tiff&amp;SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&amp;SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&amp;&amp;SIZE=x(200)&amp;SIZE=y(200)
 </code></pre>
 
 <p><strong>Response</strong> 
 <em>omitted</em></p>
-<h4 id="5-stop-the-job">5. Stop the job</h4>
+<h4 id="6-stop-the-job-and-the-service">6. Stop the job (and the service)</h4>
 <p><strong>Request</strong></p>
 <pre><code>GET /jobs/2a8ffb20c2b235a3f3e3351f/cancel
 </code></pre>
@@ -501,7 +523,7 @@ Body:
 
 <h4 id="2-ask-the-back-end-whether-it-supports-python-udfs-of-type-aggregate_time-and-get-details-about-expected-parameters">2. Ask the back-end whether it supports Python UDFs of type aggregate_time and get details about expected parameters</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /udf
+<pre><code>GET /udf_runtimes
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -512,8 +534,7 @@ Body:
     &quot;udf_types&quot;: [
       &quot;reduce_time&quot;,
       &quot;aggregate_time&quot;,
-      &quot;apply_pixel&quot;,
-      &quot;
+      &quot;apply_pixel&quot;
     ],
     &quot;versions&quot;: {
       &quot;3.6.3&quot;: {
@@ -533,7 +554,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /udf/Python/aggregate_time
+<pre><code>GET /udf_runtimes/Python/aggregate_time
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -568,7 +589,7 @@ Body:
 
 <h4 id="4-create-a-job">4. Create a job</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs?evaluate=lazy
+<pre><code>POST /jobs
 Body:
 {
     &quot;process_graph&quot;: {
@@ -606,9 +627,28 @@ Body:
 {&quot;job_id&quot; : &quot;3723c32fb7b24698832ca71f2d3f18aa&quot;}
 </code></pre>
 
-<h4 id="5-download-results-as-tms">5. Download results as TMS</h4>
+<h4 id="5-create-a-tms-service">5. Create a TMS service</h4>
+<p><strong>Request</strong></p>
+<pre><code>POST /services
+Body:
+{
+  &quot;job_id&quot;: &quot;2a8ffb20c2b235a3f3e3351f&quot;,
+  &quot;type&quot;: &quot;tms&quot;
+}
+</code></pre>
+
+<p><strong>Response</strong></p>
+<pre><code>HTTP 200/OK
+Body:
+{
+  &quot;service_id&quot;: &quot;9dab4b6f6523&quot;,
+  &quot;service_url&quot; : &quot;http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms&quot;
+}
+</code></pre>
+
+<h4 id="6-download-results-as-tms">6. Download results as TMS</h4>
 <p><strong>Example Request</strong></p>
-<pre><code>GET /download/3723c32fb7b24698832ca71f2d3f18aa/tms/2017-01-01/12/2232/2668/?bands=1
+<pre><code>GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1
 </code></pre>
 
 <p><strong>Response</strong>
@@ -793,9 +833,9 @@ Body:
 <pre><code>HTTP 200/OK
 </code></pre>
 
-<h4 id="4-create-a-job-with-the-computation-at-the-back-end">4. Create a job with the computation at the back-end</h4>
+<h4 id="4-create-a-job-and-start-batch-computation-at-the-back-end">4. Create a job and start batch computation at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs?evaluate=batch
+<pre><code>POST /jobs
 Body:
 {
     &quot;process_graph&quot;: {
@@ -830,8 +870,7 @@ Body:
                 }          
             }],
             &quot;regions&quot; : &quot;/users/me/files/,
-            &quot;func&quot; : &quot;avg&quot;,
-            &quot;outformat&quot; : &quot;GPKG&quot;
+            &quot;func&quot; : &quot;avg&quot;
         }
     }
 }
@@ -843,7 +882,15 @@ Body:
 {&quot;job_id&quot; : &quot;f6ea12c5e283438a921b525af826da08&quot;}
 </code></pre>
 
-<h4 id="5-check-job-status">5. Check job status</h4>
+<p><strong>Request</strong></p>
+<pre><code>POST /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
+</code></pre>
+
+<p><strong>Response</strong></p>
+<pre><code>HTTP 200/OK
+</code></pre>
+
+<h4 id="5-check-job-status-twice">5. Check job status twice</h4>
 <p><strong>Request</strong></p>
 <pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08
 </code></pre>
@@ -954,13 +1001,26 @@ Body:
 }
 </code></pre>
 
-<h4 id="7-download-results">7. Download results</h4>
-<p><strong>Example Request</strong></p>
-<pre><code>GET /download/f6ea12c5e283438a921b525af826da08
+<h4 id="7-retrieve-download-links">7. Retrieve download links</h4>
+<p><strong>Request</strong></p>
+<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08/download
+</code></pre>
+
+<p><strong>Response</strong></p>
+<pre><code>HTTP 200/OK
+Body:
+[
+  &quot;https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg&quot;
+]
+</code></pre>
+
+<h4 id="7-download-files">7. Download file(s)</h4>
+<p><strong>Request</strong></p>
+<pre><code>GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg
 </code></pre>
 
 <p><strong>Response (GPKG file)</strong>
-<em>omitted</em></p>
+_omitted</p>
               
             </div>
           </div>
@@ -968,7 +1028,7 @@ Body:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../drivers/index.html" class="btn btn-neutral float-right" title="Driver Features"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../apireference/index.html" class="btn btn-neutral float-right" title="API Reference"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../views/index.html" class="btn btn-neutral" title="Data Views"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -1002,7 +1062,7 @@ Body:
         <span><a href="../views/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../drivers/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../apireference/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

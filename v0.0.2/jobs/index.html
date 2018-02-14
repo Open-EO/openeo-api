@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Jobs - OpenEO - Core API Concepts</title>
+  <title>Jobs - OpenEO - Core Concepts & API</title>
   
 
   <link rel="shortcut icon" href="../favicon.ico">
@@ -39,7 +39,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="icon icon-home"> OpenEO - Core API Concepts</a>
+        <a href="../index.html" class="icon icon-home"> OpenEO - Core Concepts & API</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -59,6 +59,13 @@
           
             <li>
     <li class="toctree-l1 ">
+        <a class="" href="../glossary/index.html">Glossary</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
         <a class="" href="../arch/index.html">Architecture and Microservices</a>
         
     </li>
@@ -70,10 +77,10 @@
         
             <ul>
             
-                <li class="toctree-l3"><a href="#processes-tasks-jobs">Processes, Tasks, Jobs</a></li>
+                <li class="toctree-l3"><a href="#jobs">Jobs</a></li>
                 
             
-                <li class="toctree-l3"><a href="#job-evaluation">Job Evaluation</a></li>
+                <li class="toctree-l3"><a href="#evaluation-types">Evaluation types</a></li>
                 
             
             </ul>
@@ -104,13 +111,6 @@
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../drivers/index.html">Driver Features</a>
-        
-    </li>
-<li>
-          
-            <li>
-    <li class="toctree-l1 ">
         <a class="" href="../apireference/index.html">API Reference</a>
         
     </li>
@@ -126,7 +126,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">OpenEO - Core API Concepts</a>
+        <a href="../index.html">OpenEO - Core Concepts & API</a>
       </nav>
 
       
@@ -152,14 +152,12 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="processes-tasks-jobs">Processes, Tasks, Jobs</h1>
-<p>The terms <em>process</em>, <em>task</em>, and <em>job</em> have different meanings in the OpenEO API specification.</p>
-<p>A <em>process</em> is simply the description of an operation as provided by the back end, similar to a function definition in programming languages. </p>
-<p>A <em>task</em> includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, tasks can chain multiple processes. In particular, arguments of processes in general can be again (recursive) tasks, input datasets, or simple scalar or array values.</p>
-<p>A <em>job</em> brings one task to the back-end and organizes its execution, which may or may not induce costs. Jobs furthermore allow to run tasks from different <em>data views</em> (see section on <a href="../views/index.html">data views</a>). Views define at which resolution and extent we look at the data during processing and hence allow to try out tasks on small subsets, or work interactively within web map applications.</p>
-<h1 id="job-evaluation">Job Evaluation</h1>
-<p>The API distinguishes two types how jobs are executed at back-ends. <em>Lazy evaluation</em> runs computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.  <em>Batch jobs</em> in contrast are directly submitted to the back office's processing system. They will run only once, potentially include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. </p>
+                <h1 id="jobs">Jobs</h1>
+<p>As described in the <a href="../glossary/index.html">glossary</a>, a <strong>job</strong> brings one process graph to the back-end and organizes its execution, which may or may not induce costs.</p>
+<h1 id="evaluation-types">Evaluation types</h1>
+<p>The API distinguishes two types how jobs are (asynchronously) executed at back-ends. <em>Lazy evaluation</em> runs computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.  <em>Batch jobs</em> in contrast are directly submitted to the back office's processing system. They will run only once, potentially include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. </p>
 <p>As an example we consider the simple calculation of vegetation indexes on all available Sentinel 2 imagery over Europe. Batch evaluation will take all relevant images, compute the NDVI, and finally store the result whereas lazy evaluation will not start any computations on its own. As soon as a client performs a download request such as a <code>GetCoverage</code> WCS request, the job's process will be executed but only for requested pixels. However, back-ends are free to cache frequent intermediate results on their own.</p>
+<p>There is a third way to execute jobs at the back-ends, but does not really fit into the types mentioned before. It is similar to batch jobs, but results are delivered immediately after computation, i.e. synchronously. </p>
               
             </div>
           </div>
