@@ -1,1 +1,1 @@
-__this is a placeholder file that will be replaced by generated docs of the OpenAPI spec automatically_
+_this is a placeholder file that will be replaced by generated docs of the OpenAPI spec automatically_

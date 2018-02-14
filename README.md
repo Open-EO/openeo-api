@@ -2,9 +2,7 @@
 
 [![Status](https://img.shields.io/badge/Status-proof--of--concept-yellow.svg)]()
 
-This repository provides a draft [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) definition of the [OpenEO](http://openeo.org) API for rapid prototyping and a proof of concept. The complete API is described in `swagger.json`. An additional description of core ideas and concepts can be found at [https://open-eo.github.io/openeo-api-poc](https://open-eo.github.io/openeo-api-poc/).
-
-The branch `openapi_3_0` contains an OpenAPI 3.0.0 specification, which currently cannot be used with tools such as swagger-codegen. However, since swagger 2.0 does not support   JSON schema combinations with `oneOf` and `anyOf`, this definition lacks a formalization of process argument values. 
+This repository provides a draft [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) definition of the [OpenEO](http://openeo.org) API for rapid prototyping and a proof of concept. The complete API is described in `swagger.json`. An additional description of core ideas and concepts including the Core API specification itself can be found at **[https://open-eo.github.io/openeo-api-poc](https://open-eo.github.io/openeo-api-poc/)**. Since swagger 2.0 does not support JSON schema combinations with `oneOf` and `anyOf`, this definition lacks a formalization of process argument values. 
 
 ## Documentation and editing
 You can use [swagger-ui](https://github.com/swagger-api/swagger-ui) and [swagger-editor]() to
