@@ -9,6 +9,8 @@ This page gives a detailed description of the OpenEO proof of concept and gives 
 
 Below, we define the examples processes and how they are translated to sequences of API calls.
 
+Note: Authentication is not included in these examples.
+
 ## Example Process 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery
 
 
@@ -21,7 +23,12 @@ GET /data/Sentinel2A-L1C
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "product_id":"Sentinel-2A-L1C",
@@ -173,7 +180,12 @@ GET /processes/filter_bbox
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "process_id":"filter_bbox",
@@ -208,7 +220,12 @@ GET /processes/filter_daterange
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "process_id":"filter_daterange",
@@ -234,7 +251,12 @@ GET /processes/NDVI
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "process_id":"NDVI",
@@ -260,7 +282,12 @@ GET /processes/min_time
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "process_id":"min_time",
@@ -324,7 +351,12 @@ Body:
 ```
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "job_id":"2a8ffb20c2b235a3f3e3351f",
@@ -355,7 +387,12 @@ Body:
 **Response**
 
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "service_id":"4dab456f6501bbcd",
@@ -398,7 +435,12 @@ GET /jobs/2a8ffb20c2b235a3f3e3351f/cancel
 **Response**
 
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+Body: none
 ```
 
 
@@ -415,7 +457,12 @@ GET /data/Sentinel1-L1-IW-GRD
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "product_id":"Sentinel1-L1-IW-GRD",
@@ -453,7 +500,12 @@ GET /udf_runtimes
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "Python":{
@@ -487,7 +539,12 @@ GET /udf_runtimes/Python/aggregate_time
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 {
   "process_id":"/udf/Python/aggregate_time",
   "description":"Runs a Python script for each time series of the input dataset.",
@@ -517,7 +574,12 @@ PUT /users/me/files/s1_aggregate.py
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+Body: none
 ```
 
 
@@ -566,7 +628,12 @@ Body:
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
@@ -594,7 +661,12 @@ Body:
 **Response**
 
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "service_id":"9dab4b6f6523",
@@ -629,7 +701,12 @@ GET /data/Sentinel2A-L1C
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "product_id":"Sentinel-2A-L1C",
@@ -769,6 +846,8 @@ Body:
     }
   ]
 }
+
+
 ```
 
 
@@ -782,7 +861,13 @@ GET /processes/zonal_statistics
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+Body:
 {
   "process_id":"zonal_statistics",
   "description":"Runs a Python script for each time series of the input dataset.",
@@ -817,7 +902,12 @@ PUT /user/me/files/polygon1.json
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+Body: none
 ```
 
 #### 4. Create a job
@@ -874,7 +964,12 @@ Body:
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
@@ -897,7 +992,12 @@ GET /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
 **Response**
 
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+Body: none
 ```
 
 #### 6. Check job status twice
@@ -909,7 +1009,12 @@ GET /jobs/f6ea12c5e283438a921b525af826da08
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
@@ -961,6 +1066,8 @@ Body:
   "updated":"2017-01-01 09:34:11",
   "consumed_credits":231
 }
+
+
 ```
 
 **Request**
@@ -970,7 +1077,12 @@ GET /jobs/f6ea12c5e283438a921b525af826da08
 
 **Response**
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
@@ -1035,11 +1147,18 @@ GET /jobs/f6ea12c5e283438a921b525af826da08/download
 **Response**
 
 ```
-HTTP 200/OK
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
 Body:
 [
   "https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg"
 ]
+
+
 ```
 
 #### 8. Download file(s)
@@ -1051,5 +1170,5 @@ GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg
 ```
 
 **Response (GPKG file)**
-_omitted
+_omitted_
 
