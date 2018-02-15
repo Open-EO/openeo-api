@@ -24,135 +24,143 @@ GET /data/Sentinel2A-L1C
 HTTP 200/OK
 Body:
 {
-    "product_id": "Sentinel-2A-L1C",
-    "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
-    "source": "European Space Agency (ESA)",
-    "extent": [ -34, 35, 39, 71],
-    "time": [ "2016-01-01", "2017-10-01"],
-    "bands": 
-    [{
-        "band_id": "1",
-        "wavelength_nm": 443.9,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+  "product_id":"Sentinel-2A-L1C",
+  "description":"Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
+  "source":"European Space Agency (ESA)",
+  "extent":[
+    -34,
+    35,
+    39,
+    71
+  ],
+  "time":[
+    "2016-01-01",
+    "2017-10-01"
+  ],
+  "bands":[
+    {
+      "band_id":"1",
+      "wavelength_nm":443.9,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "2",
-        "name": "blue",
-        "wavelength_nm": 496.6,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"2",
+      "name":"blue",
+      "wavelength_nm":496.6,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "3",
-        "name": "green",
-        "wavelength_nm": 560,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"3",
+      "name":"green",
+      "wavelength_nm":560,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "4",
-        "name": "red",
-        "wavelength_nm": 664.5,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"4",
+      "name":"red",
+      "wavelength_nm":664.5,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "5",
-        "wavelength_nm": 703.9,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"5",
+      "wavelength_nm":703.9,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "6",
-        "wavelength_nm": 740.2,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"6",
+      "wavelength_nm":740.2,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "7",
-        "wavelength_nm": 782.5,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"7",
+      "wavelength_nm":782.5,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "8",
-        "name": "nir",
-        "wavelength_nm": 835.1,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"8",
+      "name":"nir",
+      "wavelength_nm":835.1,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "8a",
-        "wavelength_nm": 864.8,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"8a",
+      "wavelength_nm":864.8,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "9",
-        "wavelength_nm": 945,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"9",
+      "wavelength_nm":945,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "10",
-        "wavelength_nm": 1373.5,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"10",
+      "wavelength_nm":1373.5,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "11",
-        "wavelength_nm": 1613.7,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"11",
+      "wavelength_nm":1613.7,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "12",
-        "wavelength_nm": 2202.4,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
-    }]
+      "band_id":"12",
+      "wavelength_nm":2202.4,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
+    }
+  ]
 }
-
 ```
 
 
@@ -168,28 +176,28 @@ GET /processes/filter_bbox
 HTTP 200/OK
 Body:
 {
-    "process_id": "filter_bbox",
-    "description": "Drops observations from a collection that are located outside of a given bounding box.",
-    "args": {
-       "collections": {
-            "description": "array of input collections with one element"
-        },
-        "left" : {
-            "description" : "left boundary (longitude / easting)"
-        },
-        "right" : {
-            "description" : "right boundary (longitude / easting)"
-        },
-        "top" : {
-            "description" : "top boundary (latitude / northing)"
-        },
-        "bottom" : {
-            "description" : "bottom boundary (latitude / northing)"
-        },
-        "srs" : {
-            "description" : "spatial reference system of boundaries as proj4 or EPSG:12345 like string"
-        }
+  "process_id":"filter_bbox",
+  "description":"Drops observations from a collection that are located outside of a given bounding box.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
+    },
+    "left":{
+      "description":"left boundary (longitude / easting)"
+    },
+    "right":{
+      "description":"right boundary (longitude / easting)"
+    },
+    "top":{
+      "description":"top boundary (latitude / northing)"
+    },
+    "bottom":{
+      "description":"bottom boundary (latitude / northing)"
+    },
+    "srs":{
+      "description":"spatial reference system of boundaries as proj4 or EPSG:12345 like string"
     }
+  }
 }
 ```
 
@@ -203,19 +211,19 @@ GET /processes/filter_daterange
 HTTP 200/OK
 Body:
 {
-    "process_id": "filter_daterange",
-    "description": "Drops observations from a collection that have been captured before a start or after a given end date.",
-    "args": {
-        "collections": {
-            "description": "array of input collections with one element"
-        },
-        "from" : {
-            "description" : "start date"
-        },
-        "to" : {
-            "description" : "end date"
-        }
+  "process_id":"filter_daterange",
+  "description":"Drops observations from a collection that have been captured before a start or after a given end date.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
+    },
+    "from":{
+      "description":"start date"
+    },
+    "to":{
+      "description":"end date"
     }
+  }
 }
 ```
 
@@ -229,19 +237,19 @@ GET /processes/NDVI
 HTTP 200/OK
 Body:
 {
-    "process_id": "NDVI",
-    "description": "Finds the minimum value of time series for all bands of the input dataset.",
-    "args": {
-        "collections": {
-            "description": "array of input collections with one element"
-        },
-        "red" : {
-            "description" : "reference to the red band"
-        },
-        "nir" : {
-            "description" : "reference to the nir band"
-        }
+  "process_id":"NDVI",
+  "description":"Finds the minimum value of time series for all bands of the input dataset.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
+    },
+    "red":{
+      "description":"reference to the red band"
+    },
+    "nir":{
+      "description":"reference to the nir band"
     }
+  }
 }
 ```
 
@@ -255,13 +263,13 @@ GET /processes/min_time
 HTTP 200/OK
 Body:
 {
-    "process_id": "min_time",
-    "description": "Finds the minimum value of time series for all bands of the input dataset.",
-    "args": {
-       "collections": {
-            "description": "array of input collections with one element"
-        },
+  "process_id":"min_time",
+  "description":"Finds the minimum value of time series for all bands of the input dataset.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
     }
+  }
 }
 ```
 
@@ -272,36 +280,44 @@ Body:
 POST /jobs
 Body:
 {
-  "process_graph": {
-    "process_id": "min_time",
-    "args": {
-      "collections": [{
-        "process_id": "NDVI",
-        "args": {
-          "collections": [{
-            "process_id": "filter_daterange",
-            "args": {
-              "collections": [{
-                "process_id": "filter_bbox",
-                "args": {
-                "collections": [{
-                    "product_id": "S2_L2A_T32TPS_20M"
-                }],
-                "left" : 652000,
-                "right" :672000,
-                "top" : 5161000,
-                "bottom" : 5181000,
-                "srs" : "EPSG:32632"
+  "process_graph":{
+    "process_id":"min_time",
+    "args":{
+      "collections":[
+        {
+          "process_id":"NDVI",
+          "args":{
+            "collections":[
+              {
+                "process_id":"filter_daterange",
+                "args":{
+                  "collections":[
+                    {
+                      "process_id":"filter_bbox",
+                      "args":{
+                        "collections":[
+                          {
+                            "product_id":"S2_L2A_T32TPS_20M"
+                          }
+                        ],
+                        "left":652000,
+                        "right":672000,
+                        "top":5161000,
+                        "bottom":5181000,
+                        "srs":"EPSG:32632"
+                      }
+                    }
+                  ],
+                  "from":"2017-01-01",
+                  "to":"2017-01-31"
                 }
-              }],
-	      "from": "2017-01-01",
-              "to": "2017-01-31"
-            }
-          }],
-          "red": "B04",
-          "nir": "B8A"
+              }
+            ],
+            "red":"B04",
+            "nir":"B8A"
+          }
         }
-      }]
+      ]
     }
   }
 }
@@ -310,7 +326,14 @@ Body:
 ```
 HTTP 200/OK
 Body:
-{"job_id" : "2a8ffb20c2b235a3f3e3351f"}
+{
+  "job_id":"2a8ffb20c2b235a3f3e3351f",
+  "status":"submitted",
+  "submitted":"2017-01-01T09:32:12Z",
+  "updated":"2017-01-01T09:36:18Z",
+  "user_id":"bd6f9faf93b4",
+  "consumed_credits":0
+}
 ```
 
 #### 4. Create a WCS service
@@ -321,10 +344,10 @@ Body:
 POST /services
 Body:
 {
-  "job_id": "2a8ffb20c2b235a3f3e3351f",
-  "type": "wcs",
-  "args": {
-    "VERSION": "2.0.1"
+  "job_id":"2a8ffb20c2b235a3f3e3351f",
+  "type":"wcs",
+  "args":{
+    "VERSION":"2.0.1"
   }
 }
 ```
@@ -335,8 +358,13 @@ Body:
 HTTP 200/OK
 Body:
 {
-  "service_id": "4dab456f6501bbcd",
-  "service_url" : "http://openeo.org/api/v0/services/4dab456f6501bbcd/wcs"
+  "service_id":"4dab456f6501bbcd",
+  "service_url":"https://openeo.org/4dab456f6501bbcd/wcs",
+  "service_type":"wcs",
+  "service_args":{
+    "VERSION":"2.0.1"
+  },
+  "job_id":"2a8ffb20c2b235a3f3e3351f"
 }
 ```
 
@@ -390,19 +418,27 @@ GET /data/Sentinel1-L1-IW-GRD
 HTTP 200/OK
 Body:
 {
-    "product_id": "Sentinel1-L1-IW-GRD",
-    "description": "Sentinel 1 C-band Synthetic Aperture Radar (SAR) Ground Range Data",
-    "source": "European Space Agency (ESA)",
-    "extent": [ -34, 35, 39, 71],
-    "time": [ "2016-01-01", "2017-10-01"],
-    "bands": [
+  "product_id":"Sentinel1-L1-IW-GRD",
+  "description":"Sentinel 1 C-band Synthetic Aperture Radar (SAR) Ground Range Data",
+  "source":"European Space Agency (ESA)",
+  "extent":[
+    -34,
+    35,
+    39,
+    71
+  ],
+  "time":[
+    "2016-01-01",
+    "2017-10-01"
+  ],
+  "bands":[
     {
-        "band_id": "VV",
+      "band_id":"VV"
     },
     {
-        "band_id": "VH",
+      "band_id":"VH"
     }
-    ]
+  ]
 }
 ```
 
@@ -420,15 +456,15 @@ GET /udf_runtimes
 HTTP 200/OK
 Body:
 {
-  "Python": {
-    "udf_types": [
+  "Python":{
+    "udf_types":[
       "reduce_time",
       "aggregate_time",
       "apply_pixel"
     ],
-    "versions": {
-      "3.6.3": {
-        "packages": [
+    "versions":{
+      "3.6.3":{
+        "packages":[
           "numpy",
           "scipy",
           "pandas",
@@ -453,19 +489,19 @@ GET /udf_runtimes/Python/aggregate_time
 ```
 HTTP 200/OK
 {
-  "process_id": "/udf/Python/aggregate_time",
-  "description": "Runs a Python script for each time series of the input dataset.",
-  "args": {
-    "collections": {
-      "description": "array of input collections with one element"
+  "process_id":"/udf/Python/aggregate_time",
+  "description":"Runs a Python script for each time series of the input dataset.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
     },
-    "script": {
-      "description": "Python script that will be executed over all time series, gets time series as (Pandas) DataFrame and expects a new DataFrame as output."
+    "script":{
+      "description":"Python script that will be executed over all time series, gets time series as (Pandas) DataFrame and expects a new DataFrame as output."
     },
-    "version" : {
-       "description" : "Python version to use, defaults to the latest available version."
-       "required" : false,
-       "default" : "latest" 
+    "version":{
+      "description":"Python version to use, defaults to the latest available version.",
+      "required":false,
+      "default":"latest"
     }
   }
 }
@@ -492,32 +528,38 @@ HTTP 200/OK
 POST /jobs
 Body:
 {
-    "process_graph": {
-        "process_id": "/udf/Python/aggregate_time",
-        "args": {
-            "script" : "/users/me/files/s1_aggregate.py",        
-            "collections": [{
-                "process_id": "filter_daterange",
-                "args": {
-                    "collections": [{
-                        "process_id": "filter_bbox",
-                        "args": {
-                            "collections": [{
-                                "product_id": "Sentinel1-L1-IW-GRD"
-                            }],
-                            "left" : ‎ 16.1,
-                            "right" : ‎16.6,
-                            "top" : 48.6,
-                            "bottom" : 47.2,
-                            "srs" : "EPSG:4326"
-                        },
-                    }],
-                    "from": "2017-01-01",
-                    "to": "2017-01-31"
+  "process_graph":{
+    "process_id":"/udf/Python/aggregate_time",
+    "args":{
+      "script":"/users/me/files/s1_aggregate.py",
+      "collections":[
+        {
+          "process_id":"filter_daterange",
+          "args":{
+            "collections":[
+              {
+                "process_id":"filter_bbox",
+                "args":{
+                  "collections":[
+                    {
+                      "product_id":"Sentinel1-L1-IW-GRD"
+                    }
+                  ],
+                  "left":16.1,
+                  "right":16.6,
+                  "top":48.6,
+                  "bottom":47.2,
+                  "srs":"EPSG:4326"
                 }
-            }]
+              }
+            ],
+            "from":"2017-01-01",
+            "to":"2017-01-31"
+          }
         }
+      ]
     }
+  }
 }
 ```
 
@@ -526,7 +568,14 @@ Body:
 ```
 HTTP 200/OK
 Body:
-{"job_id" : "3723c32fb7b24698832ca71f2d3f18aa"}
+{
+  "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
+  "status":"submitted",
+  "submitted":"2017-01-01T09:32:12Z",
+  "updated":"2017-01-01T09:36:18Z",
+  "user_id":"bd6f9faf93b4",
+  "consumed_credits":0
+}
 ```
 
 #### 5. Create a TMS service
@@ -537,8 +586,8 @@ Body:
 POST /services
 Body:
 {
-  "job_id": "2a8ffb20c2b235a3f3e3351f",
-  "type": "tms"
+  "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
+  "type":"tms"
 }
 ```
 
@@ -548,8 +597,10 @@ Body:
 HTTP 200/OK
 Body:
 {
-  "service_id": "9dab4b6f6523",
-  "service_url" : "http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms"
+  "service_id":"9dab4b6f6523",
+  "service_url":"http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms",
+  "service_type":"tms",
+  "job_id":"3723c32fb7b24698832ca71f2d3f18aa"
 }
 ```
 
@@ -581,133 +632,142 @@ GET /data/Sentinel2A-L1C
 HTTP 200/OK
 Body:
 {
-    "product_id": "Sentinel-2A-L1C",
-    "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
-    "source": "European Space Agency (ESA)",
-    "extent": [ -34, 35, 39, 71],
-    "time": [ "2016-01-01", "2017-10-01"],
-    "bands": 
-    [{
-        "band_id": "1",
-        "wavelength_nm": 443.9,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+  "product_id":"Sentinel-2A-L1C",
+  "description":"Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
+  "source":"European Space Agency (ESA)",
+  "extent":[
+    -34,
+    35,
+    39,
+    71
+  ],
+  "time":[
+    "2016-01-01",
+    "2017-10-01"
+  ],
+  "bands":[
+    {
+      "band_id":"1",
+      "wavelength_nm":443.9,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "2",
-        "name": "blue",
-        "wavelength_nm": 496.6,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"2",
+      "name":"blue",
+      "wavelength_nm":496.6,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "3",
-        "name": "green",
-        "wavelength_nm": 560,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"3",
+      "name":"green",
+      "wavelength_nm":560,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "4",
-        "name": "red",
-        "wavelength_nm": 664.5,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"4",
+      "name":"red",
+      "wavelength_nm":664.5,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "5",
-        "wavelength_nm": 703.9,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"5",
+      "wavelength_nm":703.9,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "6",
-        "wavelength_nm": 740.2,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"6",
+      "wavelength_nm":740.2,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "7",
-        "wavelength_nm": 782.5,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"7",
+      "wavelength_nm":782.5,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "8",
-        "name": "nir",
-        "wavelength_nm": 835.1,
-        "res_m": 10,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"8",
+      "name":"nir",
+      "wavelength_nm":835.1,
+      "res_m":10,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "8a",
-        "wavelength_nm": 864.8,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"8a",
+      "wavelength_nm":864.8,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "9",
-        "wavelength_nm": 945,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"9",
+      "wavelength_nm":945,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "10",
-        "wavelength_nm": 1373.5,
-        "res_m": 60,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"10",
+      "wavelength_nm":1373.5,
+      "res_m":60,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "11",
-        "wavelength_nm": 1613.7,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
+      "band_id":"11",
+      "wavelength_nm":1613.7,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
     },
     {
-        "band_id": "12",
-        "wavelength_nm": 2202.4,
-        "res_m": 20,
-        "scale": 0.0001,
-        "offset": 0,
-        "type": "int16",
-        "unit": "1"
-    }]
+      "band_id":"12",
+      "wavelength_nm":2202.4,
+      "res_m":20,
+      "scale":0.0001,
+      "offset":0,
+      "type":"int16",
+      "unit":"1"
+    }
+  ]
 }
 ```
 
@@ -724,24 +784,24 @@ GET /processes/zonal_statistics
 ```
 HTTP 200/OK
 {
-  "process_id": "zonal_statistics",
-  "description": "Runs a Python script for each time series of the input dataset.",
-  "args": {
-    "collections": {
-      "description": "array of input collections with one element"
+  "process_id":"zonal_statistics",
+  "description":"Runs a Python script for each time series of the input dataset.",
+  "args":{
+    "collections":{
+      "description":"array of input collections with one element"
     },
-    "regions": {
-      "description": "Polygon file readable by OGR"
+    "regions":{
+      "description":"Polygon file readable by OGR"
     },
-    "func" : {
-       "description" : "Function to apply over the polygons, one of `"avg"`, `"min"`, `"max"`, `"median"`, `"q25"`, or `"q75"` .", 
-       "required" : false,
-       "default" : "avg" 
+    "func":{
+      "description":"Function to apply over the polygons, one of `avg`, `min`, `max`, `median`, `q25`, or `q75`.",
+      "required":false,
+      "default":"avg"
     },
-    "outformat" : {
-       "description" : "Output format as OGR identifier string, defaults to GeoPackage", 
-       "required" : false,
-       "default" : "GPKG" 
+    "outformat":{
+      "description":"Output format as OGR identifier string, defaults to GeoPackage",
+      "required":false,
+      "default":"GPKG"
     }
   }
 }
@@ -760,47 +820,54 @@ PUT /user/me/files/polygon1.json
 HTTP 200/OK
 ```
 
-#### 4. Create a job and start batch computation at the back-end
+#### 4. Create a job
 **Request**
 ```
 POST /jobs
 Body:
 {
-    "process_graph": {
-        "process_id": "zonal_statistics",
-        "args": {        
-            "collections": [{
-                "process_id": "filter_daterange",
-                "args": {
-                    "collections": [{
-                        "process_id": "filter_bbox",
-                        "args": {
-                            "collections": [{
-                                "process_id" : "filter_bands",
-                                "args" : {
-                                    "collections" : [
-                                        {
-                                            "product_id": "Sentinel2-L1C"
-                                        }
-                                    ],
-                                    "bands": 8
-                                }
-                            }],
-                            "left" : ‎ 16.1,
-                            "right" : ‎16.6,
-                            "top" : 48.6,
-                            "bottom" : 47.2,
-                            "srs" : "EPSG:4326"
-                        },
-                    }],
-                    "from": "2017-01-01",
-                    "to": "2017-01-31"
-                }          
-            }],
-            "regions" : "/users/me/files/,
-            "func" : "avg"
+  "process_graph":{
+    "process_id":"zonal_statistics",
+    "args":{
+      "collections":[
+        {
+          "process_id":"filter_daterange",
+          "args":{
+            "collections":[
+              {
+                "process_id":"filter_bbox",
+                "args":{
+                  "collections":[
+                    {
+                      "process_id":"filter_bands",
+                      "args":{
+                        "collections":[
+                          {
+                            "product_id":"Sentinel2-L1C"
+                          }
+                        ],
+                        "bands":8
+                      }
+                    }
+                  ],
+                  "left":16.1,
+                  "right":16.6,
+                  "top":48.6,
+                  "bottom":47.2,
+                  "srs":"EPSG:4326"
+                }
+              }
+            ],
+            "from":"2017-01-01",
+            "to":"2017-01-31"
+          }
         }
+      ],
+      "regions":"/users/me/files/",
+      "func":"avg",
+      "outformat":"GPKG"
     }
+  }
 }
 ```
 
@@ -809,13 +876,22 @@ Body:
 ```
 HTTP 200/OK
 Body:
-{"job_id" : "f6ea12c5e283438a921b525af826da08"}
+{
+  "job_id":"f6ea12c5e283438a921b525af826da08",
+  "status":"submitted",
+  "submitted":"2017-01-01T09:32:12Z",
+  "updated":"2017-01-01T09:36:18Z",
+  "user_id":"bd6f9faf93b4",
+  "consumed_credits":0
+}
 ```
+
+#### 5. Start batch computation at the back-end
 
 **Request**
 
 ```
-POST /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
+GET /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
 ```
 
 **Response**
@@ -824,7 +900,7 @@ POST /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
 HTTP 200/OK
 ```
 
-#### 5. Check job status twice
+#### 6. Check job status twice
 
 **Request**
 ```
@@ -836,50 +912,54 @@ GET /jobs/f6ea12c5e283438a921b525af826da08
 HTTP 200/OK
 Body:
 {
-  "job_id": "f6ea12c5e283438a921b525af826da08",
-  "user_id": "bd6f9faf93b4",
-  "status": "running",
-  "task": {
-    "process_graph": {
-        "process_id": "zonal_statistics",
-        "args": {        
-            "collections": [{
-                "process_id": "filter_daterange",
-                "args": {
-                    "collections": [{
-                        "process_id": "filter_bbox",
-                        "args": {
-                            "collections": [{
-                                "process_id" : "filter_bands",
-                                "args" : {
-                                    "collections" : [
-                                        {
-                                            "product_id": "Sentinel2-L1C"
-                                        }
-                                    ],
-                                    "bands": 8
-                                }
-                            }],
-                            "left" : ‎ 16.1,
-                            "right" : ‎16.6,
-                            "top" : 48.6,
-                            "bottom" : 47.2,
-                            "srs" : "EPSG:4326"
-                        },
-                    }],
-                    "from": "2017-01-01",
-                    "to": "2017-01-31"
-                }          
-            }],
-            "regions" : "/users/me/files/,
-            "func" : "avg",
-            "outformat" : "GPKG"
+  "job_id":"f6ea12c5e283438a921b525af826da08",
+  "user_id":"bd6f9faf93b4",
+  "status":"running",
+  "process_graph":{
+    "process_id":"zonal_statistics",
+    "args":{
+      "collections":[
+        {
+          "process_id":"filter_daterange",
+          "args":{
+            "collections":[
+              {
+                "process_id":"filter_bbox",
+                "args":{
+                  "collections":[
+                    {
+                      "process_id":"filter_bands",
+                      "args":{
+                        "collections":[
+                          {
+                            "product_id":"Sentinel2-L1C"
+                          }
+                        ],
+                        "bands":8
+                      }
+                    }
+                  ],
+                  "left":16.1,
+                  "right":16.6,
+                  "top":48.6,
+                  "bottom":47.2,
+                  "srs":"EPSG:4326"
+                }
+              }
+            ],
+            "from":"2017-01-01",
+            "to":"2017-01-31"
+          }
         }
+      ],
+      "regions":"/users/me/files/",
+      "func":"avg",
+      "outformat":"GPKG"
     }
   },
-  "submitted": "2017-01-01 09:32:12",
-  "last_update": "2017-01-01 09:36:18",
-  "consumed_credits": "0.231"
+  "submitted":"2017-01-01 09:32:12",
+  "updated":"2017-01-01 09:34:11",
+  "consumed_credits":231
 }
 ```
 
@@ -893,50 +973,54 @@ GET /jobs/f6ea12c5e283438a921b525af826da08
 HTTP 200/OK
 Body:
 {
-  "job_id": "f6ea12c5e283438a921b525af826da08",
-  "user_id": "bd6f9faf93b4",
-  "status": "finished",
-  "task": {
-   "process_graph": {
-        "process_id": "zonal_statistics",
-        "args": {        
-            "collections": [{
-                "process_id": "filter_daterange",
-                "args": {
-                    "collections": [{
-                        "process_id": "filter_bbox",
-                        "args": {
-                            "collections": [{
-                                "process_id" : "filter_bands",
-                                "args" : {
-                                    "collections" : [
-                                        {
-                                            "product_id": "Sentinel2-L1C"
-                                        }
-                                    ],
-                                    "bands": 8
-                                }
-                            }],
-                            "left" : ‎ 16.1,
-                            "right" : ‎16.6,
-                            "top" : 48.6,
-                            "bottom" : 47.2,
-                            "srs" : "EPSG:4326"
-                        },
-                    }],
-                    "from": "2017-01-01",
-                    "to": "2017-01-31"
-                }          
-            }],
-            "regions" : "/users/me/files/,
-            "func" : "avg",
-            "outformat" : "GPKG"
+  "job_id":"f6ea12c5e283438a921b525af826da08",
+  "user_id":"bd6f9faf93b4",
+  "status":"finished",
+  "process_graph":{
+    "process_id":"zonal_statistics",
+    "args":{
+      "collections":[
+        {
+          "process_id":"filter_daterange",
+          "args":{
+            "collections":[
+              {
+                "process_id":"filter_bbox",
+                "args":{
+                  "collections":[
+                    {
+                      "process_id":"filter_bands",
+                      "args":{
+                        "collections":[
+                          {
+                            "product_id":"Sentinel2-L1C"
+                          }
+                        ],
+                        "bands":8
+                      }
+                    }
+                  ],
+                  "left":16.1,
+                  "right":16.6,
+                  "top":48.6,
+                  "bottom":47.2,
+                  "srs":"EPSG:4326"
+                }
+              }
+            ],
+            "from":"2017-01-01",
+            "to":"2017-01-31"
+          }
         }
+      ],
+      "regions":"/users/me/files/",
+      "func":"avg",
+      "outformat":"GPKG"
     }
   },
-  "submitted": "2017-01-01 09:32:12",
-  "last_update": "2017-01-01 09:36:57",
-  "consumed_credits": "0.231"
+  "submitted":"2017-01-01 09:32:12",
+  "updated":"2017-01-01 09:36:57",
+  "consumed_credits":450
 }
 ```
 
@@ -958,7 +1042,7 @@ Body:
 ]
 ```
 
-#### 7. Download file(s)
+#### 8. Download file(s)
 
 **Request**
 
