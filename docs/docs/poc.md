@@ -4,21 +4,21 @@ This page gives a detailed description of the OpenEO proof of concept and gives 
 
 * at least three clearly defined example processes (see below),
 * a prototypical API specification including communication API call sequences of the processes (see below),
-* implementations of the processes on three back-ends (file-based, Spark, EURAC), and
+* implementations of the processes on three back-ends, and
 * prototypical clients in R, Python and potentially JavaScript.
 
-Below, we define the examples processes and how they are translated to sequences of API calls.
+Below, we define the example use cases and how they are translated to sequences of API calls.
 
-Note: Authentication is not included in these examples.
+_Note: Authentication is not included in these examples._
 
-## Example Process 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery
+## Use Case 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery
 
 
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
 **Request**
 ```
-GET /data/Sentinel2A-L1C
+GET /data/Sentinel2A-L1C HTTP/1.1
 ```
 
 **Response**
@@ -175,7 +175,7 @@ Body:
 
 **Request**
 ```
-GET /processes/filter_bbox
+GET /processes/filter_bbox HTTP/1.1
 ```
 
 **Response**
@@ -215,7 +215,7 @@ Body:
 
 **Request**
 ```
-GET /processes/filter_daterange
+GET /processes/filter_daterange HTTP/1.1
 ```
 
 **Response**
@@ -246,7 +246,7 @@ Body:
 
 **Request**
 ```
-GET /processes/NDVI
+GET /processes/NDVI HTTP/1.1
 ```
 
 **Response**
@@ -277,7 +277,7 @@ Body:
 
 **Request**
 ```
-GET /processes/min_time
+GET /processes/min_time HTTP/1.1
 ```
 
 **Response**
@@ -300,11 +300,13 @@ Body:
 }
 ```
 
-#### 3. Create a job with the computation at the back-end 
+#### 3. Create a job at the back-end 
 
 **Request**
 ```
-POST /jobs
+POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   "process_graph":{
@@ -373,7 +375,9 @@ Body:
 **Request**
 
 ```
-POST /services
+POST /services HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   "job_id":"2a8ffb20c2b235a3f3e3351f",
@@ -409,7 +413,7 @@ Body:
 
 **Request**
 ```
-GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities
+GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities HTTP/1.1
 ```
 
 **Response**
@@ -417,7 +421,7 @@ _omitted_
 
 **Request**
 ```
-GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200)
+GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200) HTTP/1.1
 ```
 
 
@@ -429,7 +433,7 @@ _omitted_
 **Request**
 
 ```
-GET /jobs/2a8ffb20c2b235a3f3e3351f/cancel
+PATCH /jobs/2a8ffb20c2b235a3f3e3351f/cancel HTTP/1.1
 ```
 
 **Response**
@@ -445,13 +449,13 @@ Body: none
 
 
 
-## Example Process 2: Create a monthly aggregated Sentinel 1 product from a custom Python script
+## Use Case 2: Create a monthly aggregated Sentinel 1 product from a custom Python script
 
 #### 1. Ask the back-end for available Sentinel 1 data
 
 **Request**
 ```
-GET /data/Sentinel1-L1-IW-GRD
+GET /data/Sentinel1-L1-IW-GRD HTTP/1.1
 ```
 
 
@@ -494,7 +498,7 @@ Body:
 
 **Request**
 ```
-GET /udf_runtimes
+GET /udf_runtimes HTTP/1.1
 ```
 
 
@@ -533,7 +537,7 @@ Body:
 
 **Request**
 ```
-GET /udf_runtimes/Python/aggregate_time
+GET /udf_runtimes/Python/aggregate_time HTTP/1.1
 ```
 
 
@@ -568,7 +572,7 @@ Access-Control-Allow-Credentials: true
 
 **Request**
 ```
-PUT /users/me/files/s1_aggregate.py
+PUT /users/me/files/s1_aggregate.py HTTP/1.1
 ```
 
 
@@ -587,7 +591,9 @@ Body: none
 
 **Request**
 ```
-POST /jobs
+POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   "process_graph":{
@@ -650,7 +656,9 @@ Body:
 **Request**
 
 ```
-POST /services
+POST /services HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
@@ -681,7 +689,7 @@ Body:
 
 **Example Request**
 ```
-GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1
+GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1 HTTP/1.1
 ```
 
 **Response**
@@ -689,13 +697,13 @@ _omitted_
 
 
 
-## Example Process 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons
+## Use Case 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons
 
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
 **Request**
 ```
-GET /data/Sentinel2A-L1C
+GET /data/Sentinel2A-L1C HTTP/1.1
 ```
 
 
@@ -856,7 +864,7 @@ Body:
 
 **Request**
 ```
-GET /processes/zonal_statistics
+GET /processes/zonal_statistics HTTP/1.1
 ```
 
 **Response**
@@ -897,7 +905,7 @@ Body:
 
 **Request**
 ```
-PUT /user/me/files/polygon1.json
+PUT /user/me/files/polygon1.json HTTP/1.1
 ```
 
 **Response**
@@ -913,7 +921,9 @@ Body: none
 #### 4. Create a job
 **Request**
 ```
-POST /jobs
+POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   "process_graph":{
@@ -954,9 +964,11 @@ Body:
         }
       ],
       "regions":"/users/me/files/",
-      "func":"avg",
-      "outformat":"GPKG"
+      "func":"avg"
     }
+  },
+  "output":{
+    "format":"GPKG"
   }
 }
 ```
@@ -986,7 +998,7 @@ Body:
 **Request**
 
 ```
-GET /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
+PATCH /jobs/f6ea12c5e283438a921b525af826da08/queue HTTP/1.1
 ```
 
 **Response**
@@ -1004,7 +1016,7 @@ Body: none
 
 **Request**
 ```
-GET /jobs/f6ea12c5e283438a921b525af826da08
+GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 ```
 
 **Response**
@@ -1058,9 +1070,11 @@ Body:
         }
       ],
       "regions":"/users/me/files/",
-      "func":"avg",
-      "outformat":"GPKG"
+      "func":"avg"
     }
+  },
+  "output":{
+    "format":"GPKG"
   },
   "submitted":"2017-01-01 09:32:12",
   "updated":"2017-01-01 09:34:11",
@@ -1072,7 +1086,7 @@ Body:
 
 **Request**
 ```
-GET /jobs/f6ea12c5e283438a921b525af826da08
+GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 ```
 
 **Response**
@@ -1126,9 +1140,11 @@ Body:
         }
       ],
       "regions":"/users/me/files/",
-      "func":"avg",
-      "outformat":"GPKG"
+      "func":"avg"
     }
+  },
+  "output":{
+    "format":"GPKG"
   },
   "submitted":"2017-01-01 09:32:12",
   "updated":"2017-01-01 09:36:57",
@@ -1141,7 +1157,7 @@ Body:
 
 **Request**
 ```
-GET /jobs/f6ea12c5e283438a921b525af826da08/download
+GET /jobs/f6ea12c5e283438a921b525af826da08/download HTTP/1.1
 ```
 
 **Response**
@@ -1166,7 +1182,7 @@ Body:
 **Request**
 
 ```
-GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg
+GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg HTTP/1.1
 ```
 
 **Response (GPKG file)**
