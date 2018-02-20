@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.0.2",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled, \n * and how OpenSearch is interfaced",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled,\n * how resources (e.g. process graphs) can be shared,\n * and how OpenSearch is interfaced",
     "contact": {
       "name": "Marius Appel",
       "url": "https://github.com/open-eo/openeo-api-poc",
@@ -34,12 +34,15 @@
       "type": "apiKey",
       "name": "Authorization",
       "in": "header"
+    },
+    "Basic": {
+      "type": "basic"
     }
   },
   "tags": [
     {
-      "name": "API Information",
-      "description": "General services about the API implementation at a specific back-end."
+      "name": "Capabilities",
+      "description": "General information about the API implementation and other supported capabilities at a specific back-end."
     },
     {
       "name": "EO Data Discovery",
@@ -48,10 +51,6 @@
     {
       "name": "Process Discovery",
       "description": "Discovery of processes that are available at the back-end."
-    },
-    {
-      "name": "Service Discovery",
-      "description": "Discovery of service types that are available at the back-end."
     },
     {
       "name": "UDF Runtime Discovery",
@@ -154,6 +153,13 @@
       "description": "Process graph identifier string",
       "required": true
     },
+    "process_graph_url": {
+      "name": "graph",
+      "in": "query",
+      "type": "string",
+      "description": "URI of an externally hosted process graph",
+      "required": false
+    },
     "service_id": {
       "name": "service_id",
       "in": "path",
@@ -174,20 +180,6 @@
       "type": "string",
       "description": "Path relative to the user's root directory, must be URL encoded",
       "required": true
-    },
-    "output_format": {
-      "name": "format",
-      "in": "query",
-      "description": "Description of the desired output format. If not specified the back-end uses the format specified in a prior `/jobs/{job_id}/queue` call (if applicable) or uses its default file format. The mentioned list of formats in this API is non-exclusive.",
-      "type": "string",
-      "enum": [
-        "nc",
-        "json",
-        "tif",
-        "png",
-        "jpeg"
-      ],
-      "required": false
     }
   },
   "definitions": {
@@ -446,7 +438,7 @@
     },
     "job_user_id": {
       "type": "string",
-      "description": "Identifier of the user, who submitted the job and pays incurred costs if needed.",
+      "description": "Identifier of the user, who submitted the job and pays incurred costs if needed. Is usually `me` for own jobs.",
       "example": "bd6f9faf93b4"
     },
     "job_consumed_credits": {
@@ -486,6 +478,9 @@
         },
         "process_graph": {
           "$ref": "#/definitions/process_graph"
+        },
+        "output": {
+          "$ref": "#/definitions/output_format_body"
         },
         "submitted": {
           "$ref": "#/definitions/job_submitted"
@@ -575,15 +570,36 @@
         }
       },
       "additionalProperties": true
+    },
+    "output_format_body": {
+      "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.",
+      "type": "object",
+      "required": [
+        "format"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "description": "One of the supported output formats."
+        }
+      },
+      "additionalProperties": true,
+      "example": {
+        "format": "GTiff",
+        "tiles": true,
+        "compress": "jpeg",
+        "photometric": "YCBCR",
+        "jpeg_quality": 80
+      }
     }
   },
   "paths": {
     "/capabilities": {
       "get": {
         "summary": "Returns the capabilities, i.e., which OpenEO API features are supported  by the back-end.",
-        "description": "The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints.",
+        "description": "The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints.\nVariables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name.",
         "tags": [
-          "API Information"
+          "Capabilities"
         ],
         "responses": {
           "200": {
@@ -607,6 +623,66 @@
                 "default": "true"
               }
             }
+          }
+        }
+      }
+    },
+    "/capabilities/output_formats": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns output formats supported by the back-end.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series. The response is an object of available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with GDAL, see http://www.gdal.org/formats_list.html.",
+        "tags": [
+          "Capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "A map with output formats such as `GTiff` as keys and an object that defines available options.",
+            "schema": {
+              "type": "object"
+            },
+            "examples": {
+              "application/json": {
+                "GTiff": {
+                  "tiled": "By default [false] stripped TIFF files are created. This option can be used to force creation of tiled TIFF files [true].",
+                  "compress": "Set the compression [JPEG/LZW/DEFLATE/NONE] to use.",
+                  "photometric": "Set the photometric interpretation tag [MINISBLACK/MINISWHITE/RGB/CMYK/YCBCR/CIELAB/ICCLAB/ITULAB].",
+                  "jpeg_quality": "Set the JPEG quality [1-100] when using JPEG compression. Default: 75"
+                },
+                "PNG": {
+                  "worldfile": "Force the generation of an associated ESRI world file."
+                }
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
           }
         }
       }
@@ -1370,7 +1446,7 @@
         }
       }
     },
-    "/auth/verify": {
+    "/auth/login": {
       "options": {
         "summary": "Response to allow Cross-Origin Resource Sharing.",
         "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
@@ -1388,21 +1464,18 @@
       },
       "get": {
         "summary": "Check whether the user is registered with the specified credentials at the back-end.",
-        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`",
+        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token. Back-ends that do not require authentication such as a local file-based implementation may always return the generic user ID `me` and no bearer token.",
         "tags": [
           "Authentication"
         ],
         "security": [
           {
-            "Bearer": []
+            "Basic": []
           }
-        ],
-        "produces": [
-          "text/plain; charset=utf-8"
         ],
         "responses": {
           "200": {
-            "description": "User ID of the user that refers to the provided HTTP `Authorization` header. ",
+            "description": "Login successful. Returns the user ID and a bearer token for future API calls. ",
             "schema": {
               "type": "string"
             },
@@ -1419,7 +1492,10 @@
               }
             },
             "examples": {
-              "text/plain; charset=utf-8": "b34ba2bdf9ac9ee1"
+              "application/json": {
+                "user_id": "sampleuser123",
+                "token": "b34ba2bdf9ac9ee1"
+              }
             }
           },
           "403": {
@@ -1427,6 +1503,80 @@
           },
           "500": {
             "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Registers a new user account.",
+        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request registers a new user account.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "password",
+            "in": "body",
+            "required": true,
+            "description": "Password to be used for the newly created user account.",
+            "schema": {
+              "description": "Password to be used for the newly created user account.",
+              "type": "string",
+              "example": "mySecr3tP@ssword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registration successful. Returns the newly created user ID. ",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request, usually `*`",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "user_id": "sampleuser123"
+              }
+            }
+          },
+          "420": {
+            "description": "Registration failed, e.g. user name not available."
+          },
+          "500": {
+            "description": "Registration failed"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1781,22 +1931,27 @@
         "produces": [],
         "parameters": [
           {
-            "name": "process_graph",
+            "name": "job",
             "in": "body",
-            "description": "Description of one or more (chained) processes including their input arguments",
+            "description": "Specifies the job details, e.g. the process graph and the output format.",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/process_graph"
+              "type": "object",
+              "required": [
+                "output"
+              ],
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
             }
           },
           {
-            "name": "graph",
-            "in": "query",
-            "type": "string",
-            "description": "URI of the process graph",
-            "required": false
-          },
-          {
-            "$ref": "#/parameters/output_format"
+            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {
@@ -1933,7 +2088,7 @@
         }
       }
     },
-    "/services/types": {
+    "/capabilities/services": {
       "options": {
         "summary": "Response to allow Cross-Origin Resource Sharing.",
         "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
@@ -1953,14 +2108,8 @@
         "summary": "Returns web service types supported by the back-end.",
         "description": "The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.",
         "tags": [
-          "Services",
-          "Service Discovery"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
+          "Capabilities",
+          "Services"
         ],
         "responses": {
           "200": {
@@ -1989,12 +2138,6 @@
                 "default": "true"
               }
             }
-          },
-          "401": {
-            "$ref": "#/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/responses/access_denied"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -2228,19 +2371,23 @@
         ],
         "parameters": [
           {
-            "name": "process_graph",
+            "name": "job",
             "in": "body",
-            "description": "Description of one or more (chained) processes including their input arguments",
+            "description": "Specifies the job details, e.g. the process graph and the output format.",
             "schema": {
-              "$ref": "#/definitions/process_graph"
+              "type": "object",
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
             }
           },
           {
-            "name": "graph",
-            "in": "query",
-            "type": "string",
-            "description": "URI of the process graph",
-            "required": false
+            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {
@@ -2301,9 +2448,9 @@
           }
         }
       },
-      "put": {
-        "summary": "Replaces a job at the back-end.",
-        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nReplaces an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.",
+      "patch": {
+        "summary": "Modifies a job at the back-end.",
+        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nModifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.",
         "tags": [
           "Job Management"
         ],
@@ -2314,19 +2461,23 @@
         ],
         "parameters": [
           {
-            "name": "process_graph",
+            "name": "job",
             "in": "body",
-            "description": "Description of one or more (chained) processes including their input arguments",
+            "description": "Specifies the job details to update, e.g. the process graph or the output format.",
             "schema": {
-              "$ref": "#/definitions/process_graph"
+              "type": "object",
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
             }
           },
           {
-            "name": "graph",
-            "in": "query",
-            "type": "string",
-            "description": "URI of the process graph",
-            "required": false
+            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {
@@ -2532,9 +2683,6 @@
       "parameters": [
         {
           "$ref": "#/parameters/job_id"
-        },
-        {
-          "$ref": "#/parameters/output_format"
         }
       ],
       "options": {
@@ -2555,7 +2703,7 @@
           }
         }
       },
-      "get": {
+      "patch": {
         "summary": "Running a job in batch mode.",
         "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
         "tags": [
@@ -2628,7 +2776,7 @@
           }
         }
       },
-      "get": {
+      "patch": {
         "summary": "Pausing a batch job.",
         "description": "This request pauses a batch job. Execution is stopped, but might be resumed later by queueing it again. Intermediate results are stored for resuming. This job won't generate additional costs for processing.",
         "tags": [
@@ -2700,7 +2848,7 @@
           }
         }
       },
-      "get": {
+      "patch": {
         "summary": "Cancels any back-end computations of a job",
         "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing unless started again using `GET /jobs/{job_id}/queue` (for batch jobs) or updated using `PATCH /jobs`. Results of batch jobs might be discarded and deleted by the back-end. Any service associated with this job might be deleted from the back-end.",
         "tags": [
@@ -2754,7 +2902,11 @@
           "$ref": "#/parameters/job_id"
         },
         {
-          "$ref": "#/parameters/output_format"
+          "name": "format",
+          "in": "query",
+          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified format can be added as individual query parameters to the request.",
+          "type": "string",
+          "required": false
         }
       ],
       "options": {
