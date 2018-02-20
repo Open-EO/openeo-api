@@ -100,11 +100,11 @@
             
                 <li class="toctree-l3"><a href="#proof-of-concept">Proof of Concept</a></li>
                 
-                    <li><a class="toctree-l4" href="#example-process-1-deriving-minimum-ndvi-measurements-over-pixel-time-series-of-sentinel-2-imagery">Example Process 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery</a></li>
+                    <li><a class="toctree-l4" href="#use-case-1-deriving-minimum-ndvi-measurements-over-pixel-time-series-of-sentinel-2-imagery">Use Case 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery</a></li>
                 
-                    <li><a class="toctree-l4" href="#example-process-2-create-a-monthly-aggregated-sentinel-1-product-from-a-custom-python-script">Example Process 2: Create a monthly aggregated Sentinel 1 product from a custom Python script</a></li>
+                    <li><a class="toctree-l4" href="#use-case-2-create-a-monthly-aggregated-sentinel-1-product-from-a-custom-python-script">Use Case 2: Create a monthly aggregated Sentinel 1 product from a custom Python script</a></li>
                 
-                    <li><a class="toctree-l4" href="#example-process-3-compute-time-series-of-zonal-regional-statistics-of-sentinel-2-imagery-over-user-uploaded-polygons">Example Process 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons</a></li>
+                    <li><a class="toctree-l4" href="#use-case-3-compute-time-series-of-zonal-regional-statistics-of-sentinel-2-imagery-over-user-uploaded-polygons">Use Case 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons</a></li>
                 
             
             </ul>
@@ -160,15 +160,15 @@
 <ul>
 <li>at least three clearly defined example processes (see below),</li>
 <li>a prototypical API specification including communication API call sequences of the processes (see below),</li>
-<li>implementations of the processes on three back-ends (file-based, Spark, EURAC), and</li>
+<li>implementations of the processes on three back-ends, and</li>
 <li>prototypical clients in R, Python and potentially JavaScript.</li>
 </ul>
-<p>Below, we define the examples processes and how they are translated to sequences of API calls.</p>
-<p>Note: Authentication is not included in these examples.</p>
-<h2 id="example-process-1-deriving-minimum-ndvi-measurements-over-pixel-time-series-of-sentinel-2-imagery">Example Process 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery</h2>
+<p>Below, we define the example use cases and how they are translated to sequences of API calls.</p>
+<p><em>Note: Authentication is not included in these examples.</em></p>
+<h2 id="use-case-1-deriving-minimum-ndvi-measurements-over-pixel-time-series-of-sentinel-2-imagery">Use Case 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery</h2>
 <h4 id="1-check-whether-sentinel-2a-level-1c-data-is-available-at-the-back-end">1. Check whether Sentinel 2A Level 1C data is available at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /data/Sentinel2A-L1C
+<pre><code>GET /data/Sentinel2A-L1C HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -321,7 +321,7 @@ Body:
 
 <h4 id="2-check-that-needed-processes-are-available">2. Check that needed processes are available</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /processes/filter_bbox
+<pre><code>GET /processes/filter_bbox HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -359,7 +359,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /processes/filter_daterange
+<pre><code>GET /processes/filter_daterange HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -388,7 +388,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /processes/NDVI
+<pre><code>GET /processes/NDVI HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -417,7 +417,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /processes/min_time
+<pre><code>GET /processes/min_time HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -439,9 +439,11 @@ Body:
 }
 </code></pre>
 
-<h4 id="3-create-a-job-with-the-computation-at-the-back-end">3. Create a job with the computation at the back-end</h4>
+<h4 id="3-create-a-job-at-the-back-end">3. Create a job at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs
+<pre><code>POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   &quot;process_graph&quot;:{
@@ -507,7 +509,9 @@ Body:
 
 <h4 id="4-create-a-wcs-service">4. Create a WCS service</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /services
+<pre><code>POST /services HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   &quot;job_id&quot;:&quot;2a8ffb20c2b235a3f3e3351f&quot;,
@@ -539,20 +543,20 @@ Body:
 
 <h4 id="5-download-the-data-on-demand-with-wcs">5. Download the data on demand with WCS</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCapabilities
+<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCapabilities HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong>
 <em>omitted</em></p>
 <p><strong>Request</strong></p>
-<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCoverage&amp;COVERAGEID=2a8ffb20c2b235a3f3e3351f&amp;FORMAT=image/tiff&amp;SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&amp;SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&amp;&amp;SIZE=x(200)&amp;SIZE=y(200)
+<pre><code>GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&amp;VERSION=2.0.1&amp;REQUEST=GetCoverage&amp;COVERAGEID=2a8ffb20c2b235a3f3e3351f&amp;FORMAT=image/tiff&amp;SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&amp;SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&amp;&amp;SIZE=x(200)&amp;SIZE=y(200) HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong> 
 <em>omitted</em></p>
 <h4 id="6-stop-the-job-and-the-service">6. Stop the job (and the service)</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /jobs/2a8ffb20c2b235a3f3e3351f/cancel
+<pre><code>PATCH /jobs/2a8ffb20c2b235a3f3e3351f/cancel HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -564,10 +568,10 @@ Access-Control-Allow-Credentials: true
 Body: none
 </code></pre>
 
-<h2 id="example-process-2-create-a-monthly-aggregated-sentinel-1-product-from-a-custom-python-script">Example Process 2: Create a monthly aggregated Sentinel 1 product from a custom Python script</h2>
+<h2 id="use-case-2-create-a-monthly-aggregated-sentinel-1-product-from-a-custom-python-script">Use Case 2: Create a monthly aggregated Sentinel 1 product from a custom Python script</h2>
 <h4 id="1-ask-the-back-end-for-available-sentinel-1-data">1. Ask the back-end for available Sentinel 1 data</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /data/Sentinel1-L1-IW-GRD
+<pre><code>GET /data/Sentinel1-L1-IW-GRD HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -605,7 +609,7 @@ Body:
 
 <h4 id="2-ask-the-back-end-whether-it-supports-python-udfs-of-type-aggregate_time-and-get-details-about-expected-parameters">2. Ask the back-end whether it supports Python UDFs of type aggregate_time and get details about expected parameters</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /udf_runtimes
+<pre><code>GET /udf_runtimes HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -641,7 +645,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /udf_runtimes/Python/aggregate_time
+<pre><code>GET /udf_runtimes/Python/aggregate_time HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -672,7 +676,7 @@ Access-Control-Allow-Credentials: true
 
 <h4 id="3-upload-python-script">3. Upload python script</h4>
 <p><strong>Request</strong></p>
-<pre><code>PUT /users/me/files/s1_aggregate.py
+<pre><code>PUT /users/me/files/s1_aggregate.py HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -686,7 +690,9 @@ Body: none
 
 <h4 id="4-create-a-job">4. Create a job</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs
+<pre><code>POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   &quot;process_graph&quot;:{
@@ -744,7 +750,9 @@ Body:
 
 <h4 id="5-create-a-tms-service">5. Create a TMS service</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /services
+<pre><code>POST /services HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   &quot;job_id&quot;:&quot;3723c32fb7b24698832ca71f2d3f18aa&quot;,
@@ -770,15 +778,15 @@ Body:
 
 <h4 id="6-download-results-as-tms">6. Download results as TMS</h4>
 <p><strong>Example Request</strong></p>
-<pre><code>GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1
+<pre><code>GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1 HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong>
 <em>omitted</em></p>
-<h2 id="example-process-3-compute-time-series-of-zonal-regional-statistics-of-sentinel-2-imagery-over-user-uploaded-polygons">Example Process 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons</h2>
+<h2 id="use-case-3-compute-time-series-of-zonal-regional-statistics-of-sentinel-2-imagery-over-user-uploaded-polygons">Use Case 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons</h2>
 <h4 id="1-check-whether-sentinel-2a-level-1c-data-is-available-at-the-back-end_1">1. Check whether Sentinel 2A Level 1C data is available at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /data/Sentinel2A-L1C
+<pre><code>GET /data/Sentinel2A-L1C HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -933,7 +941,7 @@ Body:
 
 <h4 id="2-check-whether-the-back-end-supports-computing-zonal_statistics">2. Check whether the back-end supports computing <code>zonal_statistics</code></h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /processes/zonal_statistics
+<pre><code>GET /processes/zonal_statistics HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -970,7 +978,7 @@ Body:
 
 <h4 id="3-upload-a-geojson-polygon">3. Upload a GeoJSON Polygon</h4>
 <p><strong>Request</strong></p>
-<pre><code>PUT /user/me/files/polygon1.json
+<pre><code>PUT /user/me/files/polygon1.json HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -984,7 +992,9 @@ Body: none
 
 <h4 id="4-create-a-job_1">4. Create a job</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /jobs
+<pre><code>POST /jobs HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
 Body:
 {
   &quot;process_graph&quot;:{
@@ -1025,9 +1035,11 @@ Body:
         }
       ],
       &quot;regions&quot;:&quot;/users/me/files/&quot;,
-      &quot;func&quot;:&quot;avg&quot;,
-      &quot;outformat&quot;:&quot;GPKG&quot;
+      &quot;func&quot;:&quot;avg&quot;
     }
+  },
+  &quot;output&quot;:{
+    &quot;format&quot;:&quot;GPKG&quot;
   }
 }
 </code></pre>
@@ -1052,7 +1064,7 @@ Body:
 
 <h4 id="5-start-batch-computation-at-the-back-end">5. Start batch computation at the back-end</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08/queue?format=gpkg
+<pre><code>PATCH /jobs/f6ea12c5e283438a921b525af826da08/queue HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -1066,7 +1078,7 @@ Body: none
 
 <h4 id="6-check-job-status-twice">6. Check job status twice</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08
+<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -1119,9 +1131,11 @@ Body:
         }
       ],
       &quot;regions&quot;:&quot;/users/me/files/&quot;,
-      &quot;func&quot;:&quot;avg&quot;,
-      &quot;outformat&quot;:&quot;GPKG&quot;
+      &quot;func&quot;:&quot;avg&quot;
     }
+  },
+  &quot;output&quot;:{
+    &quot;format&quot;:&quot;GPKG&quot;
   },
   &quot;submitted&quot;:&quot;2017-01-01 09:32:12&quot;,
   &quot;updated&quot;:&quot;2017-01-01 09:34:11&quot;,
@@ -1132,7 +1146,7 @@ Body:
 </code></pre>
 
 <p><strong>Request</strong></p>
-<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08
+<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -1185,9 +1199,11 @@ Body:
         }
       ],
       &quot;regions&quot;:&quot;/users/me/files/&quot;,
-      &quot;func&quot;:&quot;avg&quot;,
-      &quot;outformat&quot;:&quot;GPKG&quot;
+      &quot;func&quot;:&quot;avg&quot;
     }
+  },
+  &quot;output&quot;:{
+    &quot;format&quot;:&quot;GPKG&quot;
   },
   &quot;submitted&quot;:&quot;2017-01-01 09:32:12&quot;,
   &quot;updated&quot;:&quot;2017-01-01 09:36:57&quot;,
@@ -1197,7 +1213,7 @@ Body:
 
 <h4 id="7-retrieve-download-links">7. Retrieve download links</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08/download
+<pre><code>GET /jobs/f6ea12c5e283438a921b525af826da08/download HTTP/1.1
 </code></pre>
 
 <p><strong>Response</strong></p>
@@ -1217,7 +1233,7 @@ Body:
 
 <h4 id="8-download-files">8. Download file(s)</h4>
 <p><strong>Request</strong></p>
-<pre><code>GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg
+<pre><code>GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg HTTP/1.1
 </code></pre>
 
 <p><strong>Response (GPKG file)</strong>

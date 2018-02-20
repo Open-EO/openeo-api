@@ -24,10 +24,16 @@
           <a href="#authentication">Authentication</a>
           <h5>Operations</h5>
           <section>
-            <a href="#tag-API-Information">API Information</a>
+            <a href="#tag-Capabilities">Capabilities</a>
             <ul>
               <li>
                 <a href="#operation--capabilities-get"> Returns the capabilities, i.e., which OpenEO API features are supported by the back-end. </a>
+              </li>
+              <li>
+                <a href="#operation--capabilities-output_formats-get"> Returns output formats supported by the back-end. </a>
+              </li>
+              <li>
+                <a href="#operation--capabilities-services-get"> Returns web service types supported by the back-end. </a>
               </li>
             </ul>
           </section>
@@ -56,14 +62,6 @@
               </li>
               <li>
                 <a href="#operation--processes--process_id--get"> Returns further information on a given EO process available at the back-end. </a>
-              </li>
-            </ul>
-          </section>
-          <section>
-            <a href="#tag-Service-Discovery">Service Discovery</a>
-            <ul>
-              <li>
-                <a href="#operation--services-types-get"> Returns web service types supported by the back-end. </a>
               </li>
             </ul>
           </section>
@@ -123,7 +121,10 @@
             <a href="#tag-Authentication">Authentication</a>
             <ul>
               <li>
-                <a href="#operation--auth-verify-get"> Check whether the user is registered with the specified credentials at the back-end. </a>
+                <a href="#operation--auth-login-get"> Check whether the user is registered with the specified credentials at the back-end. </a>
+              </li>
+              <li>
+                <a href="#operation--auth-register-post"> Registers a new user account. </a>
               </li>
             </ul>
           </section>
@@ -140,7 +141,7 @@
                 <a href="#operation--jobs-post"> Submits a new job to the back-end. </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--put"> Replaces a job at the back-end. </a>
+                <a href="#operation--jobs--job_id--patch"> Modifies a job at the back-end. </a>
               </li>
               <li>
                 <a href="#operation--jobs--job_id--get"> Returns information about a submitted job. </a>
@@ -149,13 +150,13 @@
                 <a href="#operation--jobs--job_id--subscribe-get"> Subscribes to job execution updates that are communicated over WebSockets. </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--queue-get"> Running a job in batch mode. </a>
+                <a href="#operation--jobs--job_id--queue-patch"> Running a job in batch mode. </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--pause-get"> Pausing a batch job. </a>
+                <a href="#operation--jobs--job_id--pause-patch"> Pausing a batch job. </a>
               </li>
               <li>
-                <a href="#operation--jobs--job_id--cancel-get"> Cancels any back-end computations of a job </a>
+                <a href="#operation--jobs--job_id--cancel-patch"> Cancels any back-end computations of a job </a>
               </li>
               <li>
                 <a href="#operation--users--user_id--jobs-get"> List all jobs that have been submitted by the user. </a>
@@ -183,7 +184,7 @@
                 <a href="#operation--services-post"> Publish an interactive web service. </a>
               </li>
               <li>
-                <a href="#operation--services-types-get"> Returns web service types supported by the back-end. </a>
+                <a href="#operation--capabilities-services-get"> Returns web service types supported by the back-end. </a>
               </li>
               <li>
                 <a href="#operation--services--service_id--patch"> Modifies a web service. </a>
@@ -203,6 +204,9 @@
             <a href="#tag-CORS">CORS</a>
             <ul>
               <li>
+                <a href="#operation--capabilities-output_formats-options"> Response to allow Cross-Origin Resource Sharing. </a>
+              </li>
+              <li>
                 <a href="#operation--data-options"> Response to allow Cross-Origin Resource Sharing. </a>
               </li>
               <li>
@@ -221,7 +225,10 @@
                 <a href="#operation--processes--process_id--options"> Response to allow Cross-Origin Resource Sharing. </a>
               </li>
               <li>
-                <a href="#operation--auth-verify-options"> Response to allow Cross-Origin Resource Sharing. </a>
+                <a href="#operation--auth-login-options"> Response to allow Cross-Origin Resource Sharing. </a>
+              </li>
+              <li>
+                <a href="#operation--auth-register-options"> Response to allow Cross-Origin Resource Sharing. </a>
               </li>
               <li>
                 <a href="#operation--users--user_id--processes-options"> Response to allow Cross-Origin Resource Sharing. </a>
@@ -236,7 +243,7 @@
                 <a href="#operation--services-options"> Response to allow Cross-Origin Resource Sharing. </a>
               </li>
               <li>
-                <a href="#operation--services-types-options"> Response to allow Cross-Origin Resource Sharing. </a>
+                <a href="#operation--capabilities-services-options"> Response to allow Cross-Origin Resource Sharing. </a>
               </li>
               <li>
                 <a href="#operation--services--service_id--options"> Response to allow Cross-Origin Resource Sharing. </a>
@@ -304,6 +311,7 @@
           <a href="#definition-service_type"> service_type </a>
           <a href="#definition-service_args"> service_args </a>
           <a href="#definition-service"> service </a>
+          <a href="#definition-output_format_body"> output_format_body </a>
         </nav>
       </div>
       <div id="docs" class="row collapse expanded drawer" data-drawer>
@@ -325,7 +333,8 @@
                   <li>how results of computations can be downloaded, </li>
                   <li>how data is streamed into UDFs and how the output of UDFs is returned, </li>
                   <li>how services are organized as microservices, </li>
-                  <li>how payments can be handled, </li>
+                  <li>how payments can be handled,</li>
+                  <li>how resources (e.g. process graphs) can be shared,</li>
                   <li>and how OpenSearch is interfaced</li>
                 </ul>
               </div>
@@ -379,17 +388,28 @@
               </div>
             </div>
           </div>
-          <h1 id="tag-API-Information" class="swagger-summary-tag" data-traverse-target="tag-API-Information">API Information</h1>
+          <div id="security-definition-Basic" class="panel">
+            <div class="doc-row">
+              <div class="doc-copy">
+                <h3 class="security-definition-title">
+                  <span class="security-name">Basic</span>
+                  <span class="swagger-security-definition-basic"></span>
+                </h3>
+                <section class="swagger-security-definition-properties"> </section>
+              </div>
+            </div>
+          </div>
+          <h1 id="tag-Capabilities" class="swagger-summary-tag" data-traverse-target="tag-Capabilities">Capabilities</h1>
           <div class="tag-description doc-row">
             <div class="doc-copy">
-              <p>General services about the API implementation at a specific back-end.</p>
+              <p>General information about the API implementation and other supported capabilities at a specific back-end.</p>
             </div>
           </div>
           <div id="operation--capabilities-get" class="operation panel" data-traverse-target="operation--capabilities-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-API-Information">API Information</a>
+              <a class="label" href="#tag-Capabilities">Capabilities</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -408,7 +428,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints.</p>
+                  <p>The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints. Variables in the paths must be placed in curly braces, e.g. <code>{process_id}</code>, and have a self-speaking name.</p>
                 </section>
               </div>
             </div>
@@ -440,6 +460,243 @@
   <span class="hljs-string">&quot;/data&quot;</span>,
   <span class="hljs-string">&quot;/data/{product_id}&quot;</span>,
   <span class="hljs-string">&quot;/processes&quot;</span>
+]
+</code></pre>
+                  <!-- </div> -->
+                </section>
+                <section>
+                  <h5>Response Headers
+                    <span>(200 OK)</span>
+                  </h5>
+                  <section class="swagger-response-headers">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th class="swagger-response-header-name"></th>
+                          <th class="swagger-response-header-description"></th>
+                          <th class="swagger-response-header-data-type"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="swagger-response-header-Access-Control-Allow-Origin">
+                          <td> Access-Control-Allow-Origin
+                            <td>
+                              <p>Allowed origin of the request, usually <code>*</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">*</span>
+                            </td>
+                        </tr>
+                        <tr class="swagger-response-header-Access-Control-Allow-Credentials">
+                          <td> Access-Control-Allow-Credentials
+                            <td>
+                              <p>If authorization is implemented by the back-end it needs to be set to <code>true</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">true</span>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--capabilities-output_formats-get" class="operation panel" data-traverse-target="operation--capabilities-output_formats-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Capabilities">Capabilities</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Returns output formats supported by the back-end.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/capabilities/output_formats</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series. The response is an object of available output formats and their options. This does not include the supported web services.
+                    <strong>Note</strong>: Whenever available, the output format names and options should be fully aligned with GDAL, see
+                    <a href="http://www.gdal.org/formats_list.html">http://www.gdal.org/formats_list.html</a>.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>A map with output formats such as <code>GTiff</code> as keys and an object that defines available options.</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-inner">
+                    <div class="prop-name">type</div>
+                    <div class="prop-value">
+                      <span class="json-property-type">object</span>
+                      <span class="json-property-range" title="Value limits"></span>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json"><span class="hljs-string">&quot;object&quot;</span>
+</code></pre>
+                  <!-- </div> -->
+                </section>
+                <section>
+                  <h5>Response Headers
+                    <span>(200 OK)</span>
+                  </h5>
+                  <section class="swagger-response-headers">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th class="swagger-response-header-name"></th>
+                          <th class="swagger-response-header-description"></th>
+                          <th class="swagger-response-header-data-type"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="swagger-response-header-Access-Control-Allow-Origin">
+                          <td> Access-Control-Allow-Origin
+                            <td>
+                              <p>Allowed origin of the request, usually <code>*</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">*</span>
+                            </td>
+                        </tr>
+                        <tr class="swagger-response-header-Access-Control-Allow-Credentials">
+                          <td> Access-Control-Allow-Credentials
+                            <td>
+                              <p>If authorization is implemented by the back-end it needs to be set to <code>true</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">true</span>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--capabilities-services-get" class="operation panel" data-traverse-target="operation--capabilities-services-get">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Capabilities">Capabilities</a>
+              <!--, -->
+              <a class="label" href="#tag-Services">Services</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Returns web service types supported by the back-end.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">GET</span>
+                  <span class="operation-path">/capabilities/services</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>An array of implemented web service types</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-inner">
+                    <div class="prop-name">type</div>
+                    <div class="prop-value">
+                      <span class="json-property-type">string[]</span>
+                      <span class="json-property-range" title="Value limits"></span>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">[
+  <span class="hljs-string">&quot;tms&quot;</span>,
+  <span class="hljs-string">&quot;wcs&quot;</span>,
+  <span class="hljs-string">&quot;wms&quot;</span>,
+  <span class="hljs-string">&quot;wmts&quot;</span>
 ]
 </code></pre>
                   <!-- </div> -->
@@ -1559,170 +1816,6 @@
     }
   }
 }
-</code></pre>
-                  <!-- </div> -->
-                </section>
-                <section>
-                  <h5>Response Headers
-                    <span>(200 OK)</span>
-                  </h5>
-                  <section class="swagger-response-headers">
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th class="swagger-response-header-name"></th>
-                          <th class="swagger-response-header-description"></th>
-                          <th class="swagger-response-header-data-type"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="swagger-response-header-Access-Control-Allow-Origin">
-                          <td> Access-Control-Allow-Origin
-                            <td>
-                              <p>Allowed origin of the request, usually <code>*</code></p>
-                            </td>
-                            <td>
-                              <span class="json-property-type">string</span>
-                              <span class="json-property-range" title="Value limits"></span>
-                              <span class="json-property-default-value" title="Default value">*</span>
-                            </td>
-                        </tr>
-                        <tr class="swagger-response-header-Access-Control-Allow-Credentials">
-                          <td> Access-Control-Allow-Credentials
-                            <td>
-                              <p>If authorization is implemented by the back-end it needs to be set to <code>true</code></p>
-                            </td>
-                            <td>
-                              <span class="json-property-type">string</span>
-                              <span class="json-property-range" title="Value limits"></span>
-                              <span class="json-property-default-value" title="Default value">true</span>
-                            </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </section>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-security">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th class="swagger-request-security-schema"></th>
-                        <th class="swagger-request-security-scopes"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <a href="#security-definition-Bearer">Bearer</a>
-                        </td>
-                        <td> </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </section>
-              </div>
-            </div>
-          </div>
-          <h1 id="tag-Service-Discovery" class="swagger-summary-tag" data-traverse-target="tag-Service-Discovery">Service Discovery</h1>
-          <div class="tag-description doc-row">
-            <div class="doc-copy">
-              <p>Discovery of service types that are available at the back-end.</p>
-            </div>
-          </div>
-          <div id="operation--services-types-get" class="operation panel" data-traverse-target="operation--services-types-get">
-            <!-- <section class="operation-tags row"> -->
-            <!-- <div class="doc-copy"> -->
-            <div class="operation-tags">
-              <a class="label" href="#tag-Services">Services</a>
-              <!--, -->
-              <a class="label" href="#tag-Service-Discovery">Service Discovery</a>
-              <!---->
-            </div>
-            <!-- </div> -->
-            <!-- </section> -->
-            <h2 class="operation-title">
-              <span class="operation-summary">Returns web service types supported by the back-end.</span>
-            </h2>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
-                  <span class="operation-path">/services/types</span>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-operation-description">
-                  <p>The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.</p>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy"> </div>
-              <div class="doc-examples"></div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-responses">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">200 OK</div>
-                      <div class="prop-ref"></div>
-                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
-                    </div>
-                    <div class="prop-value">
-                      <p>An array of implemented web service types</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-inner">
-                    <div class="prop-name">type</div>
-                    <div class="prop-value">
-                      <span class="json-property-type">string[]</span>
-                      <span class="json-property-range" title="Value limits"></span>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">501 Not Implemented</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">503 Service Unavailable</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                </section>
-              </div>
-              <div class="doc-examples">
-                <section>
-                  <h5>Response Example
-                    <span>(200 OK)</span>
-                  </h5>
-                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">[
-  <span class="hljs-string">&quot;tms&quot;</span>,
-  <span class="hljs-string">&quot;wcs&quot;</span>,
-  <span class="hljs-string">&quot;wms&quot;</span>,
-  <span class="hljs-string">&quot;wmts&quot;</span>
-]
 </code></pre>
                   <!-- </div> -->
                 </section>
@@ -4612,7 +4705,7 @@
               <p>Authentication of users.</p>
             </div>
           </div>
-          <div id="operation--auth-verify-get" class="operation panel" data-traverse-target="operation--auth-verify-get">
+          <div id="operation--auth-login-get" class="operation panel" data-traverse-target="operation--auth-login-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -4628,7 +4721,7 @@
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/auth/verify</span>
+                  <span class="operation-path">/auth/login</span>
                 </section>
               </div>
             </div>
@@ -4636,7 +4729,7 @@
               <div class="doc-copy">
                 <section class="swagger-operation-description">
                   <p>
-                    <strong>*Work in progress.</strong> The general authentication procedure is to be defined and will probably change in the future.* This request simply checks whether the provided HTTP <code>Authorization</code> header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP <code>Authorization</code> header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as <code>me</code></p>
+                    <strong>*Work in progress.</strong> The general authentication procedure is to be defined and will probably change in the future.* This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token. Back-ends that do not require authentication such as a local file-based implementation may always return the generic user ID <code>me</code> and no bearer token.</p>
                 </section>
               </div>
             </div>
@@ -4654,7 +4747,7 @@
                       <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
                     </div>
                     <div class="prop-value">
-                      <p>User ID of the user that refers to the provided HTTP <code>Authorization</code> header. </p>
+                      <p>Login successful. Returns the user ID and a bearer token for future API calls. </p>
                     </div>
                   </div>
                   <div class="prop-row prop-inner">
@@ -4693,9 +4786,6 @@
                 </section>
               </div>
               <div class="doc-examples">
-                <h5>Response Content-Types:
-                  <span>text/plain; charset&#x3D;utf-8</span>
-                </h5>
                 <section>
                   <h5>Response Example
                     <span>(200 OK)</span>
@@ -4759,12 +4849,160 @@
                     <tbody>
                       <tr>
                         <td>
-                          <a href="#security-definition-Bearer">Bearer</a>
+                          <a href="#security-definition-Basic">Basic</a>
                         </td>
                         <td> </td>
                       </tr>
                     </tbody>
                   </table>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="operation--auth-register-post" class="operation panel" data-traverse-target="operation--auth-register-post">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-Authentication">Authentication</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Registers a new user account.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">POST</span>
+                  <span class="operation-path">/auth/register</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>
+                    <strong>*Work in progress.</strong> The general authentication procedure is to be defined and will probably change in the future.* This request registers a new user account.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-request-body">
+                  <p>Password to be used for the newly created user account.</p>
+                  <section class="json-schema-description">
+                    <p>Password to be used for the newly created user account.</p>
+                  </section>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Request Example</h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json"><span class="hljs-string">&quot;mySecr3tP@ssword&quot;</span>
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                      <div class="prop-ref"></div>
+                      <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
+                    </div>
+                    <div class="prop-value">
+                      <p>Registration successful. Returns the newly created user ID. </p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-inner">
+                    <div class="prop-name">type</div>
+                    <div class="prop-value">
+                      <span class="json-property-type">string</span>
+                      <span class="json-property-range" title="Value limits"></span>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">420 </div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Registration failed, e.g. user name not available.</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">500 Internal Server Error</div>
+                    </div>
+                    <div class="prop-value">
+                      <p>Registration failed</p>
+                    </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">501 Not Implemented</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">503 Service Unavailable</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Response Example
+                    <span>(200 OK)</span>
+                  </h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json"><span class="hljs-string">&quot;string&quot;</span>
+</code></pre>
+                  <!-- </div> -->
+                </section>
+                <section>
+                  <h5>Response Headers
+                    <span>(200 OK)</span>
+                  </h5>
+                  <section class="swagger-response-headers">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th class="swagger-response-header-name"></th>
+                          <th class="swagger-response-header-description"></th>
+                          <th class="swagger-response-header-data-type"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="swagger-response-header-Access-Control-Allow-Origin">
+                          <td> Access-Control-Allow-Origin
+                            <td>
+                              <p>Allowed origin of the request, usually <code>*</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">*</span>
+                            </td>
+                        </tr>
+                        <tr class="swagger-response-header-Access-Control-Allow-Credentials">
+                          <td> Access-Control-Allow-Credentials
+                            <td>
+                              <p>If authorization is implemented by the back-end it needs to be set to <code>true</code></p>
+                            </td>
+                            <td>
+                              <span class="json-property-type">string</span>
+                              <span class="json-property-range" title="Value limits"></span>
+                              <span class="json-property-default-value" title="Default value">true</span>
+                            </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
                 </section>
               </div>
             </div>
@@ -4807,35 +5045,32 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <div class="prop-row">
-                    <div class="prop-name">
-                      <div class="swagger-request-model">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                  <p>Specifies the job details, e.g. the process graph and the output format.</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="process_graph">
+                        <span class="json-property-name">process_graph:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                          </span>
                         </span>
-                      </div>
-                    </div>
-                    <div class="prop-value columns small-6">
-                      <!-- <div class="swagger-request-description"> -->
-                      <p>Description of one or more (chained) processes including their input arguments</p>
-                      <!-- </div> -->
-                    </div>
-                  </div>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dt data-property-name="output">
+                        <span class="json-property-name">output:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/output_format_body">output_format_body</a>
+                          </span>
+                        </span>
+                        <span class="json-property-range" title="Value limits"></span>
+                        <span class="json-property-required"></span>
+                      </dt>
+                    </dl>
+                  </section>
                 </section>
                 <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">graph</div>
-                      <div class="prop-subtitle"> in query </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>URI of the process graph</p>
-                    </div>
-                  </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
                       <div class="prop-title"></div>
@@ -4843,7 +5078,7 @@
                       <div class="prop-subtitle">
                         <span class="json-property-type">
                           <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
+                            <a class="json-schema-ref" href="#/parameters/process_graph_url">#/parameters/process_graph_url</a>
                           </span>
                         </span>
                         <span class="json-property-range" title="Value limits"></span>
@@ -4859,25 +5094,34 @@
                 <section>
                   <h5>Request Example</h5>
                   <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
-  <span class="hljs-attr">&quot;args&quot;</span>: {
-    <span class="hljs-attr">&quot;imagery&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: {
-        <span class="hljs-attr">&quot;imagery&quot;</span>: {
-          <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-          <span class="hljs-attr">&quot;args&quot;</span>: {
-            <span class="hljs-attr">&quot;imagery&quot;</span>: {
-              <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-            }
-          },
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      },
-      <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
-      <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
+    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
+    <span class="hljs-attr">&quot;args&quot;</span>: {
+      <span class="hljs-attr">&quot;imagery&quot;</span>: {
+        <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
+        <span class="hljs-attr">&quot;args&quot;</span>: {
+          <span class="hljs-attr">&quot;imagery&quot;</span>: {
+            <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
+            <span class="hljs-attr">&quot;args&quot;</span>: {
+              <span class="hljs-attr">&quot;imagery&quot;</span>: {
+                <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
+              }
+            },
+            <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
+            <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
+          }
+        },
+        <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+        <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+      }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   }
 }
 </code></pre>
@@ -5250,33 +5494,46 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <div class="prop-row">
-                    <div class="prop-name">
-                      <div class="swagger-request-model">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                  <p>Specifies the job details, e.g. the process graph and the output format.</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="process_graph">
+                        <span class="json-property-name">process_graph:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                          </span>
                         </span>
-                      </div>
-                    </div>
-                    <div class="prop-value columns small-6">
-                      <!-- <div class="swagger-request-description"> -->
-                      <p>Description of one or more (chained) processes including their input arguments</p>
-                      <!-- </div> -->
-                    </div>
-                  </div>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dt data-property-name="output">
+                        <span class="json-property-name">output:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/output_format_body">output_format_body</a>
+                          </span>
+                        </span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                    </dl>
+                  </section>
                 </section>
                 <section class="swagger-request-params">
                   <div class="prop-row prop-group">
                     <div class="prop-name">
-                      <div class="prop-title">graph</div>
-                      <div class="prop-subtitle"> in query </div>
+                      <div class="prop-title"></div>
+                      <div class="prop-subtitle"> in </div>
                       <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/parameters/process_graph_url">#/parameters/process_graph_url</a>
+                          </span>
+                        </span>
                         <span class="json-property-range" title="Value limits"></span>
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>URI of the process graph</p>
+                      <p class="no-description">(no description)</p>
                     </div>
                   </div>
                 </section>
@@ -5285,25 +5542,34 @@
                 <section>
                   <h5>Request Example</h5>
                   <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
-  <span class="hljs-attr">&quot;args&quot;</span>: {
-    <span class="hljs-attr">&quot;imagery&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: {
-        <span class="hljs-attr">&quot;imagery&quot;</span>: {
-          <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-          <span class="hljs-attr">&quot;args&quot;</span>: {
-            <span class="hljs-attr">&quot;imagery&quot;</span>: {
-              <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-            }
-          },
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      },
-      <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
-      <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
+    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
+    <span class="hljs-attr">&quot;args&quot;</span>: {
+      <span class="hljs-attr">&quot;imagery&quot;</span>: {
+        <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
+        <span class="hljs-attr">&quot;args&quot;</span>: {
+          <span class="hljs-attr">&quot;imagery&quot;</span>: {
+            <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
+            <span class="hljs-attr">&quot;args&quot;</span>: {
+              <span class="hljs-attr">&quot;imagery&quot;</span>: {
+                <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
+              }
+            },
+            <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
+            <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
+          }
+        },
+        <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+        <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+      }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   }
 }
 </code></pre>
@@ -5441,7 +5707,7 @@
               </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--put" class="operation panel" data-traverse-target="operation--jobs--job_id--put">
+          <div id="operation--jobs--job_id--patch" class="operation panel" data-traverse-target="operation--jobs--job_id--patch">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -5451,12 +5717,12 @@
             <!-- </div> -->
             <!-- </section> -->
             <h2 class="operation-title">
-              <span class="operation-summary">Replaces a job at the back-end.</span>
+              <span class="operation-summary">Modifies a job at the back-end.</span>
             </h2>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
-                  <span class="operation-method">PUT</span>
+                  <span class="operation-method">PATCH</span>
                   <span class="operation-path">/jobs/{job_id}</span>
                 </section>
               </div>
@@ -5465,40 +5731,53 @@
               <div class="doc-copy">
                 <section class="swagger-operation-description">
                   <p>
-                    <strong>*Reserved for later use.</strong> A protocol to modify a job is to be defined.* Replaces an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.</p>
+                    <strong>*Reserved for later use.</strong> A protocol to modify a job is to be defined.* Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.</p>
                 </section>
               </div>
             </div>
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <div class="prop-row">
-                    <div class="prop-name">
-                      <div class="swagger-request-model">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                  <p>Specifies the job details to update, e.g. the process graph or the output format.</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="process_graph">
+                        <span class="json-property-name">process_graph:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                          </span>
                         </span>
-                      </div>
-                    </div>
-                    <div class="prop-value columns small-6">
-                      <!-- <div class="swagger-request-description"> -->
-                      <p>Description of one or more (chained) processes including their input arguments</p>
-                      <!-- </div> -->
-                    </div>
-                  </div>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dt data-property-name="output">
+                        <span class="json-property-name">output:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/output_format_body">output_format_body</a>
+                          </span>
+                        </span>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                    </dl>
+                  </section>
                 </section>
                 <section class="swagger-request-params">
                   <div class="prop-row prop-group">
                     <div class="prop-name">
-                      <div class="prop-title">graph</div>
-                      <div class="prop-subtitle"> in query </div>
+                      <div class="prop-title"></div>
+                      <div class="prop-subtitle"> in </div>
                       <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/parameters/process_graph_url">#/parameters/process_graph_url</a>
+                          </span>
+                        </span>
                         <span class="json-property-range" title="Value limits"></span>
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>URI of the process graph</p>
+                      <p class="no-description">(no description)</p>
                     </div>
                   </div>
                   <div class="prop-row prop-group">
@@ -5524,25 +5803,34 @@
                 <section>
                   <h5>Request Example</h5>
                   <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
-  <span class="hljs-attr">&quot;args&quot;</span>: {
-    <span class="hljs-attr">&quot;imagery&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: {
-        <span class="hljs-attr">&quot;imagery&quot;</span>: {
-          <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-          <span class="hljs-attr">&quot;args&quot;</span>: {
-            <span class="hljs-attr">&quot;imagery&quot;</span>: {
-              <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-            }
-          },
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      },
-      <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
-      <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
+    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
+    <span class="hljs-attr">&quot;args&quot;</span>: {
+      <span class="hljs-attr">&quot;imagery&quot;</span>: {
+        <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
+        <span class="hljs-attr">&quot;args&quot;</span>: {
+          <span class="hljs-attr">&quot;imagery&quot;</span>: {
+            <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
+            <span class="hljs-attr">&quot;args&quot;</span>: {
+              <span class="hljs-attr">&quot;imagery&quot;</span>: {
+                <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
+              }
+            },
+            <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
+            <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
+          }
+        },
+        <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+        <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+      }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   }
 }
 </code></pre>
@@ -5806,6 +6094,13 @@
         <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
       }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   },
   <span class="hljs-attr">&quot;submitted&quot;</span>: <span class="hljs-string">&quot;2017-01-01T09:32:12Z&quot;</span>,
   <span class="hljs-attr">&quot;updated&quot;</span>: <span class="hljs-string">&quot;2017-01-01T09:36:18Z&quot;</span>,
@@ -6090,7 +6385,7 @@
               </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--queue-get" class="operation panel" data-traverse-target="operation--jobs--job_id--queue-get">
+          <div id="operation--jobs--job_id--queue-patch" class="operation panel" data-traverse-target="operation--jobs--job_id--queue-patch">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -6105,7 +6400,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
+                  <span class="operation-method">PATCH</span>
                   <span class="operation-path">/jobs/{job_id}/queue</span>
                 </section>
               </div>
@@ -6128,23 +6423,6 @@
                         <span class="json-property-type">
                           <span class="">
                             <a class="json-schema-ref" href="#/parameters/job_id">#/parameters/job_id</a>
-                          </span>
-                        </span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p class="no-description">(no description)</p>
-                    </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title"></div>
-                      <div class="prop-subtitle"> in </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">
-                          <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
                           </span>
                         </span>
                         <span class="json-property-range" title="Value limits"></span>
@@ -6283,7 +6561,7 @@
               </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--pause-get" class="operation panel" data-traverse-target="operation--jobs--job_id--pause-get">
+          <div id="operation--jobs--job_id--pause-patch" class="operation panel" data-traverse-target="operation--jobs--job_id--pause-patch">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -6298,7 +6576,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
+                  <span class="operation-method">PATCH</span>
                   <span class="operation-path">/jobs/{job_id}/pause</span>
                 </section>
               </div>
@@ -6459,7 +6737,7 @@
               </div>
             </div>
           </div>
-          <div id="operation--jobs--job_id--cancel-get" class="operation panel" data-traverse-target="operation--jobs--job_id--cancel-get">
+          <div id="operation--jobs--job_id--cancel-patch" class="operation panel" data-traverse-target="operation--jobs--job_id--cancel-patch">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -6474,7 +6752,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-path">
-                  <span class="operation-method">GET</span>
+                  <span class="operation-method">PATCH</span>
                   <span class="operation-path">/jobs/{job_id}/cancel</span>
                 </section>
               </div>
@@ -6863,35 +7141,32 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <div class="prop-row">
-                    <div class="prop-name">
-                      <div class="swagger-request-model">
-                        <span class="">
-                          <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                  <p>Specifies the job details, e.g. the process graph and the output format.</p>
+                  <section class="json-schema-properties">
+                    <dl>
+                      <dt data-property-name="process_graph">
+                        <span class="json-property-name">process_graph:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/process_graph">process_graph</a>
+                          </span>
                         </span>
-                      </div>
-                    </div>
-                    <div class="prop-value columns small-6">
-                      <!-- <div class="swagger-request-description"> -->
-                      <p>Description of one or more (chained) processes including their input arguments</p>
-                      <!-- </div> -->
-                    </div>
-                  </div>
+                        <span class="json-property-range" title="Value limits"></span>
+                      </dt>
+                      <dt data-property-name="output">
+                        <span class="json-property-name">output:</span>
+                        <span class="json-property-type">
+                          <span class="">
+                            <a class="json-schema-ref" href="#/definitions/output_format_body">output_format_body</a>
+                          </span>
+                        </span>
+                        <span class="json-property-range" title="Value limits"></span>
+                        <span class="json-property-required"></span>
+                      </dt>
+                    </dl>
+                  </section>
                 </section>
                 <section class="swagger-request-params">
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">graph</div>
-                      <div class="prop-subtitle"> in query </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">string</span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p>URI of the process graph</p>
-                    </div>
-                  </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
                       <div class="prop-title"></div>
@@ -6899,7 +7174,7 @@
                       <div class="prop-subtitle">
                         <span class="json-property-type">
                           <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
+                            <a class="json-schema-ref" href="#/parameters/process_graph_url">#/parameters/process_graph_url</a>
                           </span>
                         </span>
                         <span class="json-property-range" title="Value limits"></span>
@@ -6915,25 +7190,34 @@
                 <section>
                   <h5>Request Example</h5>
                   <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
-  <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
-  <span class="hljs-attr">&quot;args&quot;</span>: {
-    <span class="hljs-attr">&quot;imagery&quot;</span>: {
-      <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
-      <span class="hljs-attr">&quot;args&quot;</span>: {
-        <span class="hljs-attr">&quot;imagery&quot;</span>: {
-          <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
-          <span class="hljs-attr">&quot;args&quot;</span>: {
-            <span class="hljs-attr">&quot;imagery&quot;</span>: {
-              <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
-            }
-          },
-          <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
-          <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
-        }
-      },
-      <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
-      <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+  <span class="hljs-attr">&quot;process_graph&quot;</span>: {
+    <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;median_time&quot;</span>,
+    <span class="hljs-attr">&quot;args&quot;</span>: {
+      <span class="hljs-attr">&quot;imagery&quot;</span>: {
+        <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;NDVI&quot;</span>,
+        <span class="hljs-attr">&quot;args&quot;</span>: {
+          <span class="hljs-attr">&quot;imagery&quot;</span>: {
+            <span class="hljs-attr">&quot;process_id&quot;</span>: <span class="hljs-string">&quot;filter_daterange&quot;</span>,
+            <span class="hljs-attr">&quot;args&quot;</span>: {
+              <span class="hljs-attr">&quot;imagery&quot;</span>: {
+                <span class="hljs-attr">&quot;product_id&quot;</span>: <span class="hljs-string">&quot;Sentinel2A-L1C&quot;</span>
+              }
+            },
+            <span class="hljs-attr">&quot;from&quot;</span>: <span class="hljs-string">&quot;2017-01-01&quot;</span>,
+            <span class="hljs-attr">&quot;to&quot;</span>: <span class="hljs-string">&quot;2017-01-31&quot;</span>
+          }
+        },
+        <span class="hljs-attr">&quot;red&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+        <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
+      }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   }
 }
 </code></pre>
@@ -7294,19 +7578,16 @@
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
-                      <div class="prop-title"></div>
-                      <div class="prop-subtitle"> in </div>
+                      <div class="prop-title">format</div>
+                      <div class="prop-subtitle"> in query </div>
                       <div class="prop-subtitle">
-                        <span class="json-property-type">
-                          <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
-                          </span>
-                        </span>
+                        <span class="json-property-type">string</span>
                         <span class="json-property-range" title="Value limits"></span>
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p class="no-description">(no description)</p>
+                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint.
+                        <strong>Note:</strong> The options available to the specified format can be added as individual query parameters to the request.</p>
                     </div>
                   </div>
                 </section>
@@ -7661,13 +7942,13 @@
               </div>
             </div>
           </div>
-          <div id="operation--services-types-get" class="operation panel" data-traverse-target="operation--services-types-get">
+          <div id="operation--capabilities-services-get" class="operation panel" data-traverse-target="operation--capabilities-services-get">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
-              <a class="label" href="#tag-Services">Services</a>
+              <a class="label" href="#tag-Capabilities">Capabilities</a>
               <!--, -->
-              <a class="label" href="#tag-Service-Discovery">Service Discovery</a>
+              <a class="label" href="#tag-Services">Services</a>
               <!---->
             </div>
             <!-- </div> -->
@@ -7679,7 +7960,7 @@
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">GET</span>
-                  <span class="operation-path">/services/types</span>
+                  <span class="operation-path">/capabilities/services</span>
                 </section>
               </div>
             </div>
@@ -7713,18 +7994,6 @@
                       <span class="json-property-type">string[]</span>
                       <span class="json-property-range" title="Value limits"></span>
                     </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">401 Unauthorized</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
-                  </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title">403 Forbidden</div>
-                    </div>
-                    <div class="prop-value"> undefined </div>
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
@@ -7793,28 +8062,6 @@
                       </tbody>
                     </table>
                   </section>
-                </section>
-              </div>
-            </div>
-            <div class="doc-row">
-              <div class="doc-copy">
-                <section class="swagger-request-security">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th class="swagger-request-security-schema"></th>
-                        <th class="swagger-request-security-scopes"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <a href="#security-definition-Bearer">Bearer</a>
-                        </td>
-                        <td> </td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </section>
               </div>
             </div>
@@ -8583,6 +8830,58 @@
               <p>Endpoints to allow Cross Origin Requests for requests from internet browsers/JavaScript.</p>
             </div>
           </div>
+          <div id="operation--capabilities-output_formats-options" class="operation panel" data-traverse-target="operation--capabilities-output_formats-options">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-CORS">CORS</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Response to allow Cross-Origin Resource Sharing.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">OPTIONS</span>
+                  <span class="operation-path">/capabilities/output_formats</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section &quot;Responses&quot;. See
+                    <a href="https://www.w3.org/TR/cors/">https://www.w3.org/TR/cors/</a> for more information.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">405 Method Not Allowed</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"> </div>
+            </div>
+          </div>
           <div id="operation--data-options" class="operation panel" data-traverse-target="operation--data-options">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
@@ -8929,7 +9228,7 @@
               <div class="doc-examples"> </div>
             </div>
           </div>
-          <div id="operation--auth-verify-options" class="operation panel" data-traverse-target="operation--auth-verify-options">
+          <div id="operation--auth-login-options" class="operation panel" data-traverse-target="operation--auth-login-options">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -8945,7 +9244,59 @@
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">OPTIONS</span>
-                  <span class="operation-path">/auth/verify</span>
+                  <span class="operation-path">/auth/login</span>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-description">
+                  <p>Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section &quot;Responses&quot;. See
+                    <a href="https://www.w3.org/TR/cors/">https://www.w3.org/TR/cors/</a> for more information.</p>
+                </section>
+              </div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy"> </div>
+              <div class="doc-examples"></div>
+            </div>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-responses">
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">200 OK</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                  <div class="prop-row prop-group">
+                    <div class="prop-name">
+                      <div class="prop-title">405 Method Not Allowed</div>
+                    </div>
+                    <div class="prop-value"> undefined </div>
+                  </div>
+                </section>
+              </div>
+              <div class="doc-examples"> </div>
+            </div>
+          </div>
+          <div id="operation--auth-register-options" class="operation panel" data-traverse-target="operation--auth-register-options">
+            <!-- <section class="operation-tags row"> -->
+            <!-- <div class="doc-copy"> -->
+            <div class="operation-tags">
+              <a class="label" href="#tag-CORS">CORS</a>
+              <!---->
+            </div>
+            <!-- </div> -->
+            <!-- </section> -->
+            <h2 class="operation-title">
+              <span class="operation-summary">Response to allow Cross-Origin Resource Sharing.</span>
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="swagger-operation-path">
+                  <span class="operation-method">OPTIONS</span>
+                  <span class="operation-path">/auth/register</span>
                 </section>
               </div>
             </div>
@@ -9246,7 +9597,7 @@
               <div class="doc-examples"> </div>
             </div>
           </div>
-          <div id="operation--services-types-options" class="operation panel" data-traverse-target="operation--services-types-options">
+          <div id="operation--capabilities-services-options" class="operation panel" data-traverse-target="operation--capabilities-services-options">
             <!-- <section class="operation-tags row"> -->
             <!-- <div class="doc-copy"> -->
             <div class="operation-tags">
@@ -9262,7 +9613,7 @@
               <div class="doc-copy">
                 <section class="swagger-operation-path">
                   <span class="operation-method">OPTIONS</span>
-                  <span class="operation-path">/services/types</span>
+                  <span class="operation-path">/capabilities/services</span>
                 </section>
               </div>
             </div>
@@ -9614,23 +9965,6 @@
                       <p class="no-description">(no description)</p>
                     </div>
                   </div>
-                  <div class="prop-row prop-group">
-                    <div class="prop-name">
-                      <div class="prop-title"></div>
-                      <div class="prop-subtitle"> in </div>
-                      <div class="prop-subtitle">
-                        <span class="json-property-type">
-                          <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
-                          </span>
-                        </span>
-                        <span class="json-property-range" title="Value limits"></span>
-                      </div>
-                    </div>
-                    <div class="prop-value">
-                      <p class="no-description">(no description)</p>
-                    </div>
-                  </div>
                 </section>
               </div>
               <div class="doc-examples"></div>
@@ -9855,19 +10189,16 @@
                   </div>
                   <div class="prop-row prop-group">
                     <div class="prop-name">
-                      <div class="prop-title"></div>
-                      <div class="prop-subtitle"> in </div>
+                      <div class="prop-title">format</div>
+                      <div class="prop-subtitle"> in query </div>
                       <div class="prop-subtitle">
-                        <span class="json-property-type">
-                          <span class="">
-                            <a class="json-schema-ref" href="#/parameters/output_format">#/parameters/output_format</a>
-                          </span>
-                        </span>
+                        <span class="json-property-type">string</span>
                         <span class="json-property-range" title="Value limits"></span>
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p class="no-description">(no description)</p>
+                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint.
+                        <strong>Note:</strong> The options available to the specified format can be added as individual query parameters to the request.</p>
                     </div>
                   </div>
                 </section>
@@ -10923,7 +11254,7 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="json-schema-description">
-                  <p>Identifier of the user, who submitted the job and pays incurred costs if needed.</p>
+                  <p>Identifier of the user, who submitted the job and pays incurred costs if needed. Is usually <code>me</code> for own jobs.</p>
                 </section>
               </div>
             </div>
@@ -11034,6 +11365,15 @@
                       <span class="json-property-range" title="Value limits"></span>
                       <span class="json-property-required"></span>
                     </dt>
+                    <dt data-property-name="output">
+                      <span class="json-property-name">output:</span>
+                      <span class="json-property-type">
+                        <span class="">
+                          <a class="json-schema-ref" href="#/definitions/output_format_body">output_format_body</a>
+                        </span>
+                      </span>
+                      <span class="json-property-range" title="Value limits"></span>
+                    </dt>
                     <dt data-property-name="submitted">
                       <span class="json-property-name">submitted:</span>
                       <span class="json-property-type">
@@ -11106,6 +11446,13 @@
         <span class="hljs-attr">&quot;nir&quot;</span>: <span class="hljs-string">&quot;8&quot;</span>
       }
     }
+  },
+  <span class="hljs-attr">&quot;output&quot;</span>: {
+    <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+    <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+    <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+    <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
   },
   <span class="hljs-attr">&quot;submitted&quot;</span>: <span class="hljs-string">&quot;2017-01-01T09:32:12Z&quot;</span>,
   <span class="hljs-attr">&quot;updated&quot;</span>: <span class="hljs-string">&quot;2017-01-01T09:36:18Z&quot;</span>,
@@ -11336,6 +11683,56 @@
     <span class="hljs-attr">&quot;version&quot;</span>: <span class="hljs-number">1.1</span>
   },
   <span class="hljs-attr">&quot;job_id&quot;</span>: <span class="hljs-string">&quot;42d5k3nd92mk49dmj294md&quot;</span>
+}
+</code></pre>
+                  <!-- </div> -->
+                </section>
+              </div>
+            </div>
+          </div>
+          <div id="definition-output_format_body" class="definition panel" data-traverse-target="definition-output_format_body">
+            <h2 class="panel-title">
+              <a name="/definitions/output_format_body"></a>output_format_body: object
+              <!-- <span class="json-property-type"><span class="json-property-type">object</span>
+              <span class="json-property-range" title="Value limits"></span>
+              
+              
+              </span> -->
+            </h2>
+            <div class="doc-row">
+              <div class="doc-copy">
+                <section class="json-schema-description">
+                  <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint.</p>
+                </section>
+                <section class="json-schema-properties">
+                  <dl>
+                    <dt data-property-name="format" class="has-description">
+                      <span class="json-property-name">format:</span>
+                      <span class="json-property-type">string</span>
+                      <span class="json-property-range" title="Value limits"></span>
+                      <span class="json-property-required"></span>
+                    </dt>
+                    <dd>
+                      <p>One of the supported output formats.</p>
+                    </dd>
+                  </dl>
+                </section>
+                <section class="json-schema-additionalProperties">
+                  <span class="json-property-type">
+                    <span class="json-property-type">object</span>
+                    <span class="json-property-range" title="Value limits"></span>
+                  </span>
+                </section>
+              </div>
+              <div class="doc-examples">
+                <section>
+                  <h5>Example</h5>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
+  <span class="hljs-attr">&quot;format&quot;</span>: <span class="hljs-string">&quot;GTiff&quot;</span>,
+  <span class="hljs-attr">&quot;tiles&quot;</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">&quot;compress&quot;</span>: <span class="hljs-string">&quot;jpeg&quot;</span>,
+  <span class="hljs-attr">&quot;photometric&quot;</span>: <span class="hljs-string">&quot;YCBCR&quot;</span>,
+  <span class="hljs-attr">&quot;jpeg_quality&quot;</span>: <span class="hljs-number">80</span>
 }
 </code></pre>
                   <!-- </div> -->

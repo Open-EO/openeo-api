@@ -79,8 +79,7 @@
             
                 <li class="toctree-l3"><a href="#jobs">Jobs</a></li>
                 
-            
-                <li class="toctree-l3"><a href="#evaluation-types">Evaluation types</a></li>
+                    <li><a class="toctree-l4" href="#examples">Examples</a></li>
                 
             
             </ul>
@@ -154,10 +153,73 @@
               
                 <h1 id="jobs">Jobs</h1>
 <p>As described in the <a href="../glossary/index.html">glossary</a>, a <strong>job</strong> brings one process graph to the back-end and organizes its execution, which may or may not induce costs.</p>
-<h1 id="evaluation-types">Evaluation types</h1>
-<p>The API distinguishes two types how jobs are (asynchronously) executed at back-ends. <em>Lazy evaluation</em> runs computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.  <em>Batch jobs</em> in contrast are directly submitted to the back office's processing system. They will run only once, potentially include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. </p>
+<p>The API distinguishes two types how jobs are (asynchronously) executed at back-ends. <em>Lazy evaluated jobs</em> runs computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.  <em>Batch jobs</em> in contrast are directly submitted to the back office's processing system. They will run only once, potentially include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. </p>
 <p>As an example we consider the simple calculation of vegetation indexes on all available Sentinel 2 imagery over Europe. Batch evaluation will take all relevant images, compute the NDVI, and finally store the result whereas lazy evaluation will not start any computations on its own. As soon as a client performs a download request such as a <code>GetCoverage</code> WCS request, the job's process will be executed but only for requested pixels. However, back-ends are free to cache frequent intermediate results on their own.</p>
-<p>There is a third way to execute jobs at the back-ends, but does not really fit into the types mentioned before. It is similar to batch jobs, but results are delivered immediately after computation, i.e. synchronously. </p>
+<p>There is a third way to execute jobs at the back-ends, but does not really fit into the types mentioned before. It is similar to batch jobs, but results are delivered immediately after computation, i.e. <em>synchronously executed jobs</em>. </p>
+<h2 id="examples">Examples</h2>
+<h3 id="lazy-evaluated-jobs">Lazy evaluated jobs</h3>
+<p><a href="../poc/index.html">Use case 1 and 2</a> are examples for <em>lazy evaluated jobs</em>.</p>
+<h3 id="batch-jobs">Batch jobs</h3>
+<p>Batch jobs are created by queueing <em>lazy evaluated jobs</em>. This is accomplished by calling the endpoint <code>GET /jobs/{job_id}/queue</code>. Therefore the examples of posting batch jobs are similar to lazy evaluated jobs, but are followed by additional calls to the jobs microservice. Therefore use case 1 and 2 could be converted to batch jobs by queueing them after job creation.</p>
+<p>An explicit example for batch jobs is <a href="../poc/index.html">use case 3</a>.</p>
+<h3 id="synchronously-executed-jobs">Synchronously executed jobs</h3>
+<p><em>Work in progress. Examples might be changed or extended in a future version.</em></p>
+<h4 id="retrieval-of-a-geotiff">Retrieval of a GeoTIFF</h4>
+<p><strong>Request</strong></p>
+<pre><code>POST /execute HTTP/1.1
+{
+  &quot;process_graph&quot;:{
+    &quot;process_id&quot;:&quot;min_time&quot;,
+    &quot;args&quot;:{
+      &quot;collections&quot;:[
+        {
+          &quot;process_id&quot;:&quot;NDVI&quot;,
+          &quot;args&quot;:{
+            &quot;collections&quot;:[
+              {
+                &quot;process_id&quot;:&quot;filter_daterange&quot;,
+                &quot;args&quot;:{
+                  &quot;collections&quot;:[
+                    {
+                      &quot;process_id&quot;:&quot;filter_bbox&quot;,
+                      &quot;args&quot;:{
+                        &quot;collections&quot;:[
+                          {
+                            &quot;product_id&quot;:&quot;S2_L2A_T32TPS_20M&quot;
+                          }
+                        ],
+                        &quot;left&quot;:652000,
+                        &quot;right&quot;:672000,
+                        &quot;top&quot;:5161000,
+                        &quot;bottom&quot;:5181000,
+                        &quot;srs&quot;:&quot;EPSG:32632&quot;
+                      }
+                    }
+                  ],
+                  &quot;from&quot;:&quot;2017-01-01&quot;,
+                  &quot;to&quot;:&quot;2017-01-31&quot;
+                }
+              }
+            ],
+            &quot;red&quot;:&quot;B04&quot;,
+            &quot;nir&quot;:&quot;B8A&quot;
+          }
+        }
+      ]
+    }
+  },
+  &quot;output&quot;:{
+    &quot;format&quot;:&quot;GTiff&quot;,
+    &quot;tiled&quot;:true,
+    &quot;compress&quot;:&quot;jpeg&quot;,
+    &quot;photometric&quot;:&quot;YCBCR&quot;,
+    &quot;jpeg_quality&quot;:80
+  }
+}
+</code></pre>
+
+<h4 id="retrieval-of-time-series">Retrieval of time series</h4>
+<p><em>Work in progress...</em></p>
               
             </div>
           </div>
