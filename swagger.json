@@ -645,26 +645,42 @@
       },
       "get": {
         "summary": "Returns output formats supported by the back-end.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series. The response is an object of available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with GDAL, see http://www.gdal.org/formats_list.html.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with GDAL, see http://www.gdal.org/formats_list.html. Some file formats not available through GDAL might be defined centrally for openEO in the documentation. Custom output formats ot options can be defined wherever needed. Not all output format options supported by GDAL need to be supported.",
         "tags": [
           "Capabilities"
         ],
         "responses": {
           "200": {
-            "description": "A map with output formats such as `GTiff` as keys and an object that defines available options.",
+            "description": "An object with the default output format and a map containing all output formats as keys and an object that defines available options.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "required": [
+                "default",
+                "formats"
+              ],
+              "properties": {
+                "default": {
+                  "type": "string"
+                },
+                "formats": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
             },
             "examples": {
               "application/json": {
-                "GTiff": {
-                  "tiled": "By default [false] stripped TIFF files are created. This option can be used to force creation of tiled TIFF files [true].",
-                  "compress": "Set the compression [JPEG/LZW/DEFLATE/NONE] to use.",
-                  "photometric": "Set the photometric interpretation tag [MINISBLACK/MINISWHITE/RGB/CMYK/YCBCR/CIELAB/ICCLAB/ITULAB].",
-                  "jpeg_quality": "Set the JPEG quality [1-100] when using JPEG compression. Default: 75"
-                },
-                "PNG": {
-                  "worldfile": "Force the generation of an associated ESRI world file."
+                "default": "GTiff",
+                "formats": {
+                  "GTiff": {
+                    "tiled": "By default [false] stripped TIFF files are created. This option can be used to force creation of tiled TIFF files [true].",
+                    "compress": "Set the compression [JPEG/LZW/DEFLATE/NONE] to use.",
+                    "photometric": "Set the photometric interpretation tag [MINISBLACK/MINISWHITE/RGB/CMYK/YCBCR/CIELAB/ICCLAB/ITULAB].",
+                    "jpeg_quality": "Set the JPEG quality [1-100] when using JPEG compression. Default: 75"
+                  },
+                  "PNG": {
+                    "worldfile": "Force the generation of an associated ESRI world file."
+                  }
                 }
               }
             },
@@ -2373,7 +2389,7 @@
           {
             "name": "job",
             "in": "body",
-            "description": "Specifies the job details, e.g. the process graph and the output format.",
+            "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be also specified later during download and is not necessary for web services at all.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2904,7 +2920,7 @@
         {
           "name": "format",
           "in": "query",
-          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified format can be added as individual query parameters to the request.",
+          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\nIf no output format has been specified here or for the job in general, the back-end falls back to its default format, which is  specified in the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified output format can be added as individual query parameters to the request.",
           "type": "string",
           "required": false
         }
