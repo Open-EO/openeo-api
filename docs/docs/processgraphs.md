@@ -6,7 +6,7 @@ A process graph includes specific process calls, i.e. references to one or more 
 
 ## Schematic definition
 
-#### Process
+### Process
 
 A single process in a process graph is defined as follows:
 
@@ -55,17 +55,17 @@ A process must always contain two key-value-pairs named `process_id` and `args` 
 }
 ```
 
-#### Argument Set
+### Argument Set
 
 An argument set for a process is defined as follows:
 
 ```
 <ArgumentSet> := {
-  anyKey: <Value>
+  <Key>: <Value>
 }
 ```
 
-Whereas a value is defined as:
+Whereas a key (`<Key>`) can be any valid JSON key and a value is defined as:
 ```
 <Value> := <string|number|array|boolean|null|Process|ImageCollection>
 ```
@@ -125,7 +125,7 @@ If a process needs multiple processes or image collections as input, it is allow
 }
 ```
 
-#### Image Collection
+### Image Collection
 
 An image collection as input dataset is defined as follows:
 
