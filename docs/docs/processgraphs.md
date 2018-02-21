@@ -18,9 +18,7 @@ A single process in a process graph is defined as follows:
 ```
 A process must always contain two key-value-pairs named `process_id` and `args` and no other elements.
 
-*Note:* The key name for a key-value-pair holding an process as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument.
-
-**Example:**
+**Example 1:**
 
 ```
 {
@@ -63,14 +61,18 @@ An argument set for a process is defined as follows:
 
 ```
 <ArgumentSet> := {
-  anyKey: <string|number|array|boolean|null|Process|ImageCollection>
+  anyKey: <Value>
 }
 ```
 
-*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain one data type only.
+Whereas a value is defined as:
+```
+<Value> := <string|number|array|boolean|null|Process|ImageCollection>
+```
 
-**Example:**
+*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`, too. In consequence, the objects allowed to be part of an array are processes and image collections only.
 
+**Example 2:**
 ```
 {
   "imagery":{
@@ -85,6 +87,43 @@ An argument set for a process is defined as follows:
   }
 }
 ```
+**Example 3:**
+
+If a process needs multiple processes or image collections as input, it is allowed to use arrays of the respective types.
+
+```
+{
+  "imagery":{
+    "process_id":"union",
+    "args":{
+      "collection":[
+        {
+          "process_id":"filter_bands",
+          "args":{
+            "imagery":[
+              {
+                "product_id":"Sentinel2-L1C"
+              }
+            ],
+            "bands":8
+          }
+        },
+        {
+          "process_id":"filter_bands",
+          "args":{
+            "imagery":[
+              {
+                "product_id":"Sentinel2-L1C"
+              }
+            ],
+            "bands":5
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 #### Image Collection
 
@@ -95,9 +134,9 @@ An image collection as input dataset is defined as follows:
   "product_id": <string>
 }
 ```
-*Note:* The key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is given to.
+*Note:* The key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is given to. Example 3 demonstrates this by using `collection` as a key once.
 
-**Example:**
+**Example 4:**
 
 ```
 {
