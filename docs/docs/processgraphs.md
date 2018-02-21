@@ -100,22 +100,18 @@ If a process needs multiple processes or image collections as input, it is allow
         {
           "process_id":"filter_bands",
           "args":{
-            "imagery":[
-              {
-                "product_id":"Sentinel2-L1C"
-              }
-            ],
+            "imagery":{
+              "product_id":"Sentinel2-L1C"
+            },
             "bands":8
           }
         },
         {
           "process_id":"filter_bands",
           "args":{
-            "imagery":[
-              {
-                "product_id":"Sentinel2-L1C"
-              }
-            ],
+            "imagery":{
+              "product_id":"Sentinel2-L1C"
+            },
             "bands":5
           }
         }
