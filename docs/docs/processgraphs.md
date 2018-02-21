@@ -80,10 +80,10 @@ Whereas a key (`<Key>`) can be any valid JSON key and a value is defined as:
     "args":{
       "imagery":{
         "product_id":"Sentinel2A-L1C"
-      }
-    },
-    "from":"2017-01-01",
-    "to":"2017-01-31"
+      },
+      "from":"2017-01-01",
+      "to":"2017-01-31"
+    }
   }
 }
 ```
@@ -145,8 +145,11 @@ An image collection as input dataset is defined as follows:
 There are some processes that we define to be core processes that should be implemented by all back-ends:
 
 * filter_bands
+* filter_daterange
 * process_graph
 * _to be continued..._
+
+_Note:_ Currently there are few defined processes only. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
 
 ### filter_bands
 
@@ -185,13 +188,42 @@ And one of:
   }
 }
 ```
+### filter_daterange
+
+Allows to filter an image collection by temporal extent.
+
+#### Arguments
+
+- `imagery`*: Image collection to filter
+
+And at least one of:
+
+- `from`: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of `to`.
+
+
+- `to`: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of `from`.
+
+#### Examples
+```
+{
+  "process_id":"filter_daterange",
+  "args":{
+    "imagery":{
+      "product_id":"Sentinel2A-L1C"
+    },
+    "from":"2017-01-01",
+    "to":"2017-01-31"
+  }
+}
+```
+
 ### process_graph
 
 Another process graph can be referenced with the process `process_graph`. This could even be an externally hosted process graph.
 
 #### Arguments
 
-* `imagery`*: 
+* `imagery`*: Image collection to apply the process graph to
 * `uri`*: An URI to a process graph.
 
 #### Examples
