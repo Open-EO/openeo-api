@@ -530,9 +530,9 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-operation-description">
-                  <p>The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series. The response is an object of available output formats and their options. This does not include the supported web services.
+                  <p>The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.
                     <strong>Note</strong>: Whenever available, the output format names and options should be fully aligned with GDAL, see
-                    <a href="http://www.gdal.org/formats_list.html">http://www.gdal.org/formats_list.html</a>.</p>
+                    <a href="http://www.gdal.org/formats_list.html">http://www.gdal.org/formats_list.html</a>. Some file formats not available through GDAL might be defined centrally for openEO in the documentation. Custom output formats ot options can be defined wherever needed. Not all output format options supported by GDAL need to be supported.</p>
                 </section>
               </div>
             </div>
@@ -550,7 +550,7 @@
                       <!-- <span class="swagger-global"></span> <span class="json-schema-reference"><a href=""></a></span> -->
                     </div>
                     <div class="prop-value">
-                      <p>A map with output formats such as <code>GTiff</code> as keys and an object that defines available options.</p>
+                      <p>An object with the default output format and a map containing all output formats as keys and an object that defines available options.</p>
                     </div>
                   </div>
                   <div class="prop-row prop-inner">
@@ -573,7 +573,10 @@
                   <h5>Response Example
                     <span>(200 OK)</span>
                   </h5>
-                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json"><span class="hljs-string">&quot;object&quot;</span>
+                  <!-- <div class="hljs"> --><pre><code class="hljs lang-json">{
+  <span class="hljs-attr">&quot;default&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>,
+  <span class="hljs-attr">&quot;formats&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>
+}
 </code></pre>
                   <!-- </div> -->
                 </section>
@@ -5494,7 +5497,8 @@
             <div class="doc-row">
               <div class="doc-copy">
                 <section class="swagger-request-body">
-                  <p>Specifies the job details, e.g. the process graph and the output format.</p>
+                  <p>Specifies the job details, e.g. the process graph and
+                    <em>optionally</em> the output format. The output format might be also specified later during download and is not necessary for web services at all.</p>
                   <section class="json-schema-properties">
                     <dl>
                       <dt data-property-name="process_graph">
@@ -7586,8 +7590,8 @@
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint.
-                        <strong>Note:</strong> The options available to the specified format can be added as individual query parameters to the request.</p>
+                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint. If no output format has been specified here or for the job in general, the back-end falls back to its default format, which is specified in the <code>GET /capabilities/output_formats</code> endpoint.
+                        <strong>Note:</strong> The options available to the specified output format can be added as individual query parameters to the request.</p>
                     </div>
                   </div>
                 </section>
@@ -10197,8 +10201,8 @@
                       </div>
                     </div>
                     <div class="prop-value">
-                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint.
-                        <strong>Note:</strong> The options available to the specified format can be added as individual query parameters to the request.</p>
+                      <p>Output format to be used. Supported formats and options can be retrieved using the <code>GET /capabilities/output_formats</code> endpoint. If no output format has been specified here or for the job in general, the back-end falls back to its default format, which is specified in the <code>GET /capabilities/output_formats</code> endpoint.
+                        <strong>Note:</strong> The options available to the specified output format can be added as individual query parameters to the request.</p>
                     </div>
                   </div>
                 </section>
