@@ -153,13 +153,6 @@
       "description": "Process graph identifier string",
       "required": true
     },
-    "process_graph_url": {
-      "name": "graph",
-      "in": "query",
-      "type": "string",
-      "description": "URI of an externally hosted process graph",
-      "required": false
-    },
     "service_id": {
       "name": "service_id",
       "in": "path",
@@ -376,7 +369,8 @@
       "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
       "type": "object",
       "required": [
-        "process_id"
+        "process_id",
+        "args"
       ],
       "properties": {
         "process_id": {
@@ -384,11 +378,7 @@
           "description": "The unique identifier of the process."
         },
         "args": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/arg_set"
-          },
-          "description": "Collection of arguments identified by their name."
+          "$ref": "#/definitions/arg_set"
         }
       },
       "example": {
@@ -402,22 +392,38 @@
                 "args": {
                   "imagery": {
                     "product_id": "Sentinel2A-L1C"
-                  }
-                },
-                "from": "2017-01-01",
-                "to": "2017-01-31"
-              }
-            },
-            "red": "4",
-            "nir": "8"
+                  },
+                  "from": "2017-01-01",
+                  "to": "2017-01-31"
+                }
+              },
+              "red": "4",
+              "nir": "8"
+            }
           }
         }
       }
     },
     "arg_set": {
-      "description": "Defines an object schema for collection (uniquely named) arguments as input to processes. **THIS TYPE IS NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**",
+      "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **arg_set** or **image_collection** (see models).\nThis object is part of the process graph definition. **This type is not formalized in the Swagger 2.0 definition due to missing support for oneOf or anyOf schema combinations.** See the process graph documentation for more information.",
       "type": "object",
       "additionalProperties": true
+    },
+    "image_collection": {
+      "description": "Defines an object schema to define an image collection based on available EO data.\nThis is part of the process graph. See the process graph documentation for more information.",
+      "type": "object",
+      "required": [
+        "product_id"
+      ],
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "description": "The unique identifier of the EO data."
+        }
+      },
+      "example": {
+        "product_id": "Sentinel-2A-L1C"
+      }
     },
     "job_id": {
       "type": "string",
@@ -1603,7 +1609,7 @@
         }
       }
     },
-    "/users/{user_id}/processes": {
+    "/users/{user_id}/process_graphs": {
       "parameters": [
         {
           "$ref": "#/parameters/user_id"
@@ -1625,8 +1631,8 @@
         }
       },
       "get": {
-        "summary": "Lists user-defined processes.",
-        "description": "This service lists all processes of the user that are stored at the back-end.",
+        "summary": "Lists user-defined process graphs.",
+        "description": "This service lists all process graphs of the user that are stored at the back-end.",
         "tags": [
           "User Content"
         ],
@@ -1638,7 +1644,7 @@
         ],
         "responses": {
           "200": {
-            "description": "JSON array with process_ids",
+            "description": "JSON array with process graph ids",
             "examples": {
               "application/json": [
                 "57d7e8ff91a1134",
@@ -1734,7 +1740,7 @@
         }
       }
     },
-    "/users/{user_id}/processes/{process_graph_id}": {
+    "/users/{user_id}/process_graphs/{process_graph_id}": {
       "parameters": [
         {
           "$ref": "#/parameters/user_id"
@@ -1965,9 +1971,6 @@
                 }
               }
             }
-          },
-          {
-            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {
@@ -2401,9 +2404,6 @@
                 }
               }
             }
-          },
-          {
-            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {
@@ -2491,9 +2491,6 @@
                 }
               }
             }
-          },
-          {
-            "$ref": "#/parameters/process_graph_url"
           }
         ],
         "responses": {

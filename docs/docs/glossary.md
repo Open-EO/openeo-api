@@ -41,7 +41,7 @@ A **process** is simply the description of an operation as provided by the back 
 In this context OpenEO will:
 
 1. consider, or allow to consider, band as a dimension
-2. consider `collections` to consist of one _or more_ collections, as argument to all functions; allow filtering on a particular collection, or joining them into a single collection
+2. consider imagery (image collections) to consist of one _or more_ collections, as argument to functions; allow filtering on a particular collection, or joining them into a single collection
 3. allow filtering on attributes, e.g. on cloud-free pixels, or pixels inside a `MULTIPOLYGON` describing the floodplains of the Danube. This filters on attributes rather than dimensions.
 4. Provide generic aggregate operations that aggregate over one or more dimenions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
 

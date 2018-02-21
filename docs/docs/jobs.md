@@ -34,41 +34,33 @@ POST /execute HTTP/1.1
   "process_graph":{
     "process_id":"min_time",
     "args":{
-      "collections":[
-        {
-          "process_id":"NDVI",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_daterange",
+      "imagery":{
+        "process_id":"NDVI",
+        "args":{
+          "imagery":{
+            "process_id":"filter_daterange",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bbox",
                 "args":{
-                  "collections":[
-                    {
-                      "process_id":"filter_bbox",
-                      "args":{
-                        "collections":[
-                          {
-                            "product_id":"S2_L2A_T32TPS_20M"
-                          }
-                        ],
-                        "left":652000,
-                        "right":672000,
-                        "top":5161000,
-                        "bottom":5181000,
-                        "srs":"EPSG:32632"
-                      }
-                    }
-                  ],
-                  "from":"2017-01-01",
-                  "to":"2017-01-31"
+                  "imagery":{
+                    "product_id":"S2_L2A_T32TPS_20M"
+                  },
+                  "left":652000,
+                  "right":672000,
+                  "top":5161000,
+                  "bottom":5181000,
+                  "srs":"EPSG:32632"
                 }
-              }
-            ],
-            "red":"B04",
-            "nir":"B8A"
-          }
+              },
+              "from":"2017-01-01",
+              "to":"2017-01-31"
+            }
+          },
+          "red":"B04",
+          "nir":"B8A"
         }
-      ]
+      }
     }
   },
   "output":{
@@ -85,3 +77,6 @@ POST /execute HTTP/1.1
 
 _Work in progress..._
 
+#### Using an UDF within a process graph
+
+_Work in progress..._

@@ -191,7 +191,7 @@ Body:
   "process_id":"filter_bbox",
   "description":"Drops observations from a collection that are located outside of a given bounding box.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     },
     "left":{
@@ -231,7 +231,7 @@ Body:
   "process_id":"filter_daterange",
   "description":"Drops observations from a collection that have been captured before a start or after a given end date.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     },
     "from":{
@@ -262,7 +262,7 @@ Body:
   "process_id":"NDVI",
   "description":"Finds the minimum value of time series for all bands of the input dataset.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     },
     "red":{
@@ -293,7 +293,7 @@ Body:
   "process_id":"min_time",
   "description":"Finds the minimum value of time series for all bands of the input dataset.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     }
   }
@@ -312,41 +312,33 @@ Body:
   "process_graph":{
     "process_id":"min_time",
     "args":{
-      "collections":[
-        {
-          "process_id":"NDVI",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_daterange",
+      "imagery":{
+        "process_id":"NDVI",
+        "args":{
+          "imagery":{
+            "process_id":"filter_daterange",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bbox",
                 "args":{
-                  "collections":[
-                    {
-                      "process_id":"filter_bbox",
-                      "args":{
-                        "collections":[
-                          {
-                            "product_id":"S2_L2A_T32TPS_20M"
-                          }
-                        ],
-                        "left":652000,
-                        "right":672000,
-                        "top":5161000,
-                        "bottom":5181000,
-                        "srs":"EPSG:32632"
-                      }
-                    }
-                  ],
-                  "from":"2017-01-01",
-                  "to":"2017-01-31"
+                  "imagery":{
+                    "product_id":"S2_L2A_T32TPS_20M"
+                  },
+                  "left":652000,
+                  "right":672000,
+                  "top":5161000,
+                  "bottom":5181000,
+                  "srs":"EPSG:32632"
                 }
-              }
-            ],
-            "red":"B04",
-            "nir":"B8A"
-          }
+              },
+              "from":"2017-01-01",
+              "to":"2017-01-31"
+            }
+          },
+          "red":"B04",
+          "nir":"B8A"
         }
-      ]
+      }
     }
   }
 }
@@ -553,7 +545,7 @@ Access-Control-Allow-Credentials: true
   "process_id":"/udf/Python/aggregate_time",
   "description":"Runs a Python script for each time series of the input dataset.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     },
     "script":{
@@ -600,32 +592,26 @@ Body:
     "process_id":"/udf/Python/aggregate_time",
     "args":{
       "script":"/users/me/files/s1_aggregate.py",
-      "collections":[
-        {
-          "process_id":"filter_daterange",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_bbox",
-                "args":{
-                  "collections":[
-                    {
-                      "product_id":"Sentinel1-L1-IW-GRD"
-                    }
-                  ],
-                  "left":16.1,
-                  "right":16.6,
-                  "top":48.6,
-                  "bottom":47.2,
-                  "srs":"EPSG:4326"
-                }
-              }
-            ],
-            "from":"2017-01-01",
-            "to":"2017-01-31"
-          }
+      "imagery":{
+        "process_id":"filter_daterange",
+        "args":{
+          "imagery":{
+            "process_id":"filter_bbox",
+            "args":{
+              "imagery":{
+                "product_id":"Sentinel1-L1-IW-GRD"
+              },
+              "left":16.1,
+              "right":16.6,
+              "top":48.6,
+              "bottom":47.2,
+              "srs":"EPSG:4326"
+            }
+          },
+          "from":"2017-01-01",
+          "to":"2017-01-31"
         }
-      ]
+      }
     }
   }
 }
@@ -880,7 +866,7 @@ Body:
   "process_id":"zonal_statistics",
   "description":"Runs a Python script for each time series of the input dataset.",
   "args":{
-    "collections":{
+    "imagery":{
       "description":"array of input collections with one element"
     },
     "regions":{
@@ -890,11 +876,6 @@ Body:
       "description":"Function to apply over the polygons, one of `avg`, `min`, `max`, `median`, `q25`, or `q75`.",
       "required":false,
       "default":"avg"
-    },
-    "outformat":{
-      "description":"Output format as OGR identifier string, defaults to GeoPackage",
-      "required":false,
-      "default":"GPKG"
     }
   }
 }
@@ -929,40 +910,32 @@ Body:
   "process_graph":{
     "process_id":"zonal_statistics",
     "args":{
-      "collections":[
-        {
-          "process_id":"filter_daterange",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_bbox",
+      "imagery":{
+        "process_id":"filter_daterange",
+        "args":{
+          "imagery":{
+            "process_id":"filter_bbox",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bands",
                 "args":{
-                  "collections":[
-                    {
-                      "process_id":"filter_bands",
-                      "args":{
-                        "collections":[
-                          {
-                            "product_id":"Sentinel2-L1C"
-                          }
-                        ],
-                        "bands":8
-                      }
-                    }
-                  ],
-                  "left":16.1,
-                  "right":16.6,
-                  "top":48.6,
-                  "bottom":47.2,
-                  "srs":"EPSG:4326"
+                  "imagery":{
+                    "product_id":"Sentinel2-L1C"
+                  },
+                  "bands":8
                 }
-              }
-            ],
-            "from":"2017-01-01",
-            "to":"2017-01-31"
-          }
+              },
+              "left":16.1,
+              "right":16.6,
+              "top":48.6,
+              "bottom":47.2,
+              "srs":"EPSG:4326"
+            }
+          },
+          "from":"2017-01-01",
+          "to":"2017-01-31"
         }
-      ],
+      },
       "regions":"/users/me/files/",
       "func":"avg"
     }
@@ -1035,40 +1008,32 @@ Body:
   "process_graph":{
     "process_id":"zonal_statistics",
     "args":{
-      "collections":[
-        {
-          "process_id":"filter_daterange",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_bbox",
+      "imagery":{
+        "process_id":"filter_daterange",
+        "args":{
+          "imagery":{
+            "process_id":"filter_bbox",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bands",
                 "args":{
-                  "collections":[
-                    {
-                      "process_id":"filter_bands",
-                      "args":{
-                        "collections":[
-                          {
-                            "product_id":"Sentinel2-L1C"
-                          }
-                        ],
-                        "bands":8
-                      }
-                    }
-                  ],
-                  "left":16.1,
-                  "right":16.6,
-                  "top":48.6,
-                  "bottom":47.2,
-                  "srs":"EPSG:4326"
+                  "imagery":{
+                    "product_id":"Sentinel2-L1C"
+                  },
+                  "bands":8
                 }
-              }
-            ],
-            "from":"2017-01-01",
-            "to":"2017-01-31"
-          }
+              },
+              "left":16.1,
+              "right":16.6,
+              "top":48.6,
+              "bottom":47.2,
+              "srs":"EPSG:4326"
+            }
+          },
+          "from":"2017-01-01",
+          "to":"2017-01-31"
         }
-      ],
+      },
       "regions":"/users/me/files/",
       "func":"avg"
     }
@@ -1080,8 +1045,6 @@ Body:
   "updated":"2017-01-01 09:34:11",
   "consumed_credits":231
 }
-
-
 ```
 
 **Request**
@@ -1105,40 +1068,32 @@ Body:
   "process_graph":{
     "process_id":"zonal_statistics",
     "args":{
-      "collections":[
-        {
-          "process_id":"filter_daterange",
-          "args":{
-            "collections":[
-              {
-                "process_id":"filter_bbox",
+      "imagery":{
+        "process_id":"filter_daterange",
+        "args":{
+          "imagery":{
+            "process_id":"filter_bbox",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bands",
                 "args":{
-                  "collections":[
-                    {
-                      "process_id":"filter_bands",
-                      "args":{
-                        "collections":[
-                          {
-                            "product_id":"Sentinel2-L1C"
-                          }
-                        ],
-                        "bands":8
-                      }
-                    }
-                  ],
-                  "left":16.1,
-                  "right":16.6,
-                  "top":48.6,
-                  "bottom":47.2,
-                  "srs":"EPSG:4326"
+                  "imagery":{
+                    "product_id":"Sentinel2-L1C"
+                  },
+                  "bands":8
                 }
-              }
-            ],
-            "from":"2017-01-01",
-            "to":"2017-01-31"
-          }
+              },
+              "left":16.1,
+              "right":16.6,
+              "top":48.6,
+              "bottom":47.2,
+              "srs":"EPSG:4326"
+            }
+          },
+          "from":"2017-01-01",
+          "to":"2017-01-31"
         }
-      ],
+      },
       "regions":"/users/me/files/",
       "func":"avg"
     }
