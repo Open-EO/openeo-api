@@ -144,22 +144,67 @@ An image collection as input dataset is defined as follows:
 
 There are some processes that we define to be core processes that should be implemented by all back-ends:
 
+* filter_bands
+* process_graph
+* _to be continued..._
+
+### filter_bands
+
+Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.
+
+#### Arguments
+
+* `imagery`*: Image collection to filter
+
+And one of:
+
+* `bands`: string or array of strings containing band ids.
+* `names`: string or array of strings containing band names.
+* `wavelengths`: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.
+
+#### Examples
+```
+{
+  "process_id": "filter_bands",
+  "args": {
+    "imagery":{
+      "product_id":"Sentinel2A-L1C"
+    },
+    "bands":1
+  }
+}
+```
+```
+{
+  "process_id": "filter_bands",
+  "args": {
+    "imagery":{
+      "product_id":"Sentinel2A-L1C"
+    },
+    "wavelengths":[1300,2000]
+  }
+}
+```
 ### process_graph
 
 Another process graph can be referenced with the process `process_graph`. This could even be an externally hosted process graph.
 
-*Arguments:*
+#### Arguments
 
-* `uri`: An URI to a process graph.
+* `imagery`*: 
+* `uri`*: An URI to a process graph.
 
-_Example:_
+#### Examples
 
 ```
 {
-  "process_id": "process_graph",
-  "args": {
-    "uri": "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+  "process_id":"process_graph",
+  "args":{
+    "imagery":{
+      "product_id":"Sentinel2A-L1C"
+    },
+    "uri":"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
   }
 }
 ```
-### to be continued...
+### _to be continued..._
