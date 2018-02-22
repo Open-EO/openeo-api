@@ -173,12 +173,20 @@
 </code></pre>
 
 <p>A process must always contain two key-value-pairs named <code>process_id</code> and <code>args</code> and no other elements.</p>
+<p><code>process_id</code> can currently contain three types of processes:</p>
+<ul>
+<li>Backend-defined processes, which are listed at <code>GET /processes</code>, e.g. <code>filter_bands</code>.</li>
+<li>User-defined process graphs, which are listed at <code>GET /users/{user_id}/process_graphs</code>. 
+  They are prefixed with <code>user/</code>, e.g. <code>user/my_process_graph</code>.</li>
+<li>User-defined functions (UDF), which is one of the predefined <a href="../udfs/index.html">UDF types</a> and can be explored at <code>GET /udf_runtimes/{lang}/{udf_type}</code>. UDFs are prefixed with <code>udf</code> and contain also the runtime and the process name separated by <code>/</code>, e.g. <code>udf/Python/apply_pixel</code>.</li>
+</ul>
 <p><strong>Example 1:</strong></p>
+<p>A full process graph definition.</p>
 <pre><code>{
   &quot;process_id&quot;:&quot;min_time&quot;,
   &quot;args&quot;:{
     &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;NDVI&quot;,
+      &quot;process_id&quot;:&quot;user/custom_ndvi&quot;,
       &quot;args&quot;:{
         &quot;imagery&quot;:{
           &quot;process_id&quot;:&quot;filter_daterange&quot;,
@@ -273,7 +281,7 @@
 }
 </code></pre>
 
-<p><em>Note:</em> The key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is given to. Example 3 demonstrates this by using <code>collection</code> as a key once.</p>
+<p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered at <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using <code>collection</code> as a key once. </p>
 <p><strong>Example 4:</strong></p>
 <pre><code>{
   &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
@@ -289,6 +297,7 @@
 <li><em>to be continued...</em></li>
 </ul>
 <p><em>Note:</em> Currently there are few defined processes only. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.</p>
+<p><em>Limitation:</em> Process names (process ids) must never contain a forward slash <code>/</code>.</p>
 <h3 id="filter_bands">filter_bands</h3>
 <p>Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.</p>
 <h4 id="arguments">Arguments</h4>
