@@ -18,14 +18,23 @@ A single process in a process graph is defined as follows:
 ```
 A process must always contain two key-value-pairs named `process_id` and `args` and no other elements.
 
+`process_id` can currently contain three types of processes:
+
+* Backend-defined processes, which are listed at `GET /processes`, e.g. `filter_bands`.
+* User-defined process graphs, which are listed at `GET /users/{user_id}/process_graphs`. 
+  They are prefixed with `user/`, e.g. `user/my_process_graph`.
+* User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `udf` and contain also the runtime and the process name separated by `/`, e.g. `udf/Python/apply_pixel`.
+
 **Example 1:**
+
+A full process graph definition.
 
 ```
 {
   "process_id":"min_time",
   "args":{
     "imagery":{
-      "process_id":"NDVI",
+      "process_id":"user/custom_ndvi",
       "args":{
         "imagery":{
           "process_id":"filter_daterange",
@@ -130,7 +139,7 @@ An image collection as input dataset is defined as follows:
   "product_id": <string>
 }
 ```
-*Note:* The key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is given to. Example 3 demonstrates this by using `collection` as a key once.
+*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using `collection` as a key once. 
 
 **Example 4:**
 
@@ -150,6 +159,8 @@ There are some processes that we define to be core processes that should be impl
 * _to be continued..._
 
 _Note:_ Currently there are few defined processes only. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
+
+_Limitation:_ Process names (process ids) must never contain a forward slash `/`.
 
 ### filter_bands
 
