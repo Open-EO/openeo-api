@@ -22,8 +22,8 @@ A process must always contain two key-value-pairs named `process_id` and `args` 
 
 * Backend-defined processes, which are listed at `GET /processes`, e.g. `filter_bands`.
 * User-defined process graphs, which are listed at `GET /users/{user_id}/process_graphs`. 
-  They are prefixed with `user/`, e.g. `user/my_process_graph`.
-* User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `udf` and contain also the runtime and the process name separated by `/`, e.g. `udf/Python/apply_pixel`.
+  They are prefixed with `/user/`, e.g. `/user/my_process_graph`.
+* User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `/udf` and contain also the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
 
 **Example 1:**
 
@@ -34,7 +34,7 @@ A full process graph definition.
   "process_id":"min_time",
   "args":{
     "imagery":{
-      "process_id":"user/custom_ndvi",
+      "process_id":"/user/custom_ndvi",
       "args":{
         "imagery":{
           "process_id":"filter_daterange",

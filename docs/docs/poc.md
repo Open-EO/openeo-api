@@ -9,7 +9,7 @@ This page gives a detailed description of the OpenEO proof of concept and gives 
 
 Below, we define the example use cases and how they are translated to sequences of API calls.
 
-_Note: Authentication is not included in these examples._
+**Note:** Authentication is not included in these examples. Enabling authentication needs the placeholder `<Origin>` to be set to the requesting host, including protocol, host name/IP and port, e.g. `http://localhost:8080`. This could be done by using the Origin header value from the request.
 
 ## Use Case 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery
 
@@ -26,7 +26,7 @@ GET /data/Sentinel2A-L1C HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -183,7 +183,7 @@ GET /processes/filter_bbox HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -223,7 +223,7 @@ GET /processes/filter_daterange HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -254,7 +254,7 @@ GET /processes/NDVI HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -285,7 +285,7 @@ GET /processes/min_time HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -348,7 +348,7 @@ Body:
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -386,7 +386,7 @@ Body:
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -433,7 +433,7 @@ PATCH /jobs/2a8ffb20c2b235a3f3e3351f/cancel HTTP/1.1
 ```
 Header:
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body: none
@@ -456,7 +456,7 @@ GET /data/Sentinel1-L1-IW-GRD HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -499,7 +499,7 @@ GET /udf_runtimes HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -538,7 +538,7 @@ GET /udf_runtimes/Python/aggregate_time HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 {
@@ -572,7 +572,7 @@ PUT /users/me/files/s1_aggregate.py HTTP/1.1
 ```
 Header:
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body: none
@@ -623,7 +623,7 @@ Body:
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -658,7 +658,7 @@ Body:
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -698,7 +698,7 @@ GET /data/Sentinel2A-L1C HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -858,7 +858,7 @@ GET /processes/zonal_statistics HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -893,7 +893,7 @@ PUT /user/me/files/polygon1.json HTTP/1.1
 ```
 Header:
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body: none
@@ -952,7 +952,7 @@ Body:
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -979,7 +979,7 @@ PATCH /jobs/f6ea12c5e283438a921b525af826da08/queue HTTP/1.1
 ```
 Header:
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body: none
@@ -997,7 +997,7 @@ GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -1057,7 +1057,7 @@ GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
@@ -1121,7 +1121,7 @@ GET /jobs/f6ea12c5e283438a921b525af826da08/download HTTP/1.1
 Header:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
-Access-Control-Allow-Origin: *
+Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
 Body:
