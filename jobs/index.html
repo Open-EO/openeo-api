@@ -173,7 +173,11 @@
 <p><em>Work in progress. Examples might be changed or extended in a future version.</em></p>
 <h4 id="retrieval-of-a-geotiff">Retrieval of a GeoTIFF</h4>
 <p><strong>Request</strong></p>
-<pre><code>POST /execute HTTP/1.1
+<pre><code>Header:
+POST /execute HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
+Body:
 {
   &quot;process_graph&quot;:{
     &quot;process_id&quot;:&quot;min_time&quot;,
@@ -217,10 +221,72 @@
 }
 </code></pre>
 
+<p><strong>Response</strong> </p>
+<pre><code>Header:
+HTTP/1.1 200 OK
+Content-Type: image/tiff
+Access-Control-Allow-Origin: &lt;Origin&gt;
+
+Body:
+omitted (the GeoTiff file contents)
+</code></pre>
+
 <h4 id="retrieval-of-time-series">Retrieval of time series</h4>
-<p><em>Work in progress...</em></p>
-<h4 id="using-an-udf-within-a-process-graph">Using an UDF within a process graph</h4>
-<p><em>Work in progress...</em></p>
+<p><strong>Request</strong></p>
+<pre><code>Header:
+POST /execute HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
+Body:
+{
+  &quot;process_graph&quot;:{
+    &quot;process_id&quot;:&quot;zonal_statistics&quot;,
+    &quot;args&quot;:{
+      &quot;imagery&quot;:{
+        &quot;process_id&quot;:&quot;filter_daterange&quot;,
+        &quot;args&quot;:{
+          &quot;imagery&quot;:{
+            &quot;process_id&quot;:&quot;filter_bbox&quot;,
+            &quot;args&quot;:{
+              &quot;imagery&quot;:{
+                &quot;process_id&quot;:&quot;filter_bands&quot;,
+                &quot;args&quot;:{
+                  &quot;imagery&quot;:{
+                    &quot;product_id&quot;:&quot;Sentinel2-L1C&quot;
+                  },
+                  &quot;bands&quot;:8
+                }
+              },
+              &quot;left&quot;:16.1,
+              &quot;right&quot;:16.6,
+              &quot;top&quot;:48.6,
+              &quot;bottom&quot;:47.2,
+              &quot;srs&quot;:&quot;EPSG:4326&quot;
+            }
+          },
+          &quot;from&quot;:&quot;2017-01-01&quot;,
+          &quot;to&quot;:&quot;2017-01-31&quot;
+        }
+      },
+      &quot;regions&quot;:&quot;/users/me/files/&quot;,
+      &quot;func&quot;:&quot;avg&quot;
+    }
+  },
+  &quot;output&quot;:{
+    &quot;format&quot;:&quot;GPKG&quot;
+  }
+}
+</code></pre>
+
+<p><strong>Response</strong> </p>
+<pre><code>Header:
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Access-Control-Allow-Origin: &lt;Origin&gt;
+
+Body:
+omitted (the GeoPackage file contents)
+</code></pre>
               
             </div>
           </div>
