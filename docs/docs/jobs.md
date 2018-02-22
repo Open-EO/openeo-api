@@ -29,7 +29,11 @@ _Work in progress. Examples might be changed or extended in a future version._
 **Request**
 
 ```
+Header:
 POST /execute HTTP/1.1
+Content-Type: application/json; charset=utf-8
+
+Body:
 {
   "process_graph":{
     "process_id":"min_time",
@@ -73,10 +77,76 @@ POST /execute HTTP/1.1
 }
 ```
 
+**Response** 
+```
+Header:
+HTTP/1.1 200 OK
+Content-Type: image/tiff
+Access-Control-Allow-Origin: <Origin>
+
+Body:
+omitted (the GeoTiff file contents)
+```
+
 #### Retrieval of time series
 
-_Work in progress..._
+**Request**
 
-#### Using an UDF within a process graph
+```
+Header:
+POST /execute HTTP/1.1
+Content-Type: application/json; charset=utf-8
 
-_Work in progress..._
+Body:
+{
+  "process_graph":{
+    "process_id":"zonal_statistics",
+    "args":{
+      "imagery":{
+        "process_id":"filter_daterange",
+        "args":{
+          "imagery":{
+            "process_id":"filter_bbox",
+            "args":{
+              "imagery":{
+                "process_id":"filter_bands",
+                "args":{
+                  "imagery":{
+                    "product_id":"Sentinel2-L1C"
+                  },
+                  "bands":8
+                }
+              },
+              "left":16.1,
+              "right":16.6,
+              "top":48.6,
+              "bottom":47.2,
+              "srs":"EPSG:4326"
+            }
+          },
+          "from":"2017-01-01",
+          "to":"2017-01-31"
+        }
+      },
+      "regions":"/users/me/files/",
+      "func":"avg"
+    }
+  },
+  "output":{
+    "format":"GPKG"
+  }
+}
+```
+
+**Response** 
+
+```
+Header:
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+Access-Control-Allow-Origin: <Origin>
+
+Body:
+omitted (the GeoPackage file contents)
+```
+
