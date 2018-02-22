@@ -1,7 +1,6 @@
 # UDFs
 
-User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the
-data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The OpenEO core API defines the following UDF types:
+User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The OpenEO core API defines the following UDF types:
 
 - [apply_pixel](#apply_pixel)
 - [apply_scene](#apply_scene)
@@ -61,24 +60,22 @@ Similar to `chunkreduce_time`, this type applies the provided function on spatia
 Similar to `chunkreduce_space` and `chunkreduce_time`, UDFs of this type receive spatiotemporal chunks such that the output has lower spatial and lower temporal resolution.
 
 
-
-
 ### R implementation
 
-| **UDF Type**   |  **Function prototype**  | **Details** |
-|---|---|---|
-| apply_pixel   |   |  |
-| apply_scene  |   |   |
-| reduce_time  |   |   |
-| reduce_space  |   |   |
-| window_time  |   |   |
-| window_space  |   |   |
-| window_spacetime  |   |   |
-| aggregate_time  |   |   |
-| aggregate_space  |   |   |
-| aggregate_spacetime  |   |   |
-| chunkreduce_time  |   |   |
-| chunkreduce_space  |   |   |
-| chunkreduce_spacetime  |   |   |
+| **UDF Type**          | **Function prototype** | **Details** |
+| --------------------- | ---------------------- | ----------- |
+| apply_pixel           |                        |             |
+| apply_scene           |                        |             |
+| reduce_time           |                        |             |
+| reduce_space          |                        |             |
+| window_time           |                        |             |
+| window_space          |                        |             |
+| window_spacetime      |                        |             |
+| aggregate_time        |                        |             |
+| aggregate_space       |                        |             |
+| aggregate_spacetime   |                        |             |
+| chunkreduce_time      |                        |             |
+| chunkreduce_space     |                        |             |
+| chunkreduce_spacetime |                        |             |
 
 

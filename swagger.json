@@ -2,8 +2,8 @@
   "swagger": "2.0",
   "info": {
     "title": "OpenEO API",
-    "version": "0.0.1",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled, \n * and how OpenSearch is interfaced",
+    "version": "0.0.2",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled,\n * how resources (e.g. process graphs) can be shared,\n * and how OpenSearch is interfaced",
     "contact": {
       "name": "Marius Appel",
       "url": "https://github.com/open-eo/openeo-api-poc",
@@ -29,38 +29,56 @@
   "schemes": [
     "https"
   ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    },
+    "Basic": {
+      "type": "basic"
+    }
+  },
   "tags": [
     {
-      "name": "API Information",
-      "description": "General services about the API implementation at a specific back-end"
+      "name": "Capabilities",
+      "description": "General information about the API implementation and other supported capabilities at a specific back-end."
     },
     {
       "name": "EO Data Discovery",
-      "description": "Discovery of Earth observation datasets that are available at the back-end"
+      "description": "Discovery of Earth observation datasets that are available at the back-end."
     },
     {
       "name": "Process Discovery",
-      "description": "Discovery of processes that are available at the back-end"
+      "description": "Discovery of processes that are available at the back-end."
     },
     {
-      "name": "UDF",
-      "description": "Interfacing end executing user-defined functions at the back-end."
+      "name": "UDF Runtime Discovery",
+      "description": "Discovery of programming languages and their runtime environments to execute user-defined functions at the back-end."
     },
     {
       "name": "User Content",
-      "description": "Services working with user content"
+      "description": "Services working with user content."
     },
     {
       "name": "Authentication",
-      "description": "Authentication of users"
+      "description": "Authentication of users."
     },
     {
       "name": "Job Management",
-      "description": "Organization of processing jobs that have been submitted to the back-end"
+      "description": "Services to manage jobs and their computations."
     },
     {
-      "name": "Data Download",
-      "description": "Services for downloading different types of job results"
+      "name": "Result Access",
+      "description": "Services to access processing results."
+    },
+    {
+      "name": "Services",
+      "description": "Management of web-services for accessing job results."
+    },
+    {
+      "name": "CORS",
+      "description": "Endpoints to allow Cross Origin Requests for requests from internet browsers/JavaScript."
     }
   ],
   "responses": {
@@ -75,6 +93,49 @@
     },
     "unavailable": {
       "description": "The service is currently unavailable."
+    },
+    "method_not_allowed": {
+      "description": "The requested HTTP method is not supported or allowed to be requested."
+    },
+    "format_not_supported": {
+      "description": "The server is not capable to deliver the requested format."
+    },
+    "server_error": {
+      "description": "The request can't be fulfilled due to an error at the back-end."
+    },
+    "cors_options": {
+      "description": "Gives internet browsers the permission to access the requested resource.",
+      "headers": {
+        "Access-Control-Allow-Origin": {
+          "type": "string",
+          "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+          "default": "*"
+        },
+        "Access-Control-Allow-Methods": {
+          "type": "array",
+          "description": "Comma-separated list of HTTP methods allowed to be requested. List all implemented HTTP methods for the endpoint here.",
+          "collectionFormat": "csv",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Access-Control-Allow-Headers": {
+          "type": "array",
+          "description": "Comma-separated list of HTTP headers allowed to be send. If the back-end requires authorization it needs to contain at least `Authorization`",
+          "collectionFormat": "csv",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Access-Control-Allow-Credentials": {
+          "type": "boolean",
+          "description": "If authorization is required by the back-end it needs to be set to `true`"
+        },
+        "Content-Type": {
+          "type": "string",
+          "description": "Should return the content type delivered by the request that the permission is requested for."
+        }
+      }
     }
   },
   "parameters": {
@@ -84,11 +145,39 @@
       "type": "string",
       "description": "user identifier, the special value `me` automatically refers to the own ID based on the provided HTTP `Authorization` header.",
       "required": true
+    },
+    "process_graph_id": {
+      "name": "process_graph_id",
+      "in": "path",
+      "type": "string",
+      "description": "Process graph identifier string",
+      "required": true
+    },
+    "service_id": {
+      "name": "service_id",
+      "in": "path",
+      "type": "string",
+      "description": "Service identifier string",
+      "required": true
+    },
+    "job_id": {
+      "name": "job_id",
+      "in": "path",
+      "type": "string",
+      "description": "Job identifier string",
+      "required": true
+    },
+    "file_path": {
+      "name": "path",
+      "in": "path",
+      "type": "string",
+      "description": "Path relative to the user's root directory, must be URL encoded",
+      "required": true
     }
   },
   "definitions": {
     "process_description": {
-      "description": "Defines and describes a process including it's expected input arguments. Arguments ",
+      "description": "Defines and describes a process including it's expected input arguments.",
       "type": "object",
       "required": [
         "process_id",
@@ -280,7 +369,8 @@
       "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
       "type": "object",
       "required": [
-        "process_id"
+        "process_id",
+        "args"
       ],
       "properties": {
         "process_id": {
@@ -288,11 +378,7 @@
           "description": "The unique identifier of the process."
         },
         "args": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/arg_set"
-          },
-          "description": "Collection of arguments identified by their name."
+          "$ref": "#/definitions/arg_set"
         }
       },
       "example": {
@@ -306,228 +392,220 @@
                 "args": {
                   "imagery": {
                     "product_id": "Sentinel2A-L1C"
-                  }
-                },
-                "from": "2017-01-01",
-                "to": "2017-01-31"
-              }
-            },
-            "red": "4",
-            "nir": "8"
+                  },
+                  "from": "2017-01-01",
+                  "to": "2017-01-31"
+                }
+              },
+              "red": "4",
+              "nir": "8"
+            }
           }
         }
       }
     },
     "arg_set": {
-      "description": "Defines an object schema for collection (uniquely named) arguments as input to processes. **THIS TYPE IS NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**",
+      "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **arg_set** or **image_collection** (see models).\nThis object is part of the process graph definition. **This type is not formalized in the Swagger 2.0 definition due to missing support for oneOf or anyOf schema combinations.** See the process graph documentation for more information.",
       "type": "object",
       "additionalProperties": true
     },
-    "job": {
-      "description": "Defines metadata of processing jobs that have been submitted by users.",
+    "image_collection": {
+      "description": "Defines an object schema to define an image collection based on available EO data.\nThis is part of the process graph. See the process graph documentation for more information.",
+      "type": "object",
+      "required": [
+        "product_id"
+      ],
+      "properties": {
+        "product_id": {
+          "type": "string",
+          "description": "The unique identifier of the EO data."
+        }
+      },
+      "example": {
+        "product_id": "Sentinel-2A-L1C"
+      }
+    },
+    "job_id": {
+      "type": "string",
+      "description": "Unique identifier of a job that is generated by the back-end during job submission.",
+      "example": "748df7caa8c84a7ff6e"
+    },
+    "job_submitted": {
+      "type": "string",
+      "format": "dateTime",
+      "description": "Date and time of job submission in ISO 8601 format",
+      "example": "2017-01-01T09:32:12Z"
+    },
+    "job_updated": {
+      "type": "string",
+      "format": "dateTime",
+      "description": "Date and time of last status change in ISO 8601 format",
+      "example": "2017-01-01T09:36:18Z"
+    },
+    "job_user_id": {
+      "type": "string",
+      "description": "Identifier of the user, who submitted the job and pays incurred costs if needed. Is usually `me` for own jobs.",
+      "example": "bd6f9faf93b4"
+    },
+    "job_consumed_credits": {
+      "type": "number",
+      "description": "Credits consumed by this process",
+      "example": 392
+    },
+    "job_status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "queued",
+        "running",
+        "finished",
+        "paused",
+        "canceled",
+        "error",
+        "unknown"
+      ],
+      "description": "The current status of the job.",
+      "example": "submitted"
+    },
+    "job_full": {
+      "description": "Defines full metadata of processing jobs that have been submitted by users.",
       "type": "object",
       "required": [
         "job_id",
         "status",
-        "process_graph",
-        "user_id"
+        "process_graph"
       ],
       "properties": {
         "job_id": {
-          "type": "string",
-          "description": "Unique identifier of a job that is generated by the back-end during job submission."
+          "$ref": "#/definitions/job_id"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "submitted",
-            "running",
-            "finished",
-            "canceled",
-            "error",
-            "unknown",
-            "waiting"
-          ],
-          "description": "The current status of the job."
+          "$ref": "#/definitions/job_status"
         },
         "process_graph": {
           "$ref": "#/definitions/process_graph"
         },
-        "view": {
-          "$ref": "#/definitions/view"
+        "output": {
+          "$ref": "#/definitions/output_format_body"
         },
         "submitted": {
-          "type": "string",
-          "format": "dateTime",
-          "description": "Date and time of job submission in ISO 8601 format"
+          "$ref": "#/definitions/job_submitted"
         },
-        "last_update": {
-          "type": "string",
-          "format": "dateTime",
-          "description": "Date and time of last status change in ISO 8601 format"
+        "updated": {
+          "$ref": "#/definitions/job_updated"
         },
         "user_id": {
-          "type": "string",
-          "description": "Identifier of the user, who submitted the job and pays incurred costs if needed."
+          "$ref": "#/definitions/job_user_id"
         },
         "consumed_credits": {
-          "type": "number",
-          "description": "Credits consumed by this process"
+          "$ref": "#/definitions/job_consumed_credits"
+        }
+      },
+      "additionalProperties": true
+    },
+    "job_meta": {
+      "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including view and process graph, call `GET /jobs/{job_id}`",
+      "type": "object",
+      "required": [
+        "job_id",
+        "status"
+      ],
+      "properties": {
+        "job_id": {
+          "$ref": "#/definitions/job_id"
+        },
+        "status": {
+          "$ref": "#/definitions/job_status"
+        },
+        "submitted": {
+          "$ref": "#/definitions/job_submitted"
+        },
+        "updated": {
+          "$ref": "#/definitions/job_updated"
+        },
+        "user_id": {
+          "$ref": "#/definitions/job_user_id"
+        },
+        "consumed_credits": {
+          "$ref": "#/definitions/job_consumed_credits"
+        }
+      }
+    },
+    "service_type": {
+      "description": "Definintion of possible web services to access result data. All available web service types can be retrieved via `GET /services/types`",
+      "type": "string",
+      "example": "wms"
+    },
+    "service_args": {
+      "type": "object",
+      "description": "Definintion of additional arguments a web service might need to be created. For example, this could specify the required version of the service, visualization details or any other service dependant configuration.",
+      "example": {
+        "version": 1.1
+      }
+    },
+    "service": {
+      "description": "Defines metadata of running services to access result data.",
+      "type": "object",
+      "required": [
+        "service_id",
+        "service_type",
+        "service_url",
+        "job_id"
+      ],
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique identifier of a service that is generated by the back-end during service creation.",
+          "example": "91f3caa3b5281a"
+        },
+        "service_url": {
+          "type": "string",
+          "description": "URL at which the service is accessible. Doesn't necessarily need to contain the API base url.",
+          "example": "https://openeo.org/wms/91f3caa3b5281a"
+        },
+        "service_type": {
+          "$ref": "#/definitions/service_type"
+        },
+        "service_args": {
+          "$ref": "#/definitions/service_args"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "The job identifier string refering to the job this service is running for.",
+          "example": "42d5k3nd92mk49dmj294md"
+        }
+      },
+      "additionalProperties": true
+    },
+    "output_format_body": {
+      "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.",
+      "type": "object",
+      "required": [
+        "format"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "description": "One of the supported output formats."
         }
       },
       "additionalProperties": true,
       "example": {
-        "job_id": "748df7caa8c84a7ff6e",
-        "user_id": "bd6f9faf93b4",
-        "status": "running",
-        "process_graph": {
-          "process_id": "filter_daterange",
-          "args": [
-            {
-              "A": {
-                "product_id": "Sentinel2A-L1C"
-              }
-            },
-            {
-              "from": "2017-01-01"
-            },
-            {
-              "to": "2017-01-31"
-            }
-          ]
-        },
-        "submitted": "2017-01-01T09:32:12Z",
-        "last_update": "2017-01-01T09:36:18Z",
-        "consumed_credits": "392"
+        "format": "GTiff",
+        "tiles": true,
+        "compress": "jpeg",
+        "photometric": "YCBCR",
+        "jpeg_quality": 80
       }
-    },
-    "view": {
-      "type": "object",
-      "description": "The view defines how we look at the data (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subdataset.",
-      "properties": {
-        "space": {
-          "description": "Defines spatial resolution, window, and resampling method used for running processes on small sub datasets",
-          "type": "object",
-          "properties": {
-            "srs": {
-              "type": "string",
-              "description": "Spatial reference system as proj4 string or epsg code such as `EPSG:3857`"
-            },
-            "window": {
-              "type": "object",
-              "description": "boundaries of the spatial window as coordinates expressed in the given reference system.",
-              "required": [
-                "left",
-                "top",
-                "right",
-                "bottom"
-              ],
-              "properties": {
-                "left": {
-                  "type": "number"
-                },
-                "top": {
-                  "type": "number"
-                },
-                "right": {
-                  "type": "number"
-                },
-                "bottom": {
-                  "type": "number"
-                }
-              }
-            },
-            "cell_size": {
-              "type": "number"
-            },
-            "resampling": {
-              "type": "string",
-              "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
-              "default": "nearest",
-              "enum": [
-                "nearest",
-                "bilinear",
-                "cubic",
-                "cubicspline",
-                "lanczos",
-                "average",
-                "mode"
-              ]
-            }
-          },
-          "example": {
-            "srs": "EPSG:4326",
-            "window": {
-              "left": -10.21,
-              "top": 53.23,
-              "right": 12.542,
-              "bottom": 12.32
-            },
-            "resolution": 0.25,
-            "resampling": "nearest"
-          }
-        },
-        "time": {
-          "description": "Defines temporal resolution, window, and resampling method used for running processes on small sub datasets",
-          "type": "object",
-          "properties": {
-            "window": {
-              "type": "object",
-              "description": "Start and end date/time in ISO 8601 format",
-              "required": [
-                "start",
-                "end"
-              ],
-              "properties": {
-                "start": {
-                  "type": "string",
-                  "format": "dateTime"
-                },
-                "end": {
-                  "type": "string",
-                  "format": "dateTime"
-                }
-              }
-            },
-            "time_step": {
-              "type": "string",
-              "description": "temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `P1M30DT24H` only a single integer number with date/time component such as `P1M`, `P30D`, `PT24H` should be specified."
-            },
-            "resampling": {
-              "type": "string",
-              "description": "resampling method to use (taken from [GDAL](http://www.gdal.org/gdal_translate.html))",
-              "default": "nearest",
-              "enum": [
-                "nearest",
-                "bilinear",
-                "cubic",
-                "cubicspline",
-                "lanczos",
-                "average",
-                "mode"
-              ]
-            }
-          },
-          "example": {
-            "window": {
-              "start": "2017-01-01",
-              "end": "2018-01-01"
-            },
-            "resolution": "P1M",
-            "resampling": "nearest"
-          }
-        }
-      },
-      "additionalProperties": true
     }
   },
   "paths": {
     "/capabilities": {
       "get": {
         "summary": "Returns the capabilities, i.e., which OpenEO API features are supported  by the back-end.",
-        "description": "The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints.",
+        "description": "The request will ask the back-end which features of the OpenEO API are supported and return a simple JSON description with available endpoints.\nVariables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name.",
         "tags": [
-          "API Information"
+          "Capabilities"
         ],
         "responses": {
           "200": {
@@ -538,43 +616,126 @@
                 "/data/{product_id}",
                 "/processes"
               ]
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           }
         }
       }
     },
-    "/auth/login": {
-      "get": {
-        "summary": "Check whether a user is registered at the back-end.",
-        "description": "This request simply checks whether the provided HTTP `Authorization` header refers to a valid user at the back-end and returns his/her internal user ID. It is not needed to call login before sending any other API request, which will also expect the HTTP `Authorization` header if needed. Back-ends that do not require authentication such as a local file-based implementation may always return a generic user ID such as `me`.",
+    "/capabilities/output_formats": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "Authentication"
-        ],
-        "produces": [
-          "text/plain; charset=utf-8"
+          "CORS"
         ],
         "responses": {
           "200": {
-            "description": "User ID of the user that refers to the provided HTTP `Authorization` header. ",
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns output formats supported by the back-end.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with GDAL, see http://www.gdal.org/formats_list.html. Some file formats not available through GDAL might be defined centrally for openEO in the documentation. Custom output formats ot options can be defined wherever needed. Not all output format options supported by GDAL need to be supported.",
+        "tags": [
+          "Capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "An object with the default output format and a map containing all output formats as keys and an object that defines available options.",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "required": [
+                "default",
+                "formats"
+              ],
+              "properties": {
+                "default": {
+                  "type": "string"
+                },
+                "formats": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
             },
             "examples": {
-              "text/plain; charset=utf-8": "b34ba2bdf9ac9ee1"
+              "application/json": {
+                "default": "GTiff",
+                "formats": {
+                  "GTiff": {
+                    "tiled": "By default [false] stripped TIFF files are created. This option can be used to force creation of tiled TIFF files [true].",
+                    "compress": "Set the compression [JPEG/LZW/DEFLATE/NONE] to use.",
+                    "photometric": "Set the photometric interpretation tag [MINISBLACK/MINISWHITE/RGB/CMYK/YCBCR/CIELAB/ICCLAB/ITULAB].",
+                    "jpeg_quality": "Set the JPEG quality [1-100] when using JPEG compression. Default: 75"
+                  },
+                  "PNG": {
+                    "worldfile": "Force the generation of an associated ESRI world file."
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           },
-          "403": {
-            "description": "Login failed"
+          "503": {
+            "$ref": "#/responses/unavailable"
           }
         }
       }
     },
     "/data": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "Returns basic information about EO datasets that are available at the back-end and offers simple search by time, space, and product name.",
+        "summary": "Returns basic information about EO datasets that are available at the back-end.",
         "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and product name with very simple search expressions.",
         "tags": [
           "EO Data Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "parameters": [
           {
@@ -627,6 +788,18 @@
                 "additionalProperties": true
               }
             },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
             "examples": {
               "application/json": [
                 {
@@ -650,6 +823,9 @@
           "401": {
             "$ref": "#/responses/auth_required"
           },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -660,11 +836,32 @@
       }
     },
     "/data/opensearch": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "OpenSearch endpoint to receive standardized data search results.",
         "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
         "tags": [
           "EO Data Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "produces": [
           "application/atom+xml"
@@ -697,10 +894,25 @@
             "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
             "examples": {
               "application/atom+xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO datasets by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/data/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/data/opensearch/description.xml\"/>\n  <opensearch:totalResults>3</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>MOD09Q1</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/MOD09Q1\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2017-09-18T10:30:00Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006</rights>\n    <summary type=\"text\">MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V00 </summary>\n  </entry>\n  <entry>\n    <title>SENTINEL2-1C</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/SENTINEL2-1C\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2017-12-01T01:00:00Z</updated>\n    <rights type=\"text\">European Space Agency (ESA)</rights>\n    <summary type=\"text\">Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry</summary>\n  </entry>\n  <entry>\n    <title>LandsatETM+</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/LandsatETM%2B\"/>\n    <id>urn:uuid:1225c695-cfd8-4ebb-cccc-70da344efa6c</id>\n    <updated>2015-01-10T22:45:12Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS)</rights>\n    <summary type=\"text\">Landsat Enhanced Thematic Mapper Plus (ETM+)</summary>\n  </entry>\n</feed>"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           },
           "401": {
             "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -712,19 +924,40 @@
       }
     },
     "/data/{product_id}": {
+      "parameters": [
+        {
+          "name": "product_id",
+          "in": "path",
+          "type": "string",
+          "description": "product identifier string such as `MOD18Q1`",
+          "required": true
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "Returns further information on a given EO product available at the back-end.",
-        "description": "The request will ask the back-end for further details about a product specified by the identifier `product_id`.",
+        "description": "The request will ask the back-end for further details about a product specified by the identifier `product_id`",
         "tags": [
           "EO Data Discovery"
         ],
-        "parameters": [
+        "security": [
+          {},
           {
-            "name": "product_id",
-            "in": "path",
-            "type": "string",
-            "description": "product identifier string such as `MOD18Q1`",
-            "required": true
+            "Bearer": []
           }
         ],
         "responses": {
@@ -793,6 +1026,18 @@
                 }
               },
               "additionalProperties": true
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             },
             "examples": {
               "application/json": {
@@ -939,6 +1184,9 @@
           "401": {
             "$ref": "#/responses/auth_required"
           },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
           "404": {
             "description": "EO dataset with specified identifier is not available"
           },
@@ -952,11 +1200,32 @@
       }
     },
     "/processes": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "Returns processes supported by the back-end",
-        "description": "The request will ask the back-end for available processes and will return an array of available processes with their unique identifiers and description",
+        "summary": "Returns processes supported by the back-end.",
+        "description": "The request will ask the back-end for available processes and will return an array of available processes with their unique identifiers and description.",
         "tags": [
           "Process Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "parameters": [
           {
@@ -989,6 +1258,18 @@
                 }
               }
             },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
             "examples": {
               "application/json": [
                 {
@@ -1005,6 +1286,9 @@
           "401": {
             "$ref": "#/responses/auth_required"
           },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1015,11 +1299,32 @@
       }
     },
     "/processes/opensearch": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "OpenSearch endpoint to request standardized process search results.",
         "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
         "tags": [
           "Process Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "parameters": [
           {
@@ -1049,10 +1354,25 @@
             "description": "OpenSearch response",
             "examples": {
               "application/atom+xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO processes by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/processes/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/processes/opensearch/description.xml\"/>\n  <opensearch:totalResults>2</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>NDVI</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/processes/NDVI\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Computes the normalized difference vegetation index (NDVI) for all pixels of the input dataset.</summary>\n  </entry>\n  <entry>\n    <title>median_time</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/median_time\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Applies median aggregation to pixel time series for all bands of the input dataset.</summary>\n  </entry>\n</feed>"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           },
           "401": {
             "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1064,19 +1384,40 @@
       }
     },
     "/processes/{process_id}": {
+      "parameters": [
+        {
+          "name": "process_id",
+          "in": "path",
+          "type": "string",
+          "description": "process identifier string such as `NDVI`",
+          "required": true
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
         "summary": "Returns further information on a given EO process available at the back-end.",
         "description": "The request will ask the back-end for further details about a process specified by identifier",
         "tags": [
           "Process Discovery"
         ],
-        "parameters": [
+        "security": [
+          {},
           {
-            "name": "process_id",
-            "in": "path",
-            "type": "string",
-            "description": "process identifier string such as `NDVI`",
-            "required": true
+            "Bearer": []
           }
         ],
         "responses": {
@@ -1084,6 +1425,18 @@
             "description": "JSON object with metadata of the EO process.",
             "schema": {
               "$ref": "#/definitions/process_description"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             },
             "examples": {
               "application/json": {
@@ -1100,6 +1453,9 @@
           "401": {
             "$ref": "#/responses/auth_required"
           },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
           "404": {
             "description": "Process with specified identifier is not available"
           },
@@ -1112,64 +1468,971 @@
         }
       }
     },
-    "/jobs": {
-      "post": {
-        "summary": "submits a new job to the back-end",
-        "description": "creates a new job from one or more (chained) processes at the back-end, which will eventually run the computations",
+    "/auth/login": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "Job Management"
+          "CORS"
         ],
-        "parameters": [
-          {
-            "name": "evaluate",
-            "in": "query",
-            "description": "Defines how the job should be evaluated. Can be `lazy` (the default), `batch`, or `sync` where lazy means that the job runs computations only on download requests considering dynamically provided views. Batch jobs are immediately scheduled for execution by the back-end. Synchronous jobs will be immediately executed and return the result data.",
-            "type": "string",
-            "enum": [
-              "lazy",
-              "batch",
-              "sync"
-            ],
-            "default": "lazy",
-            "required": false
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
           },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Check whether the user is registered with the specified credentials at the back-end.",
+        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token. Back-ends that do not require authentication such as a local file-based implementation may always return the generic user ID `me` and no bearer token.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
           {
-            "name": "process_graph",
-            "in": "body",
-            "description": "Description of one or more (chained) processes including their input arguments",
-            "schema": {
-              "$ref": "#/definitions/process_graph"
-            }
-          },
-          {
-            "name": "format",
-            "in": "query",
-            "description": "Description of the desired output format. Required in case `evaluate` is set to `sync`. If not specified the format has to be specified in the download request.",
-            "type": "string",
-            "enum": [
-              "nc",
-              "json",
-              "wcs",
-              "wmts",
-              "tms",
-              "tif",
-              "png",
-              "jpeg"
-            ],
-            "required": false
+            "Basic": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Depending on the job evaluation type, the result of posting jobs can be either a json description of the job (for lazy and batch jobs) or a result object such as a NetCDF file (for sync jobs).",
+            "description": "Login successful. Returns the user ID and a bearer token for future API calls. ",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
             "examples": {
               "application/json": {
-                "job_id": "42d5k3nd92mk49dmj294md"
+                "user_id": "sampleuser123",
+                "token": "b34ba2bdf9ac9ee1"
               }
             }
           },
+          "403": {
+            "description": "Login failed"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Registers a new user account.",
+        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request registers a new user account.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "name": "password",
+            "in": "body",
+            "required": true,
+            "description": "Password to be used for the newly created user account.",
+            "schema": {
+              "description": "Password to be used for the newly created user account.",
+              "type": "string",
+              "example": "mySecr3tP@ssword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registration successful. Returns the newly created user ID. ",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
+            "examples": {
+              "application/json": {
+                "user_id": "sampleuser123"
+              }
+            }
+          },
+          "420": {
+            "description": "Registration failed, e.g. user name not available."
+          },
+          "500": {
+            "description": "Registration failed"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/process_graphs": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Lists user-defined process graphs.",
+        "description": "This service lists all process graphs of the user that are stored at the back-end.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON array with process graph ids",
+            "examples": {
+              "application/json": [
+                "57d7e8ff91a1134",
+                "12bd7584efa1236"
+              ]
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "post": {
+        "summary": "Submits a new process graph and returns a unqiue identifier.",
+        "description": "Creates a unique resource for a provided process graph that can be reused in other process graphs.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "process_graph",
+            "in": "body",
+            "required": true,
+            "description": "Description of one or more (chained) processes including their input arguments",
+            "schema": {
+              "$ref": "#/definitions/process_graph"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object with process graph identifier",
+            "examples": {
+              "application/json": {
+                "process_graph_id": "57d7e8ff91a1134"
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/process_graphs/{process_graph_id}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        },
+        {
+          "$ref": "#/parameters/process_graph_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get a process graph by id.",
+        "description": "Returns a JSON processs graph from its id.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object with process graph",
+            "schema": {
+              "$ref": "#/definitions/process_graph"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "Process graph with given id is not available"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "put": {
+        "summary": "Replaces a process graph.",
+        "description": "Replaces a process graph, but maintains the identifier.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "process_graph",
+            "in": "body",
+            "required": true,
+            "description": "Description of one or more (chained) processes including their input arguments",
+            "schema": {
+              "$ref": "#/definitions/process_graph"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The process graph has been replaced successfully.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deletes a process graph with given id.",
+        "description": "Returns a JSON processs graph from its ID.",
+        "tags": [
+          "User Content"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully deleted",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "boolean",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "Process graph with given id is not available"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/execute": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Execute a process graph synchronously.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. The process graph must be specified either directy in the request body or by its URI as query parameter",
+        "tags": [
+          "Result Access",
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [],
+        "parameters": [
+          {
+            "name": "job",
+            "in": "body",
+            "description": "Specifies the job details, e.g. the process graph and the output format.",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "output"
+              ],
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Result data in the specified output format",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
           "406": {
-            "description": "The server is not capable to deliver the requested format."
+            "$ref": "#/responses/format_not_supported"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/services": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish an interactive web service.",
+        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
+        "tags": [
+          "Services",
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "service",
+            "description": "The base data for the service to create",
+            "schema": {
+              "type": "object",
+              "required": [
+                "job_id",
+                "service_type"
+              ],
+              "properties": {
+                "job_id": {
+                  "$ref": "#/definitions/job_id"
+                },
+                "service_type": {
+                  "$ref": "#/definitions/service_type"
+                },
+                "service_args": {
+                  "$ref": "#/definitions/service_args"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the created service",
+            "schema": {
+              "$ref": "#/definitions/service"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/capabilities/services": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns web service types supported by the back-end.",
+        "description": "The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.",
+        "tags": [
+          "Capabilities",
+          "Services"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of implemented web service types",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "tms",
+                "wcs",
+                "wms",
+                "wmts"
+              ]
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/services/{service_id}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/service_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Modifies a web service.",
+        "description": "***Reserved for later use.** A protocol to modify a service is to be defined.*\nCalling this endpoint will change the specified web service, but maintain its identifier.",
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "service",
+            "description": "The data to change for the spcified service",
+            "schema": {
+              "type": "object",
+              "required": [
+                "job_id",
+                "type"
+              ],
+              "properties": {
+                "service_args": {
+                  "$ref": "#/definitions/service_args"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Changes to the service applied successfully.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A service with the given id is not available."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get service information by id.",
+        "description": "Requests to this endpoint will return JSON description of the service.",
+        "tags": [
+          "Services",
+          "Result Access"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the created service",
+            "schema": {
+              "$ref": "#/definitions/service"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A service with the given id is not available."
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop a given service by id",
+        "description": "Calling this endpoint will stop a given web service to access result data.",
+        "tags": [
+          "Services"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The service has been successfully deleted.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A service with given id is not available"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "post": {
+        "summary": "Submits a new job to the back-end.",
+        "description": "Creates a new job from one or more (chained) processes at the back-end. Jobs are initially always lazy jobs and will not run the computations until on demand  requests or separately queueing it. Queueing it converts a lazy job to a batch job.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job",
+            "in": "body",
+            "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be also specified later during download and is not necessary for web services at all.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the created job",
+            "schema": {
+              "$ref": "#/definitions/job_meta"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1181,85 +2444,68 @@
       }
     },
     "/jobs/{job_id}": {
-      "get": {
-        "summary": "Returns information about a submitted job",
-        "description": "Returns detailed information about a submitted job including its current status and the underlying task",
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "Job Management"
-        ],
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
-          }
+          "CORS"
         ],
         "responses": {
           "200": {
-            "description": "JSON object with job information.",
-            "schema": {
-              "$ref": "#/definitions/job"
-            }
+            "$ref": "#/responses/cors_options"
           },
-          "401": {
-            "$ref": "#/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/responses/access_denied"
-          },
-          "404": {
-            "description": "Job with specified identifier is not available"
-          },
-          "501": {
-            "$ref": "#/responses/not_implemented"
-          },
-          "503": {
-            "$ref": "#/responses/unavailable"
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
           }
         }
       },
-      "delete": {
-        "summary": "Deletes a submitted job",
-        "description": "Deleting a job  will cancel execution at the back-end regardless of its status. For finished jobs, this will also delete resulting data.",
+      "patch": {
+        "summary": "Modifies a job at the back-end.",
+        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nModifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.",
         "tags": [
           "Job Management"
         ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "parameters": [
           {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
+            "name": "job",
+            "in": "body",
+            "description": "Specifies the job details to update, e.g. the process graph or the output format.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "process_graph": {
+                  "$ref": "#/definitions/process_graph"
+                },
+                "output": {
+                  "$ref": "#/definitions/output_format_body"
+                }
+              }
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "JSON object with job information.",
-            "examples": {
-              "application/json": {
-                "job_id": "42d5k3nd92mk49dmj294md",
-                "status": "scheduled",
-                "process_graph": {
-                  "process_id": "slope",
-                  "args": {
-                    "dem": {
-                      "process_id": "filter_bbox",
-                      "args": {
-                        "imagery": "/data/srtm90m",
-                        "srs": "EPSG:4326",
-                        "left": 6.301,
-                        "right": 7.232,
-                        "top": 53.87,
-                        "bottom": 50.223
-                      }
-                    }
-                  }
-                },
-                "submitted": "2017-01-01T09:32:12Z",
-                "user_id": "ab32e5f3a2bc2847s2"
+            "description": "Changes to the job applied successfully.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
               }
             }
           },
@@ -1270,7 +2516,61 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "A job with the specified identifier is not available."
+          },
+          "423": {
+            "description": "The job is currently running and could not be canceled by the back-end."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns information about a submitted job.",
+        "description": "Returns detailed information about a submitted job including its current status and the underlying process graph",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full job information.",
+            "schema": {
+              "$ref": "#/definitions/job_full"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A job with the specified identifier is not available."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1282,24 +2582,43 @@
       }
     },
     "/jobs/{job_id}/subscribe": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "Subscribes to job execution updates that are communicated over WebSockets",
-        "description": "THE PROTOCOL FOR COMMUNICATION OF JOB UPDATES IS TO BE DEFINED.",
+        "summary": "Subscribes to job execution updates that are communicated over WebSockets.",
+        "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
         "schemes": [
           "wss"
         ],
         "tags": [
           "Job Management"
         ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
         "produces": [],
         "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
-          },
           {
             "name": "Upgrade",
             "in": "header",
@@ -1359,7 +2678,158 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "A job with the specified identifier is not available."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/queue": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          },
+          "406": {
+            "$ref": "#/responses/format_not_supported"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Running a job in batch mode.",
+        "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully queued.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A job with the specified identifier is not available."
+          },
+          "410": {
+            "description": "Job with specified identifier can't be resumed."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/pause": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Pausing a batch job.",
+        "description": "This request pauses a batch job. Execution is stopped, but might be resumed later by queueing it again. Intermediate results are stored for resuming. This job won't generate additional costs for processing.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The job has been successfully paused.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "A job with the specified identifier is not available."
+          },
+          "428": {
+            "description": "Job with specified identifier is queued or is not running."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1371,24 +2841,52 @@
       }
     },
     "/jobs/{job_id}/cancel": {
-      "get": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "patch": {
         "summary": "Cancels any back-end computations of a job",
-        "description": "This request cancels all related computations at the back-end. It will stop generating additional costs for processing. Results of batch jobs might still be accessible whereas lazy jobs will generally not respond to s following download calls.  ",
+        "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing unless started again using `GET /jobs/{job_id}/queue` (for batch jobs) or updated using `PATCH /jobs`. Results of batch jobs might be discarded and deleted by the back-end. Any service associated with this job might be deleted from the back-end.",
         "tags": [
           "Job Management"
         ],
-        "parameters": [
+        "security": [
           {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
+            "Bearer": []
           }
         ],
         "responses": {
           "200": {
-            "description": "The job has been successfully canceled."
+            "description": "The job has been successfully canceled",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1397,7 +2895,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available"
+            "description": "A job with the specified identifier is not available."
+          },
+          "500": {
+            "$ref": "#/responses/server_error"
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1408,43 +2909,74 @@
         }
       }
     },
-    "/download/{format}/{job_id}": {
-      "get": {
-        "summary": "Endpoint to download job results in the specified format.",
-        "description": "This request will ask the back-end to fetch job result data in the specified format.  Input arguments depend on the format requested, e.g., for a WMTS service it takes zoom level, tile indexes, visuallization parameters, and time if needed.",
+    "/jobs/{job_id}/download": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/job_id"
+        },
+        {
+          "name": "format",
+          "in": "query",
+          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\nIf no output format has been specified here or for the job in general, the back-end falls back to its default format, which is  specified in the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified output format can be added as individual query parameters to the request.",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "Data Download"
-        ],
-        "produces": [],
-        "parameters": [
-          {
-            "name": "format",
-            "in": "path",
-            "type": "string",
-            "description": "string specifying the data format to deliver",
-            "required": true,
-            "enum": [
-              "nc",
-              "json",
-              "wcs",
-              "wmts",
-              "tms",
-              "tif",
-              "png",
-              "jpeg"
-            ]
-          },
-          {
-            "name": "job_id",
-            "in": "path",
-            "type": "string",
-            "description": "job identifier string",
-            "required": true
-          }
+          "CORS"
         ],
         "responses": {
           "200": {
-            "description": "A valid response"
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          },
+          "406": {
+            "$ref": "#/responses/format_not_supported"
+          }
+        }
+      },
+      "get": {
+        "summary": "Request download links for results of batch jobs.",
+        "description": "This request will provide links to download results of batch jobs. Depending on the Content-Type header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
+        "tags": [
+          "Result Access"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json",
+          "application/metalink+xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
+            "examples": {
+              "application/json": [
+                "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
+                "https://openeo.org/api/v0/download/583fba8b2ce/2.tif"
+              ]
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1453,10 +2985,10 @@
             "$ref": "#/responses/access_denied"
           },
           "404": {
-            "description": "Job with specified identifier is not available."
+            "description": "A job with the specified identifier is not available."
           },
-          "406": {
-            "description": "The server is not capable to deliver the requested format."
+          "410": {
+            "description": "Job with specified identifier has been canceled."
           },
           "501": {
             "$ref": "#/responses/not_implemented"
@@ -1468,15 +3000,36 @@
       }
     },
     "/users/{user_id}/files": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "List user-uploaded files",
+        "summary": "List user-uploaded files.",
         "description": "This service lists all user-uploaded files that are stored at the back-end.",
         "tags": [
           "User Content"
         ],
-        "parameters": [
+        "security": [
+          {},
           {
-            "$ref": "#/parameters/user_id"
+            "Bearer": []
           }
         ],
         "responses": {
@@ -1491,10 +3044,31 @@
                 ],
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Path to the file"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "description": "File size in bytes"
+                  },
+                  "modified": {
+                    "type": "string",
+                    "description": "Date and time the file has been modified at last in ISO8601 format"
                   }
                 },
                 "additionalProperties": true
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
               }
             },
             "examples": {
@@ -1536,32 +3110,61 @@
       }
     },
     "/users/{user_id}/files/{path}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        },
+        {
+          "$ref": "#/parameters/file_path"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "Download a user file",
+        "summary": "Download a user file.",
         "description": "This service downloads a user files identified by its path relative to the user's root directory.",
         "tags": [
           "User Content"
         ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
         "produces": [
           "application/octet-stream"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/parameters/user_id"
-          },
-          {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
-          }
         ],
         "responses": {
           "200": {
             "description": "file from user storage",
             "schema": {
               "type": "file"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           },
           "401": {
@@ -1582,10 +3185,15 @@
         }
       },
       "put": {
-        "summary": "Upload a new or update an existing user file",
+        "summary": "Upload a new or update an existing user file.",
         "description": "This service uploads a new or updates an existing file at a given path.",
         "tags": [
           "User Content"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ],
         "consumes": [
           "multipart/form-data"
@@ -1595,11 +3203,7 @@
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
+            "$ref": "#/parameters/file_path"
           },
           {
             "name": "file",
@@ -1611,7 +3215,19 @@
         ],
         "responses": {
           "200": {
-            "description": "The file upload has been successful."
+            "description": "The file upload has been successful.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1628,6 +3244,9 @@
           "423": {
             "description": "The file that is being accessed is locked."
           },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1640,26 +3259,39 @@
         }
       },
       "delete": {
-        "summary": "Deletes a user file",
+        "summary": "Deletes a user file.",
         "description": "This service deletes an existing user-uploaded file specified by its path.",
         "tags": [
           "User Content"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
         ],
         "parameters": [
           {
             "$ref": "#/parameters/user_id"
           },
           {
-            "name": "path",
-            "in": "path",
-            "type": "string",
-            "description": "path relative to the user's root directory, must be URL encoded",
-            "required": true
+            "$ref": "#/parameters/file_path"
           }
         ],
         "responses": {
           "200": {
-            "description": "The file has been successfully deleted at the back-end."
+            "description": "The file has been successfully deleted at the back-end.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
           },
           "401": {
             "$ref": "#/responses/auth_required"
@@ -1673,6 +3305,9 @@
           "423": {
             "description": "The file that is being accessed is locked."
           },
+          "500": {
+            "$ref": "#/responses/server_error"
+          },
           "501": {
             "$ref": "#/responses/not_implemented"
           },
@@ -1683,16 +3318,37 @@
       }
     },
     "/users/{user_id}/jobs": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "List all jobs that have been submitted by the user",
+        "summary": "List all jobs that have been submitted by the user.",
         "description": "Requests to this service will list all jobs submitted by a user with given id.",
         "tags": [
           "Job Management",
           "User Content"
         ],
-        "parameters": [
+        "security": [
+          {},
           {
-            "$ref": "#/parameters/user_id"
+            "Bearer": []
           }
         ],
         "responses": {
@@ -1702,7 +3358,94 @@
               "description": "Array of job descriptions",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/job"
+                "$ref": "#/definitions/job_meta"
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/responses/access_denied"
+          },
+          "404": {
+            "description": "User with specified identifier is not available."
+          },
+          "501": {
+            "$ref": "#/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/responses/unavailable"
+          }
+        }
+      }
+    },
+    "/users/{user_id}/services": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "List all running services that have been submitted by the user.",
+        "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
+        "tags": [
+          "Services",
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of service descriptions",
+            "schema": {
+              "description": "Array of service descriptions",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/service"
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
               }
             }
           },
@@ -1725,15 +3468,35 @@
       }
     },
     "/users/{user_id}/credits": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
       "get": {
-        "summary": "Returns available user credits",
-        "description": "For back-ends that involve accounting, this service will return the currently available credits. Other back-ends may simply return `Infinity`.",
+        "summary": "Returns available user credits.",
+        "description": "***Reserved for later use.** The credit system and payment procedures are to be defined.*\nFor back-ends that involve accounting, this service will return the currently available credits. Other back-ends may simply return `Infinity`",
         "tags": [
           "User Content"
         ],
-        "parameters": [
+        "security": [
           {
-            "$ref": "#/parameters/user_id"
+            "Bearer": []
           }
         ],
         "produces": [
@@ -1748,6 +3511,18 @@
             },
             "examples": {
               "text/plain": "210"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             }
           },
           "401": {
@@ -1768,15 +3543,49 @@
         }
       }
     },
-    "/udf": {
-      "get": {
-        "summary": "Describes how custom user-defined functions can be exposed to the data and which languages are supported by the back-end.",
+    "/udf_runtimes": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "UDF"
+          "CORS"
         ],
         "responses": {
           "200": {
-            "description": "Description of UDF support",
+            "$ref": "#/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns the programming languages including their environments and UDF types supported.",
+        "description": "Describes how custom user-defined functions can be exposed to the data and which programming languages and environments are supported by the back-end.",
+        "tags": [
+          "UDF Runtime Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Description of UDF runtime support",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
+            },
             "schema": {
               "type": "array",
               "items": {
@@ -1853,42 +3662,64 @@
         }
       }
     },
-    "/udf/{lang}/{udf_type}": {
-      "get": {
-        "summary": "Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data.",
+    "/udf_runtimes/{lang}/{udf_type}": {
+      "parameters": [
+        {
+          "name": "lang",
+          "in": "path",
+          "description": "Language identifier such as `R`",
+          "type": "string",
+          "enum": [
+            "python",
+            "R"
+          ],
+          "required": true
+        },
+        {
+          "name": "udf_type",
+          "in": "path",
+          "type": "string",
+          "description": "The UDF types define how UDFs can be exposed to the data, how they can be parallelized, and how the result schema should be structured.",
+          "enum": [
+            "apply_pixel",
+            "apply_scene",
+            "reduce_time",
+            "reduce_space",
+            "window_time",
+            "window_space",
+            "window_spacetime",
+            "aggregate_time",
+            "aggregate_space",
+            "aggregate_spacetime"
+          ],
+          "required": true
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
         "tags": [
-          "UDF"
+          "CORS"
         ],
-        "parameters": [
-          {
-            "name": "lang",
-            "in": "path",
-            "description": "Language identifier such as `R`",
-            "type": "string",
-            "enum": [
-              "python",
-              "R"
-            ],
-            "required": true
+        "responses": {
+          "200": {
+            "$ref": "#/responses/cors_options"
           },
+          "405": {
+            "$ref": "#/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "Returns the process description of UDF schemas.",
+        "description": "Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data.",
+        "tags": [
+          "UDF Runtime Discovery"
+        ],
+        "security": [
+          {},
           {
-            "name": "udf_type",
-            "in": "path",
-            "type": "string",
-            "description": "The UDF types define how UDFs can be exposed to the data, how they can be parallelized, and how the result schema should be structured.",
-            "enum": [
-              "apply_pixel",
-              "apply_scene",
-              "reduce_time",
-              "reduce_space",
-              "window_time",
-              "window_space",
-              "window_spacetime",
-              "aggregate_time",
-              "aggregate_space",
-              "aggregate_spacetime"
-            ],
-            "required": true
+            "Bearer": []
           }
         ],
         "responses": {
@@ -1896,6 +3727,18 @@
             "description": "Process description",
             "schema": {
               "$ref": "#/definitions/udf_description"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "Allowed origin of the request. Should return the value of the request`s origin header.",
+                "default": "*"
+              },
+              "Access-Control-Allow-Credentials": {
+                "type": "string",
+                "description": "If authorization is implemented by the back-end it needs to be set to `true`",
+                "default": "true"
+              }
             },
             "examples": {
               "application/json": {

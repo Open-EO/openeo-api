@@ -15,13 +15,15 @@ The OpenEO core API defines a language how clients communicate to back-ends in o
 
 # Microservices
 
+To simplify and structure the development, the API is divided into a few microservices.
 
-
-| Microservice  | Description  |
-|---|---|
-| API Information | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |
-| Data Discovery  | Describes which datasets and image collections are available at the backend.  |
-| Process Discovery  | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data.  |
-| Job Management  | Organizes and manages jobs that run processes on back-ends |
-| Download  | Services to download data and job results e.g. as WCS or WMTS service. |
-| User Data Management  | Manage user content and accounting, all  |
+| Microservice               | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| Capabilities               | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |
+| EO Data Discovery          | Describes which datasets and image collections are available at the backend. |
+| Process Discovery          | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
+| UDF Runtime Discovery      | Allows discovering the programming languages and their runtime environments to execute user-defined functions. |
+| Job Management             | Organizes and manages jobs that run processes on back-ends.  |
+| Result Access and Services | Services to download data and job results, e.g. as WCS or WMTS service. |
+| User Data Management       | Manage user content and accounting. Might be split into multiple microservices, e.g. User Files and User Process Graphs might be separated. |
+| Authentication             | Authentication of users.                                     |
