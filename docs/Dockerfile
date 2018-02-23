@@ -5,7 +5,6 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && apt-get install -y
 
 WORKDIR /opt
 RUN git clone https://github.com/swagger-api/swagger-ui.git
-WORKDIR /opt/swagger-ui
 
 COPY Docker/generate_docs.sh /opt/generate_docs.sh
 RUN chmod +x /opt/generate_docs.sh
