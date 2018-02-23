@@ -12,13 +12,12 @@ You can see the resulting documentation at [https://open-eo.github.io/openeo-api
 git clone https://github.com/Open-EO/openeo-api-poc
 docker build -t openeo-api-docs openeo-api-poc/docs
 docker run -v $PWD:/shared openeo-api-docs
-# -> resulting documentatio is in the site folder
+# -> resulting documentation is in the site folder
 ```
 
 
 ## Used tools 
-- [widdershins](https://github.com/mermade/widdershins)
-- [shins](https://github.com/mermade/shins)
+- [Swagger UI](https://github.com/swagger-api/swagger-ui)
 - [MkDocs](https://github.com/mkdocs/mkdocs)
 - [Docker](https://www.docker.com/)
 
