@@ -7,12 +7,17 @@ This page gives a detailed description of the OpenEO proof of concept and gives 
 * implementations of the processes on three back-ends, and
 * prototypical clients in R, Python and potentially JavaScript.
 
-Below, we define the example use cases and how they are translated to sequences of API calls.
+Below, we define example use cases and how they are translated to sequences of API calls:
 
-**Note:** Authentication is not included in these examples. Enabling authentication needs the placeholder `<Origin>` to be set to the requesting host, including protocol, host name/IP and port, e.g. `http://localhost:8080`. This could be done by using the Origin header value from the request.
+1. [Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery](#use-case-1)
+2. [Create a monthly aggregated Sentinel 1 product from a custom Python script](#use-case-2)
+3. [Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons](#use-case-3)
 
-## Use Case 1: Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery
+_Note:_ Authentication is not included in these examples. Enabling authentication needs the placeholder `<Origin>` to be set to the requesting host, including protocol, host name/IP and port, e.g. `http://localhost:8080`. This could be done by using the Origin header value from the request.
 
+## Use Case 1
+
+### Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.
 
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
@@ -441,7 +446,9 @@ Body: none
 
 
 
-## Use Case 2: Create a monthly aggregated Sentinel 1 product from a custom Python script
+## Use Case 2
+
+### Create a monthly aggregated Sentinel 1 product from a custom Python script.
 
 #### 1. Ask the back-end for available Sentinel 1 data
 
@@ -683,7 +690,9 @@ _omitted_
 
 
 
-## Use Case 3: Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons
+## Use Case 3
+
+### Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons
 
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 

@@ -12,13 +12,13 @@ There is a third way to execute jobs at the back-ends, but does not really fit i
 
 ### Lazy evaluated jobs
 
-[Use case 1 and 2](poc.md) are examples for _lazy evaluated jobs_.
+Use case [1](poc.md#use-case-1) and [2](poc.md#use-case-2) are examples for _lazy evaluated jobs_.
 
 ### Batch jobs
 
 Batch jobs are created by queueing _lazy evaluated jobs_. This is accomplished by calling the endpoint `GET /jobs/{job_id}/queue`. Therefore the examples of posting batch jobs are similar to lazy evaluated jobs, but are followed by additional calls to the jobs microservice. Therefore use case 1 and 2 could be converted to batch jobs by queueing them after job creation.
 
-An explicit example for batch jobs is [use case 3](poc.md).
+An explicit example for batch jobs is [use case 3](poc.md#use-case-3).
 
 ### Synchronously executed jobs
 
