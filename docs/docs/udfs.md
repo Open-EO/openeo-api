@@ -17,7 +17,9 @@ User-defined functions (UDFs) can be exposed to the data in different ways. This
 - [chunkreduce_spacetime](#chunkreduce_spacetime)
 
 
-This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDF's will report, which types they support. For example applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.  
+This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDF's will report, which types they support. For example applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.
+
+You can use UDFs in a process graph as shown in the [examples for proof-of-concept use case 2](poc.md#use-case-2). Generally UDFs in the process graphs are prefixed with `/udf` and contain also the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`. Runtimes can be discovered at `GET /udf_runtimes`. Process description of UDF schemas and can be retrieved at `GET /udf_runtimes/{lang}/{udf_type}`. 
 
 
 ### UDF types
@@ -58,24 +60,3 @@ Similar to `chunkreduce_time`, this type applies the provided function on spatia
 
 #### chunkreduce_spacetime
 Similar to `chunkreduce_space` and `chunkreduce_time`, UDFs of this type receive spatiotemporal chunks such that the output has lower spatial and lower temporal resolution.
-
-
-### R implementation
-
-| **UDF Type**          | **Function prototype** | **Details** |
-| --------------------- | ---------------------- | ----------- |
-| apply_pixel           |                        |             |
-| apply_scene           |                        |             |
-| reduce_time           |                        |             |
-| reduce_space          |                        |             |
-| window_time           |                        |             |
-| window_space          |                        |             |
-| window_spacetime      |                        |             |
-| aggregate_time        |                        |             |
-| aggregate_space       |                        |             |
-| aggregate_spacetime   |                        |             |
-| chunkreduce_time      |                        |             |
-| chunkreduce_space     |                        |             |
-| chunkreduce_spacetime |                        |             |
-
-

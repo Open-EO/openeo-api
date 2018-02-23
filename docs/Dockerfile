@@ -4,20 +4,8 @@ RUN apt-get update && apt-get install -y git software-properties-common build-es
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && apt-get install -y nodejs
 
 WORKDIR /opt
-RUN git clone https://github.com/sourcey/spectacle
-WORKDIR /opt/spectacle
-RUN npm install .
-
-# WORKDIR /opt
-# RUN git clone https://github.com/mermade/widdershins
-# WORKDIR /opt/widdershins
-# RUN npm install
-
-# WORKDIR /opt
-# RUN git clone https://github.com/mermade/shins
-# WORKDIR /opt/shins
-# RUN npm install 
-
+RUN git clone https://github.com/swagger-api/swagger-ui.git
+WORKDIR /opt/swagger-ui
 
 COPY Docker/generate_docs.sh /opt/generate_docs.sh
 RUN chmod +x /opt/generate_docs.sh
