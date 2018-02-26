@@ -1,4 +1,4 @@
-# UDFs
+# User-defined functions
 
 User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The OpenEO core API defines the following UDF types:
 
@@ -17,7 +17,7 @@ User-defined functions (UDFs) can be exposed to the data in different ways. This
 - [chunkreduce_spacetime](#chunkreduce_spacetime)
 
 
-This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDF's will report, which types they support. For example applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.
+This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDFs will report which types they support. For example, applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.
 
 You can use UDFs in a process graph as shown in the [examples for proof-of-concept use case 2](poc.md#use-case-2). Generally UDFs in the process graphs are prefixed with `/udf` and contain also the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`. Runtimes can be discovered at `GET /udf_runtimes`. Process description of UDF schemas and can be retrieved at `GET /udf_runtimes/{lang}/{udf_type}`. 
 

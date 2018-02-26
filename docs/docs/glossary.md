@@ -10,16 +10,20 @@ The acronym _openEO_ contracts two concepts:
 Further terms:
 
 - **API**: application programming interface ([wikipedia](https://en.wikipedia.org/wiki/Application_programming_interface)); a communication protocol between client and back-end
-- **client**: software environment (software) that end-users directly interact with, e.g. R (rstudio), python (jupyter notebook), and javascript (web browser); R and python are two major data science platforms; javascript is a major language for web development
+- **client**: software environment (software) that end-users directly interact with, e.g. R (rstudio), Python (jupyter notebook), and JavaScript (web browser); R and Python are two major data science platforms; JavaScript is a major language for web development
 - **(cloud) back-end**: server; computer infrastructure (one or more physical computers or virtual machines) used for storing EO data and processing it
 - **big Earth observation cloud back-end** server infrastructure where industry and researchers analyse large amounts of EO data
-- **simple** many end-users now use python or R to analyse data and javascript to develop web applications; analysing large amounts of EO imagery should be equally simple, and seamlessly integrate with existing workflows
+- **simple** many end-users now use Python or R to analyse data and JavaScript to develop web applications; analysing large amounts of EO imagery should be equally simple, and seamlessly integrate with existing workflows
 - **unified** current EO cloud back-ends all have [a different API](http://r-spatial.org/2016/11/29/openeo.html), making EO data analysis hard to validate,difficult to reproduce, and back-ends difficult to compare in terms of capability and costs, or to combine in a joint analysis across back-ends. A unified API can resolve many of these problems.
 
 
 ## Datasets
 
-CEOS ([CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/)) defines **Granules** and **Collections** as follows: "A ***granule*** is the finest granularity of data that can be independently managed. A granule usually matches the individual file of EO satellite data.", and "A ***collection*** is an aggregation of granules sharing the same product specification. A collection typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation."
+CEOS ([CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/)) defines **Granules** and **Collections** as follows:
+
+> "A ***granule*** is the finest granularity of data that can be independently managed. A granule usually matches the individual file of EO satellite data."
+
+> "A ***collection*** is an aggregation of granules sharing the same product specification. A collection typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation."
 
 The same document lists the synonyms used (by organisations) for:
 
@@ -43,7 +47,7 @@ In this context OpenEO will:
 1. consider, or allow to consider, band as a dimension
 2. consider imagery (image collections) to consist of one _or more_ collections, as argument to functions; allow filtering on a particular collection, or joining them into a single collection
 3. allow filtering on attributes, e.g. on cloud-free pixels, or pixels inside a `MULTIPOLYGON` describing the floodplains of the Danube. This filters on attributes rather than dimensions.
-4. Provide generic aggregate operations that aggregate over one or more dimenions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
+4. Provide generic aggregate operations that aggregate over one or more dimensions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
 
 A **process graph** includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
 

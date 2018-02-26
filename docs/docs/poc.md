@@ -682,7 +682,7 @@ Body:
 
 **Example Request**
 ```
-GET hhttp://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1 HTTP/1.1
+GET http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1 HTTP/1.1
 ```
 
 **Response**
