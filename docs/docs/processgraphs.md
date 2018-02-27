@@ -23,7 +23,7 @@ A process must always contain two key-value-pairs named `process_id` and `args` 
 * Backend-defined processes, which are listed at `GET /processes`, e.g. `filter_bands`.
 * User-defined process graphs, which are listed at `GET /users/{user_id}/process_graphs`. 
   They are prefixed with `/user/`, e.g. `/user/my_process_graph`.
-* User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `/udf` and contain also the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
+* User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `/udf` and additionally contain the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
 
 **Example 1:**
 
@@ -74,7 +74,7 @@ An argument set for a process is defined as follows:
 }
 ```
 
-Whereas a key (`<Key>`) can be any valid JSON key and a value is defined as:
+Where a key (`<Key>`) can be any valid JSON key and a value is defined as:
 ```
 <Value> := <string|number|array|boolean|null|Process|ImageCollection>
 ```
@@ -96,6 +96,7 @@ Whereas a key (`<Key>`) can be any valid JSON key and a value is defined as:
   }
 }
 ```
+
 **Example 3:**
 
 If a process needs multiple processes or image collections as input, it is allowed to use arrays of the respective types.
@@ -158,7 +159,7 @@ There are some processes that we define to be core processes that should be impl
 * process_graph
 * _to be continued..._
 
-_Note:_ Currently there are few defined processes only. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
+_Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
 
 _Limitation:_ Process names (process ids) must never contain a forward slash `/`.
 
@@ -168,7 +169,7 @@ Allows to extract one or multiple bands of multi-band raster image collection. B
 
 #### Arguments
 
-* `imagery`*: Image collection to filter
+* `imagery` *(required)*: Image collection to filter
 
 And one of:
 
@@ -177,6 +178,7 @@ And one of:
 * `wavelengths`: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.
 
 #### Examples
+
 ```
 {
   "process_id": "filter_bands",
@@ -188,6 +190,7 @@ And one of:
   }
 }
 ```
+
 ```
 {
   "process_id": "filter_bands",
@@ -199,22 +202,22 @@ And one of:
   }
 }
 ```
+
 ### filter_daterange
 
 Allows to filter an image collection by temporal extent.
 
 #### Arguments
 
-- `imagery`*: Image collection to filter
+* `imagery` *(required)*: Image collection to filter
 
 And at least one of:
 
-- `from`: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of `to`.
-
-
-- `to`: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of `from`.
+* `from`: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of `to`.
+* `to`: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of `from`.
 
 #### Examples
+
 ```
 {
   "process_id":"filter_daterange",
@@ -234,8 +237,8 @@ Another process graph can be referenced with the process `process_graph`. This c
 
 #### Arguments
 
-* `imagery`*: Image collection to apply the process graph to
-* `uri`*: An URI to a process graph.
+* `imagery` *(required)*: Image collection to apply the process graph to
+* `uri` *(required)*: An URI to a process graph.
 
 #### Examples
 
@@ -250,4 +253,5 @@ Another process graph can be referenced with the process `process_graph`. This c
   }
 }
 ```
+
 ### _to be continued..._
