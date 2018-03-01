@@ -410,7 +410,7 @@ Body:
 
 **Request**
 ```
-GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities HTTP/1.1
+GET https://openeo.org/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities HTTP/1.1
 ```
 
 **Response**
@@ -418,7 +418,7 @@ _omitted_
 
 **Request**
 ```
-GET /services/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200) HTTP/1.1
+GET https://openeo.org/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200) HTTP/1.1
 ```
 
 
