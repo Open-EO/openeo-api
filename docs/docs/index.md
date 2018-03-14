@@ -1,6 +1,6 @@
 # OpenEO - Core Concepts and API Reference
 
-_Work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api-poc/issues)._
+_Work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api/issues)._
 
 openEO develops an open API that connects clients like R, Python and JavaScript to big Earth observation cloud back-ends in a simple and unified way.
 

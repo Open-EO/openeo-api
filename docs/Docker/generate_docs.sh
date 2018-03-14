@@ -8,6 +8,6 @@ mkdir -p /shared/site/apireference
 chmod -R 777 /shared/site
 cd /shared/site/apireference
 cp -R /opt/swagger-ui/dist/* .
-curl https://raw.githubusercontent.com/Open-EO/openeo-api-poc/$BRANCH/swagger.json -O
+curl https://raw.githubusercontent.com/Open-EO/openeo-api/$BRANCH/swagger.json -O
 sed -i -e 's!http://petstore.swagger.io/v2/swagger.json!swagger.json!g' index.html
 

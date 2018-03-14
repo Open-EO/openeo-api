@@ -1,6 +1,6 @@
 # Process graphs
 
-_Early work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api-poc/issues)._
+_Early work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api/issues)._
 
 A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
 
