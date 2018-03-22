@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Process Graphs - OpenEO - Core Concepts & API</title>
+  
+
+  <link rel="shortcut icon" href="../favicon.ico">
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Process Graphs";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> OpenEO - Core Concepts & API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../index.html">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../glossary/index.html">Glossary</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../arch/index.html">Architecture and Microservices</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../jobs/index.html">Jobs</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">Process Graphs</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#process-graphs">Process graphs</a></li>
+                
+                    <li><a class="toctree-l4" href="#schematic-definition">Schematic definition</a></li>
+                
+                    <li><a class="toctree-l4" href="#core-processes">Core processes</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../udfs/index.html">UDFs</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../views/index.html">Data Views</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../poc/index.html">Proof of Concept</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../apireference/index.html">API Reference</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">OpenEO - Core Concepts & API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Process Graphs</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/Open-EO/openeo-api" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="process-graphs">Process graphs</h1>
+<p><em>Early work in progress, please contribute by adding <a href="https://github.com/Open-EO/openeo-api/issues">issues</a>.</em></p>
+<p>A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.</p>
+<h2 id="schematic-definition">Schematic definition</h2>
+<h3 id="process">Process</h3>
+<p>A single process in a process graph is defined as follows:</p>
+<pre><code>&lt;Process&gt; := {
+  &quot;process_id&quot;: &lt;string&gt;,
+  &quot;args&quot;: &lt;ArgumentSet&gt;
+}
+</code></pre>
+
+<p>A process must always contain two key-value-pairs named <code>process_id</code> and <code>args</code> and no other elements.</p>
+<p><code>process_id</code> can currently contain three types of processes:</p>
+<ul>
+<li>Backend-defined processes, which are listed at <code>GET /processes</code>, e.g. <code>filter_bands</code>.</li>
+<li>User-defined process graphs, which are listed at <code>GET /users/{user_id}/process_graphs</code>. 
+  They are prefixed with <code>/user/</code>, e.g. <code>/user/my_process_graph</code>.</li>
+<li>User-defined functions (UDF), which is one of the predefined <a href="../udfs/index.html">UDF types</a> and can be explored at <code>GET /udf_runtimes/{lang}/{udf_type}</code>. UDFs are prefixed with <code>/udf</code> and additionally contain the runtime and the process name separated by <code>/</code>, e.g. <code>/udf/Python/apply_pixel</code>.</li>
+</ul>
+<p><strong>Example 1:</strong></p>
+<p>A full process graph definition.</p>
+<pre><code>{
+  &quot;process_id&quot;:&quot;min_time&quot;,
+  &quot;args&quot;:{
+    &quot;imagery&quot;:{
+      &quot;process_id&quot;:&quot;/user/custom_ndvi&quot;,
+      &quot;args&quot;:{
+        &quot;imagery&quot;:{
+          &quot;process_id&quot;:&quot;filter_daterange&quot;,
+          &quot;args&quot;:{
+            &quot;imagery&quot;:{
+              &quot;process_id&quot;:&quot;filter_bbox&quot;,
+              &quot;args&quot;:{
+                &quot;imagery&quot;:{
+                  &quot;product_id&quot;:&quot;S2_L2A_T32TPS_20M&quot;
+                },
+                &quot;left&quot;:652000,
+                &quot;right&quot;:672000,
+                &quot;top&quot;:5161000,
+                &quot;bottom&quot;:5181000,
+                &quot;srs&quot;:&quot;EPSG:32632&quot;
+              }
+            },
+            &quot;from&quot;:&quot;2017-01-01&quot;,
+            &quot;to&quot;:&quot;2017-01-31&quot;
+          }
+        },
+        &quot;red&quot;:&quot;B04&quot;,
+        &quot;nir&quot;:&quot;B8A&quot;
+      }
+    }
+  }
+}
+</code></pre>
+
+<h3 id="argument-set">Argument Set</h3>
+<p>An argument set for a process is defined as follows:</p>
+<pre><code>&lt;ArgumentSet&gt; := {
+  &lt;Key&gt;: &lt;Value&gt;
+}
+</code></pre>
+
+<p>Where a key (<code>&lt;Key&gt;</code>) can be any valid JSON key and a value is defined as:</p>
+<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|Process|ImageCollection&gt;
+</code></pre>
+
+<p><em>Note:</em> string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>, too. In consequence, the objects allowed to be part of an array are processes and image collections only.</p>
+<p><strong>Example 2:</strong></p>
+<pre><code>{
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;filter_daterange&quot;,
+    &quot;args&quot;:{
+      &quot;imagery&quot;:{
+        &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+      },
+      &quot;from&quot;:&quot;2017-01-01&quot;,
+      &quot;to&quot;:&quot;2017-01-31&quot;
+    }
+  }
+}
+</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<p>If a process needs multiple processes or image collections as input, it is allowed to use arrays of the respective types.</p>
+<pre><code>{
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;union&quot;,
+    &quot;args&quot;:{
+      &quot;collection&quot;:[
+        {
+          &quot;process_id&quot;:&quot;filter_bands&quot;,
+          &quot;args&quot;:{
+            &quot;imagery&quot;:{
+              &quot;product_id&quot;:&quot;Sentinel2-L1C&quot;
+            },
+            &quot;bands&quot;:8
+          }
+        },
+        {
+          &quot;process_id&quot;:&quot;filter_bands&quot;,
+          &quot;args&quot;:{
+            &quot;imagery&quot;:{
+              &quot;product_id&quot;:&quot;Sentinel2-L1C&quot;
+            },
+            &quot;bands&quot;:5
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+
+<h3 id="image-collection">Image Collection</h3>
+<p>An image collection as input dataset is defined as follows:</p>
+<pre><code>&lt;ImageCollection&gt; := {
+  &quot;product_id&quot;: &lt;string&gt;
+}
+</code></pre>
+
+<p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered at <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using <code>collection</code> as a key once. </p>
+<p><strong>Example 4:</strong></p>
+<pre><code>{
+  &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+}
+</code></pre>
+
+<h2 id="core-processes">Core processes</h2>
+<p>There are some processes that we define to be core processes that should be implemented by all back-ends:</p>
+<ul>
+<li>filter_bands</li>
+<li>filter_daterange</li>
+<li>process_graph</li>
+<li><em>to be continued...</em></li>
+</ul>
+<p><em>Note:</em> Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.</p>
+<p><em>Limitation:</em> Process names (process ids) must never contain a forward slash <code>/</code>.</p>
+<h3 id="filter_bands">filter_bands</h3>
+<p>Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.</p>
+<h4 id="arguments">Arguments</h4>
+<ul>
+<li><code>imagery</code> <em>(required)</em>: Image collection to filter</li>
+</ul>
+<p>And one of:</p>
+<ul>
+<li><code>bands</code>: string or array of strings containing band ids.</li>
+<li><code>names</code>: string or array of strings containing band names.</li>
+<li><code>wavelengths</code>: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.</li>
+</ul>
+<h4 id="examples">Examples</h4>
+<pre><code>{
+  &quot;process_id&quot;: &quot;filter_bands&quot;,
+  &quot;args&quot;: {
+    &quot;imagery&quot;:{
+      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+    },
+    &quot;bands&quot;:1
+  }
+}
+</code></pre>
+
+<pre><code>{
+  &quot;process_id&quot;: &quot;filter_bands&quot;,
+  &quot;args&quot;: {
+    &quot;imagery&quot;:{
+      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+    },
+    &quot;wavelengths&quot;:[1300,2000]
+  }
+}
+</code></pre>
+
+<h3 id="filter_daterange">filter_daterange</h3>
+<p>Allows to filter an image collection by temporal extent.</p>
+<h4 id="arguments_1">Arguments</h4>
+<ul>
+<li><code>imagery</code> <em>(required)</em>: Image collection to filter</li>
+</ul>
+<p>And at least one of:</p>
+<ul>
+<li><code>from</code>: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of <code>to</code>.</li>
+<li><code>to</code>: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of <code>from</code>.</li>
+</ul>
+<h4 id="examples_1">Examples</h4>
+<pre><code>{
+  &quot;process_id&quot;:&quot;filter_daterange&quot;,
+  &quot;args&quot;:{
+    &quot;imagery&quot;:{
+      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+    },
+    &quot;from&quot;:&quot;2017-01-01&quot;,
+    &quot;to&quot;:&quot;2017-01-31&quot;
+  }
+}
+</code></pre>
+
+<h3 id="process_graph">process_graph</h3>
+<p>Another process graph can be referenced with the process <code>process_graph</code>. This could even be an externally hosted process graph.</p>
+<h4 id="arguments_2">Arguments</h4>
+<ul>
+<li><code>imagery</code> <em>(required)</em>: Image collection to apply the process graph to</li>
+<li><code>uri</code> <em>(required)</em>: An URI to a process graph.</li>
+</ul>
+<h4 id="examples_2">Examples</h4>
+<pre><code>{
+  &quot;process_id&quot;:&quot;process_graph&quot;,
+  &quot;args&quot;:{
+    &quot;imagery&quot;:{
+      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+    },
+    &quot;uri&quot;:&quot;http://otherhost.org/api/v1/users/12345/process_graphs/abcdef&quot;
+  }
+}
+</code></pre>
+
+<h3 id="to-be-continued"><em>to be continued...</em></h3>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../udfs/index.html" class="btn btn-neutral float-right" title="UDFs"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../jobs/index.html" class="btn btn-neutral" title="Jobs"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../jobs/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../udfs/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>
