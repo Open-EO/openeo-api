@@ -1,6 +1,6 @@
 # User-defined functions
 
-User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The OpenEO core API defines the following UDF types:
+User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The openEO API defines the following UDF types:
 
 - [apply_pixel](#apply_pixel)
 - [apply_scene](#apply_scene)
@@ -28,10 +28,10 @@ You can use UDFs in a process graph as shown in the [examples for proof-of-conce
 This type applies a simple function to one pixel of the input image or image collection. The function gets the value of one pixel (including all bands) as input and produces a single scalar or tuple output. The result has the same schema as the input image (collection) but different bands. Examples include the computation of vegetation indexes or filtering cloudy pixels. 
 
 #### apply_scene
-This low-level UDF type applies a function on individual scenes.  The function gets a single scene as input and produces a modified "scene" with the same spatial footprint. This UDF type will only be supported by OpenEO back-ends with a file-based data organization. Higher level data-cube oriented back-offices in general do not keep track of the scenes and hence will not be able to parallelize operations on scene level. The type is mostly useful for working with lower-level data products, e.g., to perform atmospheric correction or any other operation that needs scene metadata. 
+This low-level UDF type applies a function on individual scenes.  The function gets a single scene as input and produces a modified "scene" with the same spatial footprint. This UDF type will only be supported by openEO back-ends with a file-based data organization. Higher level data-cube oriented back-offices in general do not keep track of the scenes and hence will not be able to parallelize operations on scene level. The type is mostly useful for working with lower-level data products, e.g., to perform atmospheric correction or any other operation that needs scene metadata. 
 
 #### reduce_time
-This type applies a function to a single time series and produces a zero-dimensional output (scalar or tuple). Notice that the `view` parameter for OpenEO processes affects the resolution and window of the time series provided as input to UDFs of this type. 
+This type applies a function to a single time series and produces a zero-dimensional output (scalar or tuple). Notice that the `view` parameter for openEO processes affects the resolution and window of the time series provided as input to UDFs of this type. 
 
 #### reduce_space
 This type applies a function to a temporal snapshot of the data and produces a single value or multiband tuple per snapshot. The result is a time series. 

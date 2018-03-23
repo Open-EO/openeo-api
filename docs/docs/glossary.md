@@ -38,11 +38,11 @@ The open geospatial consortium published a document on [OGC OpenSearch Geo and T
 
 ## Processes and Jobs
 
-The terms _process_, _process graph_ and _job_ have different meanings in the OpenEO API specification.
+The terms _process_, _process graph_ and _job_ have different meanings in the openEO API specification.
 
 A **process** is simply the description of an operation as provided by the back end, similar to a function definition in programming languages. 
 
-In this context OpenEO will:
+In this context openEO will:
 
 1. consider, or allow to consider, band as a dimension
 2. consider imagery (image collections) to consist of one _or more_ collections, as argument to functions; allow filtering on a particular collection, or joining them into a single collection

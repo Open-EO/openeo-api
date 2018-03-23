@@ -1,6 +1,6 @@
 # Proof of Concept
 
-This page gives a detailed description of the OpenEO proof of concept and gives a list and specification of what needs to be implemented. The proof of concept will consist of
+This page gives a detailed description of the openEO proof of concept and gives a list and specification of what needs to be implemented. The proof of concept will consist of
 
 * at least three clearly defined example processes (see below),
 * a prototypical API specification including communication API call sequences of the processes (see below),

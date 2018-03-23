@@ -1,10 +1,10 @@
 
-# Generation of OpenEO API documentation
+# Generation of openEO API documentation
 
 [![Status](https://img.shields.io/badge/Status-proof--of--concept-yellow.svg)]()
 
 
-This Docker image combines static and auto-generated API documentation of the [OpenEO API](https://github.com/Open-EO/openeo-api/). 
+This Docker image combines static and auto-generated API documentation of the [openEO API](https://github.com/Open-EO/openeo-api/). 
 You can see the resulting documentation at [https://open-eo.github.io/openeo-api](https://open-eo.github.io/openeo-api).
 
 ## Build documentation
