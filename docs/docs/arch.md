@@ -23,7 +23,9 @@ To simplify and structure the development, the API is divided into a few microse
 | EO Data Discovery          | Describes which datasets and image collections are available at the back-end. |
 | Process Discovery          | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
 | UDF Runtime Discovery      | Allows discovering the programming languages and their runtime environments to execute user-defined functions. |
-| Job Management             | Organizes and manages jobs that run processes on back-ends.  |
-| Result Access and Services | Services to download data and job results, e.g. as WCS or WMTS service. |
-| User Data Management       | Manage user content and accounting. Might be split into multiple microservices, e.g. User Files and User Process Graphs might be separated. |
-| Authentication             | Authentication of users.                                     |
+| Job Management             | Organizes and manages jobs that run processes on back-ends. |
+| File Management            | Organizes and manages user-uploaded files. |
+| Process Graph Management   | Organizes and manages user-defined process graphs.  |
+| Web Service Management     | Web services to to access data and job results, e.g. as WCS or WMTS service. |
+| User Content               | User content and accounting. |
+| Authentication             | Authentication of users. |

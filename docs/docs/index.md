@@ -6,7 +6,7 @@ openEO develops an open API that connects clients like R, Python and JavaScript 
 
 The following pages introduce the core concepts of the project. Make sure to introduce yourself to the major technical terms used in the openEO project by reading the [glossary](glossary.md).
 
-The openEO API defines a [RESTful API](apireference.md) that lets cloud back-ends with large Earth observation datasets communicate with front end analysis applications in an interoperable way. This documentation describes important API concepts and design decisions and gives a complete [API reference documentation](apireference.md).
+The openEO API defines a [HTTP API](apireference.md) that lets cloud back-ends with large Earth observation datasets communicate with front end analysis applications in an interoperable way. This documentation describes important API concepts and design decisions and gives a complete [API reference documentation](apireference.md).
 
 As an overview, the openEO API specifies how to
 
@@ -17,7 +17,7 @@ As an overview, the openEO API specifies how to
 - manage user content including accounting.
 
 
-The API is defined as an [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) (formerly known as Swagger 2.0) JSON file.
+The API is defined as an [OpenAPI 3.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.md) JSON file.
 
 
 

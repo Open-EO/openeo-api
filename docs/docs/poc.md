@@ -1,4 +1,4 @@
-# Proof of Concept
+# Proof of Concept (API v0.0.2)
 
 This page gives a detailed description of the openEO proof of concept and gives a list and specification of what needs to be implemented. The proof of concept will consist of
 
