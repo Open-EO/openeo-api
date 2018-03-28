@@ -17,7 +17,7 @@ As an overview, the openEO API specifies how to
 - manage user content including accounting.
 
 
-The API is defined as an [OpenAPI 3.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.md) JSON file.
+The API is defined as an [OpenAPI 3.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) JSON file.
 
 
 

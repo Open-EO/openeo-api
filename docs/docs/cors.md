@@ -3,7 +3,7 @@
 > Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources [...] on a web page to be requested from another domain outside the domain from which the first resource was served. [...]
 > CORS defines a way in which a browser and server can interact to determine whether or not it is safe to allow the cross-origin request. It allows for more freedom and functionality than purely same-origin requests, but is more secure than simply allowing all cross-origin requests.
 
-Source: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+Source: [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 
 openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library (and the Web Editor) can't access any back-end. Therefore, all back-end providers should support CORS. Without supporting CORS users can't access the back-end with browser-based clients, i.e. JavaScript. [CORS is a recommendation of the W3C organization.](https://www.w3.org/TR/cors/) The following chapters will explain what back-end providers need to implement to support CORS. 
 
@@ -42,7 +42,7 @@ Access-Control-Allow-Headers: Authorization, Content-Type
 Content-Type: application/json
 ```
 
-## 2. Sending appropriate headers for every endpoint
+## 2. Sending CORS headers for every endpoint
 
 In addition to the headers an endpoint is required to send, the following headers must be sent with every response:
 
