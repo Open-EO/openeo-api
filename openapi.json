@@ -986,7 +986,7 @@
       },
       "get": {
         "summary": "Check whether the user is registered with the specified credentials at the back-end.",
-        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token. Back-ends that do not require authentication such as a local file-based implementation may always return the generic user ID `me` and no bearer token.",
+        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token.",
         "tags": [
           "Authentication"
         ],
@@ -1113,12 +1113,7 @@
         }
       }
     },
-    "/users/{user_id}/process_graphs": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/user_id"
-        }
-      ],
+    "/process_graphs": {
       "options": {
         "summary": "Response to allow Cross-Origin Resource Sharing.",
         "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
@@ -1240,11 +1235,8 @@
         }
       }
     },
-    "/users/{user_id}/process_graphs/{process_graph_id}": {
+    "/process_graphs/{process_graph_id}": {
       "parameters": [
-        {
-          "$ref": "#/components/parameters/user_id"
-        },
         {
           "$ref": "#/components/parameters/process_graph_id"
         }
@@ -1502,6 +1494,59 @@
           },
           "405": {
             "$ref": "#/components/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "List all running services that have been submitted by the user.",
+        "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
+        "tags": [
+          "Services",
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of service descriptions",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Array of service descriptions",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/service"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/components/responses/access_denied"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "501": {
+            "$ref": "#/components/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
           }
         }
       },
@@ -1828,6 +1873,59 @@
           },
           "405": {
             "$ref": "#/components/responses/method_not_allowed"
+          }
+        }
+      },
+      "get": {
+        "summary": "List all jobs that have been submitted by the user.",
+        "description": "Requests to this service will list all jobs submitted by a user with given id.",
+        "tags": [
+          "Job Management",
+          "User Content"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of job descriptions",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Array of job descriptions",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/job_meta"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/auth_required"
+          },
+          "403": {
+            "$ref": "#/components/responses/access_denied"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "501": {
+            "$ref": "#/components/responses/not_implemented"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
           }
         }
       },
@@ -2449,7 +2547,7 @@
         }
       }
     },
-    "/users/{user_id}/files": {
+    "/files/{user_id}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/user_id"
@@ -2561,7 +2659,7 @@
         }
       }
     },
-    "/users/{user_id}/files/{path}": {
+    "/files/{user_id}/{path}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/user_id"
@@ -2768,162 +2866,7 @@
         }
       }
     },
-    "/users/{user_id}/jobs": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/user_id"
-        }
-      ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          }
-        }
-      },
-      "get": {
-        "summary": "List all jobs that have been submitted by the user.",
-        "description": "Requests to this service will list all jobs submitted by a user with given id.",
-        "tags": [
-          "Job Management",
-          "User Content"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Array of job descriptions",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Array of job descriptions",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/job_meta"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/components/responses/access_denied"
-          },
-          "404": {
-            "$ref": "#/components/responses/not_found"
-          },
-          "501": {
-            "$ref": "#/components/responses/not_implemented"
-          },
-          "503": {
-            "$ref": "#/components/responses/unavailable"
-          }
-        }
-      }
-    },
-    "/users/{user_id}/services": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/user_id"
-        }
-      ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          }
-        }
-      },
-      "get": {
-        "summary": "List all running services that have been submitted by the user.",
-        "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
-        "tags": [
-          "Services",
-          "User Content"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Array of service descriptions",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Array of service descriptions",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/service"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/auth_required"
-          },
-          "403": {
-            "$ref": "#/components/responses/access_denied"
-          },
-          "404": {
-            "$ref": "#/components/responses/not_found"
-          },
-          "501": {
-            "$ref": "#/components/responses/not_implemented"
-          },
-          "503": {
-            "$ref": "#/components/responses/unavailable"
-          }
-        }
-      }
-    },
-    "/users/{user_id}/credits": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/user_id"
-        }
-      ],
+    "/credits": {
       "options": {
         "summary": "Response to allow Cross-Origin Resource Sharing.",
         "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
@@ -3503,7 +3446,7 @@
       },
       "job_user_id": {
         "type": "string",
-        "description": "Identifier of the user, who submitted the job and pays incurred costs if needed. Is usually `me` for own jobs.",
+        "description": "Identifier of the user, who submitted the job and pays incurred costs if needed.",
         "example": "bd6f9faf93b4"
       },
       "job_consumed_credits": {
@@ -3821,7 +3764,7 @@
       "user_id": {
         "name": "user_id",
         "in": "path",
-        "description": "user identifier, the special value `me` automatically refers to the own ID based on the provided HTTP `Authorization` header.",
+        "description": "user identifier",
         "required": true,
         "schema": {
           "type": "string"
