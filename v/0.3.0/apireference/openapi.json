@@ -14,7 +14,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled,\n * how resources (e.g. process graphs) can be shared,\n * and how OpenSearch is interfaced",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This early draft version is incomplete and intended for working on a prototype and a proof of concept.** Things that are currently missing particularly include: \n * Authentication and authorization with OAuth 2.0, \n * how results of computations can be downloaded, \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how services are organized as microservices, \n * how payments can be handled,\n * how resources (e.g. process graphs) can be shared.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -311,102 +311,6 @@
                         "source": "U.S. Geological Survey (USGS)"
                       }
                     ]
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/client_error"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/data/opensearch": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "get": {
-        "summary": "OpenSearch endpoint to receive standardized data search results.",
-        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
-        "tags": [
-          "EO Data Discovery"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "description": "string expression to search available datasets",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "start",
-            "description": "page start value",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "rows",
-            "description": "page size value",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
-            "content": {
-              "application/atom+xml": {
-                "examples": {
-                  "response": {
-                    "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO datasets by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/data/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/data/opensearch/description.xml\"/>\n  <opensearch:totalResults>3</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>MOD09Q1</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/MOD09Q1\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2017-09-18T10:30:00Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006</rights>\n    <summary type=\"text\">MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V00 </summary>\n  </entry>\n  <entry>\n    <title>SENTINEL2-1C</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/SENTINEL2-1C\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2017-12-01T01:00:00Z</updated>\n    <rights type=\"text\">European Space Agency (ESA)</rights>\n    <summary type=\"text\">Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry</summary>\n  </entry>\n  <entry>\n    <title>LandsatETM+</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/LandsatETM%2B\"/>\n    <id>urn:uuid:1225c695-cfd8-4ebb-cccc-70da344efa6c</id>\n    <updated>2015-01-10T22:45:12Z</updated>\n    <rights type=\"text\">U.S. Geological Survey (USGS)</rights>\n    <summary type=\"text\">Landsat Enhanced Thematic Mapper Plus (ETM+)</summary>\n  </entry>\n</feed>"
                   }
                 }
               }
@@ -793,102 +697,6 @@
                         "description": "Applies median aggregation to pixel time series for all bands of the input dataset."
                       }
                     ]
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/client_error"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/processes/opensearch": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "get": {
-        "summary": "OpenSearch endpoint to request standardized process search results.",
-        "description": "This service offers more complex search functionality and returns results in an OpenSearch compliant Atom XML format.",
-        "tags": [
-          "Process Discovery"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "q",
-            "in": "query",
-            "description": "string expression to search available processes",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "start",
-            "in": "query",
-            "description": "page start value",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "rows",
-            "in": "query",
-            "description": "page size value",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OpenSearch response",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
-            "content": {
-              "application/atom+xml": {
-                "examples": {
-                  "response": {
-                    "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <feed xmlns=\"http://www.w3.org/2005/Atom\" \n  xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\">\n  <title>Supported EO processes by Example, Inc.</title>\n  <updated>2018-01-18T10:30:00Z</updated>\n  <author>\n    <name>Example, Inc.</name>\n  </author> \n  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>\n  <link rel=\"self\" href=\"http://www.exmaple.com/api/1.0/processes/opensearch\"/>\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"http://example.com/api/1.0/processes/opensearch/description.xml\"/>\n  <opensearch:totalResults>2</opensearch:totalResults>\n  <opensearch:Query role=\"request\" startPage=\"1\" />\n  <entry>\n    <title>NDVI</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/processes/NDVI\"/>\n    <id>urn:uuid:1223c695-cfb8-4ebb-aaaa-80da344efa6a</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Computes the normalized difference vegetation index (NDVI) for all pixels of the input dataset.</summary>\n  </entry>\n  <entry>\n    <title>median_time</title>\n    <link rel=\"alternate\" href=\"http://www.exmaple.com/api/1.0/data/median_time\"/>\n    <id>urn:uuid:1224c695-cfc8-4ebb-bbbb-90da344efa6b</id>\n    <updated>2018-01-18T10:30:00Z</updated>\n    <summary type=\"text\">Applies median aggregation to pixel time series for all bands of the input dataset.</summary>\n  </entry>\n</feed>"
                   }
                 }
               }
