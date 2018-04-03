@@ -972,7 +972,6 @@
           "Process Graph Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1022,7 +1021,6 @@
           "Process Graph Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1047,6 +1045,65 @@
                     }
                   }
                 }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/process_graph"
+        }
+      }
+    },
+    "/process_graphs/validate": {
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/components/responses/method_not_allowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Validates a process graph.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Confirms that the process graph is valid",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
               }
             }
           },
@@ -1185,7 +1242,6 @@
       },
       "delete": {
         "summary": "Deletes a process graph with given id.",
-        "description": "Returns a JSON processs graph from its ID.",
         "tags": [
           "Process Graph Management"
         ],
@@ -1196,7 +1252,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The job has been successfully deleted",
+            "description": "The process graph has been successfully deleted",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "$ref": "#/components/headers/allow_origin"
@@ -1224,7 +1280,7 @@
         }
       }
     },
-    "/execute": {
+    "/jobs/execute": {
       "options": {
         "summary": "Response to allow Cross-Origin Resource Sharing.",
         "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
@@ -1245,12 +1301,11 @@
       },
       "post": {
         "summary": "Execute a process graph synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. The process graph must be specified either directy in the request body or by its URI as query parameter",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time.",
         "tags": [
           "Job Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1287,6 +1342,8 @@
           }
         },
         "requestBody": {
+          "description": "Specifies the job details, e.g. the process graph and the output format.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1305,9 +1362,7 @@
                 }
               }
             }
-          },
-          "description": "Specifies the job details, e.g. the process graph and the output format.",
-          "required": true
+          }
         }
       }
     },
@@ -1338,7 +1393,6 @@
           "User Content"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1385,12 +1439,11 @@
       },
       "post": {
         "summary": "Publish an interactive web service.",
-        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on demand (lazy job). For lazy jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
+        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on-demand (on-demand job). For on-demand jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
         "tags": [
           "Web Service Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1607,7 +1660,6 @@
           "Web Service Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1716,7 +1768,6 @@
           "User Content"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1760,12 +1811,11 @@
       },
       "post": {
         "summary": "Submits a new job to the back-end.",
-        "description": "Creates a new job from one or more (chained) processes at the back-end. Jobs are initially always lazy jobs and will not run the computations until on demand  requests or separately queueing it. Queueing it converts a lazy job to a batch job.",
+        "description": "Creates a new job from one or more (chained) processes at the back-end.",
         "tags": [
           "Job Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1848,7 +1898,7 @@
       },
       "patch": {
         "summary": "Modifies a job at the back-end.",
-        "description": "***Reserved for later use.** A protocol to modify a job is to be defined.*\nModifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if possible.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Only the process graph, the output format or additional proprietary properties can be changed. Changes can be group in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
         "tags": [
           "Job Management"
         ],
@@ -1901,7 +1951,7 @@
               }
             }
           },
-          "description": "Specifies the job details to update, e.g. the process graph or the output format."
+          "description": "Specifies the job details to update."
         }
       },
       "get": {
@@ -1932,6 +1982,46 @@
                 "schema": {
                   "$ref": "#/components/schemas/job_full"
                 }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deletes a job with the given id.",
+        "description": "Deletes all data related to this job. For batch jobs this request stops all related computations at the back-end and deletes the computed results. On-demand jobs will not respond to any further requests, e.g. download calls or service requests. This job won't generate additional costs for processing. Any service associated with this job is deleted from the back-end.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The job has been successfully deleted",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
               }
             }
           },
@@ -2067,15 +2157,10 @@
           "500": {
             "$ref": "#/components/responses/server_error"
           }
-        },
-        "servers": [
-          {
-            "url": "wss://localhost/api/v0/"
-          }
-        ]
+        }
       }
     },
-    "/jobs/{job_id}/queue": {
+    "/jobs/{job_id}/on_demand": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
@@ -2099,9 +2184,123 @@
           }
         }
       },
-      "patch": {
-        "summary": "Running a job in batch mode.",
-        "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
+      "post": {
+        "summary": "Running a job in on-demand mode.",
+        "description": "This request converts a job into an on-demand job. Results are computed whenever needed during a download or web-service request.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The job now responds in on-demand mode.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stops on-demand processing.",
+        "description": "Ondemand requests are disallowed after this requests and calls to on-demand endpoints and web services won't compute results. Therefore no additional costs can be charged.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Batch processing has been stopped and result have been deleted.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/on_demand/download": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        },
+        {
+          "name": "format",
+          "in": "query",
+          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified output format can be added as individual query parameters to the request.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "options": {
+        "summary": "Response to allow Cross-Origin Resource Sharing.",
+        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
+        "tags": [
+          "CORS"
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/cors_options"
+          },
+          "405": {
+            "$ref": "#/components/responses/method_not_allowed"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Request download links for on-demand computed results of jobs.",
+        "description": "This request will provide links to download results of on-demand jobs. Depending on the Content-Type header, the response is either a simple JSON array with URLs as strings or a metalink XML document. Requests might time-out after a certain amount of time.",
         "tags": [
           "Job Management"
         ],
@@ -2112,14 +2311,26 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "The job has been successfully queued.",
+          "200": {
+            "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "$ref": "#/components/headers/allow_origin"
               },
               "Access-Control-Allow-Credentials": {
                 "$ref": "#/components/headers/allow_credentials"
+              }
+            },
+            "content": {
+              "application/json": {
+                "examples": {
+                  "response": {
+                    "value": [
+                      "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
+                      "https://openeo.org/api/v0/download/583fba8b2ce/2.tif"
+                    ]
+                  }
+                }
               }
             }
           },
@@ -2141,7 +2352,7 @@
         }
       }
     },
-    "/jobs/{job_id}/pause": {
+    "/jobs/{job_id}/batch": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
@@ -2165,9 +2376,9 @@
           }
         }
       },
-      "patch": {
-        "summary": "Pausing a batch job.",
-        "description": "This request pauses a batch job. Execution is stopped, but might be resumed later by queueing it again. Intermediate results are stored for resuming. This job won't generate additional costs for processing.",
+      "post": {
+        "summary": "Running a job in batch mode.",
+        "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
         "tags": [
           "Job Management"
         ],
@@ -2176,114 +2387,95 @@
             "Bearer": []
           }
         ],
-        "responses": {
-          "204": {
-            "description": "The job has been successfully paused.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
+        "requestBody": {
+          "description": "Specifies the batch processing details, i.e. the output format.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "output": {
+                    "$ref": "#/components/schemas/output_format_body"
+                  }
+                }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/client_error"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/not_found"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
           }
-        }
-      }
-    },
-    "/jobs/{job_id}/cancel": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        }
-      ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Cancels any back-end computations of a job",
-        "description": "For batch jobs this request cancels all related computations at the back-end. Lazy jobs will not respond to any further on demand requests, e.g. download calls or service requests. This job won't generate additional costs for processing unless started again using `GET /jobs/{job_id}/queue` (for batch jobs) or updated using `PATCH /jobs`. Results of batch jobs might be discarded and deleted by the back-end. Any service associated with this job might be deleted from the back-end.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The job has been successfully canceled",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/client_error"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/not_found"
-          },
-          "500": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/jobs/{job_id}/download": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
         },
-        {
-          "name": "format",
-          "in": "query",
-          "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.\nIf no output format has been specified here or for the job in general, the back-end falls back to its default format, which is  specified in the `GET /capabilities/output_formats` endpoint.\n**Note:** The options available to the specified output format can be added as individual query parameters to the request.",
-          "required": false,
-          "schema": {
-            "type": "string"
+        "responses": {
+          "204": {
+            "description": "The job is queued to compute results in batch mode, i.e. results are pre-processed.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
           }
+        }
+      },
+      "delete": {
+        "summary": "Stops batch processing and deletes the results.",
+        "description": "This request stops all related computations at the back-end and deletes the computed results. The batch computation won't generate additional costs.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Batch processing has been stopped and result have been deleted.",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "$ref": "#/components/headers/allow_origin"
+              },
+              "Access-Control-Allow-Credentials": {
+                "$ref": "#/components/headers/allow_credentials"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/not_found"
+          },
+          "500": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/batch/download": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
         }
       ],
       "options": {
@@ -3260,6 +3452,16 @@
         "description": "Credits consumed by this process",
         "example": 392
       },
+      "job_mode": {
+        "type": "string",
+        "enum": [
+          "none",
+          "on_demand",
+          "batch"
+        ],
+        "description": "The execution mode of the job.",
+        "example": "on_demand"
+      },
       "job_status": {
         "type": "string",
         "enum": [
@@ -3267,12 +3469,9 @@
           "queued",
           "running",
           "finished",
-          "paused",
-          "canceled",
-          "error",
-          "unknown"
+          "error"
         ],
-        "description": "The current status of the job.",
+        "description": "The current status of the job. Allowed values for each job mode:\n  * none: submitted (default), error\n  * on_demand: running (default), error\n  * batch: queued, running, finished, error",
         "example": "submitted"
       },
       "job_full": {
@@ -3280,12 +3479,16 @@
         "type": "object",
         "required": [
           "job_id",
+          "mode",
           "status",
           "process_graph"
         ],
         "properties": {
           "job_id": {
             "$ref": "#/components/schemas/job_id"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/job_mode"
           },
           "status": {
             "$ref": "#/components/schemas/job_status"
@@ -3316,11 +3519,15 @@
         "type": "object",
         "required": [
           "job_id",
+          "mode",
           "status"
         ],
         "properties": {
           "job_id": {
             "$ref": "#/components/schemas/job_id"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/job_mode"
           },
           "status": {
             "$ref": "#/components/schemas/job_status"

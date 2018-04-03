@@ -11,7 +11,7 @@ The openEO API uses the following status codes:
   Indicates a successful request **without** a response body being sent.
 
 * **400 Bad Request**:
-  The back-end responds with this error code whenever the error has its origin on client side. Errors can be invalid query paremeters, or invalid request body content etc. The client **should not** repeat the request without modifications.
+  The back-end responds with this error code whenever the error has its origin on client side. Errors can be invalid query parameters, or invalid request body content etc. The client **should not** repeat the request without modifications.
 
   *The response body should contain a JSON error object as specified below.*
 
