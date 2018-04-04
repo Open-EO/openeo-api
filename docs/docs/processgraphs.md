@@ -43,7 +43,10 @@ A full process graph definition.
               "process_id":"filter_bbox",
               "args":{
                 "imagery":{
-                  "product_id":"S2_L2A_T32TPS_20M"
+                  "process_id":"get_data",
+                  "args": {
+                    "data_id": "S2_L2A_T32TPS_20M"
+                  }
                 },
                 "left":652000,
                 "right":672000,
@@ -76,10 +79,12 @@ An argument set for a process is defined as follows:
 
 Where a key (`<Key>`) can be any valid JSON key and a value is defined as:
 ```
-<Value> := <string|number|array|boolean|null|Process|ImageCollection>
+<Value> := <string|number|array|boolean|null|Process>
 ```
 
-*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`, too. In consequence, the objects allowed to be part of an array are processes and image collections only.
+*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`, too. In consequence, the objects allowed to be part of an array are processes only.
+
+*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using `collection` as a key once. 
 
 **Example 2:**
 ```
@@ -88,7 +93,10 @@ Where a key (`<Key>`) can be any valid JSON key and a value is defined as:
     "process_id":"filter_daterange",
     "args":{
       "imagery":{
-        "product_id":"Sentinel2A-L1C"
+        "process_id":"get_data",
+        "args": {
+          "data_id": "Sentinel2A-L1C"
+        }
       },
       "from":"2017-01-01",
       "to":"2017-01-31"
@@ -99,7 +107,7 @@ Where a key (`<Key>`) can be any valid JSON key and a value is defined as:
 
 **Example 3:**
 
-If a process needs multiple processes or image collections as input, it is allowed to use arrays of the respective types.
+If a process needs multiple processes as input, it is allowed to use arrays of the respective types.
 
 ```
 {
@@ -111,7 +119,10 @@ If a process needs multiple processes or image collections as input, it is allow
           "process_id":"filter_bands",
           "args":{
             "imagery":{
-              "product_id":"Sentinel2-L1C"
+              "process_id":"get_data",
+              "args": {
+                "data_id": "Sentinel2-L1C"
+              }
             },
             "bands":8
           }
@@ -120,7 +131,10 @@ If a process needs multiple processes or image collections as input, it is allow
           "process_id":"filter_bands",
           "args":{
             "imagery":{
-              "product_id":"Sentinel2-L1C"
+              "process_id":"get_data",
+              "args": {
+                "data_id": "Sentinel2-L1C"
+              }
             },
             "bands":5
           }
@@ -128,25 +142,6 @@ If a process needs multiple processes or image collections as input, it is allow
       ]
     }
   }
-}
-```
-
-### Image Collection
-
-An image collection as input dataset is defined as follows:
-
-```
-<ImageCollection> := {
-  "product_id": <string>
-}
-```
-*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using `collection` as a key once. 
-
-**Example 4:**
-
-```
-{
-  "product_id":"Sentinel2A-L1C"
 }
 ```
 
@@ -162,6 +157,44 @@ There are some processes that we define to be core processes that should be impl
 _Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
 
 _Limitation:_ Process names (process ids) must never contain a forward slash `/`.
+
+### get_data
+
+Filters and selects a single dataset provided by the back-end.
+
+#### Arguments
+
+Any of the properties of a dataset, e.g.
+
+- `data_id`: Filter by data id
+- `extent`: Filter by extent
+- `time`: Filter by time
+- `bands`: Filter by band ids
+- ...
+
+The back-end provider decides which of the potential datasets is the most relevant one to be selected.
+
+#### Examples
+
+```
+{
+  "process_id": "get_data",
+  "args": {
+    "data_id":"Sentinel2A-L1C"
+  }
+}
+```
+
+```
+{
+  "process_id": "get_data",
+  "args": {
+    "platform": "landsat-7",
+    "sensor": "modis", 
+    "derived_from": null
+  }
+}
+```
 
 ### filter_bands
 
@@ -184,7 +217,10 @@ And one of:
   "process_id": "filter_bands",
   "args": {
     "imagery":{
-      "product_id":"Sentinel2A-L1C"
+      "process_id":"get_data",
+      "args": {
+        "data_id": "Sentinel2A-L1C"
+      }
     },
     "bands":1
   }
@@ -196,7 +232,10 @@ And one of:
   "process_id": "filter_bands",
   "args": {
     "imagery":{
-      "product_id":"Sentinel2A-L1C"
+      "process_id":"get_data",
+      "args": {
+        "data_id": "Sentinel2A-L1C"
+      }
     },
     "wavelengths":[1300,2000]
   }
@@ -223,7 +262,10 @@ And at least one of:
   "process_id":"filter_daterange",
   "args":{
     "imagery":{
-      "product_id":"Sentinel2A-L1C"
+      "process_id":"get_data",
+      "args": {
+        "data_id": "Sentinel2A-L1C"
+      }
     },
     "from":"2017-01-01",
     "to":"2017-01-31"
@@ -247,7 +289,10 @@ Another process graph can be referenced with the process `process_graph`. This c
   "process_id":"process_graph",
   "args":{
     "imagery":{
-      "product_id":"Sentinel2A-L1C"
+      "process_id":"get_data",
+      "args": {
+        "data_id": "Sentinel2A-L1C"
+      }
     },
     "uri":"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
   }

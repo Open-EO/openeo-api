@@ -50,7 +50,10 @@ Body:
                 "process_id":"filter_bbox",
                 "args":{
                   "imagery":{
-                    "product_id":"S2_L2A_T32TPS_20M"
+                    "process_id":"get_data",
+				    "args": {
+                      "data_id": "S2_L2A_T32TPS_20M"
+				    }
                   },
                   "left":652000,
                   "right":672000,
@@ -114,7 +117,10 @@ Body:
                 "process_id":"filter_bands",
                 "args":{
                   "imagery":{
-                    "product_id":"Sentinel2-L1C"
+                    "process_id": "get_data",
+                    "args": {
+                      "data_id":"Sentinel2-L1C"
+                    }
                   },
                   "bands":8
                 }
