@@ -101,7 +101,7 @@
                     "version": "0.3.0",
                     "endpoints": [
                       "/data",
-                      "/data/{product_id}",
+                      "/data/{data_id}",
                       "/processes"
                     ]
                   }
@@ -213,7 +213,7 @@
       },
       "get": {
         "summary": "Returns basic information about EO datasets that are available at the back-end.",
-        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and product name with very simple search expressions.",
+        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -279,7 +279,7 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "product_id": {
+                      "data_id": {
                         "type": "string"
                       },
                       "description": {
@@ -296,17 +296,17 @@
                   "response": {
                     "value": [
                       {
-                        "product_id": "MOD09Q1",
+                        "data_id": "MOD09Q1",
                         "description": " MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V006",
                         "source": "U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006"
                       },
                       {
-                        "product_id": "SENTINEL2-1C",
+                        "data_id": "SENTINEL2-1C",
                         "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
                         "source": "European Space Agency (ESA)"
                       },
                       {
-                        "product_id": "LandsatETM+",
+                        "data_id": "LandsatETM+",
                         "description": "Landsat Enhanced Thematic Mapper Plus (ETM+)",
                         "source": "U.S. Geological Survey (USGS)"
                       }
@@ -331,12 +331,12 @@
         }
       }
     },
-    "/data/{product_id}": {
+    "/data/{data_id}": {
       "parameters": [
         {
-          "name": "product_id",
+          "name": "data_id",
           "in": "path",
-          "description": "product identifier string such as `MOD18Q1`",
+          "description": "dataset identifier string such as `MOD18Q1`",
           "required": true,
           "schema": {
             "type": "string"
@@ -362,8 +362,8 @@
         }
       },
       "get": {
-        "summary": "Returns further information on a given EO product available at the back-end.",
-        "description": "The request will ask the back-end for further details about a product specified by the identifier `product_id`",
+        "summary": "Returns further information on a given EO dataset available at the back-end.",
+        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`",
         "tags": [
           "EO Data Discovery"
         ],
@@ -389,13 +389,13 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "product_id",
+                    "data_id",
                     "description",
                     "extent",
                     "bands"
                   ],
                   "properties": {
-                    "product_id": {
+                    "data_id": {
                       "type": "string"
                     },
                     "description": {
@@ -453,7 +453,7 @@
                 "examples": {
                   "response": {
                     "value": {
-                      "product_id": "Sentinel-2A-L1C",
+                      "data_id": "Sentinel-2A-L1C",
                       "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
                       "source": "European Space Agency (ESA)",
                       "extent": {
@@ -3391,7 +3391,10 @@
                   "process_id": "filter_daterange",
                   "args": {
                     "imagery": {
-                      "product_id": "Sentinel2A-L1C"
+                      "process_id": "get_data",
+                      "args": {
+                        "data_id": "Sentinel2A-L1C"
+                      }
                     },
                     "from": "2017-01-01",
                     "to": "2017-01-31"
@@ -3405,24 +3408,27 @@
         }
       },
       "arg_set": {
-        "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **arg_set** or **image_collection** (see models).\nThis object is part of the process graph definition. **This type is not formalized in the Swagger 2.0 definition due to missing support for oneOf or anyOf schema combinations.** See the process graph documentation for more information.",
+        "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **process_graph**. An array must always contain one data type only and is allowed to contain the data types allowed for argument set values. In consequence, the objects allowed to be part of an array are process_graphs only. See the API Concept Description for more information.",
         "type": "object",
-        "additionalProperties": true
-      },
-      "image_collection": {
-        "description": "Defines an object schema to define an image collection based on available EO data.\nThis is part of the process graph. See the process graph documentation for more information.",
-        "type": "object",
-        "required": [
-          "product_id"
-        ],
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "description": "The unique identifier of the EO data."
-          }
-        },
-        "example": {
-          "product_id": "Sentinel-2A-L1C"
+        "additionalProperties": {
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/components/schemas/process_graph"
+            }
+          ]
         }
       },
       "job_id": {

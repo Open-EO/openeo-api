@@ -209,7 +209,10 @@
               &quot;process_id&quot;:&quot;filter_bbox&quot;,
               &quot;args&quot;:{
                 &quot;imagery&quot;:{
-                  &quot;product_id&quot;:&quot;S2_L2A_T32TPS_20M&quot;
+                  &quot;process_id&quot;:&quot;get_data&quot;,
+                  &quot;args&quot;: {
+                    &quot;data_id&quot;: &quot;S2_L2A_T32TPS_20M&quot;
+                  }
                 },
                 &quot;left&quot;:652000,
                 &quot;right&quot;:672000,
@@ -238,17 +241,21 @@
 </code></pre>
 
 <p>Where a key (<code>&lt;Key&gt;</code>) can be any valid JSON key and a value is defined as:</p>
-<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|Process|ImageCollection&gt;
+<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|Process&gt;
 </code></pre>
 
-<p><em>Note:</em> string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>, too. In consequence, the objects allowed to be part of an array are processes and image collections only.</p>
+<p><em>Note:</em> string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>, too. In consequence, the objects allowed to be part of an array are processes only.</p>
+<p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered at <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using <code>collection</code> as a key once. </p>
 <p><strong>Example 2:</strong></p>
 <pre><code>{
   &quot;imagery&quot;:{
     &quot;process_id&quot;:&quot;filter_daterange&quot;,
     &quot;args&quot;:{
       &quot;imagery&quot;:{
-        &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+        &quot;process_id&quot;:&quot;get_data&quot;,
+        &quot;args&quot;: {
+          &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
+        }
       },
       &quot;from&quot;:&quot;2017-01-01&quot;,
       &quot;to&quot;:&quot;2017-01-31&quot;
@@ -258,7 +265,7 @@
 </code></pre>
 
 <p><strong>Example 3:</strong></p>
-<p>If a process needs multiple processes or image collections as input, it is allowed to use arrays of the respective types.</p>
+<p>If a process needs multiple processes as input, it is allowed to use arrays of the respective types.</p>
 <pre><code>{
   &quot;imagery&quot;:{
     &quot;process_id&quot;:&quot;union&quot;,
@@ -268,7 +275,10 @@
           &quot;process_id&quot;:&quot;filter_bands&quot;,
           &quot;args&quot;:{
             &quot;imagery&quot;:{
-              &quot;product_id&quot;:&quot;Sentinel2-L1C&quot;
+              &quot;process_id&quot;:&quot;get_data&quot;,
+              &quot;args&quot;: {
+                &quot;data_id&quot;: &quot;Sentinel2-L1C&quot;
+              }
             },
             &quot;bands&quot;:8
           }
@@ -277,7 +287,10 @@
           &quot;process_id&quot;:&quot;filter_bands&quot;,
           &quot;args&quot;:{
             &quot;imagery&quot;:{
-              &quot;product_id&quot;:&quot;Sentinel2-L1C&quot;
+              &quot;process_id&quot;:&quot;get_data&quot;,
+              &quot;args&quot;: {
+                &quot;data_id&quot;: &quot;Sentinel2-L1C&quot;
+              }
             },
             &quot;bands&quot;:5
           }
@@ -285,20 +298,6 @@
       ]
     }
   }
-}
-</code></pre>
-
-<h3 id="image-collection">Image Collection</h3>
-<p>An image collection as input dataset is defined as follows:</p>
-<pre><code>&lt;ImageCollection&gt; := {
-  &quot;product_id&quot;: &lt;string&gt;
-}
-</code></pre>
-
-<p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered at <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using <code>collection</code> as a key once. </p>
-<p><strong>Example 4:</strong></p>
-<pre><code>{
-  &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
 }
 </code></pre>
 
@@ -312,9 +311,40 @@
 </ul>
 <p><em>Note:</em> Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.</p>
 <p><em>Limitation:</em> Process names (process ids) must never contain a forward slash <code>/</code>.</p>
+<h3 id="get_data">get_data</h3>
+<p>Filters and selects a single dataset provided by the back-end.</p>
+<h4 id="arguments">Arguments</h4>
+<p>Any of the properties of a dataset, e.g.</p>
+<ul>
+<li><code>data_id</code>: Filter by data id</li>
+<li><code>extent</code>: Filter by extent</li>
+<li><code>time</code>: Filter by time</li>
+<li><code>bands</code>: Filter by band ids</li>
+<li>...</li>
+</ul>
+<p>The back-end provider decides which of the potential datasets is the most relevant one to be selected.</p>
+<h4 id="examples">Examples</h4>
+<pre><code>{
+  &quot;process_id&quot;: &quot;get_data&quot;,
+  &quot;args&quot;: {
+    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
+  }
+}
+</code></pre>
+
+<pre><code>{
+  &quot;process_id&quot;: &quot;get_data&quot;,
+  &quot;args&quot;: {
+    &quot;platform&quot;: &quot;landsat-7&quot;,
+    &quot;sensor&quot;: &quot;modis&quot;, 
+    &quot;derived_from&quot;: null
+  }
+}
+</code></pre>
+
 <h3 id="filter_bands">filter_bands</h3>
 <p>Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.</p>
-<h4 id="arguments">Arguments</h4>
+<h4 id="arguments_1">Arguments</h4>
 <ul>
 <li><code>imagery</code> <em>(required)</em>: Image collection to filter</li>
 </ul>
@@ -324,12 +354,15 @@
 <li><code>names</code>: string or array of strings containing band names.</li>
 <li><code>wavelengths</code>: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.</li>
 </ul>
-<h4 id="examples">Examples</h4>
+<h4 id="examples_1">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;: &quot;filter_bands&quot;,
   &quot;args&quot;: {
     &quot;imagery&quot;:{
-      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+      &quot;process_id&quot;:&quot;get_data&quot;,
+      &quot;args&quot;: {
+        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
+      }
     },
     &quot;bands&quot;:1
   }
@@ -340,7 +373,10 @@
   &quot;process_id&quot;: &quot;filter_bands&quot;,
   &quot;args&quot;: {
     &quot;imagery&quot;:{
-      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+      &quot;process_id&quot;:&quot;get_data&quot;,
+      &quot;args&quot;: {
+        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
+      }
     },
     &quot;wavelengths&quot;:[1300,2000]
   }
@@ -349,7 +385,7 @@
 
 <h3 id="filter_daterange">filter_daterange</h3>
 <p>Allows to filter an image collection by temporal extent.</p>
-<h4 id="arguments_1">Arguments</h4>
+<h4 id="arguments_2">Arguments</h4>
 <ul>
 <li><code>imagery</code> <em>(required)</em>: Image collection to filter</li>
 </ul>
@@ -358,12 +394,15 @@
 <li><code>from</code>: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of <code>to</code>.</li>
 <li><code>to</code>: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of <code>from</code>.</li>
 </ul>
-<h4 id="examples_1">Examples</h4>
+<h4 id="examples_2">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;:&quot;filter_daterange&quot;,
   &quot;args&quot;:{
     &quot;imagery&quot;:{
-      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+      &quot;process_id&quot;:&quot;get_data&quot;,
+      &quot;args&quot;: {
+        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
+      }
     },
     &quot;from&quot;:&quot;2017-01-01&quot;,
     &quot;to&quot;:&quot;2017-01-31&quot;
@@ -373,17 +412,20 @@
 
 <h3 id="process_graph">process_graph</h3>
 <p>Another process graph can be referenced with the process <code>process_graph</code>. This could even be an externally hosted process graph.</p>
-<h4 id="arguments_2">Arguments</h4>
+<h4 id="arguments_3">Arguments</h4>
 <ul>
 <li><code>imagery</code> <em>(required)</em>: Image collection to apply the process graph to</li>
 <li><code>uri</code> <em>(required)</em>: An URI to a process graph.</li>
 </ul>
-<h4 id="examples_2">Examples</h4>
+<h4 id="examples_3">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;:&quot;process_graph&quot;,
   &quot;args&quot;:{
     &quot;imagery&quot;:{
-      &quot;product_id&quot;:&quot;Sentinel2A-L1C&quot;
+      &quot;process_id&quot;:&quot;get_data&quot;,
+      &quot;args&quot;: {
+        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
+      }
     },
     &quot;uri&quot;:&quot;http://otherhost.org/api/v1/users/12345/process_graphs/abcdef&quot;
   }
