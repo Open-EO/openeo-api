@@ -221,19 +221,24 @@
 <p>A JSON error object should be sent with all responses that have a status code of 400 or 500.</p>
 <pre><code>{
   &quot;code&quot;: 123,
-  &quot;message&quot;: &quot;A sample error message.&quot;,
-  &quot;translations&quot;: {
-    &quot;de&quot;: &quot;Eine Beispiel-Fehlermeldung.&quot;,
-    &quot;fr&quot;: &quot;Un exemple de message d'erreur.&quot;
-  }
+  &quot;message&quot;: &quot;A sample error message.&quot;
+  &quot;url&quot;: &quot;http://www.openeo.org/docs/errors/123&quot;
 }
 </code></pre>
 
 <p>Sending <code>code</code> and <code>message</code> is required. </p>
 <ul>
-<li>The <code>code</code> is either one of the standardized error codes below or a custom error code with a number greater than 10000.</li>
-<li>The <code>message</code> must be sent in English language and explain what the client might need to change or what the server is struggling with.</li>
-<li>The <code>translations</code> object is optional and can contain as many translations for the error message as available. The key must be a language code according to <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">ISO-639-1</a>. The value is the error message itself. An English translation with the key <code>en</code> is ignored in favor of the value of <code>message</code>.</li>
+<li>
+<p>The <code>code</code> is either one of the standardized error codes below or a custom error code with a number greater than 10000.</p>
+</li>
+<li>
+<p>The <code>message</code> explains what the client might need to change or what the server is struggling with.
+  By default the message must be sent in English language.</p>
+</li>
+</ul>
+<p>Content Negotiation is used to localize the error messages: If an <code>Acceppt-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
+<ul>
+<li><code>url</code> is an optional attribute and might contain a link to a resource that is explaining the error and potential solutions in-depth.</li>
 </ul>
 <h2 id="common-error-codes-xxx">Common error codes (xxx)</h2>
 <p>All HTTP status code in the 400 and 500 range can be used in addition to this. </p>

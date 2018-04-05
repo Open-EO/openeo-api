@@ -3,10 +3,11 @@
   "servers": [
     {
       "url": "https://localhost/api/{version}/",
+      "description": "The URL of the API can be freely chosen by the back-end providers. The path, including API versioning, is a suggestion only. Nevertheless, all servers MUST support HTTPS as the authentication with Oauth2 and HTTP is not secure!",
       "variables": {
         "version": {
           "default": "v0",
-          "description": "Might be used for API versioning. Should not be used by the clients to detect the version number. Use the version number returned from `GET /`."
+          "description": "API versioning is recommended, but not required. It should not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
         }
       }
     }
@@ -3660,8 +3661,8 @@
         "type": "object",
         "required": [
           "service_id",
-          "type",
-          "url",
+          "service_type",
+          "service_url",
           "job_id"
         ],
         "properties": {
@@ -3731,20 +3732,13 @@
           },
           "message": {
             "type": "string",
-            "description": "The message must be sent in English language and explain what the client might need to change or what the server is struggling with.",
+            "description": "The message explains what the client might need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
-          "translations": {
-            "type": "object",
-            "description": "The translations object is optional and can contain as many translations for the error message as available. The key must be a language code according to ISO-639-1. An English translation with the key `en` is ignored in favor of the value of message.",
-            "additionalProperties": {
-              "type": "string",
-              "description": "The error message itself in the language specified by the key."
-            },
-            "example": {
-              "de": "Eine Beispiel-Fehlermeldung.",
-              "fr": "Un exemple de message d'erreur."
-            }
+          "url": {
+            "type": "string",
+            "description": "Can bet set to hold a URL to a resource that is explaining the error and potential solutions in-depth.",
+            "example": "http://www.openeo.org/docs/errors/123"
           }
         }
       }
