@@ -1062,7 +1062,25 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/process_graph"
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph with a title."
         }
       }
     },
@@ -1121,7 +1139,22 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/process_graph"
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph to be validated."
         }
       }
     },
@@ -1175,7 +1208,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/process_graph"
+                  "type": "object",
+                  "required": [
+                    "process_graph",
+                    "title"
+                  ],
+                  "properties": {
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    }
+                  }
                 }
               }
             }
@@ -1197,9 +1242,9 @@
           }
         }
       },
-      "put": {
-        "summary": "Replaces a process graph.",
-        "description": "Replaces a process graph, but maintains the identifier.",
+      "patch": {
+        "summary": "Replaces a process graph or modifies the title.",
+        "description": "Replaces a process graph or modifies the title, but maintains the identifier.",
         "tags": [
           "Process Graph Management"
         ],
@@ -1237,7 +1282,22 @@
           }
         },
         "requestBody": {
-          "$ref": "#/components/requestBodies/process_graph"
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph with a title."
         }
       },
       "delete": {
@@ -1487,16 +1547,19 @@
                 "type": "object",
                 "required": [
                   "job_id",
-                  "service_type"
+                  "type"
                 ],
                 "properties": {
                   "job_id": {
                     "$ref": "#/components/schemas/job_id"
                   },
-                  "service_type": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "type": {
                     "$ref": "#/components/schemas/service_type"
                   },
-                  "service_args": {
+                  "args": {
                     "$ref": "#/components/schemas/service_args"
                   }
                 }
@@ -1596,7 +1659,7 @@
       },
       "patch": {
         "summary": "Modifies a web service.",
-        "description": "***Reserved for later use.** A protocol to modify a service is to be defined.*\nCalling this endpoint will change the specified web service, but maintain its identifier.",
+        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be group in a single request. Only service args and the title can be modified. To change the service type create a new service.",
         "tags": [
           "Web Service Management"
         ],
@@ -1638,12 +1701,11 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "job_id",
-                  "type"
-                ],
                 "properties": {
-                  "service_args": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "args": {
                     "$ref": "#/components/schemas/service_args"
                   }
                 }
@@ -1857,7 +1919,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "process_graph"
+                ],
                 "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
@@ -1898,7 +1966,7 @@
       },
       "patch": {
         "summary": "Modifies a job at the back-end.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Only the process graph, the output format or additional proprietary properties can be changed. Changes can be group in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Changes can be group in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
         "tags": [
           "Job Management"
         ],
@@ -1941,6 +2009,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
@@ -3377,12 +3448,17 @@
             "type": "string",
             "description": "The unique identifier of the process."
           },
+          "description": {
+            "type": "string",
+            "description": "An optional description for the process or the chained processes."
+          },
           "args": {
             "$ref": "#/components/schemas/arg_set"
           }
         },
         "example": {
-          "process_id": "median_time",
+          "process_id": "min_time",
+          "description": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.",
           "args": {
             "imagery": {
               "process_id": "NDVI",
@@ -3465,6 +3541,7 @@
           "on_demand",
           "batch"
         ],
+        "default": "none",
         "description": "The execution mode of the job.",
         "example": "on_demand"
       },
@@ -3485,6 +3562,7 @@
         "type": "object",
         "required": [
           "job_id",
+          "title",
           "mode",
           "status",
           "process_graph"
@@ -3492,6 +3570,9 @@
         "properties": {
           "job_id": {
             "$ref": "#/components/schemas/job_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/title"
           },
           "mode": {
             "$ref": "#/components/schemas/job_mode"
@@ -3525,12 +3606,16 @@
         "type": "object",
         "required": [
           "job_id",
+          "title",
           "mode",
           "status"
         ],
         "properties": {
           "job_id": {
             "$ref": "#/components/schemas/job_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/title"
           },
           "mode": {
             "$ref": "#/components/schemas/job_mode"
@@ -3552,6 +3637,11 @@
           }
         }
       },
+      "title": {
+        "description": "A short description to easily distinguish datasets.",
+        "type": "string",
+        "example": "NDVI from Sentinel 2 data"
+      },
       "service_type": {
         "description": "Definintion of possible web services to access result data. All available web service types can be retrieved via `GET /services/types`",
         "type": "string",
@@ -3560,6 +3650,7 @@
       "service_args": {
         "type": "object",
         "description": "Definintion of additional arguments a web service might need to be created. For example, this could specify the required version of the service, visualization details or any other service dependant configuration.",
+        "additionalProperties": true,
         "example": {
           "version": 1.1
         }
@@ -3569,8 +3660,8 @@
         "type": "object",
         "required": [
           "service_id",
-          "service_type",
-          "service_url",
+          "type",
+          "url",
           "job_id"
         ],
         "properties": {
@@ -3579,15 +3670,18 @@
             "description": "Unique identifier of a service that is generated by the back-end during service creation.",
             "example": "91f3caa3b5281a"
           },
-          "service_url": {
+          "title": {
+            "$ref": "#/components/schemas/title"
+          },
+          "url": {
             "type": "string",
             "description": "URL at which the service is accessible. Doesn't necessarily need to contain the API base url.",
             "example": "https://openeo.org/wms/91f3caa3b5281a"
           },
-          "service_type": {
+          "type": {
             "$ref": "#/components/schemas/service_type"
           },
-          "service_args": {
+          "args": {
             "$ref": "#/components/schemas/service_args"
           },
           "job_id": {
@@ -3595,8 +3689,7 @@
             "description": "The job identifier string refering to the job this service is running for.",
             "example": "42d5k3nd92mk49dmj294md"
           }
-        },
-        "additionalProperties": true
+        }
       },
       "output_format_body": {
         "description": "Output format to be used. Supported formats and options can be retrieved using the `GET /capabilities/output_formats` endpoint.",
