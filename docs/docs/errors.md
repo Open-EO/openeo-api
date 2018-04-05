@@ -39,19 +39,21 @@ A JSON error object should be sent with all responses that have a status code of
 ```
 {
   "code": 123,
-  "message": "A sample error message.",
-  "translations": {
-    "de": "Eine Beispiel-Fehlermeldung.",
-    "fr": "Un exemple de message d'erreur."
-  }
+  "message": "A sample error message."
+  "url": "http://www.openeo.org/docs/errors/123"
 }
 ```
 
 Sending `code` and `message` is required. 
 
 * The `code` is either one of the standardized error codes below or a custom error code with a number greater than 10000.
-* The `message` must be sent in English language and explain what the client might need to change or what the server is struggling with.
-* The `translations` object is optional and can contain as many translations for the error message as available. The key must be a language code according to [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes). The value is the error message itself. An English translation with the key `en` is ignored in favor of the value of `message`.
+
+* The `message` explains what the client might need to change or what the server is struggling with.
+  By default the message must be sent in English language.
+
+  Content Negotiation is used to localize the error messages: If an `Acceppt-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
+
+* `url` is an optional attribute and might contain a link to a resource that is explaining the error and potential solutions in-depth.
 
 ## Common error codes (xxx)
 
