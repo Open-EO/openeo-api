@@ -1,7 +1,5 @@
 # Process graphs
 
-_Early work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api/issues)._
-
 A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
 
 ## Schematic definition
@@ -13,10 +11,11 @@ A single process in a process graph is defined as follows:
 ```
 <Process> := {
   "process_id": <string>,
+  "description": <string>,
   "args": <ArgumentSet>
 }
 ```
-A process must always contain two key-value-pairs named `process_id` and `args` and no other elements.
+A process *must* always contain two key-value-pairs named `process_id` and `args` and *may* contain a `description`, but *must not* hold other elements.
 
 `process_id` can currently contain three types of processes:
 
@@ -25,9 +24,32 @@ A process must always contain two key-value-pairs named `process_id` and `args` 
   They are prefixed with `/user/`, e.g. `/user/my_process_graph`.
 * User-defined functions (UDF), which is one of the predefined [UDF types](udfs.md) and can be explored at `GET /udf_runtimes/{lang}/{udf_type}`. UDFs are prefixed with `/udf` and additionally contain the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
 
-**Example 1:**
+### Argument Set
 
-A full process graph definition.
+An argument set for a process is defined as follows:
+
+```
+<ArgumentSet> := {
+  <Key>: <Value>,
+  ...
+}
+```
+
+The key `<Key>` can be any valid JSON key, but it is *recommended* to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and the `_`.
+
+A value is defined as follows:
+
+```
+<Value> := <string|number|array|boolean|null|Process>
+```
+
+*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array *must* always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`. In consequence, the objects allowed to be part of an array are processes only.
+
+*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
+
+### Examples
+
+**Example 1:** A full process graph definition.
 
 ```
 {
@@ -67,47 +89,7 @@ A full process graph definition.
 }
 ```
 
-### Argument Set
-
-An argument set for a process is defined as follows:
-
-```
-<ArgumentSet> := {
-  <Key>: <Value>
-}
-```
-
-Where a key (`<Key>`) can be any valid JSON key and a value is defined as:
-```
-<Value> := <string|number|array|boolean|null|Process>
-```
-
-*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array must always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`, too. In consequence, the objects allowed to be part of an array are processes only.
-
-*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 3 demonstrates this by using `collection` as a key once. 
-
-**Example 2:**
-```
-{
-  "imagery":{
-    "process_id":"filter_daterange",
-    "args":{
-      "imagery":{
-        "process_id":"get_data",
-        "args": {
-          "data_id": "Sentinel2A-L1C"
-        }
-      },
-      "from":"2017-01-01",
-      "to":"2017-01-31"
-    }
-  }
-}
-```
-
-**Example 3:**
-
-If a process needs multiple processes as input, it is allowed to use arrays of the respective types.
+**Example 2:** If a process needs multiple processes as input, it is allowed to use arrays of the respective types.
 
 ```
 {
@@ -149,14 +131,15 @@ If a process needs multiple processes as input, it is allowed to use arrays of t
 
 There are some processes that we define to be core processes that should be implemented by all back-ends:
 
+* get_data
 * filter_bands
 * filter_daterange
 * process_graph
 * _to be continued..._
 
-_Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes might look like and to supplement the schematic definition above.
+_Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like and to supplement the schematic definition above.
 
-_Limitation:_ Process names (process ids) must never contain a forward slash `/`.
+_Limitation:_ Process names (process ids) *must* never contain a forward slash `/`.
 
 ### get_data
 

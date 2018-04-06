@@ -17,6 +17,12 @@ Further terms:
 - **unified** current EO cloud back-ends all have [a different API](http://r-spatial.org/2016/11/29/openeo.html), making EO data analysis hard to validate,difficult to reproduce, and back-ends difficult to compare in terms of capability and costs, or to combine in a joint analysis across back-ends. A unified API can resolve many of these problems.
 
 
+## API (specification)
+
+The API developed by the openEO project uses [HTTP REST Level 2](https://en.wikipedia.org/wiki/Representational_state_transfer) for communication between client and back-end server.
+
+In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC2119](http://tools.ietf.org/html/rfc2119).
+
 ## Datasets
 
 CEOS ([CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/)) defines **Granules** and **Collections** as follows:
@@ -68,10 +74,6 @@ Note that for the first example, the aggregation function not only requires time
 ***Resampling*** is a broader term where we have data at one resolution, and need values at another (also called _scaling_). In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be be simply assigned to the nearest high resolution grid cells ("nearest neighbor"), or may be interpolated somehow (e.g. by bilinear interpolation). Resampling from finer to coarser grid by nearest neighbor may again be a special case of aggregation.
 
 When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are fairly similar, say the source collection has values for consecutive 10 day intervals and the target needs values for consecutive 16 day intervals, then some form of interpolation may be more appropriate than aggregation as defined here.
-
-## API
-
-The API developed by the openEO project uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) for communication between client and back-end server.
 
 ## User-defined functions (UDFs)
 

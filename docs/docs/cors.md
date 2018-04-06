@@ -5,7 +5,7 @@
 
 Source: [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 
-openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library (and the Web Editor) can't access any back-end. Therefore, all back-end providers should support CORS. Without supporting CORS users can't access the back-end with browser-based clients, i.e. JavaScript. [CORS is a recommendation of the W3C organization.](https://www.w3.org/TR/cors/) The following chapters will explain what back-end providers need to implement to support CORS. 
+openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library (and the Web Editor) can't access any back-end. Therefore, all back-end providers *should* support CORS. Without supporting CORS users can't access the back-end with browser-based clients, i.e. the [JavaScript client](https://github.com/Open-EO/openeo-js-client). [CORS is a recommendation of the W3C organization.](https://www.w3.org/TR/cors/) The following chapters will explain how back-end providers can implement CORS support.
 
 ## 1. Supporting the OPTIONS method
 
@@ -13,11 +13,11 @@ All endpoints must respond to the `OPTIONS` HTTP method. This is a response for 
 
 | Name                             | Description                                                  | Example                                  |
 | -------------------------------- | ------------------------------------------------------------ | ---------------------------------------- |
-| Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is recommended to return the value of the request's origin header. If no `Origin` is sent to the back-end no CORS headers should be sent at all. | `http://client.isp.com:80`               |
-| Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value needs to be `true`. | `true`                                   |
-| Access-Control-Allow-Headers     | Comma-separated list of HTTP headers allowed to be send. Needs to contain at least `Authorization`. | ` Authorization, Content-Type`           |
-| Access-Control-Allow-Methods     | Comma-separated list of HTTP methods allowed to be requested. List all implemented HTTP methods for the endpoint here. | `OPTIONS, GET, POST, PATCH, PUT, DELETE` |
-| Content-Type                     | Should return the content type delivered by the request that the permission is requested for. | `application/json`                       |
+| Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is *recommended* to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers *should not* be sent at all. | `http://client.isp.com:80`               |
+| Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value *must* be `true`. | `true`                                   |
+| Access-Control-Allow-Headers     | Comma-separated list of HTTP headers allowed to be send. *Must* contain at least `Authorization` if authorization is implemented by the back-end. | ` Authorization, Content-Type`           |
+| Access-Control-Allow-Methods     | Comma-separated list of HTTP methods allowed to be requested. Back-ends *must* list all implemented HTTP methods for the endpoint here. | `OPTIONS, GET, POST, PATCH, PUT, DELETE` |
+| Content-Type                     | *Should* return the content type delivered by the request that the permission is requested for. | `application/json`                       |
 
 ### Example request and response
 
@@ -44,13 +44,13 @@ Content-Type: application/json
 
 ## 2. Sending CORS headers for every endpoint
 
-In addition to the headers an endpoint is required to send, the following headers must be sent with every response:
+The following headers *must* be included with every response:
 
 | Name                             | Description                                                  | Example                    |
 | -------------------------------- | ------------------------------------------------------------ | -------------------------- |
-| Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is recommended to return the value of the request's origin header. If no `Origin` is sent to the back-end no CORS headers should be sent at all. | `http://client.isp.com:80` |
-| Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value needs to be `true`. | `true`                     |
+| Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is *recommended* to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers *should not* be sent at all. | `http://client.isp.com:80` |
+| Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value *must* be `true`. | `true`                     |
 
 ## Remarks
 
-With most server you can send the required headers and the responses to the OPTIONS requests globally. Otherwise you might want to use a proxy server to add the headers and OPTIONS responses.
+Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
