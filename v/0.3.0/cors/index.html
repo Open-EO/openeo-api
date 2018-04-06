@@ -182,7 +182,7 @@
 CORS defines a way in which a browser and server can interact to determine whether or not it is safe to allow the cross-origin request. It allows for more freedom and functionality than purely same-origin requests, but is more secure than simply allowing all cross-origin requests.</p>
 </blockquote>
 <p>Source: <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">https://en.wikipedia.org/wiki/Cross-origin_resource_sharing</a></p>
-<p>openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library (and the Web Editor) can't access any back-end. Therefore, all back-end providers should support CORS. Without supporting CORS users can't access the back-end with browser-based clients, i.e. JavaScript. <a href="https://www.w3.org/TR/cors/">CORS is a recommendation of the W3C organization.</a> The following chapters will explain what back-end providers need to implement to support CORS. </p>
+<p>openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library (and the Web Editor) can't access any back-end. Therefore, all back-end providers <em>should</em> support CORS. Without supporting CORS users can't access the back-end with browser-based clients, i.e. the <a href="https://github.com/Open-EO/openeo-js-client">JavaScript client</a>. <a href="https://www.w3.org/TR/cors/">CORS is a recommendation of the W3C organization.</a> The following chapters will explain how back-end providers can implement CORS support.</p>
 <h2 id="1-supporting-the-options-method">1. Supporting the OPTIONS method</h2>
 <p>All endpoints must respond to the <code>OPTIONS</code> HTTP method. This is a response for the preflight requests made by the browsers. It needs to respond with a status code of <code>204</code> and send the HTTP headers shown in the table below. No body needs to be provided.</p>
 <table>
@@ -196,27 +196,27 @@ CORS defines a way in which a browser and server can interact to determine wheth
 <tbody>
 <tr>
 <td>Access-Control-Allow-Origin</td>
-<td>Allowed origin for the request, including protocol, host and port. It is recommended to return the value of the request's origin header. If no <code>Origin</code> is sent to the back-end no CORS headers should be sent at all.</td>
+<td>Allowed origin for the request, including protocol, host and port. It is <em>recommended</em> to return the value of the request's origin header. If no <code>Origin</code> is sent to the back-end CORS headers <em>should not</em> be sent at all.</td>
 <td><code>http://client.isp.com:80</code></td>
 </tr>
 <tr>
 <td>Access-Control-Allow-Credentials</td>
-<td>If authorization is implemented by the back-end the value needs to be <code>true</code>.</td>
+<td>If authorization is implemented by the back-end the value <em>must</em> be <code>true</code>.</td>
 <td><code>true</code></td>
 </tr>
 <tr>
 <td>Access-Control-Allow-Headers</td>
-<td>Comma-separated list of HTTP headers allowed to be send. Needs to contain at least <code>Authorization</code>.</td>
+<td>Comma-separated list of HTTP headers allowed to be send. <em>Must</em> contain at least <code>Authorization</code> if authorization is implemented by the back-end.</td>
 <td><code>Authorization, Content-Type</code></td>
 </tr>
 <tr>
 <td>Access-Control-Allow-Methods</td>
-<td>Comma-separated list of HTTP methods allowed to be requested. List all implemented HTTP methods for the endpoint here.</td>
+<td>Comma-separated list of HTTP methods allowed to be requested. Back-ends <em>must</em> list all implemented HTTP methods for the endpoint here.</td>
 <td><code>OPTIONS, GET, POST, PATCH, PUT, DELETE</code></td>
 </tr>
 <tr>
 <td>Content-Type</td>
-<td>Should return the content type delivered by the request that the permission is requested for.</td>
+<td><em>Should</em> return the content type delivered by the request that the permission is requested for.</td>
 <td><code>application/json</code></td>
 </tr>
 </tbody>
@@ -240,7 +240,7 @@ Content-Type: application/json
 </code></pre>
 
 <h2 id="2-sending-cors-headers-for-every-endpoint">2. Sending CORS headers for every endpoint</h2>
-<p>In addition to the headers an endpoint is required to send, the following headers must be sent with every response:</p>
+<p>The following headers <em>must</em> be included with every response:</p>
 <table>
 <thead>
 <tr>
@@ -252,18 +252,18 @@ Content-Type: application/json
 <tbody>
 <tr>
 <td>Access-Control-Allow-Origin</td>
-<td>Allowed origin for the request, including protocol, host and port. It is recommended to return the value of the request's origin header. If no <code>Origin</code> is sent to the back-end no CORS headers should be sent at all.</td>
+<td>Allowed origin for the request, including protocol, host and port. It is <em>recommended</em> to return the value of the request's origin header. If no <code>Origin</code> is sent to the back-end CORS headers <em>should not</em> be sent at all.</td>
 <td><code>http://client.isp.com:80</code></td>
 </tr>
 <tr>
 <td>Access-Control-Allow-Credentials</td>
-<td>If authorization is implemented by the back-end the value needs to be <code>true</code>.</td>
+<td>If authorization is implemented by the back-end the value <em>must</em> be <code>true</code>.</td>
 <td><code>true</code></td>
 </tr>
 </tbody>
 </table>
 <h2 id="remarks">Remarks</h2>
-<p>With most server you can send the required headers and the responses to the OPTIONS requests globally. Otherwise you might want to use a proxy server to add the headers and OPTIONS responses.</p>
+<p>Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.</p>
               
             </div>
           </div>

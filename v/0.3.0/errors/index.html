@@ -105,11 +105,11 @@
         
             <ul>
             
-                <li class="toctree-l3"><a href="#error-handling">Error handling</a></li>
+                <li class="toctree-l3"><a href="#status-and-error-handling">Status and error handling</a></li>
                 
                     <li><a class="toctree-l4" href="#json-error-object">JSON error object</a></li>
                 
-                    <li><a class="toctree-l4" href="#common-error-codes-xxx">Common error codes (xxx)</a></li>
+                    <li><a class="toctree-l4" href="#standardized-status-codes">Standardized status codes</a></li>
                 
             
             </ul>
@@ -174,25 +174,48 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="error-handling">Error handling</h1>
-<p>Errors are handled using HTTP status codes. In general an error is communicated with status codes between 400 and 599. If the API responds with a status code between 100 and 399 the back-end indicates that the request could be handled successfully.</p>
-<p>The openEO API uses the following status codes: </p>
+                <h1 id="status-and-error-handling">Status and error handling</h1>
+<p>The success of requests <em>must</em> be indicated using <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a> according to <a href="https://tools.ietf.org/html/rfc7231">RFC 7231</a>. In general an error is communicated with a status code between 400 and 599. If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.</p>
+<h2 id="json-error-object">JSON error object</h2>
+<p>A JSON error object <strong>should</strong> be sent with all responses that have a status code between 400 and 599.</p>
+<pre><code>{
+  &quot;id&quot;: &quot;&quot;,
+  &quot;code&quot;: 123,
+  &quot;message&quot;: &quot;A sample error message.&quot;
+  &quot;url&quot;: &quot;http://www.openeo.org/docs/errors/123&quot;
+}
+</code></pre>
+
+<p>Sending <code>code</code> and <code>message</code> is <strong>required</strong>. </p>
 <ul>
 <li>
-<p><strong>200 OK</strong>:
-  Indicates a successful request <strong>with</strong> a response body being sent.</p>
+<p>A back-end <em>may</em> add an <code>id</code> (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.</p>
 </li>
 <li>
-<p><strong>204 No Content</strong>:
-  Indicates a successful request <strong>without</strong> a response body being sent.</p>
+<p>The <code>code</code> is either one of the standardized openEO error codes below or a proprietary error code with a number greater than 10000.</p>
 </li>
 <li>
-<p><strong>400 Bad Request</strong>:
-  The back-end responds with this error code whenever the error has its origin on client side. Errors can be invalid query parameters, or invalid request body content etc. The client <strong>should not</strong> repeat the request without modifications.</p>
+<p>The <code>message</code> explains what the client might need to change or what the server is struggling with.
+  By default the message <em>must</em> be sent in English language.</p>
 </li>
 </ul>
-<p><em>The response body should contain a JSON error object as specified below.</em></p>
+<p>Content Negotiation is used to localize the error messages: If an <code>Acceppt-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
 <ul>
+<li><code>url</code> is an <em>optional</em> attribute and might contain a link to a resource that is explaining the error and potential solutions in-depth.</li>
+</ul>
+<h2 id="standardized-status-codes">Standardized status codes</h2>
+<p>The openEO API usually uses the following HTTP status codes for successful requests: </p>
+<ul>
+<li><strong>200 OK</strong>:
+  Indicates a successful request <strong>with</strong> a response body being sent.</li>
+<li><strong>204 No Content</strong>:
+  Indicates a successful request <strong>without</strong> a response body being sent.</li>
+</ul>
+<p>The openEO API often uses the following HTTP status codes for failed requests: </p>
+<ul>
+<li>
+<p><strong>400 Bad request</strong>: The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.</p>
+</li>
 <li>
 <p><strong>401 Unauthorized</strong>:
   The client <strong>did not</strong> provide any authorization details (usually using the Authorization header), but authorization is required for this request to be processed.</p>
@@ -205,85 +228,60 @@
 <p><strong>404 Not Found</strong>:</p>
 </li>
 </ul>
-<p>The back-end responds with this error code whenever the resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end.</p>
+<p>The resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end. <em>Note:</em> Unsupported endpoints <em>must</em> use HTTP status code 501.</p>
 <ul>
-<li>
-<p><strong>405 Method Not Allowed</strong>:
-  Used for <a href="../cors/index.html">CORS</a> responses only to indicate the HTTP method requested is not allowed to be accessed.</p>
-</li>
-<li>
-<p><strong>500 Internal Server Error</strong>:
-  The back-end responds with this error code whenever the error has its origin on server side. The error is never the client’s fault and therefore it is reasonable for the client to retry the exact same request that triggered this response.
-  <em>The response body should contain a JSON error object as specified below.</em></p>
-</li>
+<li><strong>500 Internal Server Error</strong>:</li>
 </ul>
-<h2 id="json-error-object">JSON error object</h2>
-<p>A JSON error object should be sent with all responses that have a status code of 400 or 500.</p>
-<pre><code>{
-  &quot;code&quot;: 123,
-  &quot;message&quot;: &quot;A sample error message.&quot;
-  &quot;url&quot;: &quot;http://www.openeo.org/docs/errors/123&quot;
-}
-</code></pre>
-
-<p>Sending <code>code</code> and <code>message</code> is required. </p>
+<p>The error has its origin on server side and no other status code in the 500 range is suitable.</p>
 <ul>
-<li>
-<p>The <code>code</code> is either one of the standardized error codes below or a custom error code with a number greater than 10000.</p>
-</li>
-<li>
-<p>The <code>message</code> explains what the client might need to change or what the server is struggling with.
-  By default the message must be sent in English language.</p>
-</li>
+<li><strong>501 Not implemented</strong>:
+  An endpoint is specified in the openEO API, but is not supported.</li>
 </ul>
-<p>Content Negotiation is used to localize the error messages: If an <code>Acceppt-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
-<ul>
-<li><code>url</code> is an optional attribute and might contain a link to a resource that is explaining the error and potential solutions in-depth.</li>
-</ul>
-<h2 id="common-error-codes-xxx">Common error codes (xxx)</h2>
-<p>All HTTP status code in the 400 and 500 range can be used in addition to this. </p>
+<p>If a HTTP status code in the 400 range is returned, the client <em>should not</em> repeat the request without modifications. For HTTP status code in the 500 range, the client <em>may</em> repeat the same request later.</p>
+<p>All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 <em>should</em> be avoided in favor of any more specific standardized or proprietary openEO error code.</p>
+<h3 id="general-error-codes-xxx">General error codes (xxx)</h3>
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>0</td>
-<td>Unknown error, should never be used.</td>
-<td>Unknown error.</td>
-<td>All</td>
-</tr>
-<tr>
-<td>4<strong>xx</strong></td>
-<td>Client side errors, see HTTP status codes.</td>
-<td><a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_errors">See HTTP status codes.</a></td>
-<td>400</td>
-</tr>
-<tr>
-<td>5<strong>xx</strong></td>
-<td>Server side errors, see HTTP status codes.</td>
-<td><a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#5xx_Server_errors">See HTTP status codes.</a></td>
-<td>500</td>
+<td>404</td>
+<td>To be used if the value of a path parameter is invalid, i.e. the requested resource is not available. <em>Note:</em> Unsupported endpoints <em>must</em> use code 501.</td>
+<td>Not Found.</td>
+<td>404</td>
 </tr>
 <tr>
 <td>501</td>
+<td>The back-end responds with this error code whenever an endpoint is specified in the openEO API, but is not supported.</td>
+<td>Not implemented.</td>
+<td>501</td>
+</tr>
+<tr>
+<td>503</td>
+<td></td>
+<td>Service unavailable.</td>
+<td>503</td>
+</tr>
+<tr>
+<td>601</td>
 <td></td>
 <td>Parameter <strong>X</strong> is invalid.</td>
 <td>400</td>
 </tr>
 <tr>
-<td>601</td>
+<td>611</td>
 <td>Invalid or unsupported CRS specified.</td>
 <td>Invalid CRS specified.</td>
 <td>400</td>
 </tr>
 <tr>
-<td>602</td>
+<td>612</td>
 <td></td>
 <td>Coordinate is out of bounds.</td>
 <td>400</td>
@@ -298,24 +296,24 @@
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1301</td>
-<td>UDF programming language not supported.</td>
 <td></td>
-<td>400</td>
+<td>UDF programming language not supported.</td>
+<td>400 / 404</td>
 </tr>
 <tr>
 <td>1302</td>
-<td>UDF type not supported.</td>
 <td></td>
-<td>400</td>
+<td>UDF type not supported.</td>
+<td>400 / 404</td>
 </tr>
 </tbody>
 </table>
@@ -323,23 +321,23 @@
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>507</td>
-<td>The storage quota has been exceeded by the user.</td>
-<td>Insufficient Storage.</td>
-<td>500</td>
-</tr>
-<tr>
 <td>1401</td>
 <td>Server couldn't store file due to various reasons.</td>
 <td>Unable to store file.</td>
+<td>500</td>
+</tr>
+<tr>
+<td>1402</td>
+<td>The storage quota has been exceeded by the user.</td>
+<td>Insufficient Storage.</td>
 <td>500</td>
 </tr>
 <tr>
@@ -357,7 +355,7 @@
 <tr>
 <td>1412</td>
 <td>The content of the file is invalid.</td>
-<td>File content is invalid</td>
+<td>File content is invalid.</td>
 <td>400</td>
 </tr>
 <tr>
@@ -372,10 +370,10 @@
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
@@ -427,37 +425,13 @@
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>406</td>
-<td></td>
-<td>Format not supported</td>
-<td>400</td>
-</tr>
-<tr>
-<td>423</td>
-<td>The job is currently running and could not be canceled by the back-end.</td>
-<td></td>
-<td>400</td>
-</tr>
-<tr>
-<td>410</td>
-<td>Job with specified identifier can't be resumed / has been canceled.</td>
-<td>Job can't be resumed.</td>
-<td>400</td>
-</tr>
-<tr>
-<td>428</td>
-<td>Job with specified identifier is queued or is not running.</td>
-<td>Job is queued or not running.</td>
-<td>400</td>
-</tr>
 <tr>
 <td>3001</td>
 <td></td>
@@ -476,36 +450,42 @@
 <td>Invalid value <strong>Y</strong> for the output format argument <strong>X</strong> specified.</td>
 <td>400</td>
 </tr>
+<tr>
+<td>3101</td>
+<td>The batch job is currently running and the back-end is not able to delete it.</td>
+<td></td>
+<td>400</td>
+</tr>
 </tbody>
 </table>
 <h3 id="authorization-user-content-and-billing-4xxx">Authorization, user content and billing (4xxx)</h3>
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>4001</td>
-<td>Invalid authentication scheme (e.g. Bearer).</td>
-<td></td>
-<td>400</td>
+<td>401</td>
+<td>The back-end responds with this error code whenever the HTTP status code 401 is appropriate (see above) and no other openEO error code in the 4000 range is suitable.</td>
+<td>Unauthorized.</td>
+<td>401</td>
 </tr>
 <tr>
-<td>4002</td>
-<td>Authorization token invalid or expired.</td>
-<td></td>
-<td>400</td>
+<td>402</td>
+<td>The credits required to fulfil the request are insufficient.</td>
+<td>Payment required.</td>
+<td>402</td>
 </tr>
 <tr>
-<td>4003</td>
-<td></td>
-<td>Credentials are not correct.</td>
-<td>400</td>
+<td>403</td>
+<td>The back-end responds with this error code whenever the HTTP status code 403 is appropriate (see above) and no other openEO error code in the 4000 range is suitable.</td>
+<td>Forbidden.</td>
+<td>403</td>
 </tr>
 <tr>
 <td>4001</td>
@@ -513,16 +493,34 @@
 <td>Password does not meet the requirements.</td>
 <td>400</td>
 </tr>
+<tr>
+<td>4031</td>
+<td>Invalid authentication scheme (e.g. Bearer).</td>
+<td></td>
+<td>403</td>
+</tr>
+<tr>
+<td>4032</td>
+<td>Authorization token invalid or expired.</td>
+<td></td>
+<td>403</td>
+</tr>
+<tr>
+<td>4033</td>
+<td></td>
+<td>Credentials are not correct.</td>
+<td>403</td>
+</tr>
 </tbody>
 </table>
 <h3 id="web-services-5xxx">Web services (5xxx)</h3>
 <table>
 <thead>
 <tr>
-<th>Code</th>
+<th>openEO Error Code</th>
 <th>Description</th>
 <th>Message</th>
-<th>HTTP Status</th>
+<th>HTTP Status Code</th>
 </tr>
 </thead>
 <tbody>
