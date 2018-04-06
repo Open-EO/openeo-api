@@ -10,12 +10,12 @@ A JSON error object **should** be sent with all responses that have a status cod
 {
   "id": "",
   "code": 123,
-  "message": "A sample error message."
+  "message": "A sample error message.",
   "url": "http://www.openeo.org/docs/errors/123"
 }
 ```
 
-Sending `code` and `message` is **required**. 
+Sending `code` and `message` is *required*. 
 
 * A back-end *may* add an `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
 
@@ -48,11 +48,9 @@ The openEO API often uses the following HTTP status codes for failed requests:
   The client **did** provide authorization details (usually using the Authorization header), but the provided credentials or the authorization token is invalid or has expired.
 
 - **404 Not Found**:
-
   The resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end. *Note:* Unsupported endpoints *must* use HTTP status code 501.
 
 - **500 Internal Server Error**:
-
   The error has its origin on server side and no other status code in the 500 range is suitable.
 
 - **501 Not implemented**:
@@ -123,7 +121,7 @@ None yet.
 | 3003              |                                                              | Invalid value **Y** for the output format argument **X** specified. | 400              |
 | 3101              | The batch job is currently running and the back-end is not able to delete it. |                                                              | 400              |
 
-### Authorization, user content and billing (4xxx)
+### Authorization, user content and billing (401-403, 4xxx)
 
 | openEO Error Code | Description                                                  | Message                                  | HTTP Status Code |
 | ----------------- | ------------------------------------------------------------ | ---------------------------------------- | ---------------- |
@@ -140,7 +138,7 @@ None yet.
 | openEO Error Code | Description               | Message                                                      | HTTP Status Code |
 | ----------------- | ------------------------- | ------------------------------------------------------------ | ---------------- |
 | 5001              |                           | Service type is not supported.                               | 400              |
-| 2101              | Invalid job id specified. | Job does not exist.                                          | 400              |
-| 2102              |                           | Service argument **X** is not supported.                     | 400              |
-| 2103              |                           | Invalid value **Y** for the service argument **X** specified. | 400              |
-| 2104              |                           | Required service argument **X** is missing.                  | 400              |
+| 5101              | Invalid job id specified. | Job does not exist.                                          | 400              |
+| 5102              |                           | Service argument **X** is not supported.                     | 400              |
+| 5103              |                           | Invalid value **Y** for the service argument **X** specified. | 400              |
+| 5104              |                           | Required service argument **X** is missing.                  | 400              |
