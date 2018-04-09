@@ -116,6 +116,7 @@ None yet.
 
 | openEO Error Code | Description                                                  | Message                                                      | HTTP Status Code |
 | ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------- |
+| 408               | The on demand download request or the synchronous request timed out. | Request timed out.                                           | 408              |
 | 3001              |                                                              | Output format not supported.                                 | 400              |
 | 3002              |                                                              | Output format argument **X** is not supported.               | 400              |
 | 3003              |                                                              | Invalid value **Y** for the output format argument **X** specified. | 400              |
