@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how billing can be handled,\n * how resources can be filtered or shared.",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how billing can be handled,\n * how resources can be filtered or shared.\n \nMake sure to take account of several global API specifications in the 'General API Concept Description', particularly:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -28,7 +28,7 @@
   },
   "externalDocs": {
     "description": "General API Concept Description",
-    "url": "https://open-eo.github.io/openeo-api"
+    "url": "https://open-eo.github.io/openeo-api/v/0.3.0/"
   },
   "tags": [
     {
@@ -400,41 +400,10 @@
                       "type": "string"
                     },
                     "extent": {
-                      "description": "spatial extent of the available imagery",
-                      "type": "object",
-                      "properties": {
-                        "srs": {
-                          "description": "spatial reference system readable by GDAL (e.g. as 'WKT', 'proj4', or 'EPSG:xy')",
-                          "type": "string"
-                        },
-                        "left": {
-                          "type": "number"
-                        },
-                        "right": {
-                          "type": "number"
-                        },
-                        "top": {
-                          "type": "number"
-                        },
-                        "bottom": {
-                          "type": "number"
-                        }
-                      }
+                      "$ref": "#/components/schemas/spatial_extent"
                     },
                     "time": {
-                      "type": "object",
-                      "properties": {
-                        "from": {
-                          "description": "Date/time in ISO 8601 format",
-                          "type": "string",
-                          "format": "date-time"
-                        },
-                        "to": {
-                          "description": "Date/time in ISO 8601 format",
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      }
+                      "$ref": "#/components/schemas/temporal_extent"
                     },
                     "bands": {
                       "type": "array",
@@ -946,7 +915,7 @@
         ],
         "responses": {
           "200": {
-            "description": "JSON array with process graph ids",
+            "description": "JSON array with stored process graph meta data",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "$ref": "#/components/headers/allow_origin"
@@ -957,12 +926,11 @@
             },
             "content": {
               "application/json": {
-                "examples": {
-                  "response": {
-                    "value": [
-                      "57d7e8ff91a1134",
-                      "12bd7584efa1236"
-                    ]
+                "schema": {
+                  "description": "Array of stored process graphs",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/process_graph_meta"
                   }
                 }
               }
@@ -1000,12 +968,8 @@
             },
             "content": {
               "application/json": {
-                "examples": {
-                  "response": {
-                    "value": {
-                      "process_graph_id": "57d7e8ff91a1134"
-                    }
-                  }
+                "schema": {
+                  "$ref": "#/components/schemas/process_graph_full"
                 }
               }
             }
@@ -1158,19 +1122,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "process_graph",
-                    "title"
-                  ],
-                  "properties": {
-                    "title": {
-                      "$ref": "#/components/schemas/title"
-                    },
-                    "process_graph": {
-                      "$ref": "#/components/schemas/process_graph"
-                    }
-                  }
+                  "$ref": "#/components/schemas/process_graph_full"
                 }
               }
             }
@@ -1196,7 +1148,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The process graph has been replaced successfully.",
+            "description": "The process graph data has been updated successfully.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "$ref": "#/components/headers/allow_origin"
@@ -1310,7 +1262,11 @@
                 }
               },
               "OpenEO-Consumed-Credits": {
-                "$ref": "#/components/schemas/job_consumed_credits"
+                "description": "Amount of money in a certain currency. The amount of money and the currency code as defined in ISO-4217 are separated by a space.",
+                "schema": {
+                  "type": "string",
+                  "example": "120.67 USD"
+                }
               }
             }
           },
@@ -1564,7 +1520,7 @@
       },
       "patch": {
         "summary": "Modifies a web service.",
-        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be group in a single request. Only service args and the title can be modified. To change the service type create a new service.",
+        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. Only service args and the title can be modified. To change the service type create a new service.",
         "tags": [
           "Web Service Management"
         ],
@@ -1832,7 +1788,7 @@
       },
       "patch": {
         "summary": "Modifies a job at the back-end.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Changes can be group in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Changes can be grouped in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
         "tags": [
           "Job Management"
         ],
@@ -2630,8 +2586,8 @@
         }
       },
       "get": {
-        "summary": "Returns available user credits.",
-        "description": "***Reserved for later use.** The credit system and payment procedures are to be defined.*\nFor back-ends that involve accounting, this service will return the currently available credits. Other back-ends may simply return `Infinity`",
+        "summary": "Returns available credit a user has.",
+        "description": "For back-ends that involve accounting, this service will return the currently available credit.",
         "tags": [
           "User Content"
         ],
@@ -2642,7 +2598,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Available credits",
+            "description": "Available credit",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "$ref": "#/components/headers/allow_origin"
@@ -2652,15 +2608,9 @@
               }
             },
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "description": "Available credits",
-                  "type": "number"
-                },
-                "examples": {
-                  "response": {
-                    "value": "210"
-                  }
+                  "$ref": "#/components/schemas/money"
                 }
               }
             }
@@ -2907,6 +2857,26 @@
   },
   "components": {
     "schemas": {
+      "money": {
+        "description": "Amount of money in a certain currency.",
+        "type": "object",
+        "required": [
+          "value",
+          "currency"
+        ],
+        "properties": {
+          "value": {
+            "description": "Amount of money in the currency specified.",
+            "type": "number",
+            "example": 120.67
+          },
+          "currency": {
+            "description": "Currency code as defined in ISO-4217.",
+            "type": "string",
+            "example": "USD"
+          }
+        }
+      },
       "process_description": {
         "description": "Defines and describes a process including it's expected input arguments.",
         "type": "object",
@@ -3143,6 +3113,47 @@
           }
         }
       },
+      "process_graph_id": {
+        "type": "string",
+        "description": "Unique identifier of a job that is generated by the back-end during job submission.",
+        "example": "132cbd7cbbfc45a7aa8e"
+      },
+      "process_graph_meta": {
+        "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
+        "type": "object",
+        "required": [
+          "process_graph_id",
+          "title"
+        ],
+        "properties": {
+          "process_graph_id": {
+            "$ref": "#/components/schemas/process_graph_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/title"
+          }
+        }
+      },
+      "process_graph_full": {
+        "description": "Defines full metadata of stored process graphs that have been submitted by users.",
+        "type": "object",
+        "required": [
+          "process_graph_id",
+          "title",
+          "process_graph"
+        ],
+        "properties": {
+          "process_graph_id": {
+            "$ref": "#/components/schemas/process_graph_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/title"
+          },
+          "process_graph": {
+            "$ref": "#/components/schemas/process_graph"
+          }
+        }
+      },
       "arg_set": {
         "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **process_graph**. An array must always contain one data type only and is allowed to contain the data types allowed for argument set values. In consequence, the objects allowed to be part of an array are process_graphs only. See the API Concept Description for more information.",
         "type": "object",
@@ -3188,11 +3199,6 @@
         "type": "string",
         "description": "Identifier of the user, who submitted the job and pays incurred costs if needed.",
         "example": "bd6f9faf93b4"
-      },
-      "job_consumed_credits": {
-        "type": "number",
-        "description": "Credits consumed by this process",
-        "example": 392
       },
       "job_mode": {
         "type": "string",
@@ -3256,7 +3262,7 @@
             "$ref": "#/components/schemas/job_user_id"
           },
           "consumed_credits": {
-            "$ref": "#/components/schemas/job_consumed_credits"
+            "$ref": "#/components/schemas/money"
           }
         },
         "additionalProperties": true
@@ -3293,7 +3299,7 @@
             "$ref": "#/components/schemas/job_user_id"
           },
           "consumed_credits": {
-            "$ref": "#/components/schemas/job_consumed_credits"
+            "$ref": "#/components/schemas/money"
           }
         }
       },
@@ -3403,6 +3409,53 @@
             "type": "string",
             "description": "Can bet set to hold a URL to a resource that is explaining the error and potential solutions in-depth.",
             "example": "http://www.openeo.org/docs/errors/123"
+          }
+        }
+      },
+      "refsys": {
+        "description": "spatial reference system readable by GDAL (e.g. as 'WKT', 'proj4', or 'EPSG:xy')",
+        "type": "string",
+        "example": "EPSG:4326"
+      },
+      "spatial_extent": {
+        "description": "Spatial extent covered by the data",
+        "type": "object",
+        "properties": {
+          "srs": {
+            "$ref": "#/components/schemas/refsys"
+          },
+          "left": {
+            "type": "number",
+            "example": -34
+          },
+          "right": {
+            "type": "number",
+            "example": 35
+          },
+          "top": {
+            "type": "number",
+            "example": 71
+          },
+          "bottom": {
+            "type": "number",
+            "example": 39
+          }
+        }
+      },
+      "temporal_extent": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "description": "Date/time in ISO 8601 format",
+            "type": "string",
+            "format": "date-time",
+            "example": "2016-01-01"
+          },
+          "to": {
+            "description": "Date/time in ISO 8601 format",
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-10-01"
           }
         }
       }
