@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how billing can be handled,\n * how resources can be filtered or shared.\n \nMake sure to take account of several global API specifications in the 'General API Concept Description', particularly:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how billing can be handled,\n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -70,10 +70,6 @@
     {
       "name": "Web Service Management",
       "description": "Management of web-services for accessing job results."
-    },
-    {
-      "name": "CORS",
-      "description": "Endpoints to allow Cross Origin Requests for requests from internet browsers/JavaScript."
     }
   ],
   "paths": {
@@ -87,14 +83,6 @@
         "responses": {
           "200": {
             "description": "Information about the API version and supported endpoints / features.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -130,14 +118,6 @@
         "responses": {
           "200": {
             "description": "An object with the default output format and a map containing all output formats as keys and an object that defines available options.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -194,24 +174,6 @@
       }
     },
     "/data": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns basic information about EO datasets that are available at the back-end.",
         "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.",
@@ -265,14 +227,6 @@
         "responses": {
           "200": {
             "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -338,24 +292,6 @@
           }
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns further information on a given EO dataset available at the back-end.",
         "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`",
@@ -371,14 +307,6 @@
         "responses": {
           "200": {
             "description": "JSON object with metadata of the EO dataset.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -570,21 +498,6 @@
       }
     },
     "/processes": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          }
-        }
-      },
       "get": {
         "summary": "Returns processes supported by the back-end.",
         "description": "The request will ask the back-end for available processes and will return an array of available processes with their unique identifiers and description.",
@@ -611,14 +524,6 @@
         "responses": {
           "200": {
             "description": "An array of EO processes including their unique identifiers and a description.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -678,24 +583,6 @@
           }
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns further information on a given EO process available at the back-end.",
         "description": "The request will ask the back-end for further details about a process specified by identifier",
@@ -711,14 +598,6 @@
         "responses": {
           "200": {
             "description": "JSON object with metadata of the EO process.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -750,24 +629,6 @@
       }
     },
     "/auth/login": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Check whether the user is registered with the specified credentials at the back-end.",
         "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token.",
@@ -782,14 +643,6 @@
         "responses": {
           "200": {
             "description": "Login successful. Returns the user ID and a bearer token for future API calls. ",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -816,24 +669,6 @@
       }
     },
     "/auth/register": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "post": {
         "summary": "Registers a new user account.",
         "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request registers a new user account.",
@@ -843,14 +678,6 @@
         "responses": {
           "200": {
             "description": "Registration successful. Returns the newly created user ID. ",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -883,24 +710,6 @@
       }
     },
     "/process_graphs": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Lists user-defined process graphs.",
         "description": "This service lists all process graphs of the user that are stored at the back-end.",
@@ -916,14 +725,6 @@
         "responses": {
           "200": {
             "description": "JSON array with stored process graph meta data",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -958,14 +759,6 @@
         "responses": {
           "200": {
             "description": "JSON object with process graph identifier",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1005,24 +798,6 @@
       }
     },
     "/process_graphs/validate": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "post": {
         "summary": "Validates a process graph.",
         "tags": [
@@ -1035,15 +810,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Confirms that the process graph is valid",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "Confirms that the process graph is valid"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1078,24 +845,6 @@
           "$ref": "#/components/parameters/process_graph_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Get a process graph by id.",
         "description": "Returns a JSON processs graph from its id.",
@@ -1111,14 +860,6 @@
         "responses": {
           "200": {
             "description": "JSON object with process graph",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1148,15 +889,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The process graph data has been updated successfully.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The process graph data has been updated successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1196,15 +929,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The process graph has been successfully deleted",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The process graph has been successfully deleted"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1216,24 +941,6 @@
       }
     },
     "/jobs/execute": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "post": {
         "summary": "Execute a process graph synchronously.",
         "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Consumed-Credits` header *may* be sent with all responses.",
@@ -1249,12 +956,6 @@
           "200": {
             "description": "Result data in the specified output format",
             "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              },
               "Content-Type": {
                 "description": "The appropriate mime type for the requested output format must be sent.",
                 "schema": {
@@ -1303,24 +1004,6 @@
       }
     },
     "/services": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "List all running services that have been submitted by the user.",
         "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
@@ -1336,14 +1019,6 @@
         "responses": {
           "200": {
             "description": "Array of service descriptions",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1378,14 +1053,6 @@
         "responses": {
           "200": {
             "description": "Details of the created service",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1432,24 +1099,6 @@
       }
     },
     "/service_types": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns web service types supported by the back-end.",
         "description": "The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.",
@@ -1460,14 +1109,6 @@
         "responses": {
           "200": {
             "description": "An array of implemented web service types",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1500,24 +1141,6 @@
           "$ref": "#/components/parameters/service_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "patch": {
         "summary": "Modifies a web service.",
         "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. Only service args and the title can be modified. To change the service type create a new service.",
@@ -1531,15 +1154,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Changes to the service applied successfully.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "Changes to the service applied successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1581,14 +1196,6 @@
         "responses": {
           "200": {
             "description": "Details of the created service",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1618,15 +1225,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The service has been successfully deleted.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The service has been successfully deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1638,24 +1237,6 @@
       }
     },
     "/jobs": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "List all jobs that have been submitted by the user.",
         "description": "Requests to this service will list all jobs submitted by a user with given id.",
@@ -1671,14 +1252,6 @@
         "responses": {
           "200": {
             "description": "Array of job descriptions",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1713,14 +1286,6 @@
         "responses": {
           "200": {
             "description": "Details of the created job",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1768,24 +1333,6 @@
           "$ref": "#/components/parameters/job_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "patch": {
         "summary": "Modifies a job at the back-end.",
         "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Changes can be grouped in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
@@ -1799,15 +1346,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Changes to the job applied successfully.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "Changes to the job applied successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1853,14 +1392,6 @@
         "responses": {
           "200": {
             "description": "Full job information.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1890,15 +1421,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The job has been successfully deleted",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The job has been successfully deleted"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1915,24 +1438,6 @@
           "$ref": "#/components/parameters/job_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Subscribes to job execution updates that are communicated over WebSockets.",
         "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
@@ -2023,24 +1528,6 @@
           "$ref": "#/components/parameters/job_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "post": {
         "summary": "Running a job in on-demand mode.",
         "description": "This request converts a job into an on-demand job. Results are computed whenever needed during a download or web-service request.",
@@ -2054,15 +1541,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The job now responds in on-demand mode.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The job now responds in on-demand mode."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2085,15 +1564,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Batch processing has been stopped and result have been deleted.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "Batch processing has been stopped and result have been deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2118,14 +1589,6 @@
         "responses": {
           "200": {
             "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "examples": {
@@ -2154,24 +1617,6 @@
           "$ref": "#/components/parameters/job_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "post": {
         "summary": "Running a job in batch mode.",
         "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
@@ -2200,15 +1645,7 @@
         },
         "responses": {
           "204": {
-            "description": "The job is queued to compute results in batch mode, i.e. results are pre-processed.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The job is queued to compute results in batch mode, i.e. results are pre-processed."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2231,15 +1668,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Batch processing has been stopped and result have been deleted.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "Batch processing has been stopped and result have been deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2264,14 +1693,6 @@
         "responses": {
           "200": {
             "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "examples": {
@@ -2300,24 +1721,6 @@
           "$ref": "#/components/parameters/user_id"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "List user-uploaded files.",
         "description": "This service lists all user-uploaded files that are stored at the back-end.",
@@ -2334,14 +1737,6 @@
         "responses": {
           "200": {
             "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as the file size and the timestamp of the last modification. All properties except the name are optional.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2410,24 +1805,6 @@
           "$ref": "#/components/parameters/file_path"
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Download a user file.",
         "description": "This service downloads a user files identified by its path relative to the user's root directory.",
@@ -2443,14 +1820,6 @@
         "responses": {
           "200": {
             "description": "file from user storage",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/octet-stream": {
                 "schema": {
@@ -2489,15 +1858,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The file upload has been successful.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The file upload has been successful."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2547,15 +1908,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The file has been successfully deleted at the back-end.",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            }
+            "description": "The file has been successfully deleted at the back-end."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2567,24 +1920,6 @@
       }
     },
     "/credits": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns available credit a user has.",
         "description": "For back-ends that involve accounting, this service will return the currently available credit.",
@@ -2599,14 +1934,6 @@
         "responses": {
           "200": {
             "description": "Available credit",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2625,24 +1952,6 @@
       }
     },
     "/udf_runtimes": {
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns the programming languages including their environments and UDF types supported.",
         "description": "Describes how custom user-defined functions can be exposed to the data and which programming languages and environments are supported by the back-end.",
@@ -2658,14 +1967,6 @@
         "responses": {
           "200": {
             "description": "Description of UDF runtime support",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2780,24 +2081,6 @@
           }
         }
       ],
-      "options": {
-        "summary": "Response to allow Cross-Origin Resource Sharing.",
-        "description": "Response for the preflight requests made by some clients due to Cross-Origin Resource Sharing restrictions. It sends the appropriate headers for this endpoint as defined in the section \"Responses\". See https://www.w3.org/TR/cors/ for more information.",
-        "tags": [
-          "CORS"
-        ],
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/cors_options"
-          },
-          "405": {
-            "$ref": "#/components/responses/method_not_allowed"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
       "get": {
         "summary": "Returns the process description of UDF schemas.",
         "description": "Returns the process description of UDF schemas, which offer different possibilities how user-defined scripts can be applied to the data.",
@@ -2813,14 +2096,6 @@
         "responses": {
           "200": {
             "description": "Process description",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "$ref": "#/components/headers/allow_origin"
-              },
-              "Access-Control-Allow-Credentials": {
-                "$ref": "#/components/headers/allow_credentials"
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3463,14 +2738,6 @@
     "responses": {
       "client_error": {
         "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request usually does not respond with HTTP status codes 401 and 403 due to missing authorization. HTTP status code 404 should be used if the value of a path parameter is invalid.",
-        "headers": {
-          "Access-Control-Allow-Origin": {
-            "$ref": "#/components/headers/allow_origin"
-          },
-          "Access-Control-Allow-Credentials": {
-            "$ref": "#/components/headers/allow_credentials"
-          }
-        },
         "content": {
           "application/json": {
             "schema": {
@@ -3481,43 +2748,16 @@
       },
       "client_error_auth": {
         "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request *must* respond with HTTP status codes 401 if authorization is required or 403 if the authorization failed or access is forbidden in general to the authenticated user. HTTP status code 404 should be used if the value of a path parameter is invalid.",
-        "headers": {
-          "Access-Control-Allow-Origin": {
-            "$ref": "#/components/headers/allow_origin"
-          },
-          "Access-Control-Allow-Credentials": {
-            "$ref": "#/components/headers/allow_credentials"
-          }
-        },
         "content": {
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/error"
             }
-          }
-        }
-      },
-      "method_not_allowed": {
-        "description": "Method Not Allowed. The requested HTTP method is not supported or allowed to be requested.",
-        "headers": {
-          "Access-Control-Allow-Origin": {
-            "$ref": "#/components/headers/allow_origin"
-          },
-          "Access-Control-Allow-Credentials": {
-            "$ref": "#/components/headers/allow_credentials"
           }
         }
       },
       "server_error": {
         "description": "The request can't be fulfilled due to an error at the back-end. The error is never the client’s fault and therefore it is reasonable for the client to retry the exact same request that triggered this response. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).",
-        "headers": {
-          "Access-Control-Allow-Origin": {
-            "$ref": "#/components/headers/allow_origin"
-          },
-          "Access-Control-Allow-Credentials": {
-            "$ref": "#/components/headers/allow_credentials"
-          }
-        },
         "content": {
           "application/json": {
             "schema": {
@@ -3525,75 +2765,6 @@
             }
           }
         }
-      },
-      "cors_options": {
-        "description": "Gives internet browsers the permission to access the requested resource.",
-        "headers": {
-          "Access-Control-Allow-Origin": {
-            "$ref": "#/components/headers/allow_origin"
-          },
-          "Access-Control-Allow-Credentials": {
-            "$ref": "#/components/headers/allow_credentials"
-          },
-          "Access-Control-Allow-Headers": {
-            "$ref": "#/components/headers/allow_headers"
-          },
-          "Access-Control-Allow-Methods": {
-            "$ref": "#/components/headers/allow_methods"
-          },
-          "Content-Type": {
-            "description": "Should return the content type delivered by the request that the permission is requested for.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "headers": {
-      "allow_origin": {
-        "description": "Allowed origin for the request. Must return the value of the request's origin header if `Access-Control-Allow-Credentials` ist set to `true`.",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "default": "*"
-        }
-      },
-      "allow_credentials": {
-        "description": "If authorization is implemented by the back-end the value needs to be `true`.",
-        "schema": {
-          "type": "string",
-          "default": "true"
-        }
-      },
-      "allow_methods": {
-        "description": "Comma-separated list of HTTP methods allowed to be requested. List all implemented HTTP methods for the endpoint here.",
-        "required": true,
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "GET",
-              "POST",
-              "PUT",
-              "PATCH",
-              "DELETE",
-              "OPTIONS"
-            ]
-          }
-        },
-        "style": "simple"
-      },
-      "allow_headers": {
-        "description": "Comma-separated list of HTTP headers allowed to be send. If the back-end requires authorization it needs to contain at least `Authorization`",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "style": "simple"
       }
     },
     "parameters": {
