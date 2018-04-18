@@ -1432,6 +1432,53 @@
         }
       }
     },
+    "/jobs/{job_id}/estimate": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        }
+      ],
+      "post": {
+        "summary": "Gives an estimate regarding costs and time for a job.",
+        "description": "",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The estimated costs / time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "duration": {
+                      "type": "string",
+                      "description": "Estimated duration for the operation. Duration must be specified according to ISO 8601.",
+                      "example": "P1Y2M10DT2H30M"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
     "/jobs/{job_id}/subscribe": {
       "parameters": [
         {
