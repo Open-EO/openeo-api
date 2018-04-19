@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how billing can be handled,\n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -86,13 +86,70 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "example": {
-                    "version": "0.3.0",
-                    "endpoints": [
-                      "/data",
-                      "/data/{data_id}",
-                      "/processes"
-                    ]
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "endpoints"
+                  ],
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "description": "Version number of the openEO specification this server works with.",
+                      "example": "0.3.0"
+                    },
+                    "endpoints": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "/data",
+                        "/data/{data_id}",
+                        "/processes"
+                      ]
+                    },
+                    "billing": {
+                      "description": "Billing related data, e.g. the currency used or available plans to process jobs. *Must* be specified if the back-end uses any billing related functionalities, e.g. budgeting, estimates.",
+                      "type": "object",
+                      "required": [
+                        "currency"
+                      ],
+                      "properties": {
+                        "currency": {
+                          "description": "The currency the back-end is billing in. The currency *must* be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
+                          "type": "string",
+                          "example": "USD"
+                        },
+                        "plans": {
+                          "description": "Array of plans",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "description"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "Name of the plan to use for job creation.",
+                                "example": "free"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "A description that gives a rough overview over the plan.",
+                                "example": "Free plan. Calculates one tile per second and a maximum amount of 100 tiles per hour."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "A url to a page with more details about the plan.",
+                                "example": "http://openeo.org/plans/free-plan"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -943,7 +1000,7 @@
     "/jobs/execute": {
       "post": {
         "summary": "Execute a process graph synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Consumed-Credits` header *may* be sent with all responses.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Costs` header *may* be sent with all responses.",
         "tags": [
           "Job Management"
         ],
@@ -962,12 +1019,8 @@
                   "type": "string"
                 }
               },
-              "OpenEO-Consumed-Credits": {
-                "description": "Amount of money in a certain currency. The amount of money and the currency code as defined in ISO-4217 are separated by a space.",
-                "schema": {
-                  "type": "string",
-                  "example": "120.67 USD"
-                }
+              "OpenEO-Costs": {
+                "$ref": "#/components/schemas/money"
               }
             }
           },
@@ -995,6 +1048,9 @@
                   },
                   "output": {
                     "$ref": "#/components/schemas/output_format_body"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
                   }
                 }
               }
@@ -1328,6 +1384,12 @@
                   },
                   "output": {
                     "$ref": "#/components/schemas/output_format_body"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
                   }
                 }
               }
@@ -1373,6 +1435,9 @@
                 "properties": {
                   "title": {
                     "$ref": "#/components/schemas/title"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -1453,7 +1518,7 @@
       ],
       "post": {
         "summary": "Gives an estimate regarding costs and time for a batch job.",
-        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the credits or both. This *must* be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers *may* specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This *must* be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers *may* specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
         "tags": [
           "Job Management"
         ],
@@ -1467,7 +1532,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/batch_body"
+                "type": "object",
+                "properties": {
+                  "output": {
+                    "$ref": "#/components/schemas/output_format_body"
+                  },
+                  "constraints": {
+                    "$ref": "#/components/schemas/constraints"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  }
+                }
               }
             }
           }
@@ -1480,7 +1556,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "credits": {
+                    "costs": {
                       "$ref": "#/components/schemas/money"
                     },
                     "duration": {
@@ -1619,7 +1695,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/batch_body"
+                "type": "object",
+                "properties": {
+                  "output": {
+                    "$ref": "#/components/schemas/output_format_body"
+                  },
+                  "constraints": {
+                    "$ref": "#/components/schemas/constraints"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  }
+                }
               }
             }
           }
@@ -1958,10 +2048,10 @@
         }
       }
     },
-    "/credits": {
+    "/budget": {
       "get": {
-        "summary": "Returns available credit a user has.",
-        "description": "For back-ends that involve accounting, this service will return the currently available credit.",
+        "summary": "Returns available money or credits a user has.",
+        "description": "For back-ends that involve accounting, this service will return the currently available money or credits in the currency the back-end is working with.",
         "tags": [
           "User Content"
         ],
@@ -1972,11 +2062,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Available credit",
+            "description": "Available money or credits. Returns an empty object for unlimited credits.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/money"
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "$ref": "#/components/schemas/money"
+                    }
+                  }
                 }
               }
             }
@@ -2172,24 +2267,19 @@
   "components": {
     "schemas": {
       "money": {
-        "description": "Amount of money in a certain currency.",
-        "type": "object",
-        "required": [
-          "value",
-          "currency"
-        ],
-        "properties": {
-          "value": {
-            "description": "Amount of money in the currency specified.",
-            "type": "number",
-            "example": 120.67
-          },
-          "currency": {
-            "description": "Currency code as defined in ISO-4217.",
-            "type": "string",
-            "example": "USD"
-          }
-        }
+        "description": "Amount of money or credits. The value *must* be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
+        "type": "number",
+        "example": 12.98
+      },
+      "budget": {
+        "type": "number",
+        "description": "Maximum amount of costs that a request is allowed to produce. The value *must* be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends *should* reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs *may* try to return partial results if possible. Otherwise the request and results are discarded. Users *should* be warned by clients that reaching the budget *may* discard the results and that setting this value should be well-wrought.",
+        "example": 100
+      },
+      "billing_plan": {
+        "type": "string",
+        "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`.",
+        "example": "free"
       },
       "process_description": {
         "description": "Defines and describes a process including it's expected input arguments.",
@@ -2560,7 +2650,10 @@
           "submitted": {
             "$ref": "#/components/schemas/submitted"
           },
-          "consumed_credits": {
+          "plan": {
+            "$ref": "#/components/schemas/billing_plan"
+          },
+          "costs": {
             "$ref": "#/components/schemas/money"
           },
           "batches": {
@@ -2590,7 +2683,10 @@
           "submitted": {
             "$ref": "#/components/schemas/submitted"
           },
-          "consumed_credits": {
+          "plan": {
+            "$ref": "#/components/schemas/billing_plan"
+          },
+          "costs": {
             "$ref": "#/components/schemas/money"
           },
           "batches": {
@@ -2644,23 +2740,14 @@
           "output": {
             "$ref": "#/components/schemas/output_format_body"
           },
-          "consumed_credits": {
+          "plan": {
+            "$ref": "#/components/schemas/billing_plan"
+          },
+          "costs": {
             "$ref": "#/components/schemas/money"
           }
         },
         "additionalProperties": true
-      },
-      "batch_body": {
-        "description": "TBD",
-        "type": "object",
-        "properties": {
-          "output": {
-            "$ref": "#/components/schemas/output_format_body"
-          },
-          "constraints": {
-            "$ref": "#/components/schemas/constraints"
-          }
-        }
       },
       "constraints": {
         "description": "TBD",

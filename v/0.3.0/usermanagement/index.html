@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Architecture and Microservices - openEO - Concepts & API</title>
+  <title>User Management and Accounting - openEO - Concepts & API</title>
   
 
   <link rel="shortcut icon" href="../favicon.ico">
@@ -21,7 +21,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Architecture and Microservices";
+    var mkdocs_page_name = "User Management and Accounting";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -65,25 +65,22 @@
 <li>
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href="index.html">Architecture and Microservices</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#architecture">Architecture</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#microservices">Microservices</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../arch/index.html">Architecture and Microservices</a>
         
     </li>
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../usermanagement/index.html">User Management and Accounting</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="index.html">User Management and Accounting</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#user-management-and-accounting">User Management and Accounting</a></li>
+                
+            
+            </ul>
         
     </li>
 <li>
@@ -166,7 +163,7 @@
     
       
     
-    <li>Architecture and Microservices</li>
+    <li>User Management and Accounting</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -180,70 +177,23 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="architecture">Architecture</h1>
-<p>The openEO API defines a language how clients communicate to back-ends in order to analyze large Earth observation datasets. The API will be implemented by drivers for specific back-ends. Some first architecture considerations are listed below.</p>
-<ol>
-<li>The openEO API is a contract between clients and back-ends that describes the communication only</li>
-<li>Each back-end runs its own API instance including the specific back-end driver. There is no API instance that runs more than one driver.</li>
-<li>Clients in R, Python, and JavaScript connect directly to the back-ends and communicate with the back-ends over HTTPS according to the openEO API specification.</li>
-<li>API instances can run on back-end servers or additional intermediate layers, which then communicate to back-ends in a back-end specific way.</li>
-<li>Back-ends may add functionality and extend the API wherever there is need.</li>
-<li>There will be a central back-end registry service, to allow users to search for back-ends with specific functionality and or data. </li>
-<li>The openEO API will define <em>profiles</em> in order group specific functionality.</li>
-</ol>
-<p><img alt="Architecture" src="../arch.png" /></p>
-<h1 id="microservices">Microservices</h1>
-<p>To simplify and structure the development, the API is divided into a few microservices.</p>
-<table>
-<thead>
-<tr>
-<th>Microservice</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Capabilities</td>
-<td>This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end.</td>
-</tr>
-<tr>
-<td>EO Data Discovery</td>
-<td>Describes which datasets and image collections are available at the back-end.</td>
-</tr>
-<tr>
-<td>Process Discovery</td>
-<td>Provides services to find out which processes a back-end provides, i.e., what users can do with the available data.</td>
-</tr>
-<tr>
-<td>UDF Runtime Discovery</td>
-<td>Allows discovering the programming languages and their runtime environments to execute user-defined functions.</td>
-</tr>
-<tr>
-<td>Job Management</td>
-<td>Organizes and manages jobs that run processes on back-ends.</td>
-</tr>
-<tr>
-<td>File Management</td>
-<td>Organizes and manages user-uploaded files.</td>
-</tr>
-<tr>
-<td>Process Graph Management</td>
-<td>Organizes and manages user-defined process graphs.</td>
-</tr>
-<tr>
-<td>Web Service Management</td>
-<td>Web services to to access data and job results, e.g. as WCS or WMTS service.</td>
-</tr>
-<tr>
-<td>User Content</td>
-<td>User content and accounting.</td>
-</tr>
-<tr>
-<td>Authentication</td>
-<td>Authentication of users.</td>
-</tr>
-</tbody>
-</table>
+                <h1 id="user-management-and-accounting">User Management and Accounting</h1>
+<p>In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to</p>
+<ul>
+<li>authenticate a user</li>
+<li>query the credit a user has available</li>
+<li>estimate costs for certain operations</li>
+<li>get information about produced costs</li>
+<li>limit costs of certain operations</li>
+</ul>
+<p>Therefore, the API leaves some aspects open that have to be handled by the back-ends separately, including </p>
+<ul>
+<li>user registration</li>
+<li>credential recovery, e.g. retrieving a forgotten password</li>
+<li>user data management, e.g. changing the users payment details or email address</li>
+<li>payments, i.e. topping up credits for pre-paid services or paying for post-paid services</li>
+<li>other accounting related tasks, e.g. creating invoices.</li>
+</ul>
               
             </div>
           </div>
@@ -251,10 +201,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../usermanagement/index.html" class="btn btn-neutral float-right" title="User Management and Accounting"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../jobs/index.html" class="btn btn-neutral float-right" title="Jobs"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../glossary/index.html" class="btn btn-neutral" title="Glossary"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../arch/index.html" class="btn btn-neutral" title="Architecture and Microservices"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -282,10 +232,10 @@
           <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../glossary/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../arch/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../usermanagement/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../jobs/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
