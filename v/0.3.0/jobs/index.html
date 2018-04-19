@@ -174,17 +174,14 @@
               
                 <h1 id="jobs">Jobs</h1>
 <p>As described in the <a href="../glossary/index.html">glossary</a>, a <strong>job</strong> brings one process graph to the back-end and organizes its execution, which may or may not induce costs.</p>
-<p>The API distinguishes two types how process graphs can asynchronously be executed at back-ends as a job.</p>
-<p><strong><em>On-demand jobs</em></strong> ( created using <code>POST /jobs/on_demand</code>) run computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.</p>
-<p><strong><em>Batch jobs</em></strong> (created using <code>POST /jobs/batch</code>) in contrast are directly submitted to the back office's processing system. They will run only once, may include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. </p>
-<p>As an example we consider the simple calculation of vegetation indexes on all available Sentinel 2 imagery over Europe. Batch evaluation will take all relevant images, compute the NDVI, and finally store the result whereas on-demand execution will not start any computations on its own. As soon as a client performs a download request such as a <code>GetCoverage</code> WCS request, the job's process will be executed but only for requested pixels. However, back-ends are free to cache frequent intermediate results on their own.</p>
-<p>There is a third way to execute a process graph at back-ends:  <strong><em>synchronous execution</em></strong> (<code>POST /jobs/execute</code>). This is similar to <em>on-demand jobs</em>, but results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for <a href="https://www.pubnub.com/blog/2014-12-01-http-long-polling/">long-polling HTTP requests</a>.</p>
+<p><code>POST /jobs</code> by default creates jobs to run computations <strong><em>on demand</em></strong>, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-end <em>should</em> make sure to cache processed data to avoid additional/high costs and waiting times for the user.</p>
+<p>Results can be pre-computed by creating one or multiple <strong><em>batch jobs</em></strong> using  <code>POST /jobs/{job_id}/batches</code>.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.</p>
+<p>Process graphs can also be <strong><em>executed  synchronously</em></strong> (<code>POST /jobs/execute</code>). Results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for <a href="https://www.pubnub.com/blog/2014-12-01-http-long-polling/">long-polling HTTP requests</a>.</p>
 <h2 id="examples">Examples</h2>
-<h3 id="on-demand-executed-jobs">On-demand executed jobs</h3>
-<p>On-demand executed jobs are created by calling the endpoint <code>POST /jobs/{job_id}/on_demand</code>.</p>
-<p>Use case <a href="../poc/index.html#use-case-1">1</a> and <a href="../poc/index.html#use-case-2">2</a> are examples for <em>on-demand jobs</em>.</p>
+<p>Jobs are created by calling the endpoint <code>POST /jobs/{job_id}</code>.</p>
+<p>Use case <a href="../poc/index.html#use-case-1">1</a> and <a href="../poc/index.html#use-case-2">2</a> are examples for normal jobs without prior batch processing.</p>
 <h3 id="batch-jobs">Batch jobs</h3>
-<p>Batch jobs are created by calling the endpoint <code>POST /jobs/{job_id}/batch</code>.</p>
+<p>Batch jobs are created by calling the endpoint <code>POST /jobs/{job_id}/batches</code>.</p>
 <p>An explicit example for batch jobs is <a href="../poc/index.html#use-case-3">use case 3</a>.</p>
 <h3 id="synchronously-executed-jobs">Synchronously executed jobs</h3>
 <h4 id="retrieval-of-a-geotiff">Retrieval of a GeoTIFF</h4>

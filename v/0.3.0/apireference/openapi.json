@@ -1087,6 +1087,9 @@
                   "type": {
                     "$ref": "#/components/schemas/service_type"
                   },
+                  "enabled": {
+                    "$ref": "#/components/schemas/service_enabled"
+                  },
                   "args": {
                     "$ref": "#/components/schemas/service_args"
                   }
@@ -1172,6 +1175,9 @@
                   "title": {
                     "$ref": "#/components/schemas/title"
                   },
+                  "enabled": {
+                    "$ref": "#/components/schemas/service_enabled"
+                  },
                   "args": {
                     "$ref": "#/components/schemas/service_args"
                   }
@@ -1239,7 +1245,7 @@
     "/jobs": {
       "get": {
         "summary": "List all jobs that have been submitted by the user.",
-        "description": "Requests to this service will list all jobs submitted by a user with given id.",
+        "description": "Requests to this endpoint will list all jobs submitted by a user with given id.",
         "tags": [
           "Job Management",
           "User Content"
@@ -1307,7 +1313,8 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "process_graph"
+                  "process_graph",
+                  "constraints"
                 ],
                 "properties": {
                   "title": {
@@ -1316,6 +1323,9 @@
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
+                  "constraints": {
+                    "$ref": "#/components/schemas/constraints"
+                  },
                   "output": {
                     "$ref": "#/components/schemas/output_format_body"
                   }
@@ -1323,7 +1333,7 @@
               }
             }
           },
-          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be also specified later during download and is not necessary for web services at all."
+          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format and constraints. The output format might be overridden during batch job creation and by web services."
         }
       }
     },
@@ -1335,7 +1345,7 @@
       ],
       "patch": {
         "summary": "Modifies a job at the back-end.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. All running calculations are stopped if required and possible. Changes can be grouped in a single request. Job ID, Status, timestamps, user ID and consumed credits can't be modified.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. All running batch computations are still running on the old data and are not interfered. Changes can be grouped in a single request.",
         "tags": [
           "Job Management"
         ],
@@ -1369,6 +1379,9 @@
                   },
                   "output": {
                     "$ref": "#/components/schemas/output_format_body"
+                  },
+                  "constraints": {
+                    "$ref": "#/components/schemas/constraints"
                   }
                 }
               }
@@ -1379,7 +1392,7 @@
       },
       "get": {
         "summary": "Returns information about a submitted job.",
-        "description": "Returns detailed information about a submitted job including its current status and the underlying process graph",
+        "description": "Returns detailed information about a submitted job.",
         "tags": [
           "Job Management"
         ],
@@ -1410,7 +1423,7 @@
       },
       "delete": {
         "summary": "Deletes a job with the given id.",
-        "description": "Deletes all data related to this job. For batch jobs this request stops all related computations at the back-end and deletes the computed results. On-demand jobs will not respond to any further requests, e.g. download calls or service requests. This job won't generate additional costs for processing. Any service associated with this job is deleted from the back-end.",
+        "description": "Deletes all data related to this job. All batch jobs and computed results are deleted. Web services will not respond to any further requests and are deleted, too. This job won't generate additional costs for processing.",
         "tags": [
           "Job Management"
         ],
@@ -1439,8 +1452,8 @@
         }
       ],
       "post": {
-        "summary": "Gives an estimate regarding costs and time for a job.",
-        "description": "",
+        "summary": "Gives an estimate regarding costs and time for a batch job.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the credits or both. This *must* be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers *may* specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
         "tags": [
           "Job Management"
         ],
@@ -1449,9 +1462,19 @@
             "Bearer": []
           }
         ],
+        "requestBody": {
+          "description": "Specifies the batch processing details to be used for calculating the costs.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/batch_body"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "The estimated costs / time.",
+            "description": "The estimated costs. At least one of credits or time *must* be returned.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1464,6 +1487,11 @@
                       "type": "string",
                       "description": "Estimated duration for the operation. Duration must be specified according to ISO 8601.",
                       "example": "P1Y2M10DT2H30M"
+                    },
+                    "expires": {
+                      "type": "string",
+                      "description": "Time the estimate is valid for. Date and time have to be specified according to ISO 8601.",
+                      "example": "2020-11-01T00:00:00Z"
                     }
                   }
                 }
@@ -1569,104 +1597,15 @@
         }
       }
     },
-    "/jobs/{job_id}/on_demand": {
+    "/jobs/{job_id}/batches": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
         }
       ],
       "post": {
-        "summary": "Running a job in on-demand mode.",
-        "description": "This request converts a job into an on-demand job. Results are computed whenever needed during a download or web-service request.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The job now responds in on-demand mode."
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Stops on-demand processing.",
-        "description": "Ondemand requests are disallowed after this requests and calls to on-demand endpoints and web services won't compute results. Therefore no additional costs can be charged.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Batch processing has been stopped and result have been deleted."
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "get": {
-        "summary": "Request download links for on-demand computed results of jobs.",
-        "description": "This request will provide links to download results of on-demand jobs. Depending on the Content-Type header, the response is either a simple JSON array with URLs as strings or a metalink XML document. Requests might time-out after a certain amount of time.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
-            "content": {
-              "application/json": {
-                "examples": {
-                  "response": {
-                    "value": [
-                      "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
-                      "https://openeo.org/api/v0/download/583fba8b2ce/2.tif"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/jobs/{job_id}/batch": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        }
-      ],
-      "post": {
-        "summary": "Running a job in batch mode.",
-        "description": "This request converts a job into a batch job and queues it for execution. A paused job can be resumed with this request.",
+        "summary": "Computing batch results for a job.",
+        "description": "This request creates a batch job and queues it for execution.",
         "tags": [
           "Job Management"
         ],
@@ -1676,16 +1615,11 @@
           }
         ],
         "requestBody": {
-          "description": "Specifies the batch processing details, i.e. the output format.",
+          "description": "Specifies the batch processing details. Defaults to the job output format or constraints if not specified.",
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "output": {
-                    "$ref": "#/components/schemas/output_format_body"
-                  }
-                }
+                "$ref": "#/components/schemas/batch_body"
               }
             }
           }
@@ -1701,9 +1635,49 @@
             "$ref": "#/components/responses/server_error"
           }
         }
+      }
+    },
+    "/jobs/{job_id}/batches/{batch_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        },
+        {
+          "$ref": "#/components/parameters/batch_id"
+        }
+      ],
+      "get": {
+        "summary": "Returns information about a batch job.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Batch information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/batch"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
       },
       "delete": {
-        "summary": "Stops batch processing and deletes the results.",
+        "summary": "Deletes a batch job.",
         "description": "This request stops all related computations at the back-end and deletes the computed results. The batch computation won't generate additional costs.",
         "tags": [
           "Job Management"
@@ -1724,10 +1698,20 @@
             "$ref": "#/components/responses/server_error"
           }
         }
-      },
+      }
+    },
+    "/jobs/{job_id}/batches/{batch_id}/download": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        },
+        {
+          "$ref": "#/components/parameters/batch_id"
+        }
+      ],
       "get": {
         "summary": "Request download links for results of batch jobs.",
-        "description": "This request will provide links to download results of batch jobs. Depending on the Content-Type header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
+        "description": "This request will provide links to downloadable files of batch jobs after processing has been finished. Depending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
         "tags": [
           "Job Management"
         ],
@@ -1748,6 +1732,14 @@
                       "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
                       "https://openeo.org/api/v0/download/583fba8b2ce/2.tif"
                     ]
+                  }
+                }
+              },
+              "application/metalink+xml": {
+                "examples": {
+                  "response": {
+                    "summary": "External metalink file as an example (no openEO related content)",
+                    "externalValue": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.metalink"
                   }
                 }
               }
@@ -2444,8 +2436,7 @@
         "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
         "type": "object",
         "required": [
-          "process_graph_id",
-          "title"
+          "process_graph_id"
         ],
         "properties": {
           "process_graph_id": {
@@ -2461,7 +2452,6 @@
         "type": "object",
         "required": [
           "process_graph_id",
-          "title",
           "process_graph"
         ],
         "properties": {
@@ -2500,21 +2490,26 @@
           ]
         }
       },
+      "batch_id": {
+        "type": "string",
+        "description": "Unique identifier of a batch job that is generated by the back-end during batch creation.",
+        "example": "12ab6f"
+      },
       "job_id": {
         "type": "string",
         "description": "Unique identifier of a job that is generated by the back-end during job submission.",
         "example": "748df7caa8c84a7ff6e"
       },
-      "job_submitted": {
+      "submitted": {
         "type": "string",
         "format": "dateTime",
-        "description": "Date and time of job submission in ISO 8601 format",
+        "description": "Date and time of creation in ISO 8601 format",
         "example": "2017-01-01T09:32:12Z"
       },
-      "job_updated": {
+      "batch_updated": {
         "type": "string",
         "format": "dateTime",
-        "description": "Date and time of last status change in ISO 8601 format",
+        "description": "Date and time of last status change in ISO 8601 format.",
         "example": "2017-01-01T09:36:18Z"
       },
       "job_user_id": {
@@ -2522,38 +2517,26 @@
         "description": "Identifier of the user, who submitted the job and pays incurred costs if needed.",
         "example": "bd6f9faf93b4"
       },
-      "job_mode": {
-        "type": "string",
-        "enum": [
-          "none",
-          "on_demand",
-          "batch"
-        ],
-        "default": "none",
-        "description": "The execution mode of the job.",
-        "example": "on_demand"
-      },
-      "job_status": {
+      "batch_status": {
         "type": "string",
         "enum": [
           "submitted",
-          "queued",
           "running",
           "finished",
           "error"
         ],
-        "description": "The current status of the job. Allowed values for each job mode:\n  * none: submitted (default), error\n  * on_demand: running (default), error\n  * batch: queued, running, finished, error",
-        "example": "submitted"
+        "description": "The current status of the job.",
+        "example": "running",
+        "default": "submitted"
       },
       "job_full": {
         "description": "Defines full metadata of processing jobs that have been submitted by users.",
         "type": "object",
         "required": [
           "job_id",
-          "title",
-          "mode",
-          "status",
-          "process_graph"
+          "process_graph",
+          "submitted",
+          "batches"
         ],
         "properties": {
           "job_id": {
@@ -2561,12 +2544,6 @@
           },
           "title": {
             "$ref": "#/components/schemas/title"
-          },
-          "mode": {
-            "$ref": "#/components/schemas/job_mode"
-          },
-          "status": {
-            "$ref": "#/components/schemas/job_status"
           },
           "process_graph": {
             "$ref": "#/components/schemas/process_graph"
@@ -2574,29 +2551,31 @@
           "output": {
             "$ref": "#/components/schemas/output_format_body"
           },
-          "submitted": {
-            "$ref": "#/components/schemas/job_submitted"
-          },
-          "updated": {
-            "$ref": "#/components/schemas/job_updated"
+          "constraints": {
+            "$ref": "#/components/schemas/constraints"
           },
           "user_id": {
             "$ref": "#/components/schemas/job_user_id"
           },
+          "submitted": {
+            "$ref": "#/components/schemas/submitted"
+          },
           "consumed_credits": {
             "$ref": "#/components/schemas/money"
+          },
+          "batches": {
+            "$ref": "#/components/schemas/batches"
           }
         },
         "additionalProperties": true
       },
       "job_meta": {
-        "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including view and process graph, call `GET /jobs/{job_id}`",
+        "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including constraints and process graph, call `GET /jobs/{job_id}`",
         "type": "object",
         "required": [
           "job_id",
-          "title",
-          "mode",
-          "status"
+          "submitted",
+          "batches"
         ],
         "properties": {
           "job_id": {
@@ -2605,25 +2584,87 @@
           "title": {
             "$ref": "#/components/schemas/title"
           },
-          "mode": {
-            "$ref": "#/components/schemas/job_mode"
-          },
-          "status": {
-            "$ref": "#/components/schemas/job_status"
-          },
-          "submitted": {
-            "$ref": "#/components/schemas/job_submitted"
-          },
-          "updated": {
-            "$ref": "#/components/schemas/job_updated"
-          },
           "user_id": {
             "$ref": "#/components/schemas/job_user_id"
+          },
+          "submitted": {
+            "$ref": "#/components/schemas/submitted"
+          },
+          "consumed_credits": {
+            "$ref": "#/components/schemas/money"
+          },
+          "batches": {
+            "$ref": "#/components/schemas/batches_ids"
+          }
+        }
+      },
+      "batches": {
+        "description": "Array of batches",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/batch"
+        }
+      },
+      "batches_ids": {
+        "description": "Array of batch IDs",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/batch_id"
+        }
+      },
+      "batch": {
+        "description": "Defines metadata for a batch job.",
+        "type": "object",
+        "required": [
+          "batch_id",
+          "job_id",
+          "status",
+          "submitted",
+          "updated"
+        ],
+        "properties": {
+          "batch_id": {
+            "$ref": "#/components/schemas/batch_id"
+          },
+          "job_id": {
+            "$ref": "#/components/schemas/job_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/title"
+          },
+          "status": {
+            "$ref": "#/components/schemas/batch_status"
+          },
+          "submitted": {
+            "$ref": "#/components/schemas/submitted"
+          },
+          "updated": {
+            "$ref": "#/components/schemas/batch_updated"
+          },
+          "output": {
+            "$ref": "#/components/schemas/output_format_body"
           },
           "consumed_credits": {
             "$ref": "#/components/schemas/money"
           }
+        },
+        "additionalProperties": true
+      },
+      "batch_body": {
+        "description": "TBD",
+        "type": "object",
+        "properties": {
+          "output": {
+            "$ref": "#/components/schemas/output_format_body"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/constraints"
+          }
         }
+      },
+      "constraints": {
+        "description": "TBD",
+        "type": "object"
       },
       "title": {
         "description": "A short description to easily distinguish datasets.",
@@ -2643,13 +2684,19 @@
           "version": 1.1
         }
       },
+      "service_enabled": {
+        "type": "boolean",
+        "description": "Describes whether a service is responding to requests (true) or not (false). Defaults to true. Disabled services don't produce any costs.",
+        "default": true
+      },
       "service": {
         "description": "Defines metadata of running services to access result data.",
         "type": "object",
         "required": [
           "service_id",
-          "service_type",
-          "service_url",
+          "enabled",
+          "type",
+          "url",
           "job_id"
         ],
         "properties": {
@@ -2668,6 +2715,9 @@
           },
           "type": {
             "$ref": "#/components/schemas/service_type"
+          },
+          "enabled": {
+            "$ref": "#/components/schemas/service_enabled"
           },
           "args": {
             "$ref": "#/components/schemas/service_args"
@@ -2846,6 +2896,15 @@
         "name": "job_id",
         "in": "path",
         "description": "Job identifier string",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "batch_id": {
+        "name": "batch_id",
+        "in": "path",
+        "description": "Batch identifier string",
         "required": true,
         "schema": {
           "type": "string"
