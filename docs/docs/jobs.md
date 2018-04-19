@@ -2,27 +2,21 @@
 
 As described in the [glossary](glossary.md), a **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs.
 
-The API distinguishes two types how process graphs can asynchronously be executed at back-ends as a job.
+`POST /jobs` by default creates jobs to run computations ***on demand***, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-end *should* make sure to cache processed data to avoid additional/high costs and waiting times for the user.
 
-***On-demand jobs*** ( created using `POST /jobs/on_demand`) run computations on demand, i.e., with incoming requests for downloading the results. Jobs can be executed multiple times with different views (including spatial / temporal resolution and window) as provided by download requests, which could come e.g. from WCS or WMTS.
+Results can be pre-computed by creating one or multiple ***batch jobs*** using  `POST /jobs/{job_id}/batches`.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.
 
-***Batch jobs*** (created using `POST /jobs/batch`) in contrast are directly submitted to the back office's processing system. They will run only once, may include a provided view, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible. 
-
-As an example we consider the simple calculation of vegetation indexes on all available Sentinel 2 imagery over Europe. Batch evaluation will take all relevant images, compute the NDVI, and finally store the result whereas on-demand execution will not start any computations on its own. As soon as a client performs a download request such as a `GetCoverage` WCS request, the job's process will be executed but only for requested pixels. However, back-ends are free to cache frequent intermediate results on their own.
-
-There is a third way to execute a process graph at back-ends:  ***synchronous execution*** (`POST /jobs/execute`). This is similar to *on-demand jobs*, but results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+Process graphs can also be ***executed  synchronously*** (`POST /jobs/execute`). Results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
 ## Examples
 
-### On-demand executed jobs
+Jobs are created by calling the endpoint `POST /jobs/{job_id}`.
 
-On-demand executed jobs are created by calling the endpoint `POST /jobs/{job_id}/on_demand`.
-
-Use case [1](poc.md#use-case-1) and [2](poc.md#use-case-2) are examples for _on-demand jobs_.
+Use case [1](poc.md#use-case-1) and [2](poc.md#use-case-2) are examples for normal jobs without prior batch processing.
 
 ### Batch jobs
 
-Batch jobs are created by calling the endpoint `POST /jobs/{job_id}/batch`.
+Batch jobs are created by calling the endpoint `POST /jobs/{job_id}/batches`.
 
 An explicit example for batch jobs is [use case 3](poc.md#use-case-3).
 
