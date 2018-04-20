@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\n\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -76,7 +76,7 @@
     "/": {
       "get": {
         "summary": "Returns the capabilities, i.e., which openEO API version and endpoints / feature are supported  by the back-end.",
-        "description": "The request will ask the back-end which version and features of the openEO API are supported and return a JSON description with available endpoints.\nVariables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name.",
+        "description": "The request will ask the back-end which version and features of the openEO API are supported and return a JSON description with available endpoints.",
         "tags": [
           "Capabilities"
         ],
@@ -100,12 +100,60 @@
                     "endpoints": {
                       "type": "array",
                       "items": {
-                        "type": "string"
+                        "type": "object",
+                        "required": [
+                          "path",
+                          "methods"
+                        ],
+                        "properties": {
+                          "path": {
+                            "description": "Path to the endpoint, starting from the base url of the API. *Must* contain a leading slash, *must not* contain a trailing slash. Variables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name. It is *recommended* that the path variable names fully follow the API specification.",
+                            "type": "string"
+                          },
+                          "methods": {
+                            "description": "Supported HTTP verbs in uppercase. It is not required to list OPTIONS as method (see the documentation regarding CORS).",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "GET",
+                                "POST",
+                                "PATCH",
+                                "PUT",
+                                "DELETE"
+                              ]
+                            }
+                          }
+                        }
                       },
                       "example": [
-                        "/data",
-                        "/data/{data_id}",
-                        "/processes"
+                        {
+                          "path": "/data",
+                          "methods": [
+                            "GET"
+                          ]
+                        },
+                        {
+                          "path": "/data/{data_id}",
+                          "methods": [
+                            "GET"
+                          ]
+                        },
+                        {
+                          "path": "/jobs",
+                          "methods": [
+                            "GET",
+                            "POST"
+                          ]
+                        },
+                        {
+                          "path": "/jobs/{job_id}",
+                          "methods": [
+                            "GET",
+                            "DELETE",
+                            "PATCH"
+                          ]
+                        }
                       ]
                     },
                     "billing": {
