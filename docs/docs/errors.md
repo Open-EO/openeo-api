@@ -126,7 +126,7 @@ None yet.
 | openEO Error Code | Description                                                  | Message                                  | HTTP Status Code |
 | ----------------- | ------------------------------------------------------------ | ---------------------------------------- | ---------------- |
 | 401               | The back-end responds with this error code whenever the HTTP status code 401 is appropriate (see above) and no other openEO error code in the 4000 range is suitable. | Unauthorized.                            | 401              |
-| 402               | The credits required to fulfil the request are insufficient. | Payment required.                        | 402              |
+| 402               | The budget required to fulfil the request are insufficient.  | Payment required.                        | 402              |
 | 403               | The back-end responds with this error code whenever the HTTP status code 403 is appropriate (see above) and no other openEO error code in the 4000 range is suitable. | Forbidden.                               | 403              |
 | 4001              | The specified password is not considered secure by the policy of the back-end provider or no password was given at all. The user needs to specify a different password to proceed. | Password does not meet the requirements. | 400              |
 | 4031              | Invalid authentication scheme (e.g. Bearer).                 |                                          | 403              |
