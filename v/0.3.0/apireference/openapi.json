@@ -215,7 +215,7 @@
     "/output_formats": {
       "get": {
         "summary": "Returns output formats supported by the back-end.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with GDAL, see http://www.gdal.org/formats_list.html. Some file formats not available through GDAL might be defined centrally for openEO in the documentation. Custom output formats or options can be defined wherever needed. Not all output format options supported by GDAL need to be supported.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and time series, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Whenever available, the output format names and options should be fully aligned with the GDAL codes, see http://www.gdal.org/formats_list.html. Some file formats not available through GDAL might be defined centrally for openEO in the documentation. Custom output formats or options can be defined wherever needed. Not all output format options supported by GDAL need to be supported.",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -1849,7 +1849,7 @@
       ],
       "get": {
         "summary": "Request download links for results of batch jobs.",
-        "description": "This request will provide links to downloadable files of batch jobs after processing has been finished. Depending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job. URL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end *should* indicate the expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
         "tags": [
           "Job Management"
         ],
@@ -1862,6 +1862,15 @@
         "responses": {
           "200": {
             "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
+            "headers": {
+              "Expires": {
+                "description": "Indicates the expiration time of the signed URLs contained in this document. Needs to follow the specification at https://tools.ietf.org/html/rfc2616#section-14.21",
+                "schema": {
+                  "type": "string",
+                  "example": "Wed, 21 Oct 2018 07:28:00 GMT"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "examples": {
