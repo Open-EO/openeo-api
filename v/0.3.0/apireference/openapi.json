@@ -891,6 +891,9 @@
                   "title": {
                     "$ref": "#/components/schemas/title"
                   },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   }
@@ -898,7 +901,7 @@
               }
             }
           },
-          "description": "Specifies the process graph with a title."
+          "description": "Specifies the process graph with its meta data."
         }
       }
     },
@@ -982,7 +985,7 @@
         }
       },
       "patch": {
-        "summary": "Replaces a process graph or modifies the title.",
+        "summary": "Replaces a process graph or modifies the metadata.",
         "description": "Replaces a process graph or modifies the title, but maintains the identifier.",
         "tags": [
           "Process Graph Management"
@@ -1011,6 +1014,9 @@
                 "properties": {
                   "title": {
                     "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -1179,7 +1185,8 @@
                 "type": "object",
                 "required": [
                   "job_id",
-                  "type"
+                  "type",
+                  "enabled"
                 ],
                 "properties": {
                   "job_id": {
@@ -1187,6 +1194,9 @@
                   },
                   "title": {
                     "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
                   },
                   "type": {
                     "$ref": "#/components/schemas/service_type"
@@ -1250,7 +1260,7 @@
       ],
       "patch": {
         "summary": "Modifies a web service.",
-        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. Only service args and the title can be modified. To change the service type create a new service.",
+        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. Only service args, description and the title can be modified. To change the service type create a new service.",
         "tags": [
           "Web Service Management"
         ],
@@ -1278,6 +1288,9 @@
                 "properties": {
                   "title": {
                     "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
                   },
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
@@ -1424,6 +1437,9 @@
                   "title": {
                     "$ref": "#/components/schemas/title"
                   },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
@@ -1483,6 +1499,9 @@
                 "properties": {
                   "title": {
                     "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -2540,8 +2559,7 @@
             "description": "The unique identifier of the process."
           },
           "description": {
-            "type": "string",
-            "description": "An optional description for the process or the chained processes."
+            "$ref": "#/components/schemas/description"
           },
           "args": {
             "$ref": "#/components/schemas/arg_set"
@@ -2591,6 +2609,9 @@
           },
           "title": {
             "$ref": "#/components/schemas/title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
           }
         }
       },
@@ -2607,6 +2628,9 @@
           },
           "title": {
             "$ref": "#/components/schemas/title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
           },
           "process_graph": {
             "$ref": "#/components/schemas/process_graph"
@@ -2692,6 +2716,9 @@
           "title": {
             "$ref": "#/components/schemas/title"
           },
+          "description": {
+            "$ref": "#/components/schemas/description"
+          },
           "process_graph": {
             "$ref": "#/components/schemas/process_graph"
           },
@@ -2733,6 +2760,9 @@
           },
           "title": {
             "$ref": "#/components/schemas/title"
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
           },
           "user_id": {
             "$ref": "#/components/schemas/job_user_id"
@@ -2785,6 +2815,9 @@
           "title": {
             "$ref": "#/components/schemas/title"
           },
+          "description": {
+            "$ref": "#/components/schemas/description"
+          },
           "status": {
             "$ref": "#/components/schemas/batch_status"
           },
@@ -2811,9 +2844,14 @@
         "type": "object"
       },
       "title": {
-        "description": "A short description to easily distinguish datasets.",
+        "description": "A short description to easily distinguish entities.",
         "type": "string",
-        "example": "NDVI from Sentinel 2 data"
+        "example": "NDVI based on Sentinel 2"
+      },
+      "description": {
+        "description": "Detailed description to fully explain the entity.",
+        "type": "string",
+        "example": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery."
       },
       "service_type": {
         "description": "Definintion of possible web services to access result data. All available web service types can be retrieved via `GET /service_types`",
