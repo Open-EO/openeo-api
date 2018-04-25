@@ -2840,8 +2840,62 @@
         "additionalProperties": true
       },
       "constraints": {
-        "description": "TBD",
-        "type": "object"
+        "type": "object",
+        "description": "_WORK IN PROGRESS!_\nContraints define how data is reduced (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subsets of data.",
+        "properties": {
+          "spatial": {
+            "description": "Defines spatial resolution, extent and resampling method.",
+            "type": "object",
+            "properties": {
+              "extent": {
+                "$ref": "#/components/schemas/spatial_extent"
+              },
+              "resolution": {
+                "type": "number"
+              },
+              "resampling": {
+                "type": "string",
+                "description": "Resampling method to use, e.g. nearest, bilinear, cubic, cubicspline, lanczos, average, mod, ... (see GDAL for examples, tbd)"
+              }
+            },
+            "example": {
+              "extent": {
+                "srs": "EPSG:4326",
+                "left": -10.21,
+                "top": 53.23,
+                "right": 12.542,
+                "bottom": 12.32
+              },
+              "resolution": 0.25,
+              "resampling": "nearest"
+            }
+          },
+          "temporal": {
+            "description": "Defines temporal resolution and extent.",
+            "type": "object",
+            "properties": {
+              "extent": {
+                "$ref": "#/components/schemas/temporal_extent"
+              },
+              "resolution": {
+                "type": "string",
+                "description": "Temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `P1M30DT24H` only a single integer number with date/time component such as `P1M`, `P30D`, `PT24H` should be specified."
+              },
+              "resampling": {
+                "type": "string",
+                "description": "Resampling method to use, e.g. backwrd or forward fill, count of values, first or last valid data value, minimum or maximum data value, mean or median values, number of unique values, standard deviation, sum or variance of values, ... (tbd)"
+              }
+            },
+            "example": {
+              "extent": {
+                "start": "2017-01-01",
+                "end": "2018-01-01"
+              },
+              "resolution": "P1M",
+              "resampling": "mean"
+            }
+          }
+        }
       },
       "title": {
         "description": "A short description to easily distinguish entities.",
