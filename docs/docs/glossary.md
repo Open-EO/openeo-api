@@ -59,7 +59,11 @@ A **process graph** includes specific process calls, i.e. references to one or m
 
 A **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs. Jobs furthermore allow to run process graphs with different constraints (see section on [constraints](views.md)). Constraints define at which resolution and extent we look at the data during processing and hence allow to try out process graphs on small subsets, or work interactively within web map applications. For more information about jobs and their evaluation types, see the section on [jobs](jobs.md).
 
-### Aggregation vs. resampling
+### User-defined functions (UDFs)
+
+The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data. See the section on [UDFs](udfs.md) for more information.
+
+## Aggregation vs. resampling
 
 ***Aggregation*** computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells; think of SQL's `group_by`), and an aggregation function (e.g., `mean`) that computes one or more new values from the original ones.
 
@@ -74,7 +78,3 @@ Note that for the first example, the aggregation function not only requires time
 ***Resampling*** is a broader term where we have data at one resolution, and need values at another (also called _scaling_). In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be be simply assigned to the nearest high resolution grid cells ("nearest neighbor"), or may be interpolated somehow (e.g. by bilinear interpolation). Resampling from finer to coarser grid by nearest neighbor may again be a special case of aggregation.
 
 When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are fairly similar, say the source collection has values for consecutive 10 day intervals and the target needs values for consecutive 16 day intervals, then some form of interpolation may be more appropriate than aggregation as defined here.
-
-## User-defined functions (UDFs)
-
-The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data.
