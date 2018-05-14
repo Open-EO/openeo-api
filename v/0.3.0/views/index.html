@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data Views - openEO - Concepts & API</title>
+  <title>Constraints - openEO - Concepts & API</title>
   
 
   <link rel="shortcut icon" href="../favicon.ico">
@@ -21,7 +21,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Data Views";
+    var mkdocs_page_name = "Constraints";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -101,11 +101,11 @@
           
             <li>
     <li class="toctree-l1 current">
-        <a class="current" href="index.html">Data Views</a>
+        <a class="current" href="index.html">Constraints</a>
         
             <ul>
             
-                <li class="toctree-l3"><a href="#contraints-data-views">Contraints (Data Views)</a></li>
+                <li class="toctree-l3"><a href="#contraints">Contraints</a></li>
                 
                     <li><a class="toctree-l4" href="#example">Example</a></li>
                 
@@ -165,7 +165,7 @@
     
       
     
-    <li>Data Views</li>
+    <li>Constraints</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -179,31 +179,31 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="contraints-data-views">Contraints (Data Views)</h1>
-<p><em>Work in progress!</em></p>
-<p>The openEO API supports to look at datasets from different <code>views</code>. Views describe at which resolution and for which spatial and temporal extent the original Earth observation data are processed and hence can be used to run processes interactively on small parts of the original data without need to wait for long-running processes. The idea is similar to what Google Earth Engine does by reducing computations only to pixels that are actually displayed.</p>
-<p><em>Note: This feature is a very early draft and currently not described in the API specification. It may be added after delivering the proof-of-concept.</em></p>
+                <h1 id="contraints">Contraints</h1>
+<p>The openEO API supports to restrict datasets by different dimensions and provides basic information to align datasets with different characteristics. This feature is called 'constraints', formerly known as 'data views'. They describe at which resolution and for which spatial and temporal extent the original Earth observation data are processed and hence can be used to run processes interactively on small parts of the original data without need to wait for long-running processes. </p>
+<p>Heterogeneous datasets are unified by the back-ends based on the specified constraints. For instance, the difference between a PROBA-V image and a Sentinel image, which have e a different projection and resolution, are automatically resampled and projected by the back-ends as soon as it is required to do so. Except specifying reasonable constraints, clients are not responsible to ensure that the data matches by first applying resampling or projections processes.</p>
 <h2 id="example">Example</h2>
 <p>The following JSON object describes a coarse resolution (0.25° x 0.25°) view of monthly aggregated data. </p>
-<pre><code class="json">&quot;view&quot;: {
-  &quot;space&quot;: {
-    &quot;srs&quot;: &quot;EPSG:4326&quot;,
-    &quot;window&quot;: {
-      &quot;left&quot;: -10.21,
-      &quot;top&quot;: 53.23,
-      &quot;right&quot;: 12.542,
-      &quot;bottom&quot;: 12.32
+<pre><code class="json">{
+  &quot;spatial&quot;:{
+    &quot;extent&quot;:{
+      &quot;crs&quot;:&quot;EPSG:4326&quot;,
+      &quot;left&quot;:-10.21,
+      &quot;top&quot;:53.23,
+      &quot;right&quot;:12.542,
+      &quot;bottom&quot;:12.32
     },
-    &quot;cell_size&quot;: 0.25,
-    &quot;resampling&quot;: &quot;nearest&quot;
+    &quot;resolution&quot;:0.25,
+    &quot;resampling&quot;:&quot;nearest&quot;,
+    &quot;crs&quot;:&quot;EPSG:4326&quot;
   },
-  &quot;time&quot;: {
-    &quot;window&quot;: {
-      &quot;start&quot;: &quot;2017-01-01&quot;,
-      &quot;end&quot;: &quot;2018-01-01&quot;
+  &quot;temporal&quot;:{
+    &quot;extent&quot;:{
+      &quot;start&quot;:&quot;2017-01-01&quot;,
+      &quot;end&quot;:&quot;2018-01-01&quot;
     },
-    &quot;time_step&quot;: &quot;P1M&quot;,
-    &quot;resampling&quot;: &quot;nearest&quot;
+    &quot;resolution&quot;:&quot;P1M&quot;,
+    &quot;resampling&quot;:&quot;mean&quot;
   }
 }
 </code></pre>

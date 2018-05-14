@@ -454,7 +454,7 @@
                       "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
                       "source": "European Space Agency (ESA)",
                       "extent": {
-                        "srs": "EPSG:4326",
+                        "crs": "EPSG:4326",
                         "left": -34,
                         "right": 35,
                         "bottom": 39,
@@ -1430,8 +1430,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "process_graph",
-                  "constraints"
+                  "process_graph"
                 ],
                 "properties": {
                   "title": {
@@ -2841,7 +2840,7 @@
       },
       "constraints": {
         "type": "object",
-        "description": "_WORK IN PROGRESS!_\nContraints define how data is reduced (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subsets of data.",
+        "description": "Contraints define how data is reduced (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subsets of data.",
         "properties": {
           "spatial": {
             "description": "Defines spatial resolution, extent and resampling method.",
@@ -2851,23 +2850,28 @@
                 "$ref": "#/components/schemas/spatial_extent"
               },
               "resolution": {
-                "type": "number"
+                "type": "number",
+                "description": "Resolution in degree."
               },
               "resampling": {
                 "type": "string",
-                "description": "Resampling method to use, e.g. nearest, bilinear, cubic, cubicspline, lanczos, average, mod, ... (see GDAL for examples, tbd)"
+                "description": "Resampling method to use, e.g. nearest, bilinear, cubic, cubicspline, lanczos, average, mod, ... (tbd, see GDAL for examples). The back-end decides on a default resampling method."
+              },
+              "crs": {
+                "$ref": "#/components/schemas/refsys"
               }
             },
             "example": {
               "extent": {
-                "srs": "EPSG:4326",
+                "crs": "EPSG:4326",
                 "left": -10.21,
                 "top": 53.23,
                 "right": 12.542,
                 "bottom": 12.32
               },
               "resolution": 0.25,
-              "resampling": "nearest"
+              "resampling": "nearest",
+              "crs": "EPSG:4326"
             }
           },
           "temporal": {
@@ -2883,7 +2887,7 @@
               },
               "resampling": {
                 "type": "string",
-                "description": "Resampling method to use, e.g. backwrd or forward fill, count of values, first or last valid data value, minimum or maximum data value, mean or median values, number of unique values, standard deviation, sum or variance of values, ... (tbd)"
+                "description": "Resampling method to use, e.g. backward or forward fill, count of values, first or last valid data value, minimum or maximum data value, mean or median values, number of unique values, standard deviation, sum or variance of values, ... (tbd) The back-end decides on a default resampling method."
               }
             },
             "example": {
@@ -3021,15 +3025,22 @@
         }
       },
       "refsys": {
-        "description": "spatial reference system readable by GDAL (e.g. as 'WKT', 'proj4', or 'EPSG:xy')",
+        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\n\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
         "type": "string",
-        "example": "EPSG:4326"
+        "default": "EPSG:4326",
+        "example": "EPSG:3857"
       },
       "spatial_extent": {
         "description": "Spatial extent covered by the data",
         "type": "object",
+        "required": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
         "properties": {
-          "srs": {
+          "crs": {
             "$ref": "#/components/schemas/refsys"
           },
           "left": {

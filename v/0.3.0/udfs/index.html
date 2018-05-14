@@ -100,8 +100,6 @@
             
                 <li class="toctree-l3"><a href="#user-defined-functions">User-defined functions</a></li>
                 
-                    <li><a class="toctree-l4" href="#udf-types">UDF types</a></li>
-                
             
             </ul>
         
@@ -110,7 +108,7 @@
           
             <li>
     <li class="toctree-l1 ">
-        <a class="" href="../views/index.html">Data Views</a>
+        <a class="" href="../views/index.html">Constraints</a>
         
     </li>
 <li>
@@ -180,50 +178,9 @@
             <div class="section">
               
                 <h1 id="user-defined-functions">User-defined functions</h1>
-<p>User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured. The openEO API defines the following UDF types:</p>
-<ul>
-<li><a href="#apply_pixel">apply_pixel</a></li>
-<li><a href="#apply_scene">apply_scene</a></li>
-<li><a href="#reduce_time">reduce_time</a></li>
-<li><a href="#reduce_space">reduce_space</a></li>
-<li><a href="#window_time">window_time</a></li>
-<li><a href="#window_space">window_space</a></li>
-<li><a href="#window_spacetime">window_spacetime</a></li>
-<li><a href="#aggregate_time">aggregate_time</a></li>
-<li><a href="#aggregate_space">aggregate_space</a></li>
-<li><a href="#aggregate_spacetime">aggregate_spacetime</a></li>
-<li><a href="#chunkreduce_time">chunkreduce_time</a></li>
-<li><a href="#chunkreduce_space">chunkreduce_space</a></li>
-<li><a href="#chunkreduce_spacetime">chunkreduce_spacetime</a></li>
-</ul>
-<p>This document describes some details of the abovementioned UDF types. Back-ends allowing the execution of UDFs will report which types they support. For example, applying UDFs on individual scenes is not possible on higher level data cube back-ends. In the descriptions below, the question in which format data is streamed to and from the functions is not yet covered. Furthermore, the described categories only include unary operations that take one image (collection) as input.</p>
-<p>You can use UDFs in a process graph as shown in the <a href="../poc/index.html#use-case-2">examples for proof-of-concept use case 2</a>. Generally UDFs in the process graphs are prefixed with <code>/udf</code> and contain also the runtime and the process name separated by <code>/</code>, e.g. <code>/udf/Python/apply_pixel</code>. Runtimes can be discovered at <code>GET /udf_runtimes</code>. Process description of UDF schemas and can be retrieved at <code>GET /udf_runtimes/{lang}/{udf_type}</code>. </p>
-<h3 id="udf-types">UDF types</h3>
-<h4 id="apply_pixel">apply_pixel</h4>
-<p>This type applies a simple function to one pixel of the input image or image collection. The function gets the value of one pixel (including all bands) as input and produces a single scalar or tuple output. The result has the same schema as the input image (collection) but different bands. Examples include the computation of vegetation indexes or filtering cloudy pixels. </p>
-<h4 id="apply_scene">apply_scene</h4>
-<p>This low-level UDF type applies a function on individual scenes.  The function gets a single scene as input and produces a modified "scene" with the same spatial footprint. This UDF type will only be supported by openEO back-ends with a file-based data organization. Higher level data-cube oriented back-offices in general do not keep track of the scenes and hence will not be able to parallelize operations on scene level. The type is mostly useful for working with lower-level data products, e.g., to perform atmospheric correction or any other operation that needs scene metadata. </p>
-<h4 id="reduce_time">reduce_time</h4>
-<p>This type applies a function to a single time series and produces a zero-dimensional output (scalar or tuple). Notice that the <code>view</code> parameter for openEO processes affects the resolution and window of the time series provided as input to UDFs of this type. </p>
-<h4 id="reduce_space">reduce_space</h4>
-<p>This type applies a function to a temporal snapshot of the data and produces a single value or multiband tuple per snapshot. The result is a time series. </p>
-<h4 id="window_time">window_time</h4>
-<p>The provided UDF is called for each pixel and will receive values from pixels within a temporal neighborhood of specified size around that pixel. Neighboring values can be used to derive a new value of the center pixel, which can be a single scalar value or a (multiband) tuple. Windows at boundary regions should be filled with NA values. </p>
-<h4 id="window_space">window_space</h4>
-<p>The provided UDF is called for each pixel and will receive values from pixels within a spatial neighborhood of specified size around that pixel. Neighboring values can be used to derive a new value of the center pixel, which can be a single scalar value or a (multiband) tuple. Windows at boundary regions should be filled with NA values. </p>
-<h4 id="window_spacetime">window_spacetime</h4>
-<p>Similar to <code>window_time</code> and <code>window_space</code>, this type derives a new value for the central pixel of a spatiotemporal window of specified size. The provided function receives a (multispectral) spacetime array as input and produces a single value (either scalar or multispectral) as output. The result has the same number of pixels as the input dataset. Windows at boundary regions should be filled with NA values. </p>
-<h4 id="aggregate_time">aggregate_time</h4>
-<p>Similar to <code>reduce_time</code> this type applies the given UDF independently on pixel time series of the input data but produces a new time series with different temporal resolution. <code>reduce_time</code> can be seen as a special case of <code>aggregate_time</code> where the temporal dimension is dropped.
-Examples of this UDF type include the generation of monthly aggregates from 16 day data.  The result has the same spatial resolution.</p>
-<h4 id="aggregate_space">aggregate_space</h4>
-<p>Similar to <code>aggregate_time</code>, this type applies the provided function on temporal snapshots of the data and generates an image with different spatial resolution. The result will have the same temporal resolution.</p>
-<h4 id="chunkreduce_time">chunkreduce_time</h4>
-<p>Partitions the input data into equally sized temporal chunks and aggregates them to a single value or tuple. The function must return a single scalar or tuple (multiband) output. The result has the same spatial but a coarser temporal resolution.</p>
-<h4 id="chunkreduce_space">chunkreduce_space</h4>
-<p>Similar to <code>chunkreduce_time</code>, this type applies the provided function on spatial chunks of the data and generates an aggregated value or tuple. to aggregate. The result will have the same temporal but a coarser spatial resolution. Examples of this type include the generation of image pyramids.</p>
-<h4 id="chunkreduce_spacetime">chunkreduce_spacetime</h4>
-<p>Similar to <code>chunkreduce_space</code> and <code>chunkreduce_time</code>, UDFs of this type receive spatiotemporal chunks such that the output has lower spatial and lower temporal resolution.</p>
+<p><em>Work in progress!</em></p>
+<p>The abbreviation <strong>UDF</strong> stands for <strong>user-defined function</strong>. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data.</p>
+<p>User-defined functions (UDFs) can be exposed to the data in different ways. This includes which parts of the data are passed to the function, how the function execution is parallelized, and how the expected output is structured.</p>
               
             </div>
           </div>
@@ -231,7 +188,7 @@ Examples of this UDF type include the generation of monthly aggregates from 16 d
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../views/index.html" class="btn btn-neutral float-right" title="Data Views"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../views/index.html" class="btn btn-neutral float-right" title="Constraints"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../processgraphs/index.html" class="btn btn-neutral" title="Process Graphs"><span class="icon icon-circle-arrow-left"></span> Previous</a>
