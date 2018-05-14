@@ -605,7 +605,7 @@
     "/processes": {
       "get": {
         "summary": "Returns processes supported by the back-end.",
-        "description": "The request will ask the back-end for available processes and will return an array of available processes with their unique identifiers and description.",
+        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.",
         "tags": [
           "Process Discovery"
         ],
@@ -615,110 +615,24 @@
             "Bearer": []
           }
         ],
-        "parameters": [
-          {
-            "name": "qname",
-            "in": "query",
-            "description": "string expression to search for available processes by name",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "externalDocs": {
+          "description": "Functio specification, version 0.1.0 (or any newer patch version).",
+          "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md"
+        },
         "responses": {
           "200": {
-            "description": "An array of EO processes including their unique identifiers and a description.",
+            "description": "Functio document describing the supported processes.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": true,
-                    "required": [
-                      "process_id",
-                      "description"
-                    ],
-                    "properties": {
-                      "process_id": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      }
-                    }
+                  "externalDocs": {
+                    "description": "Functio specification, version 0.1.0 (or any newer patch version).",
+                    "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md"
                   }
                 },
                 "examples": {
-                  "response": {
-                    "value": [
-                      {
-                        "process_id": "NDVI",
-                        "description": "Computes the normalized difference vegetation index (NDVI) for all pixels of the input dataset."
-                      },
-                      {
-                        "process_id": "median_time",
-                        "description": "Applies median aggregation to pixel time series for all bands of the input dataset."
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/processes/{process_id}": {
-      "parameters": [
-        {
-          "name": "process_id",
-          "in": "path",
-          "description": "process identifier string such as `NDVI`",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "get": {
-        "summary": "Returns further information on a given EO process available at the back-end.",
-        "description": "The request will ask the back-end for further details about a process specified by identifier",
-        "tags": [
-          "Process Discovery"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "JSON object with metadata of the EO process.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/process_description"
-                },
-                "examples": {
-                  "response": {
-                    "value": {
-                      "process_id": "median_time",
-                      "description": "Applies median aggregation to pixel time series for all bands of the input dataset.",
-                      "args": {
-                        "A": {
-                          "description": "input product (time series)"
-                        }
-                      }
-                    }
+                  "functioSpecExample": {
+                    "externalValue": "https://raw.githubusercontent.com/m-mohr/functio-spec/master/versions/0.1.0/example.json"
                   }
                 }
               }
@@ -2355,63 +2269,6 @@
         "type": "string",
         "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`.",
         "example": "free"
-      },
-      "process_description": {
-        "description": "Defines and describes a process including it's expected input arguments.",
-        "type": "object",
-        "required": [
-          "process_id",
-          "description"
-        ],
-        "properties": {
-          "process_id": {
-            "type": "string",
-            "description": "The unique identifier of the process."
-          },
-          "description": {
-            "type": "string",
-            "description": "A short and concise description of what the process does and how the output looks like."
-          },
-          "link": {
-            "type": "string",
-            "description": "Reference to an external process definition if the process has been defined over different back ends within OpenEO"
-          },
-          "args": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "required": [
-                "description"
-              ],
-              "properties": {
-                "description": {
-                  "type": "string",
-                  "description": "A short and concise description of the process argument."
-                },
-                "required": {
-                  "type": "boolean",
-                  "default": true,
-                  "description": "Defines whether an argument is required or optional."
-                }
-              },
-              "additionalProperties": true,
-              "description": "**DEFAULT VALUES FOR ARGUMENTS ARE NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**"
-            }
-          }
-        },
-        "example": {
-          "process_id": "band_arithmetic",
-          "description": "Perform basic arithmetic expressions on individual pixel and their band values.",
-          "args": {
-            "imagery": {
-              "description": "input image or image collection",
-              "required": true
-            },
-            "expr": {
-              "description": "expressions as array, the result will have as many bands as the number of given expressions."
-            }
-          }
-        }
       },
       "band_datatype": {
         "type": "string",
