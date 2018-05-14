@@ -4,6 +4,8 @@ The openEO API supports to restrict datasets by different dimensions and provide
 
 Heterogeneous datasets are unified by the back-ends based on the specified constraints. For instance, the difference between a PROBA-V image and a Sentinel image, which have e a different projection and resolution, are automatically resampled and projected by the back-ends as soon as it is required to do so. Except specifying reasonable constraints, clients are not responsible to ensure that the data matches by first applying resampling or projections processes.
 
+Temporal references are always specified on the basis of the [Gregorian calendar](https://en.wikipedia.org/wiki/Gregorian_calendar). Therefore a temporal reference system can't be specified in the constraints object.
+
 ## Example
 The following JSON object describes a coarse resolution (0.25° x 0.25°) view of monthly aggregated data. 
 
