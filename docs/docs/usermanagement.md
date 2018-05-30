@@ -2,7 +2,7 @@
 
 In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to
 
-* authenticate a user
+* [authenticate and authorize](http://www.differencebetween.net/technology/difference-between-authentication-and-authorization/) a user
 * query the credit a user has available
 * estimate costs for certain operations
 * get information about produced costs

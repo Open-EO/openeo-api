@@ -16,13 +16,6 @@ Further terms:
 - **simple** many end-users now use Python or R to analyse data and JavaScript to develop web applications; analysing large amounts of EO imagery should be equally simple, and seamlessly integrate with existing workflows
 - **unified** current EO cloud back-ends all have [a different API](http://r-spatial.org/2016/11/29/openeo.html), making EO data analysis hard to validate,difficult to reproduce, and back-ends difficult to compare in terms of capability and costs, or to combine in a joint analysis across back-ends. A unified API can resolve many of these problems.
 
-
-## API (specification)
-
-The API developed by the openEO project uses [HTTP REST Level 2](https://en.wikipedia.org/wiki/Representational_state_transfer) for communication between client and back-end server.
-
-In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC2119](http://tools.ietf.org/html/rfc2119).
-
 ## Datasets
 
 CEOS ([CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/)) defines **Granules** and **Collections** as follows:
