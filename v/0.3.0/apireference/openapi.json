@@ -3,7 +3,7 @@
   "servers": [
     {
       "url": "https://localhost/api/{version}/",
-      "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication with OAuth2 and HTTP is not secure!",
+      "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication methods are not secure with HTTP only!",
       "variables": {
         "version": {
           "default": "v0",
@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\nThings that are currently missing particularly include: \n * Authentication and authorization (probably with OAuth 2.0), \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\nThings that are currently missing particularly include: \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -647,33 +647,25 @@
         }
       }
     },
-    "/auth/login": {
+    "/credentials/oidc": {
       "get": {
-        "summary": "Check whether the user is registered with the specified credentials at the back-end.",
-        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request checks whether the credentials provided in the HTTP Basic header are valid. Returns the corresponding internal user ID and a bearer token.",
+        "summary": "Authentication with OpenID Connect (RECOMMENDED). ",
+        "description": "This endpoint redirects to the OpenID Connect discovery document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using OpenID Connect.",
         "tags": [
           "Authentication"
         ],
         "security": [
-          {
-            "Basic": []
-          }
+          {}
         ],
         "responses": {
           "200": {
-            "description": "Login successful. Returns the user ID and a bearer token for future API calls. ",
-            "content": {
-              "application/json": {
+            "description": "Specifies the location of the OpenID Connect discovery document.",
+            "headers": {
+              "Location": {
+                "required": true,
                 "schema": {
-                  "type": "string"
-                },
-                "examples": {
-                  "response": {
-                    "value": {
-                      "user_id": "sampleuser123",
-                      "token": "b34ba2bdf9ac9ee1"
-                    }
-                  }
+                  "type": "string",
+                  "example": "https://openeo.org/.well-known/openid-configuration"
                 }
               }
             }
@@ -687,44 +679,51 @@
         }
       }
     },
-    "/auth/register": {
-      "post": {
-        "summary": "Registers a new user account.",
-        "description": "***Work in progress.** The general authentication procedure is to be defined and will probably change in the future.*\nThis request registers a new user account.",
+    "/credentials/basic": {
+      "get": {
+        "summary": "Authentication with HTTP Basic.",
+        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for for authorization in subsequent API calls.",
         "tags": [
           "Authentication"
         ],
+        "security": [
+          {
+            "Basic": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Registration successful. Returns the newly created user ID. ",
+            "description": "Credentials are correct and authentication succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "sampleuser123"
+                  "type": "object",
+                  "required": [
+                    "user_id",
+                    "access_token"
+                  ],
+                  "properties": {
+                    "user_id": {
+                      "description": "A unique identifier for the user, which is used for subsequent files to its own files, e.g. in the file management endpoint at `/files/{user_id}`.",
+                      "type": "string",
+                      "example": "sampleuser123"
+                    },
+                    "access_token": {
+                      "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
+                      "type": "string",
+                      "example": "b34ba2bdf9ac9ee1"
+                    }
+                  }
                 }
               }
             }
           },
           "4XX": {
-            "$ref": "#/components/responses/client_error"
+            "$ref": "#/components/responses/client_error_auth"
           },
           "5XX": {
             "$ref": "#/components/responses/server_error"
           }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "description": "Password to be used for the newly created user account.",
-                "type": "string",
-                "example": "mySecr3tP@ssword"
-              }
-            }
-          },
-          "description": "Password to be used for the newly created user account.",
-          "required": true
         }
       }
     },
@@ -819,7 +818,7 @@
         }
       }
     },
-    "/process_graphs/validate": {
+    "/process_graphs/validation": {
       "post": {
         "summary": "Validates a process graph.",
         "tags": [
@@ -965,10 +964,10 @@
         }
       }
     },
-    "/jobs/execute": {
+    "/jobs/previews": {
       "post": {
-        "summary": "Execute a process graph synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Costs` header MAY be sent with all responses.",
+        "summary": "Computes results by executing a process graph synchronously.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses.",
         "tags": [
           "Job Management"
         ],
@@ -1013,6 +1012,9 @@
                 "properties": {
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
+                  },
+                  "constraints": {
+                    "$ref": "#/components/schemas/constraints"
                   },
                   "output": {
                     "$ref": "#/components/schemas/output_format_body"
@@ -1490,7 +1492,7 @@
         }
       }
     },
-    "/jobs/{job_id}/estimate": {
+    "/jobs/{job_id}/estimates": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
@@ -1563,13 +1565,13 @@
         }
       }
     },
-    "/jobs/{job_id}/subscribe": {
+    "/jobs/{job_id}/subscriptions": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
         }
       ],
-      "get": {
+      "post": {
         "summary": "Subscribes to job execution updates that are communicated over WebSockets.",
         "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
         "tags": [
@@ -1770,7 +1772,7 @@
         }
       }
     },
-    "/jobs/{job_id}/batches/{batch_id}/download": {
+    "/jobs/{job_id}/batches/{batch_id}/results": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
