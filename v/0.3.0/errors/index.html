@@ -182,33 +182,35 @@
             <div class="section">
               
                 <h1 id="status-and-error-handling">Status and error handling</h1>
-<p>The success of requests <em>must</em> be indicated using <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a> according to <a href="https://tools.ietf.org/html/rfc7231">RFC 7231</a>. In general an error is communicated with a status code between 400 and 599. If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.</p>
+<p>The success of requests MUST be indicated using <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a> according to <a href="https://tools.ietf.org/html/rfc7231">RFC 7231</a>.</p>
+<p>In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service <em>correctly</em> rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do <em>not</em> contribute to overall API availability. </p>
+<p>Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors <em>do</em> contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. </p>
+<p>If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.</p>
 <h2 id="json-error-object">JSON error object</h2>
-<p>A JSON error object <strong>should</strong> be sent with all responses that have a status code between 400 and 599.</p>
+<p>A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.</p>
 <pre><code>{
-  &quot;id&quot;: &quot;&quot;,
+  &quot;id&quot;: &quot;936DA01F-9ABD-4D9D-80C7-02AF85C822A8&quot;,
   &quot;code&quot;: 123,
   &quot;message&quot;: &quot;A sample error message.&quot;,
   &quot;url&quot;: &quot;http://www.openeo.org/docs/errors/123&quot;
 }
 </code></pre>
 
-<p>Sending <code>code</code> and <code>message</code> is <em>required</em>. </p>
+<p>Sending <code>code</code> and <code>message</code> is REQUIRED. </p>
 <ul>
 <li>
-<p>A back-end <em>may</em> add an <code>id</code> (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.</p>
+<p>A back-end MAY add a free-form <code>id</code> (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.</p>
 </li>
 <li>
 <p>The <code>code</code> is either one of the standardized openEO error codes below or a proprietary error code with a number greater than 10000.</p>
 </li>
 <li>
-<p>The <code>message</code> explains what the client might need to change or what the server is struggling with.
-  By default the message <em>must</em> be sent in English language.</p>
+<p>The <code>message</code> explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.</p>
 </li>
 </ul>
-<p>Content Negotiation is used to localize the error messages: If an <code>Acceppt-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
+<p>By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an <code>Acceppt-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
 <ul>
-<li><code>url</code> is an <em>optional</em> attribute and might contain a link to a resource that is explaining the error and potential solutions in-depth.</li>
+<li><code>url</code> is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.</li>
 </ul>
 <h2 id="standardized-status-codes">Standardized status codes</h2>
 <p>The openEO API usually uses the following HTTP status codes for successful requests: </p>
@@ -221,7 +223,8 @@
 <p>The openEO API often uses the following HTTP status codes for failed requests: </p>
 <ul>
 <li>
-<p><strong>400 Bad request</strong>: The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.</p>
+<p><strong>400 Bad request</strong>:
+  The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.</p>
 </li>
 <li>
 <p><strong>401 Unauthorized</strong>:
@@ -233,7 +236,8 @@
 </li>
 <li>
 <p><strong>404 Not Found</strong>:
-  The resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end. <em>Note:</em> Unsupported endpoints <em>must</em> use HTTP status code 501.</p>
+  The resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end.
+  <em>Note:</em> Unsupported endpoints MUST use HTTP status code 501.</p>
 </li>
 <li>
 <p><strong>500 Internal Server Error</strong>:
@@ -244,8 +248,8 @@
   An endpoint is specified in the openEO API, but is not supported.</p>
 </li>
 </ul>
-<p>If a HTTP status code in the 400 range is returned, the client <em>should not</em> repeat the request without modifications. For HTTP status code in the 500 range, the client <em>may</em> repeat the same request later.</p>
-<p>All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 <em>should</em> be avoided in favor of any more specific standardized or proprietary openEO error code.</p>
+<p>If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.</p>
+<p>All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.</p>
 <h3 id="general-error-codes-xxx">General error codes (xxx)</h3>
 <table>
 <thead>
@@ -259,7 +263,7 @@
 <tbody>
 <tr>
 <td>404</td>
-<td>To be used if the value of a path parameter is invalid, i.e. the requested resource is not available. <em>Note:</em> Unsupported endpoints <em>must</em> use code 501.</td>
+<td>To be used if the value of a path parameter is invalid, i.e. the requested resource is not available. <em>Note:</em> Unsupported endpoints MUST use code 501.</td>
 <td>Not Found.</td>
 <td>404</td>
 </tr>
@@ -337,7 +341,7 @@
 <tbody>
 <tr>
 <td>1401</td>
-<td>Server couldn't store file due to various reasons.</td>
+<td>Server couldn't store file due to server-side reasons.</td>
 <td>Unable to store file.</td>
 <td>500</td>
 </tr>
@@ -345,7 +349,7 @@
 <td>1402</td>
 <td>The storage quota has been exceeded by the user.</td>
 <td>Insufficient Storage.</td>
-<td>500</td>
+<td>400</td>
 </tr>
 <tr>
 <td>1410</td>
