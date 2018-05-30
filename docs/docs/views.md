@@ -1,4 +1,4 @@
-# Contraints
+# Constraints
 
 The openEO API supports to restrict datasets by different dimensions and provides basic information to align datasets with different characteristics. This feature is called 'constraints', formerly known as 'data views'. They describe at which resolution and for which spatial and temporal extent the original Earth observation data are processed and hence can be used to run processes interactively on small parts of the original data without need to wait for long-running processes. 
 

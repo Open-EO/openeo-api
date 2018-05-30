@@ -2,7 +2,7 @@
 
 As described in the [glossary](glossary.md), a **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs.
 
-`POST /jobs` by default creates jobs to run computations ***on demand***, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-end *should* make sure to cache processed data to avoid additional/high costs and waiting times for the user.
+`POST /jobs` by default creates jobs to run computations ***on demand***, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-ends SHOULD make sure to cache processed data to avoid additional/high costs and waiting times for the user.
 
 Results can be pre-computed by creating one or multiple ***batch jobs*** using  `POST /jobs/{job_id}/batches`.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.
 

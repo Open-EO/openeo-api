@@ -3,11 +3,11 @@
   "servers": [
     {
       "url": "https://localhost/api/{version}/",
-      "description": "The URL of the API *may* freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers *must* support HTTPS as the authentication with Oauth2 and HTTP is not secure!",
+      "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication with OAuth2 and HTTP is not secure!",
       "variables": {
         "version": {
           "default": "v0",
-          "description": "API versioning is *recommended*. It *must* not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
+          "description": "API versioning is RECOMMENDED. It MUST not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
         }
       }
     }
@@ -107,7 +107,7 @@
                         ],
                         "properties": {
                           "path": {
-                            "description": "Path to the endpoint, starting from the base url of the API. *Must* contain a leading slash, *must not* contain a trailing slash. Variables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name. It is *recommended* that the path variable names fully follow the API specification.",
+                            "description": "Path to the endpoint, starting from the base url of the API. MUST contain a leading slash, *must not* contain a trailing slash. Variables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name. It is RECOMMENDED that the path variable names fully follow the API specification.",
                             "type": "string"
                           },
                           "methods": {
@@ -157,14 +157,14 @@
                       ]
                     },
                     "billing": {
-                      "description": "Billing related data, e.g. the currency used or available plans to process jobs. *Must* be specified if the back-end uses any billing related functionalities, e.g. budgeting, estimates.",
+                      "description": "Billing related data, e.g. the currency used or available plans to process jobs. MUST be specified if the back-end uses any billing related functionalities, e.g. budgeting, estimates.",
                       "type": "object",
                       "required": [
                         "currency"
                       ],
                       "properties": {
                         "currency": {
-                          "description": "The currency the back-end is billing in. The currency *must* be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
+                          "description": "The currency the back-end is billing in. The currency MUST be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
                           "type": "string",
                           "example": "USD"
                         },
@@ -968,7 +968,7 @@
     "/jobs/execute": {
       "post": {
         "summary": "Execute a process graph synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Costs` header *may* be sent with all responses.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408.  A `OpenEO-Costs` header MAY be sent with all responses.",
         "tags": [
           "Job Management"
         ],
@@ -1498,7 +1498,7 @@
       ],
       "post": {
         "summary": "Gives an estimate regarding costs and time for a batch job.",
-        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This *must* be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers *may* specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
         "tags": [
           "Job Management"
         ],
@@ -1530,7 +1530,7 @@
         },
         "responses": {
           "200": {
-            "description": "The estimated costs. At least one of credits or time *must* be returned.",
+            "description": "The estimated costs. At least one of credits or time MUST be returned.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1781,7 +1781,7 @@
       ],
       "get": {
         "summary": "Request download links for results of batch jobs.",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job. URL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end *should* indicate the expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job. URL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end SHOULD indicate the expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
         "tags": [
           "Job Management"
         ],
@@ -2256,13 +2256,13 @@
   "components": {
     "schemas": {
       "money": {
-        "description": "Amount of money or credits. The value *must* be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
+        "description": "Amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
         "type": "number",
         "example": 12.98
       },
       "budget": {
         "type": "number",
-        "description": "Maximum amount of costs that a request is allowed to produce. The value *must* be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends *should* reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs *may* try to return partial results if possible. Otherwise the request and results are discarded. Users *should* be warned by clients that reaching the budget *may* discard the results and that setting this value should be well-wrought.",
+        "description": "Maximum amount of costs that a request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.",
         "example": 100
       },
       "billing_plan": {
@@ -2938,7 +2938,7 @@
     },
     "responses": {
       "client_error": {
-        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request usually does not respond with HTTP status codes 401 and 403 due to missing authorization. HTTP status code 404 should be used if the value of a path parameter is invalid.",
+        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request usually does not respond with HTTP status codes 401 and 403 due to missing authorization. HTTP status code 404 should be used if the value of a path parameter is invalid.",
         "content": {
           "application/json": {
             "schema": {
@@ -2948,7 +2948,7 @@
         }
       },
       "client_error_auth": {
-        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request *must* respond with HTTP status codes 401 if authorization is required or 403 if the authorization failed or access is forbidden in general to the authenticated user. HTTP status code 404 should be used if the value of a path parameter is invalid.",
+        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request MUST respond with HTTP status codes 401 if authorization is required or 403 if the authorization failed or access is forbidden in general to the authenticated user. HTTP status code 404 should be used if the value of a path parameter is invalid.",
         "content": {
           "application/json": {
             "schema": {
@@ -2958,7 +2958,7 @@
         }
       },
       "server_error": {
-        "description": "The request can't be fulfilled due to an error at the back-end. The error is never the client’s fault and therefore it is reasonable for the client to retry the exact same request that triggered this response. The response body *should* contain a JSON error object. *Must* be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).",
+        "description": "The request can't be fulfilled due to an error at the back-end. The error is never the client’s fault and therefore it is reasonable for the client to retry the exact same request that triggered this response. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).",
         "content": {
           "application/json": {
             "schema": {

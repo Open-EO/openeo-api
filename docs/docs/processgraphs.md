@@ -15,7 +15,7 @@ A single process in a process graph is defined as follows:
   "args": <ArgumentSet>
 }
 ```
-A process *must* always contain two key-value-pairs named `process_id` and `args` and *may* contain a `description`, but *must not* hold other elements.
+A process MUST always contain two key-value-pairs named `process_id` and `args` and MAY contain a `description`, but MUST NOT hold other elements.
 
 `process_id` can currently contain three types of processes:
 
@@ -35,7 +35,7 @@ An argument set for a process is defined as follows:
 }
 ```
 
-The key `<Key>` can be any valid JSON key, but it is *recommended* to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and the `_`.
+The key `<Key>` can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and the `_`.
 
 A value is defined as follows:
 
@@ -43,9 +43,9 @@ A value is defined as follows:
 <Value> := <string|number|array|boolean|null|Process>
 ```
 
-*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array *must* always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`. In consequence, the objects allowed to be part of an array are processes only.
+*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`. In consequence, the objects allowed to be part of an array are processes only.
 
-*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered at `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
+*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
 ### Examples
 
@@ -139,7 +139,7 @@ There are some processes that we define to be core processes that should be impl
 
 _Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like and to supplement the schematic definition above.
 
-_Limitation:_ Process names (process ids) *must* never contain a forward slash `/`.
+_Limitation:_ Process names (process ids) MUST never contain a forward slash `/`.
 
 ### get_data
 
