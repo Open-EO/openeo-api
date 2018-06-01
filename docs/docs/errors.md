@@ -39,6 +39,8 @@ The openEO API usually uses the following HTTP status codes for successful reque
 
 - **200 OK**:
   Indicates a successful request **with** a response body being sent.
+- **201 Created**
+  Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
 - **204 No Content**:
   Indicates a successful request **without** a response body being sent.
 
