@@ -123,13 +123,14 @@ None yet.
 
 ### Jobs (3xxx) 
 
-| openEO Error Code | Description                          | Message                                                      | HTTP Status Code |
-| ----------------- | ------------------------------------ | ------------------------------------------------------------ | ---------------- |
-| 408               | The (synchronous) request timed out. | Request timed out.                                           | 408              |
-| 3001              |                                      | Output format not supported.                                 | 400              |
-| 3002              |                                      | Output format argument **X** is not supported.               | 400              |
-| 3003              |                                      | Invalid value **Y** for the output format argument **X** specified. | 400              |
-| 3004              |                                      | Data can't be transformed into the requested output format.  | 400              |
+| openEO Error Code | Description                                                  | Message                                                      | HTTP Status Code |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------- |
+| 408               | The (synchronous) request timed out.                         | Request timed out.                                           | 408              |
+| 3001              |                                                              | Output format not supported.                                 | 400              |
+| 3002              |                                                              | Output format argument **X** is not supported.               | 400              |
+| 3003              |                                                              | Invalid value **Y** for the output format argument **X** specified. | 400              |
+| 3004              |                                                              | Data can't be transformed into the requested output format.  | 400              |
+| 3005              | The job is currently locked due to an enabled service or a running batch computation and can't be modified meanwhile. | Job is locked.                                               | 400              |
 
 ### Authorization, user content and billing (401-403, 4xxx)
 
