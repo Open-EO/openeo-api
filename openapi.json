@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets. **This version is still incomplete and intended for working on prototypes.**\nThings that are currently missing particularly include: \n * how data is streamed into UDFs and how the output of UDFs is returned, \n * how resources can be filtered or shared.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of\nlarge Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the\n'General API Concept Description', which are not (fully) covered in this\nspecification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Please note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information. Additionally, the rendered version of the specification is not complete especiially regarding examples due to incomplete OpenAPI 3.0 support of SwaggerUI. For all details see the specification file itself.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -649,8 +649,8 @@
     },
     "/credentials/oidc": {
       "get": {
-        "summary": "Authentication with OpenID Connect (RECOMMENDED). ",
-        "description": "This endpoint redirects to the OpenID Connect discovery document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using OpenID Connect.",
+        "summary": "Authentication with OpenID Connect (RECOMMENDED).",
+        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is RECOMMENDED to implement this authentication method for public services.",
         "tags": [
           "Authentication"
         ],
@@ -682,7 +682,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "Authentication with HTTP Basic.",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for for authorization in subsequent API calls.",
+        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
         "tags": [
           "Authentication"
         ],
@@ -2039,10 +2039,10 @@
         }
       }
     },
-    "/budget": {
+    "/me": {
       "get": {
-        "summary": "Returns available money or credits a user has.",
-        "description": "For back-ends that involve accounting, this service will return the currently available money or credits in the currency the back-end is working with.",
+        "summary": "Returns information about the logged in user.",
+        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user.\nFor back-ends that involve accounting, this service MAY also return the\ncurrently available money or credits in the currency the back-end is\nworking with.\n\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
         "tags": [
           "User Content"
         ],
@@ -2053,14 +2053,42 @@
         ],
         "responses": {
           "200": {
-            "description": "Available money or credits. Returns an empty object for unlimited credits.",
+            "description": "Information about the logged in user.",
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "Holds user information. If no budget or storage limit applies to the user account the corresponding properties MUST be omited.",
                   "type": "object",
+                  "additionalProperties": true,
+                  "required": [
+                    "user_id"
+                  ],
                   "properties": {
-                    "limit": {
-                      "$ref": "#/components/schemas/money"
+                    "user_id": {
+                      "$ref": "#/components/schemas/user_id"
+                    },
+                    "storage": {
+                      "description": "Information about the storage space available to the user.",
+                      "type": "object",
+                      "required": [
+                        "free",
+                        "quota"
+                      ],
+                      "properties": {
+                        "free": {
+                          "type": "integer",
+                          "description": "Free storage space in bytes, which is still availble to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
+                          "example": 536870912
+                        },
+                        "quota": {
+                          "type": "integer",
+                          "description": "Maximum storage space (disk quota) in bytes available to the user.",
+                          "example": 1073741824
+                        }
+                      }
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
                     }
                   }
                 }
@@ -2258,13 +2286,13 @@
   "components": {
     "schemas": {
       "money": {
-        "description": "Amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
+        "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
         "type": "number",
         "example": 12.98
       },
       "budget": {
         "type": "number",
-        "description": "Maximum amount of costs that a request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.",
+        "description": "Maximum amount of costs the user is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.",
         "example": 100
       },
       "billing_plan": {
@@ -2541,9 +2569,9 @@
         "description": "Date and time of last status change in ISO 8601 format.",
         "example": "2017-01-01T09:36:18Z"
       },
-      "job_user_id": {
+      "user_id": {
         "type": "string",
-        "description": "Identifier of the user, who submitted the job and pays incurred costs if needed.",
+        "description": "Unique identifier of the user.",
         "example": "bd6f9faf93b4"
       },
       "batch_status": {
@@ -2587,7 +2615,7 @@
             "$ref": "#/components/schemas/constraints"
           },
           "user_id": {
-            "$ref": "#/components/schemas/job_user_id"
+            "$ref": "#/components/schemas/user_id"
           },
           "submitted": {
             "$ref": "#/components/schemas/submitted"
@@ -2623,7 +2651,7 @@
             "$ref": "#/components/schemas/description"
           },
           "user_id": {
-            "$ref": "#/components/schemas/job_user_id"
+            "$ref": "#/components/schemas/user_id"
           },
           "submitted": {
             "$ref": "#/components/schemas/submitted"
