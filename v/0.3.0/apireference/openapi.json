@@ -659,7 +659,7 @@
           {}
         ],
         "responses": {
-          "200": {
+          "303": {
             "description": "Specifies the location of the OpenID Connect discovery document.",
             "headers": {
               "Location": {
@@ -750,7 +750,22 @@
                   "description": "Array of stored process graphs",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/process_graph_meta"
+                    "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
+                    "type": "object",
+                    "required": [
+                      "process_graph_id"
+                    ],
+                    "properties": {
+                      "process_graph_id": {
+                        "$ref": "#/components/schemas/process_graph_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      }
+                    }
                   }
                 }
               }
@@ -776,15 +791,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "JSON object with process graph identifier",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/process_graph_full"
-                }
-              }
-            }
+          "201": {
+            "$ref": "#/components/responses/created"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -885,7 +893,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/process_graph_full"
+                  "description": "Defines full metadata of stored process graphs that have been submitted by users.",
+                  "type": "object",
+                  "required": [
+                    "process_graph_id",
+                    "process_graph"
+                  ],
+                  "properties": {
+                    "process_graph_id": {
+                      "$ref": "#/components/schemas/process_graph_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    }
+                  }
                 }
               }
             }
@@ -1078,15 +1105,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Details of the created service",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/service"
-                }
-              }
-            }
+          "201": {
+            "$ref": "#/components/responses/created"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1298,17 +1318,49 @@
                   "description": "Array of job descriptions",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/job_meta"
+                    "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including constraints and process graph, call `GET /jobs/{job_id}`",
+                    "type": "object",
+                    "required": [
+                      "job_id",
+                      "submitted",
+                      "batches"
+                    ],
+                    "properties": {
+                      "job_id": {
+                        "$ref": "#/components/schemas/job_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "user_id": {
+                        "$ref": "#/components/schemas/user_id"
+                      },
+                      "submitted": {
+                        "$ref": "#/components/schemas/submitted"
+                      },
+                      "plan": {
+                        "$ref": "#/components/schemas/billing_plan"
+                      },
+                      "costs": {
+                        "$ref": "#/components/schemas/money"
+                      },
+                      "batches": {
+                        "$ref": "#/components/schemas/batches_ids"
+                      },
+                      "4XX": {
+                        "$ref": "#/components/responses/client_error_auth"
+                      },
+                      "5XX": {
+                        "$ref": "#/components/responses/server_error"
+                      }
+                    }
                   }
                 }
               }
             }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
           }
         }
       },
@@ -1324,15 +1376,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Details of the created job",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/job_meta"
-                }
-              }
-            }
+          "201": {
+            "$ref": "#/components/responses/created"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1456,7 +1501,50 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/job_full"
+                  "description": "Defines full metadata of processing jobs that have been submitted by users.",
+                  "type": "object",
+                  "required": [
+                    "job_id",
+                    "process_graph",
+                    "submitted",
+                    "batches"
+                  ],
+                  "properties": {
+                    "job_id": {
+                      "$ref": "#/components/schemas/job_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    },
+                    "output": {
+                      "$ref": "#/components/schemas/output_format_body"
+                    },
+                    "constraints": {
+                      "$ref": "#/components/schemas/constraints"
+                    },
+                    "user_id": {
+                      "$ref": "#/components/schemas/user_id"
+                    },
+                    "submitted": {
+                      "$ref": "#/components/schemas/submitted"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/billing_plan"
+                    },
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "batches": {
+                      "$ref": "#/components/schemas/batches"
+                    }
+                  },
+                  "additionalProperties": true
                 }
               }
             }
@@ -1698,8 +1786,8 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "The job is queued to compute results in batch mode, i.e. results are pre-processed."
+          "201": {
+            "$ref": "#/components/responses/created"
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2484,46 +2572,6 @@
         "description": "Unique identifier of a job that is generated by the back-end during job submission.",
         "example": "132cbd7cbbfc45a7aa8e"
       },
-      "process_graph_meta": {
-        "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
-        "type": "object",
-        "required": [
-          "process_graph_id"
-        ],
-        "properties": {
-          "process_graph_id": {
-            "$ref": "#/components/schemas/process_graph_id"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "description": {
-            "$ref": "#/components/schemas/description"
-          }
-        }
-      },
-      "process_graph_full": {
-        "description": "Defines full metadata of stored process graphs that have been submitted by users.",
-        "type": "object",
-        "required": [
-          "process_graph_id",
-          "process_graph"
-        ],
-        "properties": {
-          "process_graph_id": {
-            "$ref": "#/components/schemas/process_graph_id"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "description": {
-            "$ref": "#/components/schemas/description"
-          },
-          "process_graph": {
-            "$ref": "#/components/schemas/process_graph"
-          }
-        }
-      },
       "arg_set": {
         "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **process_graph**. An array must always contain one data type only and is allowed to contain the data types allowed for argument set values. In consequence, the objects allowed to be part of an array are process_graphs only. See the API Concept Description for more information.",
         "type": "object",
@@ -2586,87 +2634,6 @@
         "description": "The current status of the job.",
         "example": "running",
         "default": "submitted"
-      },
-      "job_full": {
-        "description": "Defines full metadata of processing jobs that have been submitted by users.",
-        "type": "object",
-        "required": [
-          "job_id",
-          "process_graph",
-          "submitted",
-          "batches"
-        ],
-        "properties": {
-          "job_id": {
-            "$ref": "#/components/schemas/job_id"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "description": {
-            "$ref": "#/components/schemas/description"
-          },
-          "process_graph": {
-            "$ref": "#/components/schemas/process_graph"
-          },
-          "output": {
-            "$ref": "#/components/schemas/output_format_body"
-          },
-          "constraints": {
-            "$ref": "#/components/schemas/constraints"
-          },
-          "user_id": {
-            "$ref": "#/components/schemas/user_id"
-          },
-          "submitted": {
-            "$ref": "#/components/schemas/submitted"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/billing_plan"
-          },
-          "costs": {
-            "$ref": "#/components/schemas/money"
-          },
-          "batches": {
-            "$ref": "#/components/schemas/batches"
-          }
-        },
-        "additionalProperties": true
-      },
-      "job_meta": {
-        "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including constraints and process graph, call `GET /jobs/{job_id}`",
-        "type": "object",
-        "required": [
-          "job_id",
-          "submitted",
-          "batches"
-        ],
-        "properties": {
-          "job_id": {
-            "$ref": "#/components/schemas/job_id"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "description": {
-            "$ref": "#/components/schemas/description"
-          },
-          "user_id": {
-            "$ref": "#/components/schemas/user_id"
-          },
-          "submitted": {
-            "$ref": "#/components/schemas/submitted"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/billing_plan"
-          },
-          "costs": {
-            "$ref": "#/components/schemas/money"
-          },
-          "batches": {
-            "$ref": "#/components/schemas/batches_ids"
-          }
-        }
       },
       "batches": {
         "description": "Array of batches",
@@ -2968,6 +2935,19 @@
       }
     },
     "responses": {
+      "created": {
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\n\nExamples: \n* `POST /services` redirects to `GET /services/{service_id}`\n* `POST /jobs` redirects to `GET /jobs/{job_id}`\n* `POST /jobs/{job_id}/batches` redirects to `GET /jobs/{job_id}/batches/{batch_id}`",
+        "headers": {
+          "Location": {
+            "required": true,
+            "schema": {
+              "description": "URL to the newly created resource.",
+              "type": "string",
+              "example": "https://openeo.org/api/v0/resource/123"
+            }
+          }
+        }
+      },
       "client_error": {
         "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request usually does not respond with HTTP status codes 401 and 403 due to missing authorization. HTTP status code 404 should be used if the value of a path parameter is invalid.",
         "content": {
