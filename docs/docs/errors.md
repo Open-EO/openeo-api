@@ -127,6 +127,7 @@ None yet.
 | 3001              |                                      | Output format not supported.                                 | 400              |
 | 3002              |                                      | Output format argument **X** is not supported.               | 400              |
 | 3003              |                                      | Invalid value **Y** for the output format argument **X** specified. | 400              |
+| 3004              |                                      | Data can't be transformed into the requested output format.  | 400              |
 
 ### Authorization, user content and billing (401-403, 4xxx)
 
