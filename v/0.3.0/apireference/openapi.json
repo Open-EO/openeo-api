@@ -1323,7 +1323,8 @@
                     "required": [
                       "job_id",
                       "submitted",
-                      "batches"
+                      "batches",
+                      "locked"
                     ],
                     "properties": {
                       "job_id": {
@@ -1350,17 +1351,20 @@
                       "batches": {
                         "$ref": "#/components/schemas/batches_ids"
                       },
-                      "4XX": {
-                        "$ref": "#/components/responses/client_error_auth"
-                      },
-                      "5XX": {
-                        "$ref": "#/components/responses/server_error"
+                      "locked": {
+                        "$ref": "#/components/schemas/job_locked"
                       }
                     }
                   }
                 }
               }
             }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
           }
         }
       },
@@ -1432,7 +1436,7 @@
       ],
       "patch": {
         "summary": "Modifies a job at the back-end.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. All running batch computations are still running on the old data and are not interfered. Changes can be grouped in a single request.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier.  Jobs can only be modified when the job is not locked. requests to this endpoint MUST be rejected with error code 3005 when the job is locked. Changes can be grouped in a single request.",
         "tags": [
           "Job Management"
         ],
@@ -1507,7 +1511,8 @@
                     "job_id",
                     "process_graph",
                     "submitted",
-                    "batches"
+                    "batches",
+                    "locked"
                   ],
                   "properties": {
                     "job_id": {
@@ -1542,6 +1547,9 @@
                     },
                     "batches": {
                       "$ref": "#/components/schemas/batches"
+                    },
+                    "locked": {
+                      "$ref": "#/components/schemas/job_locked"
                     }
                   },
                   "additionalProperties": true
@@ -2622,6 +2630,11 @@
         "type": "string",
         "description": "Unique identifier of the user.",
         "example": "bd6f9faf93b4"
+      },
+      "job_locked": {
+        "type": "boolean",
+        "description": "A job is locked and this property set to `true` when computations are running on the job, i.e.  there is an enabled web service or a running batch computation for the job. Otherweise the job is unlocked and this property set to `false`. Jobs can't be modified while it is locked. Clients are not allowed to directly modify the state of the lock. To unlock a job all back computations must be finished or deleted and all services must be disabled or deleted.",
+        "default": false
       },
       "batch_status": {
         "type": "string",
