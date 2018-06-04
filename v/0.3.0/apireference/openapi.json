@@ -1045,7 +1045,7 @@
                     "$ref": "#/components/schemas/constraints"
                   },
                   "output": {
-                    "$ref": "#/components/schemas/output_format_body"
+                    "$ref": "#/components/schemas/output_format"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -1059,8 +1059,8 @@
     },
     "/services": {
       "get": {
-        "summary": "List all running services that have been submitted by the user.",
-        "description": "Requests to this endpoint will list all running services submitted by a user with given id.",
+        "summary": "List all running web services that have been submitted by the user.",
+        "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
         "tags": [
           "Web Service Management",
           "User Content"
@@ -1072,14 +1072,44 @@
         ],
         "responses": {
           "200": {
-            "description": "Array of service descriptions",
+            "description": "Array of web service descriptions",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Array of service descriptions",
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/service"
+                    "description": "Defines metadata of web services.",
+                    "type": "object",
+                    "required": [
+                      "service_id",
+                      "job_id",
+                      "enabled",
+                      "type",
+                      "url"
+                    ],
+                    "properties": {
+                      "service_id": {
+                        "$ref": "#/components/schemas/service_id"
+                      },
+                      "job_id": {
+                        "$ref": "#/components/schemas/job_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "url": {
+                        "$ref": "#/components/schemas/service_url"
+                      },
+                      "type": {
+                        "$ref": "#/components/schemas/service_type"
+                      },
+                      "enabled": {
+                        "$ref": "#/components/schemas/service_enabled"
+                      }
+                    }
                   }
                 }
               }
@@ -1095,7 +1125,7 @@
       },
       "post": {
         "summary": "Publish an interactive web service.",
-        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the service bases on pre-computed data (batch job) or needs to compute them on-demand (on-demand job). For on-demand jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
+        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the web service bases on pre-computed data (batch job) or needs to compute them on-demand (on-demand job). For on-demand jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
         "tags": [
           "Web Service Management"
         ],
@@ -1122,8 +1152,7 @@
                 "type": "object",
                 "required": [
                   "job_id",
-                  "type",
-                  "enabled"
+                  "type"
                 ],
                 "properties": {
                   "job_id": {
@@ -1148,7 +1177,7 @@
               }
             }
           },
-          "description": "The base data for the service to create"
+          "description": "The base data for the web service to create"
         }
       }
     },
@@ -1197,7 +1226,7 @@
       ],
       "patch": {
         "summary": "Modifies a web service.",
-        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. Only service args, description and the title can be modified. To change the service type create a new service.",
+        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. To change the web service type create a new web service.",
         "tags": [
           "Web Service Management"
         ],
@@ -1208,7 +1237,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Changes to the service applied successfully."
+            "description": "Changes to the web service applied successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1239,12 +1268,12 @@
               }
             }
           },
-          "description": "The data to change for the spcified service"
+          "description": "The data to change for the spcified web service."
         }
       },
       "get": {
-        "summary": "Get service information by id.",
-        "description": "Requests to this endpoint will return JSON description of the service.",
+        "summary": "Get web service information by id.",
+        "description": "Requests to this endpoint will return JSON description of the web service.",
         "tags": [
           "Web Service Management"
         ],
@@ -1255,11 +1284,46 @@
         ],
         "responses": {
           "200": {
-            "description": "Details of the created service",
+            "description": "Details of the created web service",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/service"
+                  "description": "Metadata of a web service.",
+                  "type": "object",
+                  "required": [
+                    "service_id",
+                    "job_id",
+                    "enabled",
+                    "type",
+                    "url",
+                    "args"
+                  ],
+                  "properties": {
+                    "service_id": {
+                      "$ref": "#/components/schemas/service_id"
+                    },
+                    "job_id": {
+                      "$ref": "#/components/schemas/job_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "url": {
+                      "$ref": "#/components/schemas/service_url"
+                    },
+                    "type": {
+                      "$ref": "#/components/schemas/service_type"
+                    },
+                    "enabled": {
+                      "$ref": "#/components/schemas/service_enabled"
+                    },
+                    "args": {
+                      "$ref": "#/components/schemas/service_args"
+                    }
+                  }
                 }
               }
             }
@@ -1273,7 +1337,7 @@
         }
       },
       "delete": {
-        "summary": "Stop a given service by id",
+        "summary": "Deletes a web service.",
         "description": "Calling this endpoint will stop a given web service to access result data.",
         "tags": [
           "Web Service Management"
@@ -1285,7 +1349,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The service has been successfully deleted."
+            "description": "The web service has been successfully deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1323,7 +1387,6 @@
                     "required": [
                       "job_id",
                       "submitted",
-                      "batches",
                       "locked"
                     ],
                     "properties": {
@@ -1348,8 +1411,8 @@
                       "costs": {
                         "$ref": "#/components/schemas/money"
                       },
-                      "batches": {
-                        "$ref": "#/components/schemas/batches_ids"
+                      "budget": {
+                        "$ref": "#/components/schemas/budget"
                       },
                       "locked": {
                         "$ref": "#/components/schemas/job_locked"
@@ -1412,7 +1475,7 @@
                     "$ref": "#/components/schemas/constraints"
                   },
                   "output": {
-                    "$ref": "#/components/schemas/output_format_body"
+                    "$ref": "#/components/schemas/output_format"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1420,7 +1483,8 @@
                   "budget": {
                     "$ref": "#/components/schemas/budget"
                   }
-                }
+                },
+                "additionalProperties": true
               }
             }
           },
@@ -1468,19 +1532,23 @@
                   "description": {
                     "$ref": "#/components/schemas/description"
                   },
-                  "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
-                  },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
-                  "output": {
-                    "$ref": "#/components/schemas/output_format_body"
-                  },
                   "constraints": {
                     "$ref": "#/components/schemas/constraints"
+                  },
+                  "output": {
+                    "$ref": "#/components/schemas/output_format"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
                   }
-                }
+                },
+                "additionalProperties": true
               }
             }
           },
@@ -1511,7 +1579,6 @@
                     "job_id",
                     "process_graph",
                     "submitted",
-                    "batches",
                     "locked"
                   ],
                   "properties": {
@@ -1528,7 +1595,7 @@
                       "$ref": "#/components/schemas/process_graph"
                     },
                     "output": {
-                      "$ref": "#/components/schemas/output_format_body"
+                      "$ref": "#/components/schemas/output_format"
                     },
                     "constraints": {
                       "$ref": "#/components/schemas/constraints"
@@ -1545,8 +1612,8 @@
                     "costs": {
                       "$ref": "#/components/schemas/money"
                     },
-                    "batches": {
-                      "$ref": "#/components/schemas/batches"
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
                     },
                     "locked": {
                       "$ref": "#/components/schemas/job_locked"
@@ -1614,7 +1681,7 @@
                 "type": "object",
                 "properties": {
                   "output": {
-                    "$ref": "#/components/schemas/output_format_body"
+                    "$ref": "#/components/schemas/output_format"
                   },
                   "constraints": {
                     "$ref": "#/components/schemas/constraints"
@@ -1758,9 +1825,83 @@
           "$ref": "#/components/parameters/job_id"
         }
       ],
+      "get": {
+        "summary": "List all batch jobs for a certain job.",
+        "description": "List all batch jobs submitted for the specified job.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of batch jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "description": "Defines metadata for a batch job.",
+                    "type": "object",
+                    "required": [
+                      "batch_id",
+                      "job_id",
+                      "status",
+                      "submitted",
+                      "updated"
+                    ],
+                    "properties": {
+                      "batch_id": {
+                        "$ref": "#/components/schemas/batch_id"
+                      },
+                      "job_id": {
+                        "$ref": "#/components/schemas/job_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "status": {
+                        "$ref": "#/components/schemas/batch_status"
+                      },
+                      "submitted": {
+                        "$ref": "#/components/schemas/submitted"
+                      },
+                      "updated": {
+                        "$ref": "#/components/schemas/batch_updated"
+                      },
+                      "plan": {
+                        "$ref": "#/components/schemas/billing_plan"
+                      },
+                      "budget": {
+                        "$ref": "#/components/schemas/budget"
+                      },
+                      "costs": {
+                        "$ref": "#/components/schemas/money"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
       "post": {
-        "summary": "Computing batch results for a job.",
-        "description": "This request creates a batch job and queues it for execution.",
+        "summary": "Starts batch processing a job.",
+        "description": "Creates a batch job and queues it for execution.",
         "tags": [
           "Job Management"
         ],
@@ -1777,7 +1918,7 @@
                 "type": "object",
                 "properties": {
                   "output": {
-                    "$ref": "#/components/schemas/output_format_body"
+                    "$ref": "#/components/schemas/output_format"
                   },
                   "constraints": {
                     "$ref": "#/components/schemas/constraints"
@@ -1832,7 +1973,54 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/batch"
+                  "description": "Defines metadata for a batch job.",
+                  "type": "object",
+                  "required": [
+                    "batch_id",
+                    "job_id",
+                    "status",
+                    "submitted",
+                    "updated"
+                  ],
+                  "properties": {
+                    "batch_id": {
+                      "$ref": "#/components/schemas/batch_id"
+                    },
+                    "job_id": {
+                      "$ref": "#/components/schemas/job_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/batch_status"
+                    },
+                    "submitted": {
+                      "$ref": "#/components/schemas/submitted"
+                    },
+                    "updated": {
+                      "$ref": "#/components/schemas/batch_updated"
+                    },
+                    "output": {
+                      "$ref": "#/components/schemas/output_format"
+                    },
+                    "constraints": {
+                      "$ref": "#/components/schemas/constraints"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/billing_plan"
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
+                    },
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    }
+                  },
+                  "additionalProperties": true
                 }
               }
             }
@@ -2509,8 +2697,7 @@
                   "description": "Defines whether an argument is required or optional."
                 }
               },
-              "additionalProperties": true,
-              "description": "**DEFAULT VALUES FOR ARGUMENTS ARE NOT FORMALIZED IN THE SWAGGER 2.0 DEFINITION DUE TO MISSING SUPPORT FOR oneOf OR anyOf SCHEMA COMBINATIONS.**"
+              "additionalProperties": true
             }
           }
         },
@@ -2633,7 +2820,7 @@
       },
       "job_locked": {
         "type": "boolean",
-        "description": "A job is locked and this property set to `true` when computations are running on the job, i.e.  there is an enabled web service or a running batch computation for the job. Otherweise the job is unlocked and this property set to `false`. Jobs can't be modified while it is locked. Clients are not allowed to directly modify the state of the lock. To unlock a job all back computations must be finished or deleted and all services must be disabled or deleted.",
+        "description": "A job is locked and this property set to `true` when computations are running on the job, i.e.  there is an enabled service or a running batch computation for the job. Otherweise the job is unlocked and this property set to `false`. Jobs can't be modified while it is locked. Clients are not allowed to directly modify the state of the lock. To unlock a job all back computations must be finished or deleted and all services must be disabled or deleted.",
         "default": false
       },
       "batch_status": {
@@ -2647,64 +2834,6 @@
         "description": "The current status of the job.",
         "example": "running",
         "default": "submitted"
-      },
-      "batches": {
-        "description": "Array of batches",
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/batch"
-        }
-      },
-      "batches_ids": {
-        "description": "Array of batch IDs",
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/batch_id"
-        }
-      },
-      "batch": {
-        "description": "Defines metadata for a batch job.",
-        "type": "object",
-        "required": [
-          "batch_id",
-          "job_id",
-          "status",
-          "submitted",
-          "updated"
-        ],
-        "properties": {
-          "batch_id": {
-            "$ref": "#/components/schemas/batch_id"
-          },
-          "job_id": {
-            "$ref": "#/components/schemas/job_id"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "description": {
-            "$ref": "#/components/schemas/description"
-          },
-          "status": {
-            "$ref": "#/components/schemas/batch_status"
-          },
-          "submitted": {
-            "$ref": "#/components/schemas/submitted"
-          },
-          "updated": {
-            "$ref": "#/components/schemas/batch_updated"
-          },
-          "output": {
-            "$ref": "#/components/schemas/output_format_body"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/billing_plan"
-          },
-          "costs": {
-            "$ref": "#/components/schemas/money"
-          }
-        },
-        "additionalProperties": true
       },
       "constraints": {
         "type": "object",
@@ -2780,13 +2909,13 @@
         "example": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery."
       },
       "service_type": {
-        "description": "Definintion of possible web services to access result data. All available web service types can be retrieved via `GET /service_types`",
+        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`",
         "type": "string",
         "example": "wms"
       },
       "service_args": {
         "type": "object",
-        "description": "Definintion of additional arguments a web service might need to be created. For example, this could specify the required version of the service, visualization details or any other service dependant configuration.",
+        "description": "Definintion of additional arguments a web service might need to be created. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration.",
         "additionalProperties": true,
         "example": {
           "version": 1.1
@@ -2794,50 +2923,20 @@
       },
       "service_enabled": {
         "type": "boolean",
-        "description": "Describes whether a service is responding to requests (true) or not (false). Defaults to true. Disabled services don't produce any costs.",
+        "description": "Describes whether a web service is responding to requests (true) or not (false). Defaults to true. Disabled web services don't produce any costs.",
         "default": true
       },
-      "service": {
-        "description": "Defines metadata of running services to access result data.",
-        "type": "object",
-        "required": [
-          "service_id",
-          "enabled",
-          "type",
-          "url",
-          "job_id"
-        ],
-        "properties": {
-          "service_id": {
-            "type": "string",
-            "description": "Unique identifier of a service that is generated by the back-end during service creation.",
-            "example": "91f3caa3b5281a"
-          },
-          "title": {
-            "$ref": "#/components/schemas/title"
-          },
-          "url": {
-            "type": "string",
-            "description": "URL at which the service is accessible. Doesn't necessarily need to contain the API base url.",
-            "example": "https://openeo.org/wms/91f3caa3b5281a"
-          },
-          "type": {
-            "$ref": "#/components/schemas/service_type"
-          },
-          "enabled": {
-            "$ref": "#/components/schemas/service_enabled"
-          },
-          "args": {
-            "$ref": "#/components/schemas/service_args"
-          },
-          "job_id": {
-            "type": "string",
-            "description": "The job identifier string refering to the job this service is running for.",
-            "example": "42d5k3nd92mk49dmj294md"
-          }
-        }
+      "service_url": {
+        "type": "string",
+        "description": "URL at which the web service is accessible. Doesn't necessarily need to contain the API base url.",
+        "example": "https://openeo.org/wms/91f3caa3b5281a"
       },
-      "output_format_body": {
+      "service_id": {
+        "type": "string",
+        "description": "Unique identifier of a web service that is generated by the back-end during web service creation.",
+        "example": "91f3caa3b5281a"
+      },
+      "output_format": {
         "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
         "type": "object",
         "required": [
@@ -2847,15 +2946,20 @@
           "format": {
             "type": "string",
             "description": "One of the supported output formats."
+          },
+          "args": {
+            "type": "object",
+            "additionalProperties": true
           }
         },
-        "additionalProperties": true,
         "example": {
           "format": "GTiff",
-          "tiles": true,
-          "compress": "jpeg",
-          "photometric": "YCBCR",
-          "jpeg_quality": 80
+          "args": {
+            "tiles": true,
+            "compress": "jpeg",
+            "photometric": "YCBCR",
+            "jpeg_quality": 80
+          }
         }
       },
       "error": {
@@ -2893,7 +2997,7 @@
         }
       },
       "refsys": {
-        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\n\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
         "type": "string",
         "default": "EPSG:4326",
         "example": "EPSG:3857"
@@ -3014,7 +3118,7 @@
       "service_id": {
         "name": "service_id",
         "in": "path",
-        "description": "Service identifier string",
+        "description": "Web service identifier string",
         "required": true,
         "schema": {
           "type": "string"
