@@ -28,7 +28,7 @@ Endpoints SHOULD use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE).
 
 If there is a need to transfer big chunks of data via GET requests, POST requests MAY be used as a replacement as they support to send data via request body.
 
-PATCH requests MUST follow [RFC 7396](https://tools.ietf.org/html/rfc7396). Any exception MUST be documented.
+Unless otherwise stated, PATCH requests are only defined to work on the direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires to send the whole JSON object defined by the first-level property.
 
 #### Resource naming
 
@@ -49,6 +49,8 @@ The success of requests MUST be indicated using [HTTP status codes](https://tool
 Web-based communication, especially when a mobile or other low-bandwidth client is involved, has moved quickly in the direction of JSON for a variety of reasons, including its tendency to be lighter weight and its ease of consumption with JavaScript-based clients. Therefore, services SHOULD use JSON as the default encoding. Other response formats can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html).
 
 Clients and servers MUST NOT rely on the order in which properties appears in JSON responses. When supported by the service, clients MAY request that array elements be returned in a specific order.
+
+Collections SHOULD NOT include nested JSON objects if those information can be requested from the individual resources.
 
 #### Temporal data
 

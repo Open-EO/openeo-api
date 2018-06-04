@@ -70,10 +70,12 @@ Body:
   },
   "output":{
     "format":"GTiff",
-    "tiled":true,
-    "compress":"jpeg",
-    "photometric":"YCBCR",
-    "jpeg_quality":80
+	"args": {
+      "tiled":true,
+      "compress":"jpeg",
+      "photometric":"YCBCR",
+      "jpeg_quality":80
+	}
   }
 }
 ```
