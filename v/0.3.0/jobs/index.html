@@ -210,7 +210,7 @@
 <p>As described in the <a href="../glossary/index.html">glossary</a>, a <strong>job</strong> brings one process graph to the back-end and organizes its execution, which may or may not induce costs.</p>
 <p><code>POST /jobs</code> by default creates jobs to run computations <strong><em>on demand</em></strong>, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-ends SHOULD make sure to cache processed data to avoid additional/high costs and waiting times for the user.</p>
 <p>Results can be pre-computed by creating one or multiple <strong><em>batch jobs</em></strong> using  <code>POST /jobs/{job_id}/batches</code>.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.</p>
-<p>Process graphs can also be <strong><em>executed  synchronously</em></strong> (<code>POST /jobs/execute</code>). Results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for <a href="https://www.pubnub.com/blog/2014-12-01-http-long-polling/">long-polling HTTP requests</a>.</p>
+<p>Process graphs can also be <strong><em>executed  synchronously</em></strong> (<code>POST /jobs/previews</code>). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for <a href="https://www.pubnub.com/blog/2014-12-01-http-long-polling/">long-polling HTTP requests</a>.</p>
 <h2 id="examples">Examples</h2>
 <p>Jobs are created by calling the endpoint <code>POST /jobs/{job_id}</code>.</p>
 <p>Use case <a href="../poc/index.html#use-case-1">1</a> and <a href="../poc/index.html#use-case-2">2</a> are examples for normal jobs without prior batch processing.</p>
@@ -221,7 +221,7 @@
 <h4 id="retrieval-of-a-geotiff">Retrieval of a GeoTIFF</h4>
 <p><strong>Request</strong></p>
 <pre><code>Header:
-POST /jobs/execute HTTP/1.1
+POST /jobs/previews HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
@@ -286,7 +286,7 @@ omitted (the GeoTiff file contents)
 <h4 id="retrieval-of-time-series">Retrieval of time series</h4>
 <p><strong>Request</strong></p>
 <pre><code>Header:
-POST /jobs/execute HTTP/1.1
+POST /jobs/previews HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
