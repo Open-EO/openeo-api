@@ -6,7 +6,7 @@ As described in the [glossary](glossary.md), a **job** brings one process graph 
 
 Results can be pre-computed by creating one or multiple ***batch jobs*** using  `POST /jobs/{job_id}/batches`.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.
 
-Process graphs can also be ***executed  synchronously*** (`POST /jobs/execute`). Results are delivered with the request itself and no job is created. Only lightweight computations, e.g. small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+Process graphs can also be ***executed  synchronously*** (`POST /jobs/previews`). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
 ## Examples
 
@@ -28,7 +28,7 @@ An explicit example for batch jobs is [use case 3](poc.md#use-case-3).
 
 ```
 Header:
-POST /jobs/execute HTTP/1.1
+POST /jobs/previews HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
@@ -97,7 +97,7 @@ omitted (the GeoTiff file contents)
 
 ```
 Header:
-POST /jobs/execute HTTP/1.1
+POST /jobs/previews HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
