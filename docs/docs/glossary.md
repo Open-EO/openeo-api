@@ -37,7 +37,7 @@ The open geospatial consortium published a document on [OGC OpenSearch Geo and T
 
 ## Processes and Jobs
 
-The terms _process_, _process graph_ and _job_ have different meanings in the openEO API specification.
+The terms _process and_ _process graph_ have different meanings in the openEO API specification.
 
 A **process** is simply the description of an operation as provided by the back end, similar to a function definition in programming languages. 
 
@@ -49,8 +49,6 @@ In this context openEO will:
 4. Provide generic aggregate operations that aggregate over one or more dimensions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
 
 A **process graph** includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
-
-A **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs. Jobs furthermore allow to run process graphs with different constraints (see section on [constraints](views.md)). Constraints define at which resolution and extent we look at the data during processing and hence allow to try out process graphs on small subsets, or work interactively within web map applications. For more information about jobs and their evaluation types, see the section on [jobs](jobs.md).
 
 ### User-defined functions (UDFs)
 

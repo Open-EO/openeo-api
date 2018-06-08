@@ -1,24 +1,14 @@
-# Jobs
+# Processing data using a process graph
 
-As described in the [glossary](glossary.md), a **job** brings one process graph to the back-end and organizes its execution, which may or may not induce costs.
+Process graphs can be executed in three different ways.
 
-`POST /jobs` by default creates jobs to run computations ***on demand***, i.e. the requested data is calculated during the request. This is useful for web services where details like viewing extent or level of detail are not known in advance. Back-ends SHOULD make sure to cache processed data to avoid additional/high costs and waiting times for the user.
+Results can be pre-computed by creating a ***batch jobs*** using  `POST /jobs`.  They are submitted to the back office's processing system, but will remain inactive until `POST /jobs/{job_id}/results` has been called. They will run only once and store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.
 
-Results can be pre-computed by creating one or multiple ***batch jobs*** using  `POST /jobs/{job_id}/batches`.  They are directly submitted to the back office's processing system. They will run only once, may include constraints, and will store results after execution. Batch jobs are typically time consuming such that user interaction is not possible.
+Web services usually allow users to change the viewing extent or level of detail. Therefore computations may run ***on demand***, i.e. the requested data is calculated during the request. Back-ends SHOULD make sure to cache processed data to avoid additional/high costs and waiting times for the user.
 
 Process graphs can also be ***executed  synchronously*** (`POST /jobs/previews`). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
 ## Examples
-
-Jobs are created by calling the endpoint `POST /jobs/{job_id}`.
-
-Use case [1](poc.md#use-case-1) and [2](poc.md#use-case-2) are examples for normal jobs without prior batch processing.
-
-### Batch jobs
-
-Batch jobs are created by calling the endpoint `POST /jobs/{job_id}/batches`.
-
-An explicit example for batch jobs is [use case 3](poc.md#use-case-3).
 
 ### Synchronously executed jobs
 
@@ -28,7 +18,7 @@ An explicit example for batch jobs is [use case 3](poc.md#use-case-3).
 
 ```
 Header:
-POST /jobs/previews HTTP/1.1
+POST /preview HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
@@ -97,7 +87,7 @@ omitted (the GeoTiff file contents)
 
 ```
 Header:
-POST /jobs/previews HTTP/1.1
+POST /preview HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 Body:
