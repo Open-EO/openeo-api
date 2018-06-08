@@ -41,6 +41,8 @@ The openEO API usually uses the following HTTP status codes for successful reque
   Indicates a successful request **with** a response body being sent.
 - **201 Created**
   Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
+- **202 Accepted**
+  Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent **without** a response body.
 - **204 No Content**:
   Indicates a successful request **without** a response body being sent.
 
@@ -131,6 +133,7 @@ None yet.
 | 3003              |                                                              | Invalid value **Y** for the output format argument **X** specified. | 400              |
 | 3004              |                                                              | Data can't be transformed into the requested output format.  | 400              |
 | 3005              | The job is currently locked due to an enabled service or a running batch computation and can't be modified meanwhile. | Job is locked.                                               | 400              |
+| 3006              | The job has not finished computing the results yet. Try again later. | Results are not finished yet.                                | 400              |
 
 ### Authorization, user content and billing (401-403, 4xxx)
 
