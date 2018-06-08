@@ -61,11 +61,11 @@
     },
     {
       "name": "Job Management",
-      "description": "Services to manage jobs and their computations."
+      "description": "Services to manage batch jobs and their results."
     },
     {
       "name": "Web Service Management",
-      "description": "Management of web-services for accessing job results."
+      "description": "Management of web-services that process required on demand."
     }
   ],
   "paths": {
@@ -176,7 +176,7 @@
                             "properties": {
                               "name": {
                                 "type": "string",
-                                "description": "Name of the plan to use for job creation.",
+                                "description": "Name of the plan.",
                                 "example": "free"
                               },
                               "description": {
@@ -724,6 +724,110 @@
         }
       }
     },
+    "/validation": {
+      "post": {
+        "summary": "Validates a process graph.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Confirms that the process graph is valid"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph to be validated."
+        }
+      }
+    },
+    "/preview": {
+      "post": {
+        "summary": "Computes results by executing a process graph synchronously.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Result data in the specified output format",
+            "headers": {
+              "Content-Type": {
+                "description": "The appropriate mime type for the requested output format must be sent.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "OpenEO-Costs": {
+                "$ref": "#/components/schemas/money"
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "description": "Specifies the job details, e.g. the process graph and the output format.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph",
+                  "output"
+                ],
+                "properties": {
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "output": {
+                    "$ref": "#/components/schemas/output_format"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/process_graphs": {
       "get": {
         "summary": "Lists user-defined process graphs.",
@@ -820,48 +924,6 @@
             }
           },
           "description": "Specifies the process graph with its meta data."
-        }
-      }
-    },
-    "/process_graphs/validation": {
-      "post": {
-        "summary": "Validates a process graph.",
-        "tags": [
-          "Process Graph Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Confirms that the process graph is valid"
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "process_graph"
-                ],
-                "properties": {
-                  "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
-                  }
-                }
-              }
-            }
-          },
-          "description": "Specifies the process graph to be validated."
         }
       }
     },
@@ -988,195 +1050,6 @@
         }
       }
     },
-    "/jobs/previews": {
-      "post": {
-        "summary": "Computes results by executing a process graph synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Result data in the specified output format",
-            "headers": {
-              "Content-Type": {
-                "description": "The appropriate mime type for the requested output format must be sent.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "OpenEO-Costs": {
-                "$ref": "#/components/schemas/money"
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        },
-        "requestBody": {
-          "description": "Specifies the job details, e.g. the process graph and the output format.",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "process_graph",
-                  "output"
-                ],
-                "properties": {
-                  "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
-                  },
-                  "constraints": {
-                    "$ref": "#/components/schemas/constraints"
-                  },
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
-                  },
-                  "budget": {
-                    "$ref": "#/components/schemas/budget"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/services": {
-      "get": {
-        "summary": "List all running web services that have been submitted by the user.",
-        "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
-        "tags": [
-          "Web Service Management",
-          "User Content"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Array of web service descriptions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "description": "Defines metadata of web services.",
-                    "type": "object",
-                    "required": [
-                      "service_id",
-                      "job_id",
-                      "enabled",
-                      "type",
-                      "url"
-                    ],
-                    "properties": {
-                      "service_id": {
-                        "$ref": "#/components/schemas/service_id"
-                      },
-                      "job_id": {
-                        "$ref": "#/components/schemas/job_id"
-                      },
-                      "title": {
-                        "$ref": "#/components/schemas/title"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "url": {
-                        "$ref": "#/components/schemas/service_url"
-                      },
-                      "type": {
-                        "$ref": "#/components/schemas/service_type"
-                      },
-                      "enabled": {
-                        "$ref": "#/components/schemas/service_enabled"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Publish an interactive web service.",
-        "description": "Calling this endpoint will enable to access results of a job as a web service such as WMTS, TMS or WCS. Depending on the specified job the web service bases on pre-computed data (batch job) or needs to compute them on-demand (on-demand job). For on-demand jobs the evaluation should pe performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
-        "tags": [
-          "Web Service Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "201": {
-            "$ref": "#/components/responses/created"
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "job_id",
-                  "type"
-                ],
-                "properties": {
-                  "job_id": {
-                    "$ref": "#/components/schemas/job_id"
-                  },
-                  "title": {
-                    "$ref": "#/components/schemas/title"
-                  },
-                  "description": {
-                    "$ref": "#/components/schemas/description"
-                  },
-                  "type": {
-                    "$ref": "#/components/schemas/service_type"
-                  },
-                  "enabled": {
-                    "$ref": "#/components/schemas/service_enabled"
-                  },
-                  "args": {
-                    "$ref": "#/components/schemas/service_args"
-                  }
-                }
-              }
-            }
-          },
-          "description": "The base data for the web service to create"
-        }
-      }
-    },
     "/service_types": {
       "get": {
         "summary": "Returns web service types supported by the back-end.",
@@ -1211,6 +1084,148 @@
           "5XX": {
             "$ref": "#/components/responses/server_error"
           }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "summary": "List all running web services that have been submitted by the user.",
+        "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
+        "tags": [
+          "Web Service Management",
+          "User Content"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of web service descriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "description": "Defines metadata of web services.",
+                    "type": "object",
+                    "required": [
+                      "service_id",
+                      "enabled",
+                      "type",
+                      "url",
+                      "user_id"
+                    ],
+                    "properties": {
+                      "service_id": {
+                        "$ref": "#/components/schemas/service_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "url": {
+                        "$ref": "#/components/schemas/service_url"
+                      },
+                      "type": {
+                        "$ref": "#/components/schemas/service_type"
+                      },
+                      "enabled": {
+                        "$ref": "#/components/schemas/service_enabled"
+                      },
+                      "user_id": {
+                        "$ref": "#/components/schemas/user_id"
+                      },
+                      "submitted": {
+                        "$ref": "#/components/schemas/submitted"
+                      },
+                      "plan": {
+                        "$ref": "#/components/schemas/billing_plan"
+                      },
+                      "costs": {
+                        "$ref": "#/components/schemas/money"
+                      },
+                      "budget": {
+                        "$ref": "#/components/schemas/budget"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish an interactive web service.",
+        "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/created"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "job_id",
+                  "type"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/service_type"
+                  },
+                  "enabled": {
+                    "$ref": "#/components/schemas/service_enabled"
+                  },
+                  "args": {
+                    "$ref": "#/components/schemas/service_args"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                }
+              }
+            }
+          },
+          "description": "The base data for the web service to create"
         }
       }
     },
@@ -1254,11 +1269,20 @@
                   "description": {
                     "$ref": "#/components/schemas/description"
                   },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
                   "args": {
                     "$ref": "#/components/schemas/service_args"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
                   }
                 }
               }
@@ -1288,24 +1312,25 @@
                   "type": "object",
                   "required": [
                     "service_id",
-                    "job_id",
+                    "process_graph",
                     "enabled",
                     "type",
                     "url",
-                    "args"
+                    "args",
+                    "user_id"
                   ],
                   "properties": {
                     "service_id": {
                       "$ref": "#/components/schemas/service_id"
-                    },
-                    "job_id": {
-                      "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
                       "$ref": "#/components/schemas/title"
                     },
                     "description": {
                       "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
                     },
                     "url": {
                       "$ref": "#/components/schemas/service_url"
@@ -1318,6 +1343,21 @@
                     },
                     "args": {
                       "$ref": "#/components/schemas/service_args"
+                    },
+                    "user_id": {
+                      "$ref": "#/components/schemas/user_id"
+                    },
+                    "submitted": {
+                      "$ref": "#/components/schemas/submitted"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/billing_plan"
+                    },
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
                     }
                   }
                 }
@@ -1358,8 +1398,8 @@
     },
     "/jobs": {
       "get": {
-        "summary": "List all jobs that have been submitted by the user.",
-        "description": "Requests to this endpoint will list all jobs submitted by a user with given id.",
+        "summary": "List all batch jobs that have been submitted by the user.",
+        "description": "Requests to this endpoint will list all batch jobs submitted by a user with given id.",
         "tags": [
           "Job Management",
           "User Content"
@@ -1378,7 +1418,7 @@
                   "description": "Array of job descriptions",
                   "type": "array",
                   "items": {
-                    "description": "Defines a metadata subset of processing jobs that have been submitted by users. To get the full metadata for a job, including constraints and process graph, call `GET /jobs/{job_id}`",
+                    "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
                     "type": "object",
                     "required": [
                       "job_id",
@@ -1398,8 +1438,14 @@
                       "user_id": {
                         "$ref": "#/components/schemas/user_id"
                       },
+                      "status": {
+                        "$ref": "#/components/schemas/status"
+                      },
                       "submitted": {
                         "$ref": "#/components/schemas/submitted"
+                      },
+                      "updated": {
+                        "$ref": "#/components/schemas/updated"
                       },
                       "plan": {
                         "$ref": "#/components/schemas/billing_plan"
@@ -1409,9 +1455,6 @@
                       },
                       "budget": {
                         "$ref": "#/components/schemas/budget"
-                      },
-                      "locked": {
-                        "$ref": "#/components/schemas/job_locked"
                       }
                     }
                   }
@@ -1428,7 +1471,7 @@
         }
       },
       "post": {
-        "summary": "Submits a new job to the back-end.",
+        "summary": "Submits a new batch job to the back-end.",
         "description": "Creates a new job from one or more (chained) processes at the back-end.",
         "tags": [
           "Job Management"
@@ -1467,9 +1510,6 @@
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
-                  "constraints": {
-                    "$ref": "#/components/schemas/constraints"
-                  },
                   "output": {
                     "$ref": "#/components/schemas/output_format"
                   },
@@ -1484,7 +1524,7 @@
               }
             }
           },
-          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format and constraints. The output format might be overridden during batch job creation and by web services."
+          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be overridden during batch job creation and by web services."
         }
       }
     },
@@ -1495,8 +1535,8 @@
         }
       ],
       "patch": {
-        "summary": "Modifies a job at the back-end.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier.  Jobs can only be modified when the job is not locked. requests to this endpoint MUST be rejected with error code 3005 when the job is locked. Changes can be grouped in a single request.",
+        "summary": "Modifies a batch job at the back-end.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with error code 3005.",
         "tags": [
           "Job Management"
         ],
@@ -1531,9 +1571,6 @@
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
-                  "constraints": {
-                    "$ref": "#/components/schemas/constraints"
-                  },
                   "output": {
                     "$ref": "#/components/schemas/output_format"
                   },
@@ -1552,8 +1589,8 @@
         }
       },
       "get": {
-        "summary": "Returns information about a submitted job.",
-        "description": "Returns detailed information about a submitted job.",
+        "summary": "Returns information about a submitted batch job.",
+        "description": "Returns detailed information about a submitted batch job.",
         "tags": [
           "Job Management"
         ],
@@ -1569,13 +1606,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Defines full metadata of processing jobs that have been submitted by users.",
+                  "description": "Defines full metadata of batch jobs that have been submitted by users.",
                   "type": "object",
                   "required": [
                     "job_id",
                     "process_graph",
-                    "submitted",
-                    "locked"
+                    "submitted"
                   ],
                   "properties": {
                     "job_id": {
@@ -1593,14 +1629,17 @@
                     "output": {
                       "$ref": "#/components/schemas/output_format"
                     },
-                    "constraints": {
-                      "$ref": "#/components/schemas/constraints"
-                    },
                     "user_id": {
                       "$ref": "#/components/schemas/user_id"
                     },
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
                     "submitted": {
                       "$ref": "#/components/schemas/submitted"
+                    },
+                    "updated": {
+                      "$ref": "#/components/schemas/updated"
                     },
                     "plan": {
                       "$ref": "#/components/schemas/billing_plan"
@@ -1610,9 +1649,6 @@
                     },
                     "budget": {
                       "$ref": "#/components/schemas/budget"
-                    },
-                    "locked": {
-                      "$ref": "#/components/schemas/job_locked"
                     }
                   },
                   "additionalProperties": true
@@ -1629,7 +1665,7 @@
         }
       },
       "delete": {
-        "summary": "Deletes a job with the given id.",
+        "summary": "Deletes a batch job with the given id.",
         "description": "Deletes all data related to this job. All batch jobs and computed results are deleted. Web services will not respond to any further requests and are deleted, too. This job won't generate additional costs for processing.",
         "tags": [
           "Job Management"
@@ -1652,12 +1688,7 @@
         }
       }
     },
-    "/jobs/{job_id}/estimates": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        }
-      ],
+    "/jobs/{job_id}/estimate": {
       "post": {
         "summary": "Gives an estimate regarding costs and time for a batch job.",
         "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
@@ -1669,6 +1700,11 @@
             "Bearer": []
           }
         ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/job_id"
+          }
+        ],
         "requestBody": {
           "description": "Specifies the batch processing details to be used for calculating the costs.",
           "content": {
@@ -1676,12 +1712,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
-                  },
-                  "constraints": {
-                    "$ref": "#/components/schemas/constraints"
-                  },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
                   }
@@ -1726,11 +1756,6 @@
       }
     },
     "/jobs/{job_id}/subscriptions": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        }
-      ],
       "post": {
         "summary": "Subscribes to job execution updates that are communicated over WebSockets.",
         "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
@@ -1744,6 +1769,9 @@
           }
         ],
         "parameters": [
+          {
+            "$ref": "#/components/parameters/job_id"
+          },
           {
             "name": "Upgrade",
             "in": "header",
@@ -1815,256 +1843,15 @@
         }
       }
     },
-    "/jobs/{job_id}/batches": {
+    "/jobs/{job_id}/results": {
       "parameters": [
         {
           "$ref": "#/components/parameters/job_id"
-        }
-      ],
-      "get": {
-        "summary": "List all batch jobs for a certain job.",
-        "description": "List all batch jobs submitted for the specified job.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Array of batch jobs",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "description": "Defines metadata for a batch job.",
-                    "type": "object",
-                    "required": [
-                      "batch_id",
-                      "job_id",
-                      "status",
-                      "submitted",
-                      "updated"
-                    ],
-                    "properties": {
-                      "batch_id": {
-                        "$ref": "#/components/schemas/batch_id"
-                      },
-                      "job_id": {
-                        "$ref": "#/components/schemas/job_id"
-                      },
-                      "title": {
-                        "$ref": "#/components/schemas/title"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "status": {
-                        "$ref": "#/components/schemas/batch_status"
-                      },
-                      "submitted": {
-                        "$ref": "#/components/schemas/submitted"
-                      },
-                      "updated": {
-                        "$ref": "#/components/schemas/batch_updated"
-                      },
-                      "plan": {
-                        "$ref": "#/components/schemas/billing_plan"
-                      },
-                      "budget": {
-                        "$ref": "#/components/schemas/budget"
-                      },
-                      "costs": {
-                        "$ref": "#/components/schemas/money"
-                      }
-                    },
-                    "additionalProperties": true
-                  }
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Starts batch processing a job.",
-        "description": "Creates a batch job and queues it for execution.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "requestBody": {
-          "description": "Specifies the batch processing details. Defaults to the job output format or constraints if not specified.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
-                  },
-                  "constraints": {
-                    "$ref": "#/components/schemas/constraints"
-                  },
-                  "budget": {
-                    "$ref": "#/components/schemas/budget"
-                  },
-                  "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "$ref": "#/components/responses/created"
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/jobs/{job_id}/batches/{batch_id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        },
-        {
-          "$ref": "#/components/parameters/batch_id"
-        }
-      ],
-      "get": {
-        "summary": "Returns information about a batch job.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {},
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Batch information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "description": "Defines metadata for a batch job.",
-                  "type": "object",
-                  "required": [
-                    "batch_id",
-                    "job_id",
-                    "status",
-                    "submitted",
-                    "updated"
-                  ],
-                  "properties": {
-                    "batch_id": {
-                      "$ref": "#/components/schemas/batch_id"
-                    },
-                    "job_id": {
-                      "$ref": "#/components/schemas/job_id"
-                    },
-                    "title": {
-                      "$ref": "#/components/schemas/title"
-                    },
-                    "description": {
-                      "$ref": "#/components/schemas/description"
-                    },
-                    "status": {
-                      "$ref": "#/components/schemas/batch_status"
-                    },
-                    "submitted": {
-                      "$ref": "#/components/schemas/submitted"
-                    },
-                    "updated": {
-                      "$ref": "#/components/schemas/batch_updated"
-                    },
-                    "output": {
-                      "$ref": "#/components/schemas/output_format"
-                    },
-                    "constraints": {
-                      "$ref": "#/components/schemas/constraints"
-                    },
-                    "plan": {
-                      "$ref": "#/components/schemas/billing_plan"
-                    },
-                    "budget": {
-                      "$ref": "#/components/schemas/budget"
-                    },
-                    "costs": {
-                      "$ref": "#/components/schemas/money"
-                    }
-                  },
-                  "additionalProperties": true
-                }
-              }
-            }
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Deletes a batch job.",
-        "description": "This request stops all related computations at the back-end and deletes the computed results. The batch computation won't generate additional costs.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Batch processing has been stopped and result have been deleted."
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
-    "/jobs/{job_id}/batches/{batch_id}/results": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/job_id"
-        },
-        {
-          "$ref": "#/components/parameters/batch_id"
         }
       ],
       "get": {
         "summary": "Request download links for results of batch jobs.",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job. URL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end SHOULD indicate the expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON array with URLs as strings or a metalink XML document.",
+        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON\narray with URLs as strings or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.",
         "tags": [
           "Job Management"
         ],
@@ -2106,6 +1893,30 @@
                 }
               }
             }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Starts processing a batch job.",
+        "description": "Adds a betch job to the processing queue to compute the results.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The creation of the resource has been queued successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2536,11 +2347,6 @@
           ]
         }
       },
-      "batch_id": {
-        "type": "string",
-        "description": "Unique identifier of a batch job that is generated by the back-end during batch creation.",
-        "example": "12ab6f"
-      },
       "job_id": {
         "type": "string",
         "description": "Unique identifier of a job that is generated by the back-end during job submission.",
@@ -2552,7 +2358,7 @@
         "description": "Date and time of creation in ISO 8601 format",
         "example": "2017-01-01T09:32:12Z"
       },
-      "batch_updated": {
+      "updated": {
         "type": "string",
         "format": "dateTime",
         "description": "Date and time of last status change in ISO 8601 format.",
@@ -2563,85 +2369,18 @@
         "description": "Unique identifier of the user.",
         "example": "bd6f9faf93b4"
       },
-      "job_locked": {
-        "type": "boolean",
-        "description": "A job is locked and this property set to `true` when computations are running on the job, i.e.  there is an enabled service or a running batch computation for the job. Otherweise the job is unlocked and this property set to `false`. Jobs can't be modified while it is locked. Clients are not allowed to directly modify the state of the lock. To unlock a job all back computations must be finished or deleted and all services must be disabled or deleted.",
-        "default": false
-      },
-      "batch_status": {
+      "status": {
         "type": "string",
         "enum": [
           "submitted",
+          "queued",
           "running",
           "finished",
           "error"
         ],
-        "description": "The current status of the job.",
+        "description": "The current status of a batch job. The default state for a job is `Submitted`. A job is `queued` after calling `POST /jobs/{job_id}/results`. It remains in this state until processing has been started, which changes the status to `running`. After the processing has been completed the status is `finished` and results can be downloaded by requesting `GET /jobs/{job_id}/results`. Whenever an error occurs the status must be set to `error`.",
         "example": "running",
         "default": "submitted"
-      },
-      "constraints": {
-        "type": "object",
-        "description": "Contraints define how data is reduced (spatial extent, resolution, time range, etc.) for processing. It can be used to experiment with tasks and processes on small subsets of data.",
-        "properties": {
-          "spatial": {
-            "description": "Defines spatial resolution, extent and resampling method.",
-            "type": "object",
-            "properties": {
-              "extent": {
-                "$ref": "#/components/schemas/spatial_extent"
-              },
-              "resolution": {
-                "type": "number",
-                "description": "Resolution in degree."
-              },
-              "resampling": {
-                "type": "string",
-                "description": "Resampling method to use, e.g. nearest, bilinear, cubic, cubicspline, lanczos, average, mod, ... (tbd, see GDAL for examples). The back-end decides on a default resampling method."
-              },
-              "crs": {
-                "$ref": "#/components/schemas/refsys"
-              }
-            },
-            "example": {
-              "extent": {
-                "crs": "EPSG:4326",
-                "left": -10.21,
-                "top": 53.23,
-                "right": 12.542,
-                "bottom": 12.32
-              },
-              "resolution": 0.25,
-              "resampling": "nearest",
-              "crs": "EPSG:4326"
-            }
-          },
-          "temporal": {
-            "description": "Defines temporal resolution and extent.",
-            "type": "object",
-            "properties": {
-              "extent": {
-                "$ref": "#/components/schemas/temporal_extent"
-              },
-              "resolution": {
-                "type": "string",
-                "description": "Temporal granularity given as ISO 8601 time duration. In order to avoid mixing inconsistent durations such as `P1M30DT24H` only a single integer number with date/time component such as `P1M`, `P30D`, `PT24H` should be specified."
-              },
-              "resampling": {
-                "type": "string",
-                "description": "Resampling method to use, e.g. backward or forward fill, count of values, first or last valid data value, minimum or maximum data value, mean or median values, number of unique values, standard deviation, sum or variance of values, ... (tbd) The back-end decides on a default resampling method."
-              }
-            },
-            "example": {
-              "extent": {
-                "start": "2017-01-01",
-                "end": "2018-01-01"
-              },
-              "resolution": "P1M",
-              "resampling": "mean"
-            }
-          }
-        }
       },
       "title": {
         "description": "A short description to easily distinguish entities.",
@@ -2798,7 +2537,7 @@
     },
     "responses": {
       "created": {
-        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\n\nExamples: \n* `POST /services` redirects to `GET /services/{service_id}`\n* `POST /jobs` redirects to `GET /jobs/{job_id}`\n* `POST /jobs/{job_id}/batches` redirects to `GET /jobs/{job_id}/batches/{batch_id}`",
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\n\nExamples: \n* `POST /services` redirects to `GET /services/{service_id}`\n* `POST /jobs` redirects to `GET /jobs/{job_id}`",
         "headers": {
           "Location": {
             "required": true,
@@ -2873,15 +2612,6 @@
         "name": "job_id",
         "in": "path",
         "description": "Job identifier string",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "batch_id": {
-        "name": "batch_id",
-        "in": "path",
-        "description": "Batch identifier string",
         "required": true,
         "schema": {
           "type": "string"
