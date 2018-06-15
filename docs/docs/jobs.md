@@ -8,6 +8,11 @@ Web services usually allow users to change the viewing extent or level of detail
 
 Process graphs can also be ***executed  synchronously*** (`POST /jobs/previews`). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
+## Data processing details
+Heterogeneous datasets are unified by the back-ends based on the processes in the process graphs. For instance, the difference between a PROBA-V image and a Sentinel image, which have e a different projection and resolution, are automatically resampled and projected by the back-ends as soon as it is required to do so. Clients are not responsible to ensure that the data matches by first applying resampling or projections processes.
+
+Temporal references are always specified on the basis of the [Gregorian calendar](https://en.wikipedia.org/wiki/Gregorian_calendar).
+
 ## Examples
 
 ### Synchronously executed jobs
