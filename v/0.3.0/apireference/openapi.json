@@ -211,14 +211,14 @@
     "/output_formats": {
       "get": {
         "summary": "Returns output formats supported by the back-end.",
-        "description": "The request will ask the back-end for supported output formats, e.g.\nPNG, GTiff and JSON, and its default output format. The response\nis an object of the default and all available output formats and their\noptions. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see\n[GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n  A `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g.\nPNG, GTiff and JSON, and its default output format. The response\nis an object of the default and all available output formats and their\noptions. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with\nthe GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR\nVector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to\nsupport all output format options supported by GDAL. Some file formats\nnot available through GDAL could be defined centrally for openEO. Custom\noutput formats or options MAY be defined, but it is recommended to stick\nto GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data\nthat doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
         ],
         "responses": {
           "200": {
-            "description": "An object with the default output format and a map containing all output formats as keys and an object that defines available options.",
+            "description": "An object with the default output format and a map containing all output format names as keys and an object that defines supported paramaters.",
             "content": {
               "application/json": {
                 "schema": {
@@ -233,12 +233,12 @@
                     },
                     "formats": {
                       "type": "object",
-                      "description": "Optional arguments for this format",
+                      "description": "List of supported output formats.",
                       "additionalProperties": {
                         "type": "object",
+                        "description": "Named parameters for this output format.",
                         "additionalProperties": {
-                          "type": "string",
-                          "description": "Description of the argument, should contain a default value."
+                          "$ref": "#/components/schemas/argument"
                         }
                       }
                     }
@@ -250,13 +250,51 @@
                       "default": "GTiff",
                       "formats": {
                         "GTiff": {
-                          "tiled": "By default [false] stripped TIFF files are created. This option can be used to force creation of tiled TIFF files [true].",
-                          "compress": "Set the compression [JPEG/LZW/DEFLATE/NONE] to use.",
-                          "photometric": "Set the photometric interpretation tag [MINISBLACK/MINISWHITE/RGB/CMYK/YCBCR/CIELAB/ICCLAB/ITULAB].",
-                          "jpeg_quality": "Set the JPEG quality [1-100] when using JPEG compression. Default: 75"
+                          "tiled": {
+                            "type": "boolean",
+                            "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
+                            "default": false
+                          },
+                          "compress": {
+                            "type": "string",
+                            "description": "Set the compression to use.",
+                            "default": "none",
+                            "enum": [
+                              "JPEG",
+                              "LZW",
+                              "DEFLATE",
+                              "NONE"
+                            ]
+                          },
+                          "photometric": {
+                            "type": "string",
+                            "description": "Set the photometric interpretation tag.",
+                            "enum": [
+                              "MINISBLACK",
+                              "MINISWHIT",
+                              "RGB",
+                              "CMYK",
+                              "YCBCR",
+                              "CIELAB",
+                              "ICCLAB",
+                              "ITULAB"
+                            ],
+                            "default": "RGB"
+                          },
+                          "jpeg_quality": {
+                            "type": "integer",
+                            "description": "Set the JPEG quality when using JPEG.",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 75
+                          }
                         },
                         "PNG": {
-                          "worldfile": "Force the generation of an associated ESRI world file."
+                          "worldfile": {
+                            "type": "boolean",
+                            "description": "Force the generation of an associated ESRI world file.",
+                            "default": false
+                          }
                         },
                         "JSON": {}
                       }
@@ -1046,28 +1084,100 @@
     },
     "/service_types": {
       "get": {
-        "summary": "Returns web service types supported by the back-end.",
-        "description": "The request will ask the back-end for supported web service types, e.g. wms, tms, wmts or wcs. The response is an array of available web services types.",
+        "summary": "Returns web services supported by the back-end.",
+        "description": "The request will ask the back-end for supported web service, e.g.\nWMS or WCS. The response is an object of all available web service,\nincluding their parameters and attributes.\n\nParameters is input that needs to be defined upon creation of a web service.\nAttributes are computed values that are defined by the service during creation and \nbased on the parameters, e.g. available layers for WMS created based on the bands in a GeoTiff.\n\nTo improve interoperability between back-ends common names for the web services \nSHOULD be used, e.g. the abbreviations used in the official\n[OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.",
         "tags": [
           "Capabilities",
           "Web Service Management"
         ],
         "responses": {
           "200": {
-            "description": "An array of implemented web service types",
+            "description": "An object with a map containing all web service names as keys and an  object that defines supported paramaters and attributes.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "example": [
-                    "tms",
-                    "wcs",
-                    "wms",
-                    "wmts"
-                  ]
+                  "type": "object",
+                  "description": "List of supported web services.",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "parameters": {
+                        "type": "object",
+                        "description": "List of parameters.",
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/argument"
+                        }
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "description": "List of attributes.",
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/argument"
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "WMS": {
+                        "parameters": {
+                          "version": {
+                            "type": "string",
+                            "description": "The WMS version to use.",
+                            "default": "1.3.0",
+                            "enum": [
+                              "1.1.1",
+                              "1.3.0"
+                            ]
+                          }
+                        },
+                        "attributes": {
+                          "layers": {
+                            "type": "array",
+                            "description": "Array of layer names.",
+                            "example": [
+                              "roads",
+                              "countries",
+                              "water_bodies"
+                            ]
+                          }
+                        }
+                      },
+                      "WFS": {
+                        "parameters": {
+                          "version": {
+                            "type": "string",
+                            "description": "The WFS version to use.",
+                            "default": "2.0.0",
+                            "enum": [
+                              "1.0.0",
+                              "1.1.0",
+                              "2.0.0"
+                            ]
+                          },
+                          "maxFeatures": {
+                            "type": "integer",
+                            "description": "The WFS version to use (since WFS 2.0.0 only).",
+                            "default": 10000,
+                            "minimum": 1,
+                            "maximum": 100000
+                          }
+                        },
+                        "attributes": {
+                          "typeNames": {
+                            "type": "array",
+                            "description": "Array of available feature type names.",
+                            "example": [
+                              "topp:states",
+                              "topp:cities"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1206,8 +1316,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "args": {
-                    "$ref": "#/components/schemas/service_args"
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1269,8 +1379,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "args": {
-                    "$ref": "#/components/schemas/service_args"
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1335,8 +1445,20 @@
                     "enabled": {
                       "$ref": "#/components/schemas/service_enabled"
                     },
-                    "args": {
-                      "$ref": "#/components/schemas/service_args"
+                    "parameters": {
+                      "$ref": "#/components/schemas/service_parameters"
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "description": "Additional attributes a web service computes during creation of a web service depending on the input. For exmaple, this could list the available layers for a WMS. See `GET /service_types` for supported attributes.",
+                      "additionalProperties": true,
+                      "example": {
+                        "layers": [
+                          "basemap",
+                          "ndvi",
+                          "evi"
+                        ]
+                      }
                     },
                     "user_id": {
                       "$ref": "#/components/schemas/user_id"
@@ -1845,7 +1967,7 @@
       ],
       "get": {
         "summary": "Request download links for results of batch jobs.",
-        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON\narray with URLs as strings or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.",
+        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON\narray with URLs as strings or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be\nrejected with openEO error code 3006.",
         "tags": [
           "Job Management"
         ],
@@ -2389,9 +2511,9 @@
         "type": "string",
         "example": "wms"
       },
-      "service_args": {
+      "service_parameters": {
         "type": "object",
-        "description": "Definintion of additional arguments a web service might need to be created. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration.",
+        "description": "Definintion of additional parameters a web service might need to be created. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. See `GET /service_types` for supported parameters.",
         "additionalProperties": true,
         "example": {
           "version": 1.1
@@ -2412,6 +2534,46 @@
         "description": "Unique identifier of a web service that is generated by the back-end during web service creation. MUST match the specified pattern.",
         "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
         "example": "wms-a3cca9"
+      },
+      "argument": {
+        "type": "object",
+        "description": "Describes a general argument for various entities.",
+        "required": [
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "A brief description of the argument."
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Determines whether this argument is mandatory.",
+            "default": false
+          },
+          "default": {
+            "description": "The default value represents what would be assumed by the consumer of the input as the value of the argument if none is provided. The value MUST conform to the defined type for the argument defined at the same level. For example, if type is string, then default can be \"foo\" but cannot be 1."
+          },
+          "minimum": {
+            "type": "number",
+            "description": "Minimum value allowed for numeric arguments."
+          },
+          "maximum": {
+            "type": "number",
+            "description": "Maximum value allowed for numeric arguments."
+          },
+          "enum": {
+            "type": "array",
+            "description": "List of allowed values for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary.",
+            "items": {
+              "description": "A single value allowed for this argument."
+            }
+          },
+          "example": {
+            "description": "A free-form property to include an example for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary."
+          }
+        },
+        "example": null
       },
       "output_format": {
         "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
