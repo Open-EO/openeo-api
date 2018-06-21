@@ -16,4 +16,3 @@ cp -R /opt/swagger-ui/dist/* .
 curl https://raw.githubusercontent.com/Open-EO/openeo-api/$BRANCH/openapi.json -O
 sed -i -e 's!https://petstore.swagger.io/v2/swagger.json!openapi.json!g' index.html
 cp /opt/redoc.html .
-cp /opt/openapi.json .
