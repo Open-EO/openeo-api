@@ -8,6 +8,8 @@ RUN git clone https://github.com/swagger-api/swagger-ui.git
 
 COPY Docker/generate_docs.sh /opt/generate_docs.sh
 RUN chmod +x /opt/generate_docs.sh
+COPY redoc.html /opt/redoc.html
+COPY ../openapi.json /opt/openapi.json
 
 CMD ["/opt/generate_docs.sh"]
 
