@@ -1723,7 +1723,7 @@
       },
       "delete": {
         "summary": "Delete a job.",
-        "description": "Deletes all data related to this job. All batch jobs and computed results are deleted. Web services will not respond to any further requests and are deleted, too. This job won't generate additional costs for processing.",
+        "description": "Deletes all data related to this job. Computations are stopped and computed results are deleted. This job won't generate additional costs for processing.",
         "tags": [
           "Job Management"
         ],
@@ -1734,7 +1734,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The job has been successfully deleted"
+            "description": "The job has been successfully deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1951,7 +1951,6 @@
           "Job Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
@@ -1959,6 +1958,29 @@
         "responses": {
           "202": {
             "description": "The creation of the resource has been queued successfully."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel processing a job.",
+        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing. A subset of processed results may be available for downloading depending on the state of the job as it was canceled. Results SHOULD not be deleted until the job is deleted or job processing is started again.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Processing the job has been successfully canceled."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
