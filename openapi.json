@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of\nlarge Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the\n'General API Concept Description', which are not (fully) covered in this\nspecification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Please note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information. Additionally, the rendered version of the specification is not complete especiially regarding examples due to incomplete OpenAPI 3.0 support of SwaggerUI. For all details see the specification file itself.",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Please note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information. Additionally, the rendered version of the specification is not complete especiially regarding examples due to incomplete OpenAPI 3.0 support of SwaggerUI. For all details see the specification file itself.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -33,7 +33,7 @@
   "tags": [
     {
       "name": "Capabilities",
-      "description": "General information about the API implementation and other supported capabilities at a specific back-end."
+      "description": "General information about the API implementation and other supported capabilities at the back-end."
     },
     {
       "name": "EO Data Discovery",
@@ -42,10 +42,6 @@
     {
       "name": "Process Discovery",
       "description": "Discovery of processes that are available at the back-end."
-    },
-    {
-      "name": "User Content",
-      "description": "Services working with user content."
     },
     {
       "name": "Authentication",
@@ -61,7 +57,7 @@
     },
     {
       "name": "Job Management",
-      "description": "Services to manage batch jobs and their results."
+      "description": "Services to manage batch processing tasks (jobs) and their results."
     },
     {
       "name": "Web Service Management",
@@ -71,8 +67,8 @@
   "paths": {
     "/": {
       "get": {
-        "summary": "Returns the capabilities, i.e., which openEO API version and endpoints / feature are supported  by the back-end.",
-        "description": "The request will ask the back-end which version and features of the openEO API are supported and return a JSON description with available endpoints.",
+        "summary": "Supported features and other general information about the back-end.",
+        "description": "The request will ask the back-end which version and endpoints of the openEO API are supported. Also lists available billing plans.",
         "tags": [
           "Capabilities"
         ],
@@ -210,8 +206,8 @@
     },
     "/output_formats": {
       "get": {
-        "summary": "Returns output formats supported by the back-end.",
-        "description": "The request will ask the back-end for supported output formats, e.g.\nPNG, GTiff and JSON, and its default output format. The response\nis an object of the default and all available output formats and their\noptions. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with\nthe GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR\nVector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to\nsupport all output format options supported by GDAL. Some file formats\nnot available through GDAL could be defined centrally for openEO. Custom\noutput formats or options MAY be defined, but it is recommended to stick\nto GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data\nthat doesn't fit into raster or vector file formats. ",
+        "summary": "List supported output formats.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -315,7 +311,7 @@
     },
     "/data": {
       "get": {
-        "summary": "Returns basic information about EO datasets that are available at the back-end.",
+        "summary": "List available EO datasets.",
         "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.",
         "tags": [
           "EO Data Discovery"
@@ -427,7 +423,7 @@
         }
       ],
       "get": {
-        "summary": "Returns further information on a given EO dataset available at the back-end.",
+        "summary": "Full information about a specific EO dataset.",
         "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`",
         "tags": [
           "EO Data Discovery"
@@ -633,7 +629,7 @@
     },
     "/processes": {
       "get": {
-        "summary": "Returns processes supported by the back-end.",
+        "summary": "List supported processes.",
         "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.",
         "tags": [
           "Process Discovery"
@@ -678,8 +674,8 @@
     },
     "/credentials/oidc": {
       "get": {
-        "summary": "Authentication with OpenID Connect (RECOMMENDED).",
-        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is RECOMMENDED to implement this authentication method for public services.",
+        "summary": "Authentication with OpenID Connect.",
+        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.",
         "tags": [
           "Authentication"
         ],
@@ -758,7 +754,7 @@
     },
     "/validation": {
       "post": {
-        "summary": "Validates a process graph.",
+        "summary": "Validate a process graph.",
         "tags": [
           "Process Graph Management"
         ],
@@ -800,7 +796,7 @@
     },
     "/preview": {
       "post": {
-        "summary": "Computes results by executing a process graph synchronously.",
+        "summary": "Process and download EO data synchronously.",
         "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses.",
         "tags": [
           "Process Graph Management"
@@ -862,10 +858,9 @@
     },
     "/process_graphs": {
       "get": {
-        "summary": "Lists user-defined process graphs.",
-        "description": "This service lists all process graphs of the user that are stored at the back-end.",
+        "summary": "List all user-specific process graphs.",
+        "description": "This service lists all process graphs of the authenticated user that are stored at the back-end.",
         "tags": [
-          "User Content",
           "Process Graph Management"
         ],
         "security": [
@@ -912,7 +907,7 @@
         }
       },
       "post": {
-        "summary": "Submits a new process graph and returns a unqiue identifier.",
+        "summary": "Store a new process graph.",
         "description": "Creates a unique resource for a provided process graph that can be reused in other process graphs.",
         "tags": [
           "Process Graph Management"
@@ -966,7 +961,7 @@
         }
       ],
       "get": {
-        "summary": "Get a process graph by id.",
+        "summary": "Full information about a process graph.",
         "description": "Returns a JSON processs graph from its id.",
         "tags": [
           "Process Graph Management"
@@ -1016,7 +1011,7 @@
         }
       },
       "patch": {
-        "summary": "Replaces a process graph or modifies the metadata.",
+        "summary": "Modify a process graph.",
         "description": "Replaces a process graph or modifies the title, but maintains the identifier.",
         "tags": [
           "Process Graph Management"
@@ -1060,7 +1055,7 @@
         }
       },
       "delete": {
-        "summary": "Deletes a process graph with given id.",
+        "summary": "Delete a process graph.",
         "tags": [
           "Process Graph Management"
         ],
@@ -1084,8 +1079,8 @@
     },
     "/service_types": {
       "get": {
-        "summary": "Returns web services supported by the back-end.",
-        "description": "The request will ask the back-end for supported web service, e.g.\nWMS or WCS. The response is an object of all available web service,\nincluding their parameters and attributes.\n\nParameters is input that needs to be defined upon creation of a web service.\nAttributes are computed values that are defined by the service during creation and \nbased on the parameters, e.g. available layers for WMS created based on the bands in a GeoTiff.\n\nTo improve interoperability between back-ends common names for the web services \nSHOULD be used, e.g. the abbreviations used in the official\n[OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.",
+        "summary": "List supported web services protocols.",
+        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters is input that needs to be defined upon creation of a web service. Attributes are computed values that are defined by the web service during creation and based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.",
         "tags": [
           "Capabilities",
           "Web Service Management"
@@ -1193,11 +1188,10 @@
     },
     "/services": {
       "get": {
-        "summary": "List all running web services that have been submitted by the user.",
+        "summary": "List all user-specific web services.",
         "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
         "tags": [
-          "Web Service Management",
-          "User Content"
+          "Web Service Management"
         ],
         "security": [
           {
@@ -1270,7 +1264,7 @@
         }
       },
       "post": {
-        "summary": "Publish an interactive web service.",
+        "summary": "Publish a new web service.",
         "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
         "tags": [
           "Web Service Management"
@@ -1340,7 +1334,7 @@
         }
       ],
       "patch": {
-        "summary": "Modifies a web service.",
+        "summary": "Updates a web service.",
         "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. To change the web service type create a new web service.",
         "tags": [
           "Web Service Management"
@@ -1396,7 +1390,7 @@
         }
       },
       "get": {
-        "summary": "Get web service information by id.",
+        "summary": "Full information about a web service.",
         "description": "Requests to this endpoint will return JSON description of the web service.",
         "tags": [
           "Web Service Management"
@@ -1489,7 +1483,7 @@
         }
       },
       "delete": {
-        "summary": "Deletes a web service.",
+        "summary": "Delete a web service.",
         "description": "Calling this endpoint will stop a given web service to access result data.",
         "tags": [
           "Web Service Management"
@@ -1514,11 +1508,10 @@
     },
     "/jobs": {
       "get": {
-        "summary": "List all batch jobs that have been submitted by the user.",
+        "summary": "List all user-specific jobs.",
         "description": "Requests to this endpoint will list all batch jobs submitted by a user with given id.",
         "tags": [
-          "Job Management",
-          "User Content"
+          "Job Management"
         ],
         "security": [
           {
@@ -1587,8 +1580,8 @@
         }
       },
       "post": {
-        "summary": "Submits a new batch job to the back-end.",
-        "description": "Creates a new job from one or more (chained) processes at the back-end.",
+        "summary": "Create a new job.",
+        "description": "Creates a new batch processing task (job) from one or more (chained) processes at the back-end.",
         "tags": [
           "Job Management"
         ],
@@ -1651,7 +1644,7 @@
         }
       ],
       "patch": {
-        "summary": "Modifies a batch job at the back-end.",
+        "summary": "Modify a job.",
         "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with error code 3005.",
         "tags": [
           "Job Management"
@@ -1705,7 +1698,7 @@
         }
       },
       "get": {
-        "summary": "Returns information about a submitted batch job.",
+        "summary": "Full information about a job.",
         "description": "Returns detailed information about a submitted batch job.",
         "tags": [
           "Job Management"
@@ -1781,7 +1774,7 @@
         }
       },
       "delete": {
-        "summary": "Deletes a batch job with the given id.",
+        "summary": "Delete a job.",
         "description": "Deletes all data related to this job. All batch jobs and computed results are deleted. Web services will not respond to any further requests and are deleted, too. This job won't generate additional costs for processing.",
         "tags": [
           "Job Management"
@@ -1806,7 +1799,7 @@
     },
     "/jobs/{job_id}/estimate": {
       "get": {
-        "summary": "Gives an estimate regarding costs and time for a batch job.",
+        "summary": "Get an estimate for a job.",
         "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
         "tags": [
           "Job Management"
@@ -1858,7 +1851,7 @@
     },
     "/jobs/{job_id}/subscriptions": {
       "post": {
-        "summary": "Subscribes to job execution updates that are communicated over WebSockets.",
+        "summary": "Subscribe to execution updates for a job.",
         "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
         "tags": [
           "Job Management"
@@ -1951,7 +1944,7 @@
         }
       ],
       "get": {
-        "summary": "Request download links for results of batch jobs.",
+        "summary": "Download information for a completed job.",
         "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON\narray with URLs as strings or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be\nrejected with openEO error code 3006.",
         "tags": [
           "Job Management"
@@ -2004,8 +1997,8 @@
         }
       },
       "post": {
-        "summary": "Starts processing a batch job.",
-        "description": "Adds a betch job to the processing queue to compute the results.",
+        "summary": "Start processing a job.",
+        "description": "Adds a batch job to the processing queue to compute the results.",
         "tags": [
           "Job Management"
         ],
@@ -2035,10 +2028,9 @@
         }
       ],
       "get": {
-        "summary": "List user-uploaded files.",
+        "summary": "List all user-specific files.",
         "description": "This service lists all user-uploaded files that are stored at the back-end.",
         "tags": [
-          "User Content",
           "File Management"
         ],
         "security": [
@@ -2119,7 +2111,7 @@
         }
       ],
       "get": {
-        "summary": "Download a user file.",
+        "summary": "Download a file.",
         "description": "This service downloads a user files identified by its path relative to the user's root directory.",
         "tags": [
           "File Management"
@@ -2151,7 +2143,7 @@
         }
       },
       "put": {
-        "summary": "Upload a new or update an existing user file.",
+        "summary": "Upload a file.",
         "description": "This service uploads a new or updates an existing file at a given path.",
         "tags": [
           "File Management"
@@ -2192,7 +2184,7 @@
         }
       },
       "delete": {
-        "summary": "Deletes a user file.",
+        "summary": "Delete a file.",
         "description": "This service deletes an existing user-uploaded file specified by its path.",
         "tags": [
           "File Management"
@@ -2225,10 +2217,10 @@
     },
     "/me": {
       "get": {
-        "summary": "Returns information about the logged in user.",
-        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user.\nFor back-ends that involve accounting, this service MAY also return the\ncurrently available money or credits in the currency the back-end is\nworking with.\n\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
+        "summary": "Information about the authenticated user.",
+        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user.\nFor back-ends that involve accounting, this service MAY also return the currently available money or credits in the currency the back-end is working with.\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
         "tags": [
-          "User Content"
+          "Authentication"
         ],
         "security": [
           {
@@ -2418,7 +2410,9 @@
       },
       "process_graph_id": {
         "type": "string",
-        "description": "Unique identifier of a job that is generated by the back-end during job submission. MUST match the specified pattern. pattern: ^[A-Za-z0-9_\\-\\.~]+$ example: cc2bab1e3b3a52aa"
+        "description": "Unique identifier of a job that is generated by the back-end during job submission. MUST match the specified pattern.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
+        "example": "cc2bab1e3b3a52aa"
       },
       "arg_set": {
         "description": "Defines an object schema for a collection of uniquely named arguments (argument set) as input to processes. The values can by any of the JSON data types string, number, array, boolean or null. Additionally it can be any object of type **process_graph**. An array must always contain one data type only and is allowed to contain the data types allowed for argument set values. In consequence, the objects allowed to be part of an array are process_graphs only. See the API Concept Description for more information.",
@@ -2677,7 +2671,7 @@
     },
     "responses": {
       "created": {
-        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\n\nExamples: \n* `POST /services` redirects to `GET /services/{service_id}`\n* `POST /jobs` redirects to `GET /jobs/{job_id}`",
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\nExamples:  * `POST /services` redirects to `GET /services/{service_id}` * `POST /jobs` redirects to `GET /jobs/{job_id}`",
         "headers": {
           "Location": {
             "required": true,
