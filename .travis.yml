@@ -13,10 +13,11 @@ install:
 
 script:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
-- if [[ $TRAVIS_BRANCH == 'master' ]] ; then cd gh-pages/ && rm -rf !(v) && cd - && cp -R site/* gh-pages/ ; fi
-- if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf gh-pages/v/$TRAVIS_BRANCH && mkdir -p gh-pages/v/$TRAVIS_BRANCH/ && cp -R site/* gh-pages/v/$TRAVIS_BRANCH/ ; fi
+- cd gh-pages
+- if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
+- if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf v/$TRAVIS_BRANCH && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
 - git config user.name "Travis CI Documentation Builder"
 - git config user.email "m.mohr@uni-muenster.de"
-- cd gh-pages && git add .
+- git add .
 - git commit -m "Automated documentation build[ci skip]"
 - git push --force "${GH_REF}" gh-pages:gh-pages
