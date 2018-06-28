@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 
 RUN apt-get update && apt-get install -y git software-properties-common build-essential curl mkdocs python3-pip
-RUN pip install mkdocs-material
+RUN pip3 install mkdocs-material
 
 WORKDIR /opt
 COPY generate_docs.sh /opt/generate_docs.sh
