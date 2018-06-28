@@ -10,7 +10,7 @@ The openEO API defines a language how clients communicate to back-ends in order 
 6. There will be a central back-end registry service (openEO Hub), to allow users to search for back-ends with specific functionality and or data. 
 7. The openEO API will define *profiles* in order group specific functionality.
 
-![Architecture](arch.png)
+![Architecture](img/arch.png)
 
 
 # Microservices
