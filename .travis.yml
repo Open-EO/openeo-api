@@ -10,12 +10,15 @@ before_install:
 
 install:
 - mkdocs build --clean
+- cp openapi.json site/
+- rm site/apireference/index.html
+- mv site/apireference.html site/apireference/index.html
 
 script:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
 - cd gh-pages
 - if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
-- if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf v/$TRAVIS_BRANCH && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
+- if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf v/$TRAVIS_BRANCH/ && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
 
 deploy:
   provider: pages
