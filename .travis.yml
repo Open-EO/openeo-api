@@ -16,8 +16,9 @@ script:
 - cd gh-pages
 - if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
 - if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf v/$TRAVIS_BRANCH && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
-- git config user.name "Travis CI Documentation Builder"
-- git config user.email "m.mohr@uni-muenster.de"
-- git add .
-- git commit -m "Automated documentation build[ci skip]"
-- git push --force "$GITHUB_TOKEN@github.com:Open-EO/openeo-api.git" gh-pages:gh-pages
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
