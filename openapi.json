@@ -182,7 +182,8 @@
                               },
                               "url": {
                                 "type": "string",
-                                "description": "A url to a page with more details about the plan.",
+                                "description": "URL to a web page with more details about the plan.",
+                                "format": "url",
                                 "example": "http://openeo.org/plans/free-plan"
                               }
                             }
@@ -353,6 +354,10 @@
                   "type": "array",
                   "items": {
                     "type": "object",
+                    "required": [
+                      "data_id",
+                      "description"
+                    ],
                     "properties": {
                       "data_id": {
                         "$ref": "#/components/schemas/data_id"
@@ -447,6 +452,13 @@
                     },
                     "description": {
                       "$ref": "#/components/schemas/description"
+                    },
+                    "links": {
+                      "description": "Additional links related to this EO dataset. Could reference to other meta data formats with additional information or a preview image.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/link"
+                      }
                     },
                     "source": {
                       "type": "string"
@@ -1132,62 +1144,58 @@
                     }
                   },
                   "example": {
-                    "response": {
-                      "value": {
-                        "WMS": {
-                          "parameters": {
-                            "version": {
-                              "type": "string",
-                              "description": "The WMS version to use.",
-                              "default": "1.3.0",
-                              "enum": [
-                                "1.1.1",
-                                "1.3.0"
-                              ]
-                            }
-                          },
-                          "attributes": {
-                            "layers": {
-                              "type": "array",
-                              "description": "Array of layer names.",
-                              "example": [
-                                "roads",
-                                "countries",
-                                "water_bodies"
-                              ]
-                            }
-                          }
+                    "WMS": {
+                      "parameters": {
+                        "version": {
+                          "type": "string",
+                          "description": "The WMS version to use.",
+                          "default": "1.3.0",
+                          "enum": [
+                            "1.1.1",
+                            "1.3.0"
+                          ]
+                        }
+                      },
+                      "attributes": {
+                        "layers": {
+                          "type": "array",
+                          "description": "Array of layer names.",
+                          "example": [
+                            "roads",
+                            "countries",
+                            "water_bodies"
+                          ]
+                        }
+                      }
+                    },
+                    "WFS": {
+                      "parameters": {
+                        "version": {
+                          "type": "string",
+                          "description": "The WFS version to use.",
+                          "default": "2.0.0",
+                          "enum": [
+                            "1.0.0",
+                            "1.1.0",
+                            "2.0.0"
+                          ]
                         },
-                        "WFS": {
-                          "parameters": {
-                            "version": {
-                              "type": "string",
-                              "description": "The WFS version to use.",
-                              "default": "2.0.0",
-                              "enum": [
-                                "1.0.0",
-                                "1.1.0",
-                                "2.0.0"
-                              ]
-                            },
-                            "maxFeatures": {
-                              "type": "integer",
-                              "description": "The WFS version to use (since WFS 2.0.0 only).",
-                              "default": 10000,
-                              "minimum": 1,
-                              "maximum": 100000
-                            }
-                          },
-                          "attributes": {
-                            "typeNames": {
-                              "type": "array",
-                              "description": "Array of available feature type names.",
-                              "example": [
-                                "topp:states",
-                                "topp:cities"
-                              ]
-                            }
-                          }
+                        "maxFeatures": {
+                          "type": "integer",
+                          "description": "The WFS version to use (since WFS 2.0.0 only).",
+                          "default": 10000,
+                          "minimum": 1,
+                          "maximum": 100000
+                        }
+                      },
+                      "attributes": {
+                        "typeNames": {
+                          "type": "array",
+                          "description": "Array of available feature type names.",
+                          "example": [
+                            "topp:states",
+                            "topp:cities"
+                          ]
                         }
                       }
                     }
@@ -1973,7 +1981,7 @@
       ],
       "get": {
         "summary": "Download information for a completed job.",
-        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a simple JSON\narray with URLs as strings or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be\nrejected with openEO error code 3006.",
+        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON\narray containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be\nrejected with openEO error code 3006.",
         "tags": [
           "Job Management"
         ],
@@ -1997,19 +2005,27 @@
             },
             "content": {
               "application/json": {
-                "examples": {
-                  "response": {
-                    "value": [
-                      "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
-                      "https://openeo.org/api/v0/download/583fba8b2ce/2.tif"
-                    ]
-                  }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/link"
+                  },
+                  "example": [
+                    {
+                      "href": "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
+                      "type": "image/tiff"
+                    },
+                    {
+                      "href": "https://openeo.org/api/v0/download/583fba8b2ce/2.tif",
+                      "type": "image/tiff"
+                    }
+                  ]
                 }
               },
               "application/metalink+xml": {
                 "examples": {
                   "response": {
-                    "summary": "External metalink file as an example (no openEO related content)",
+                    "summary": "External metalink file as an example (no openEO related content).",
                     "externalValue": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.metalink"
                   }
                 }
@@ -2117,27 +2133,23 @@
                     },
                     "additionalProperties": true
                   },
-                  "example": {
-                    "response": {
-                      "value": [
-                        {
-                          "name": "test.txt",
-                          "size": 182,
-                          "modified": "2015-10-20T17:22:10Z"
-                        },
-                        {
-                          "name": "test.tif",
-                          "size": 183142,
-                          "modified": "2017-01-01T09:36:18Z"
-                        },
-                        {
-                          "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
-                          "size": 4183353142,
-                          "modified": "2018-01-03T10:55:29Z"
-                        }
-                      ]
+                  "example": [
+                    {
+                      "name": "test.txt",
+                      "size": 182,
+                      "modified": "2015-10-20T17:22:10Z"
+                    },
+                    {
+                      "name": "test.tif",
+                      "size": 183142,
+                      "modified": "2017-01-01T09:36:18Z"
+                    },
+                    {
+                      "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
+                      "size": 4183353142,
+                      "modified": "2018-01-03T10:55:29Z"
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -2333,6 +2345,31 @@
   },
   "components": {
     "schemas": {
+      "link": {
+        "description": "A link to another resource on the web. Bases on [RFC5899](https://tools.ietf.org/html/rfc5988) and SHOULD follow [registered link relation types](https://www.iana.org/assignments/link-relations/link-relations.xml) whenever feasible.",
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "rel": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string",
+            "description": "The value MUST be a dereferenceable URI.",
+            "format": "uri"
+          },
+          "type": {
+            "type": "string",
+            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a mime-type."
+          },
+          "title": {
+            "type": "string",
+            "description": "Used as a human-readable label for a link."
+          }
+        }
+      },
       "money": {
         "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
         "type": "number",
@@ -2556,7 +2593,8 @@
       },
       "service_url": {
         "type": "string",
-        "description": "URL at which the web service is accessible. Doesn't necessarily need to contain the API base url.",
+        "format": "url",
+        "description": "URL at which the web service is accessible. Doesn't necessarily need to be located within the API.",
         "example": "https://openeo.org/wms/wms-a3cca9"
       },
       "service_id": {
@@ -2660,6 +2698,7 @@
           },
           "url": {
             "type": "string",
+            "format": "url",
             "description": "Can bet set to hold a URL to a resource that is explaining the error and potential solutions in-depth.",
             "example": "http://www.openeo.org/docs/errors/123"
           }
@@ -2722,12 +2761,13 @@
     },
     "responses": {
       "created": {
-        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\nExamples:  * `POST /services` redirects to `GET /services/{service_id}` * `POST /jobs` redirects to `GET /jobs/{job_id}`",
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\nExamples: * `POST /services` redirects to `GET /services/{service_id}` * `POST /jobs` redirects to `GET /jobs/{job_id}`",
         "headers": {
           "Location": {
             "required": true,
             "schema": {
-              "description": "URL to the newly created resource.",
+              "description": "URI to the newly created resource.",
+              "format": "uri",
               "type": "string",
               "example": "https://openeo.org/api/v0/resource/123"
             }
