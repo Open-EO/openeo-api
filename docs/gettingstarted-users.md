@@ -2,7 +2,7 @@
 
 Currently, there are three official client libraries and a web-based interface for openEO.
 
-If you are **unfamiliar** with programming, you could start using the web-based editor for openEO. It supports visual modelling of your algorithms and a simplified JavaScript based access to the openEO workflows and providers. 
+If you are **unfamiliar** with programming, you could start using the [web-based editor for openEO](https://open-eo.github.io/openeo-web-editor/demo/). It supports visual modelling of your algorithms and a simplified JavaScript based access to the openEO workflows and providers. 
 
 If you are **familiar** with programming, you could choose a client library for three programming languages:
 

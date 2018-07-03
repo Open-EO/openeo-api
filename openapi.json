@@ -221,7 +221,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g.\nPNG, GTiff and JSON, and its default output format. The response\nis an object of the default and all available output formats and their\noptions. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with\nthe GDAL codes if available, see [GDAL Raster\nFormats](http://www.gdal.org/formats_list.html) and [OGR\nVector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to\nsupport all output format options supported by GDAL. Some file formats\nnot available through GDAL could be defined centrally for openEO. Custom\noutput formats or options MAY be defined, but it is recommended to stick\nto GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting\ndata that doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -773,6 +773,7 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph.",
+        "description": "Validates a process graph without executing it. Checks whether the process graph is schematically correct and the processes are supported by the back-end. It also checks the parameter values against the schema, but MAY not check the values are adequate in the context of data. For example, a non-existing band name may not get rejected. Errors that occur during processing MAY not get reported, too. An example could be a division by zero.",
         "tags": [
           "Process Graph Management"
         ],
@@ -815,7 +816,7 @@
     "/preview": {
       "post": {
         "summary": "Process and download EO data synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses. This endpoint could be used especially to generate small previews or  test process graphs before starting a batch job.",
         "tags": [
           "Process Graph Management"
         ],
@@ -980,7 +981,7 @@
       ],
       "get": {
         "summary": "Full information about a process graph.",
-        "description": "Returns a JSON processs graph from its id.",
+        "description": "Returns all information about a process graph.",
         "tags": [
           "Process Graph Management"
         ],
@@ -1097,7 +1098,7 @@
     },
     "/service_types": {
       "get": {
-        "summary": "List supported web services protocols.",
+        "summary": "List supported web service protocols.",
         "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters is input that needs to be defined upon creation of a web service. Attributes are computed values that are defined by the web service during creation and based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.",
         "tags": [
           "Capabilities",
