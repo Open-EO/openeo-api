@@ -464,8 +464,8 @@
                     },
                     "links": {
                       "description": "Additional links related to this EO dataset. Could reference to other meta data formats with additional information or a preview image.",
-                      "type": "object",
-                      "additionalProperties": {
+                      "type": "array",
+                      "items": {
                         "$ref": "#/components/schemas/link"
                       }
                     },
@@ -622,6 +622,18 @@
                         "offset": 0,
                         "type": "int16",
                         "unit": "1"
+                      }
+                    ],
+                    "links": [
+                      {
+                        "href": "https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c",
+                        "title": "ESA Sentinel-2 MSI Level-1C User Guide",
+                        "rel": "about"
+                      },
+                      {
+                        "href": "https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-1c-processing",
+                        "title": "ESA Sentinel-2 MSI Level-1C Processing",
+                        "rel": "about"
                       }
                     ]
                   }
@@ -2289,7 +2301,7 @@
     "/me": {
       "get": {
         "summary": "Information about the authenticated user.",
-        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user.\nFor back-ends that involve accounting, this service MAY also return the currently available money or credits in the currency the back-end is working with.\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
+        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user. It MAY also return additional links related to the user, e.g. where payments are handled or the user profile could be changed.\nFor back-ends that involve accounting, this service MAY also return the currently available money or credits in the currency the back-end is working with.\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
         "tags": [
           "Authentication"
         ],
@@ -2336,6 +2348,35 @@
                     },
                     "budget": {
                       "$ref": "#/components/schemas/budget"
+                    },
+                    "links": {
+                      "description": "Additional links related to the user, e.g. where payments are handled or the user profile could be changed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      },
+                      "example": [
+                        {
+                          "href": "http://www.openeo.org/john_doe/payment/",
+                          "rel": "payment"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe/edit/",
+                          "rel": "edit"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe/",
+                          "rel": "about",
+                          "type": "text/html",
+                          "title": "User profile"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe.vcf",
+                          "rel": "about",
+                          "type": "text/vcard",
+                          "title": "vCard of the user"
+                        }
+                      ]
                     }
                   }
                 }
@@ -2705,11 +2746,18 @@
             "description": "The message explains what the client might need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
-          "url": {
-            "type": "string",
-            "format": "url",
-            "description": "Can bet set to hold a URL to a resource that is explaining the error and potential solutions in-depth.",
-            "example": "http://www.openeo.org/docs/errors/123"
+          "links": {
+            "description": "Additional links related to this error, e.g. a resource that is explaining the error and potential solutions in-depth or a contact e-mail address.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            },
+            "example": [
+              {
+                "href": "http://www.openeo.org/docs/errors/123",
+                "rel": "about"
+              }
+            ]
           }
         }
       },
