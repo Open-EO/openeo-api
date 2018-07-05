@@ -222,7 +222,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g.\nPNG, GTiff and JSON, and its default output format. The response\nis an object of the default and all available output formats and their\noptions. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with\nthe GDAL codes if available, see [GDAL Raster\nFormats](http://www.gdal.org/formats_list.html) and [OGR\nVector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to\nsupport all output format options supported by GDAL. Some file formats\nnot available through GDAL could be defined centrally for openEO. Custom\noutput formats or options MAY be defined, but it is recommended to stick\nto GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting\ndata that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -344,7 +344,7 @@
     "/data": {
       "get": {
         "summary": "List available EO datasets.",
-        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.",
+        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
         "tags": [
           "EO Data Discovery"
         ],
@@ -432,7 +432,7 @@
       ],
       "get": {
         "summary": "Full information about a specific EO dataset.",
-        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`",
+        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
         "tags": [
           "EO Data Discovery"
         ],
@@ -667,7 +667,7 @@
     "/processes": {
       "get": {
         "summary": "List supported processes.",
-        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.",
+        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
         "tags": [
           "Process Discovery"
         ],
@@ -1350,7 +1350,8 @@
                 "type": "object",
                 "required": [
                   "job_id",
-                  "type"
+                  "type",
+                  "process_graph"
                 ],
                 "properties": {
                   "title": {
@@ -1472,7 +1473,8 @@
                     "enabled",
                     "type",
                     "url",
-                    "args",
+                    "parameters",
+                    "attributes",
                     "user_id"
                   ],
                   "properties": {
@@ -2002,7 +2004,7 @@
       ],
       "get": {
         "summary": "Download information for a completed job.",
-        "description": "After finishing processing, this request will provide signed URLs to the\nprocessed files of the batch job.\n\nURL signing is a way to protect files\nfrom unauthorized access with a key instead of HTTP header based\nauthorization. The URL signing key is similar to a password and it's\ninclusion in the URL allows to download files using simple GET requests\nsupported by a wide range of programs, e.g. web browsers or download\nmanagers. Back-ends are responsible to generate the URL signing keys and\ntheir appropriate expiration. The back-end MAY indicate an\nexpiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON\narray containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be\nrejected with openEO error code 3006.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.",
         "tags": [
           "Job Management"
         ],
