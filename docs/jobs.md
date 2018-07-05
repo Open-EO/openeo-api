@@ -30,47 +30,37 @@ Body:
 {
   "process_graph":{
     "process_id":"min_time",
-    "args":{
+    "imagery":{
+      "process_id":"NDVI",
       "imagery":{
-        "process_id":"NDVI",
-        "args":{
+        "process_id":"filter_daterange",
+        "imagery":{
+          "process_id":"filter_bbox",
           "imagery":{
-            "process_id":"filter_daterange",
-            "args":{
-              "imagery":{
-                "process_id":"filter_bbox",
-                "args":{
-                  "imagery":{
-                    "process_id":"get_data",
-                    "args": {
-                      "data_id": "S2_L2A_T32TPS_20M"
-                    }
-                  },
-                  "left":652000,
-                  "right":672000,
-                  "top":5161000,
-                  "bottom":5181000,
-                  "srs":"EPSG:32632"
-                }
-              },
-              "from":"2017-01-01",
-              "to":"2017-01-31"
-            }
+            "process_id":"get_data",
+            "data_id":"S2_L2A_T32TPS_20M"
           },
-          "red":"B04",
-          "nir":"B8A"
-        }
-      }
+          "left":652000,
+          "right":672000,
+          "top":5161000,
+          "bottom":5181000,
+          "srs":"EPSG:32632"
+        },
+        "from":"2017-01-01",
+        "to":"2017-01-31"
+      },
+      "red":"B04",
+      "nir":"B8A"
     }
   },
   "output":{
     "format":"GTiff",
-	"args": {
+    "args":{
       "tiled":true,
       "compress":"jpeg",
       "photometric":"YCBCR",
       "jpeg_quality":80
-	}
+    }
   }
 }
 ```
@@ -99,39 +89,29 @@ Body:
 {
   "process_graph":{
     "process_id":"zonal_statistics",
-    "args":{
+    "imagery":{
+      "process_id":"filter_daterange",
       "imagery":{
-        "process_id":"filter_daterange",
-        "args":{
+        "process_id":"filter_bbox",
+        "imagery":{
+          "process_id":"filter_bands",
           "imagery":{
-            "process_id":"filter_bbox",
-            "args":{
-              "imagery":{
-                "process_id":"filter_bands",
-                "args":{
-                  "imagery":{
-                    "process_id": "get_data",
-                    "args": {
-                      "data_id":"Sentinel2-L1C"
-                    }
-                  },
-                  "bands":8
-                }
-              },
-              "left":16.1,
-              "right":16.6,
-              "top":48.6,
-              "bottom":47.2,
-              "srs":"EPSG:4326"
-            }
+            "process_id":"get_data",
+            "data_id":"Sentinel2-L1C"
           },
-          "from":"2017-01-01",
-          "to":"2017-01-31"
-        }
+          "bands":8
+        },
+        "left":16.1,
+        "right":16.6,
+        "top":48.6,
+        "bottom":47.2,
+        "srs":"EPSG:4326"
       },
-      "regions":"/users/me/files/",
-      "func":"avg"
-    }
+      "from":"2017-01-01",
+      "to":"2017-01-31"
+    },
+    "regions":"/users/me/files/",
+    "func":"avg"
   },
   "output":{
     "format":"GPKG"
