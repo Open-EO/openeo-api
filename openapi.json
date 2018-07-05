@@ -344,7 +344,7 @@
     "/data": {
       "get": {
         "summary": "List available EO datasets.",
-        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
+        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n***Note:** This is a draft and may change in API version 0.4!*",
         "tags": [
           "EO Data Discovery"
         ],
@@ -432,7 +432,7 @@
       ],
       "get": {
         "summary": "Full information about a specific EO dataset.",
-        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
+        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n***Note:** This is an early draft and will change in API version 0.4!*",
         "tags": [
           "EO Data Discovery"
         ],
@@ -667,7 +667,7 @@
     "/processes": {
       "get": {
         "summary": "List supported processes.",
-        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.\n\n***Note:*** This is an early draft and will change in API version 0.4!***",
+        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.\n\n***Note:** This is an early draft and will change in API version 0.4!*",
         "tags": [
           "Process Discovery"
         ],
@@ -677,25 +677,360 @@
             "Bearer": []
           }
         ],
-        "externalDocs": {
-          "description": "Functio specification, version 0.1.0 (or any newer patch version).",
-          "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md"
-        },
         "responses": {
           "200": {
-            "description": "Functio document describing the supported processes.",
+            "description": "Formal specification describing the supported processes.",
             "content": {
               "application/json": {
                 "schema": {
-                  "externalDocs": {
-                    "description": "Functio specification, version 0.1.0 (or any newer patch version).",
-                    "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md"
-                  }
-                },
-                "examples": {
-                  "functioSpecExample": {
-                    "externalValue": "https://raw.githubusercontent.com/m-mohr/functio-spec/master/versions/0.1.0/example.json"
-                  }
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Name used to identify the process. The id MUST be unique. It is RECOMMENDED to follow common programming naming conventions."
+                      },
+                      "summary": {
+                        "type": "string",
+                        "description": "A short summary of what the process does."
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter. Parameter names are case sensitive.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "required": [
+                            "description"
+                          ],
+                          "properties": {
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            },
+                            "required": {
+                              "type": "boolean",
+                              "description": "Determines whether this parameter is mandatory.",
+                              "default": false
+                            },
+                            "dependencies": {
+                              "type": "array",
+                              "description": "A list of parameters that influence this parameter or this parameter depends on.",
+                              "items": {
+                                "type": "object",
+                                "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
+                                "required": [
+                                  "parameter"
+                                ],
+                                "properties": {
+                                  "description": {
+                                    "$ref": "#/components/schemas/description"
+                                  },
+                                  "parameter": {
+                                    "type": "string",
+                                    "description": "The name of the referenced parameter."
+                                  },
+                                  "ref_values": {
+                                    "type": "array",
+                                    "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
+                                    "items": {
+                                      "description": "Any data type allowed for the referenced parameter."
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "deprecated": {
+                              "type": "boolean",
+                              "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                              "default": false
+                            },
+                            "mime_type": {
+                              "type": "string",
+                              "description": "The mime type that the parameter is formatted with."
+                            },
+                            "schema": {
+                              "$ref": "#/components/schemas/json_schema"
+                            }
+                          }
+                        }
+                      },
+                      "min_parameters": {
+                        "type": "integer",
+                        "description": "Minimum number of parameters required for this process, including required parameters."
+                      },
+                      "returns": {
+                        "type": "object",
+                        "description": "The data that is returned from this process. If not specified the process does not return anything.",
+                        "properties": {
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "mime_type": {
+                            "type": "string",
+                            "description": "The mime type that the returned data is formatted with."
+                          },
+                          "schema": {
+                            "$ref": "#/components/schemas/json_schema"
+                          }
+                        }
+                      },
+                      "deprecated": {
+                        "type": "boolean",
+                        "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
+                        "default": false
+                      },
+                      "exceptions": {
+                        "type": "object",
+                        "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "required": [
+                            "description"
+                          ],
+                          "properties": {
+                            "code": {
+                              "type": "integer",
+                              "description": "Code to identify the exception."
+                            },
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            }
+                          }
+                        }
+                      },
+                      "examples": {
+                        "type": "object",
+                        "description": "If parameters or return values are referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "description": "The sourceCode field is mutually exclusive of the paramaters and returns fields, i.e. you can only specify either sourceCode or parameters/returns.",
+                          "required": [
+                            "description"
+                          ],
+                          "properties": {
+                            "summary": {
+                              "type": "string",
+                              "description": "Short summary for the example."
+                            },
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            },
+                            "process_graph": {
+                              "$ref": "#/components/schemas/process_graph"
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "type": "array",
+                        "description": "Related links, e.g. additional external documentation for this process.",
+                        "items": {
+                          "$ref": "#/components/schemas/link"
+                        }
+                      }
+                    }
+                  },
+                  "example": [
+                    {
+                      "name": "get_data",
+                      "summary": "Selects a dataset.",
+                      "description": "Filters and selects a single dataset provided by the back-end. The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
+                      "min_parameters": 1,
+                      "parameters": {
+                        "data_id": {
+                          "description": "Filter by data id",
+                          "schema": {
+                            "type": "string",
+                            "example": "Sentinel2A-L1C"
+                          }
+                        },
+                        "extent": {
+                          "description": "Filter by extent",
+                          "schema": {
+                            "type": "object",
+                            "required": [
+                              "left",
+                              "right",
+                              "top",
+                              "bottom"
+                            ],
+                            "properties": {
+                              "crs": {
+                                "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+                                "type": "string",
+                                "default": "EPSG:4326"
+                              },
+                              "left": {
+                                "type": "number"
+                              },
+                              "right": {
+                                "type": "number"
+                              },
+                              "top": {
+                                "type": "number"
+                              },
+                              "bottom": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "time": {
+                          "description": "Filter by time",
+                          "schema": {
+                            "type": "string"
+                          }
+                        },
+                        "bands": {
+                          "description": "Filter by band IDs",
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "derived_from": {
+                          "description": "Filter by derived data set",
+                          "schema": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "license": {
+                          "description": "Filter by license",
+                          "schema": {
+                            "type": "string",
+                            "example": "Apache-2.0",
+                            "externalDocs": {
+                              "summary": "SPDX License List",
+                              "url": "https://spdx.org/licenses/"
+                            }
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data."
+                      }
+                    },
+                    {
+                      "name": "filter_bands",
+                      "summary": "Filter an image collection by bands.",
+                      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
+                      "min_parameters": 2,
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true
+                        },
+                        "bands": {
+                          "description": "string or array of strings containing band ids.",
+                          "schema": {
+                            "type": [
+                              "string",
+                              "array"
+                            ],
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "names": {
+                          "description": "string or array of strings containing band names.",
+                          "schema": {
+                            "type": [
+                              "string",
+                              "array"
+                            ],
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "wavelengths": {
+                          "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
+                          "schema": {
+                            "type": [
+                              "float",
+                              "array"
+                            ],
+                            "minLength": 2,
+                            "maxLength": 2,
+                            "items": {
+                              "type": "float"
+                            }
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data."
+                      }
+                    },
+                    {
+                      "name": "filter_daterange",
+                      "summary": "Filter an image collection by temporal extent.",
+                      "min_parameters": 1,
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true
+                        },
+                        "from": {
+                          "description": "Includes all data newer than the specified RFC 3339 date-time with simultaneous consideration of `to`.",
+                          "schema": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2017-01-01T00:00:00Z"
+                          }
+                        },
+                        "to": {
+                          "description": "Includes all data older than the specified RFC 3339 date-time with simultaneous consideration of `from`.",
+                          "schema": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2017-01-31T23:59:59Z"
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data."
+                      }
+                    },
+                    {
+                      "name": "process_graph",
+                      "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.",
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true
+                        },
+                        "url": {
+                          "description": "An URL to a process graph.",
+                          "required": true,
+                          "schema": {
+                            "type": "string",
+                            "format": "url",
+                            "example": "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data."
+                      },
+                      "exceptions": {
+                        "NotFound": {
+                          "code": 404,
+                          "description": "Process graph doesn't exist."
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -2692,8 +3027,7 @@
           "example": {
             "description": "A free-form property to include an example for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary."
           }
-        },
-        "example": null
+        }
       },
       "output_format": {
         "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
@@ -2815,6 +3149,14 @@
             "format": "date-time",
             "example": "2017-10-01"
           }
+        }
+      },
+      "json_schema": {
+        "type": "object",
+        "description": "A schema object according to the specification of a [Functio Schema Object](https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md#schema-object).",
+        "externalDocs": {
+          "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md#schema-object",
+          "description": "Functio Schema Object"
         }
       }
     },
