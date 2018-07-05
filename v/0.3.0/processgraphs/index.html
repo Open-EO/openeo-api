@@ -536,13 +536,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#argument-set" title="Argument Set" class="md-nav__link">
-    Argument Set
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#examples" title="Examples" class="md-nav__link">
     Examples
   </a>
@@ -746,13 +739,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#argument-set" title="Argument Set" class="md-nav__link">
-    Argument Set
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#examples" title="Examples" class="md-nav__link">
     Examples
   </a>
@@ -919,27 +905,22 @@
 <pre><code>&lt;Process&gt; := {
   &quot;process_id&quot;: &lt;string&gt;,
   &quot;description&quot;: &lt;string&gt;,
-  &quot;args&quot;: &lt;ArgumentSet&gt;
+  &quot;&lt;ArgumentName&gt;&quot;: &lt;Value&gt;,
+  ...
 }
 </code></pre>
 
-<p>A process MUST always contain two key-value-pairs named <code>process_id</code> and <code>args</code> and MAY contain a <code>description</code>, but MUST NOT hold other elements.</p>
+<p>A process MUST always contain a key-value-pair named <code>process_id</code> and MAY contain a <code>process_description</code>.  It MAY hold an arbitrary number of additional elements as arguments for the process.</p>
 <p><code>process_id</code> can currently contain three types of processes:</p>
 <ul>
 <li>Backend-defined processes, which are listed at <code>GET /processes</code>, e.g. <code>filter_bands</code>.</li>
 <li>User-defined process graphs, which are listed at <code>GET /users/{user_id}/process_graphs</code>. 
   They are prefixed with <code>/user/</code>, e.g. <code>/user/my_process_graph</code>.</li>
-<li>User-defined functions (UDF), which is one of the predefined <a href="../udfs/index.html">UDF types</a> and can be explored at <code>GET /udf_runtimes/{lang}/{udf_type}</code>. UDFs are prefixed with <code>/udf</code> and additionally contain the runtime and the process name separated by <code>/</code>, e.g. <code>/udf/Python/apply_pixel</code>.</li>
+<li>User-defined functions (UDF) are prefixed with <code>/udf</code> and additionally contain the runtime and the process name separated by <code>/</code>, e.g. <code>/udf/Python/apply_pixel</code>.</li>
 </ul>
-<h3 id="argument-set">Argument Set</h3>
-<p>An argument set for a process is defined as follows:</p>
-<pre><code>&lt;ArgumentSet&gt; := {
-  &lt;Key&gt;: &lt;Value&gt;,
-  ...
-}
-</code></pre>
-
-<p>The key <code>&lt;Key&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and the <code>_</code>.</p>
+<p><strong>Arguments</strong></p>
+<p>A process can have an arbitrary number of arguments.</p>
+<p>The key <code>&lt;ArgumentName&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and the <code>_</code>. <code>&lt;ArgumentName&gt;</code> MUST NOT use the names <code>process_id</code> or <code>process_description</code> as it would result in a naming conflict.</p>
 <p>A value is defined as follows:</p>
 <pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|Process&gt;
 </code></pre>
@@ -950,37 +931,27 @@
 <p><strong>Example 1:</strong> A full process graph definition.</p>
 <pre><code>{
   &quot;process_id&quot;:&quot;min_time&quot;,
-  &quot;args&quot;:{
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;/udf/Python/custom_ndvi&quot;,
     &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;/user/custom_ndvi&quot;,
-      &quot;args&quot;:{
+      &quot;process_id&quot;:&quot;filter_daterange&quot;,
+      &quot;imagery&quot;:{
+        &quot;process_id&quot;:&quot;filter_bbox&quot;,
         &quot;imagery&quot;:{
-          &quot;process_id&quot;:&quot;filter_daterange&quot;,
-          &quot;args&quot;:{
-            &quot;imagery&quot;:{
-              &quot;process_id&quot;:&quot;filter_bbox&quot;,
-              &quot;args&quot;:{
-                &quot;imagery&quot;:{
-                  &quot;process_id&quot;:&quot;get_data&quot;,
-                  &quot;args&quot;: {
-                    &quot;data_id&quot;: &quot;S2_L2A_T32TPS_20M&quot;
-                  }
-                },
-                &quot;left&quot;:652000,
-                &quot;right&quot;:672000,
-                &quot;top&quot;:5161000,
-                &quot;bottom&quot;:5181000,
-                &quot;srs&quot;:&quot;EPSG:32632&quot;
-              }
-            },
-            &quot;from&quot;:&quot;2017-01-01&quot;,
-            &quot;to&quot;:&quot;2017-01-31&quot;
-          }
+          &quot;process_id&quot;:&quot;get_data&quot;,
+          &quot;data_id&quot;:&quot;S2_L2A_T32TPS_20M&quot;
         },
-        &quot;red&quot;:&quot;B04&quot;,
-        &quot;nir&quot;:&quot;B8A&quot;
-      }
-    }
+        &quot;left&quot;:652000,
+        &quot;right&quot;:672000,
+        &quot;top&quot;:5161000,
+        &quot;bottom&quot;:5181000,
+        &quot;srs&quot;:&quot;EPSG:32632&quot;
+      },
+      &quot;from&quot;:&quot;2017-01-01&quot;,
+      &quot;to&quot;:&quot;2017-01-31&quot;
+    },
+    &quot;red&quot;:&quot;B04&quot;,
+    &quot;nir&quot;:&quot;B8A&quot;
   }
 }
 </code></pre>
@@ -989,34 +960,24 @@
 <pre><code>{
   &quot;imagery&quot;:{
     &quot;process_id&quot;:&quot;union&quot;,
-    &quot;args&quot;:{
-      &quot;collection&quot;:[
-        {
-          &quot;process_id&quot;:&quot;filter_bands&quot;,
-          &quot;args&quot;:{
-            &quot;imagery&quot;:{
-              &quot;process_id&quot;:&quot;get_data&quot;,
-              &quot;args&quot;: {
-                &quot;data_id&quot;: &quot;Sentinel2-L1C&quot;
-              }
-            },
-            &quot;bands&quot;:8
-          }
+    &quot;collection&quot;:[
+      {
+        &quot;process_id&quot;:&quot;filter_bands&quot;,
+        &quot;imagery&quot;:{
+          &quot;process_id&quot;:&quot;get_data&quot;,
+          &quot;data_id&quot;:&quot;Sentinel2-L1C&quot;
         },
-        {
-          &quot;process_id&quot;:&quot;filter_bands&quot;,
-          &quot;args&quot;:{
-            &quot;imagery&quot;:{
-              &quot;process_id&quot;:&quot;get_data&quot;,
-              &quot;args&quot;: {
-                &quot;data_id&quot;: &quot;Sentinel2-L1C&quot;
-              }
-            },
-            &quot;bands&quot;:5
-          }
-        }
-      ]
-    }
+        &quot;bands&quot;:8
+      },
+      {
+        &quot;process_id&quot;:&quot;filter_bands&quot;,
+        &quot;imagery&quot;:{
+          &quot;process_id&quot;:&quot;get_data&quot;,
+          &quot;data_id&quot;:&quot;Sentinel2-L1C&quot;
+        },
+        &quot;bands&quot;:5
+      }
+    ]
   }
 }
 </code></pre>
@@ -1047,19 +1008,15 @@
 <h4 id="examples_1">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;: &quot;get_data&quot;,
-  &quot;args&quot;: {
-    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
-  }
+  &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
 }
 </code></pre>
 
 <pre><code>{
   &quot;process_id&quot;: &quot;get_data&quot;,
-  &quot;args&quot;: {
-    &quot;platform&quot;: &quot;landsat-7&quot;,
-    &quot;sensor&quot;: &quot;modis&quot;, 
-    &quot;derived_from&quot;: null
-  }
+  &quot;platform&quot;: &quot;landsat-7&quot;,
+  &quot;sensor&quot;: &quot;modis&quot;, 
+  &quot;derived_from&quot;: null
 }
 </code></pre>
 
@@ -1077,30 +1034,25 @@
 </ul>
 <h4 id="examples_2">Examples</h4>
 <pre><code>{
-  &quot;process_id&quot;: &quot;filter_bands&quot;,
-  &quot;args&quot;: {
-    &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;get_data&quot;,
-      &quot;args&quot;: {
-        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
-      }
-    },
-    &quot;bands&quot;:1
-  }
+  &quot;process_id&quot;:&quot;filter_bands&quot;,
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;get_data&quot;,
+    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
+  },
+  &quot;bands&quot;:&quot;1&quot;
 }
 </code></pre>
 
 <pre><code>{
-  &quot;process_id&quot;: &quot;filter_bands&quot;,
-  &quot;args&quot;: {
-    &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;get_data&quot;,
-      &quot;args&quot;: {
-        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
-      }
-    },
-    &quot;wavelengths&quot;:[1300,2000]
-  }
+  &quot;process_id&quot;:&quot;filter_bands&quot;,
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;get_data&quot;,
+    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
+  },
+  &quot;wavelengths&quot;:[
+    1300,
+    2000
+  ]
 }
 </code></pre>
 
@@ -1118,16 +1070,12 @@
 <h4 id="examples_3">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;:&quot;filter_daterange&quot;,
-  &quot;args&quot;:{
-    &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;get_data&quot;,
-      &quot;args&quot;: {
-        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
-      }
-    },
-    &quot;from&quot;:&quot;2017-01-01&quot;,
-    &quot;to&quot;:&quot;2017-01-31&quot;
-  }
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;get_data&quot;,
+    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
+  },
+  &quot;from&quot;:&quot;2017-01-01&quot;,
+  &quot;to&quot;:&quot;2017-01-31&quot;
 }
 </code></pre>
 
@@ -1141,15 +1089,11 @@
 <h4 id="examples_4">Examples</h4>
 <pre><code>{
   &quot;process_id&quot;:&quot;process_graph&quot;,
-  &quot;args&quot;:{
-    &quot;imagery&quot;:{
-      &quot;process_id&quot;:&quot;get_data&quot;,
-      &quot;args&quot;: {
-        &quot;data_id&quot;: &quot;Sentinel2A-L1C&quot;
-      }
-    },
-    &quot;uri&quot;:&quot;http://otherhost.org/api/v1/users/12345/process_graphs/abcdef&quot;
-  }
+  &quot;imagery&quot;:{
+    &quot;process_id&quot;:&quot;get_data&quot;,
+    &quot;data_id&quot;:&quot;Sentinel2A-L1C&quot;
+  },
+  &quot;uri&quot;:&quot;http://otherhost.org/api/v1/users/12345/process_graphs/abcdef&quot;
 }
 </code></pre>
 
