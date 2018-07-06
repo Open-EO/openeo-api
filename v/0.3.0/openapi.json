@@ -1501,7 +1501,7 @@
                   },
                   "example": {
                     "WMS": {
-                      "parameters": {
+                      "arguments": {
                         "version": {
                           "type": "string",
                           "description": "The WMS version to use.",
@@ -1525,7 +1525,7 @@
                       }
                     },
                     "WFS": {
-                      "parameters": {
+                      "arguments": {
                         "version": {
                           "type": "string",
                           "description": "The WFS version to use.",
@@ -1704,8 +1704,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "parameters": {
-                    "$ref": "#/components/schemas/service_parameters"
+                  "arguments": {
+                    "$ref": "#/components/schemas/service_arguments"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1767,8 +1767,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "parameters": {
-                    "$ref": "#/components/schemas/service_parameters"
+                  "arguments": {
+                    "$ref": "#/components/schemas/service_arguments"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1808,7 +1808,7 @@
                     "enabled",
                     "type",
                     "url",
-                    "parameters",
+                    "arguments",
                     "attributes",
                     "user_id"
                   ],
@@ -1834,8 +1834,8 @@
                     "enabled": {
                       "$ref": "#/components/schemas/service_enabled"
                     },
-                    "parameters": {
-                      "$ref": "#/components/schemas/service_parameters"
+                    "arguments": {
+                      "$ref": "#/components/schemas/service_arguments"
                     },
                     "attributes": {
                       "type": "object",
@@ -2840,8 +2840,7 @@
         "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
         "type": "object",
         "required": [
-          "process_id",
-          "args"
+          "process_id"
         ],
         "properties": {
           "process_id": {
@@ -2876,27 +2875,19 @@
         "example": {
           "process_id": "min_time",
           "description": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.",
-          "args": {
+          "imagery": {
+            "process_id": "NDVI",
             "imagery": {
-              "process_id": "NDVI",
-              "args": {
-                "imagery": {
-                  "process_id": "filter_daterange",
-                  "args": {
-                    "imagery": {
-                      "process_id": "get_data",
-                      "args": {
-                        "data_id": "Sentinel2A-L1C"
-                      }
-                    },
-                    "from": "2017-01-01",
-                    "to": "2017-01-31"
-                  }
-                },
-                "red": "4",
-                "nir": "8"
-              }
-            }
+              "process_id": "filter_daterange",
+              "imagery": {
+                "process_id": "get_data",
+                "data_id": "Sentinel2A-L1C"
+              },
+              "from": "2017-01-01",
+              "to": "2017-01-31"
+            },
+            "red": "4",
+            "nir": "8"
           }
         }
       },
@@ -2959,9 +2950,9 @@
         "type": "string",
         "example": "wms"
       },
-      "service_parameters": {
+      "service_arguments": {
         "type": "object",
-        "description": "Definintion of additional parameters a web service might need to be created. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. See `GET /service_types` for supported parameters.",
+        "description": "List of arguments for the parameters supported by the web service. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. ",
         "additionalProperties": true,
         "example": {
           "version": 1.1
@@ -3034,14 +3025,14 @@
             "type": "string",
             "description": "One of the supported output formats."
           },
-          "args": {
+          "arguments": {
             "type": "object",
             "additionalProperties": true
           }
         },
         "example": {
           "format": "GTiff",
-          "args": {
+          "arguments": {
             "tiles": true,
             "compress": "jpeg",
             "photometric": "YCBCR",
