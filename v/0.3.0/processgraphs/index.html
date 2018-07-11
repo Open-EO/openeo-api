@@ -678,10 +678,14 @@
 <p>A process can have an arbitrary number of arguments.</p>
 <p>The key <code>&lt;ArgumentName&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and the <code>_</code>. <code>&lt;ArgumentName&gt;</code> MUST NOT use the names <code>process_id</code> or <code>process_description</code> as it would result in a naming conflict.</p>
 <p>A value is defined as follows:</p>
-<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|Process&gt;
+<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|object|Process&gt;
 </code></pre>
 
-<p><em>Note:</em> string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>. In consequence, the objects allowed to be part of an array are processes only.</p>
+<p><em>Note:</em> The specified data types except <code>Process</code> (see definition above) are the native data types supported by JSON. Some limitations apply:</p>
+<ul>
+<li>An array MUST always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>.</li>
+<li>Objects are not allowed to have a key with the name <code>process_id</code> except for an object of type <code>Process</code>.</li>
+</ul>
 <p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered with calls to <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using <code>collection</code> as a key once. </p>
 <h3 id="examples">Examples</h3>
 <p><strong>Example 1:</strong> A full process graph definition.</p>
