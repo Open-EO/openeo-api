@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Please note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information. Additionally, the rendered version of the specification is not complete especiially regarding examples due to incomplete OpenAPI 3.0 support of SwaggerUI. For all details see the specification file itself.",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -344,7 +344,7 @@
     "/data": {
       "get": {
         "summary": "List available EO datasets.",
-        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n***Note:** This is a draft and may change in API version 0.4!*",
+        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n**Note:** This is a draft and may change in API version 0.4!",
         "tags": [
           "EO Data Discovery"
         ],
@@ -432,7 +432,7 @@
       ],
       "get": {
         "summary": "Full information about a specific EO dataset.",
-        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n***Note:** This is an early draft and will change in API version 0.4!*",
+        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n**Note:** This is an early draft and will change in API version 0.4!",
         "tags": [
           "EO Data Discovery"
         ],
@@ -667,7 +667,7 @@
     "/processes": {
       "get": {
         "summary": "List supported processes.",
-        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.\n\n***Note:** This is an early draft and will change in API version 0.4!*",
+        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.",
         "tags": [
           "Process Discovery"
         ],
@@ -707,7 +707,8 @@
                         "additionalProperties": {
                           "type": "object",
                           "required": [
-                            "description"
+                            "description",
+                            "schema"
                           ],
                           "properties": {
                             "description": {
@@ -767,6 +768,10 @@
                       "returns": {
                         "type": "object",
                         "description": "The data that is returned from this process. If not specified the process does not return anything.",
+                        "required": [
+                          "description",
+                          "schema"
+                        ],
                         "properties": {
                           "description": {
                             "$ref": "#/components/schemas/description"
@@ -847,7 +852,9 @@
                           "description": "Filter by data id",
                           "schema": {
                             "type": "string",
-                            "example": "Sentinel2A-L1C"
+                            "examples": [
+                              "Sentinel2A-L1C"
+                            ]
                           }
                         },
                         "extent": {
@@ -899,24 +906,29 @@
                         "derived_from": {
                           "description": "Filter by derived data set",
                           "schema": {
-                            "type": "string",
-                            "nullable": true
+                            "type": [
+                              "string",
+                              "null"
+                            ]
                           }
                         },
                         "license": {
                           "description": "Filter by license",
                           "schema": {
                             "type": "string",
-                            "example": "Apache-2.0",
-                            "externalDocs": {
-                              "summary": "SPDX License List",
-                              "url": "https://spdx.org/licenses/"
-                            }
+                            "examples": [
+                              "Apache-2.0"
+                            ],
+                            "description": "If available, should be a license from the SPDX License List: https://spdx.org/licenses/"
                           }
                         }
                       },
                       "returns": {
-                        "description": "Processed EO data."
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
                       }
                     },
                     {
@@ -927,7 +939,11 @@
                       "parameters": {
                         "imagery": {
                           "description": "EO data to process.",
-                          "required": true
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
                         },
                         "bands": {
                           "description": "string or array of strings containing band ids.",
@@ -957,19 +973,23 @@
                           "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
                           "schema": {
                             "type": [
-                              "float",
+                              "number",
                               "array"
                             ],
-                            "minLength": 2,
-                            "maxLength": 2,
+                            "minItems": 2,
+                            "maxItems": 2,
                             "items": {
-                              "type": "float"
+                              "type": "number"
                             }
                           }
                         }
                       },
                       "returns": {
-                        "description": "Processed EO data."
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
                       }
                     },
                     {
@@ -979,14 +999,20 @@
                       "parameters": {
                         "imagery": {
                           "description": "EO data to process.",
-                          "required": true
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
                         },
                         "from": {
                           "description": "Includes all data newer than the specified RFC 3339 date-time with simultaneous consideration of `to`.",
                           "schema": {
                             "type": "string",
                             "format": "date-time",
-                            "example": "2017-01-01T00:00:00Z"
+                            "examples": [
+                              "2017-01-01T00:00:00Z"
+                            ]
                           }
                         },
                         "to": {
@@ -994,12 +1020,18 @@
                           "schema": {
                             "type": "string",
                             "format": "date-time",
-                            "example": "2017-01-31T23:59:59Z"
+                            "examples": [
+                              "2017-01-31T23:59:59Z"
+                            ]
                           }
                         }
                       },
                       "returns": {
-                        "description": "Processed EO data."
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
                       }
                     },
                     {
@@ -1008,7 +1040,11 @@
                       "parameters": {
                         "imagery": {
                           "description": "EO data to process.",
-                          "required": true
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
                         },
                         "url": {
                           "description": "An URL to a process graph.",
@@ -1016,12 +1052,18 @@
                           "schema": {
                             "type": "string",
                             "format": "url",
-                            "example": "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+                            "examples": [
+                              "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+                            ]
                           }
                         }
                       },
                       "returns": {
-                        "description": "Processed EO data."
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
                       },
                       "exceptions": {
                         "NotFound": {
@@ -3138,10 +3180,10 @@
       },
       "json_schema": {
         "type": "object",
-        "description": "A schema object according to the specification of a [Functio Schema Object](https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md#schema-object).",
+        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined []centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.3.0/processes/index.html), e.g. bbox or crs.",
         "externalDocs": {
-          "url": "https://github.com/m-mohr/functio-spec/blob/master/versions/0.1.0/spec.md#schema-object",
-          "description": "Functio Schema Object"
+          "url": "http://json-schema.org/",
+          "description": "JSON Schema draft-07"
         }
       }
     },
