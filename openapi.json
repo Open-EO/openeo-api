@@ -1404,6 +1404,11 @@
             "Bearer": []
           }
         ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/variables_query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "JSON object with process graph",
@@ -2881,6 +2886,58 @@
         },
         "additionalProperties": true
       },
+      "variable": {
+        "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.",
+        "type": "object",
+        "required": [
+          "variable_id"
+        ],
+        "properties": {
+          "variable_id": {
+            "type": "string",
+            "description": "The name of the variable. Can be any valid JSON key, but it is RECOMMENDED to use snake case and limit the characters to `a-z`, `0-9` and `_`."
+          },
+          "type": {
+            "type": "string",
+            "description": "The value for type is the expected data type for the content of the variable.",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "array",
+              "object"
+            ],
+            "default": "string"
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
+          },
+          "default": {
+            "description": "Whenever no value for the variable is defined, the default value is used.",
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "$ref": "#/components/schemas/process_graph"
+              }
+            ]
+          }
+        }
+      },
       "process_graph": {
         "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
         "type": "object",
@@ -2917,6 +2974,9 @@
             },
             {
               "$ref": "#/components/schemas/process_graph"
+            },
+            {
+              "$ref": "#/components/schemas/variable"
             }
           ]
         },
@@ -3240,6 +3300,15 @@
       }
     },
     "parameters": {
+      "variables_query": {
+        "name": "*",
+        "in": "query",
+        "description": "Any variable that is defined by the referenced process graph can be used as query parameter. The key of the query parameter has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the query parameter serialized as JSON.",
+        "schema": {
+          "type": "string",
+          "description": "Serialized JSON"
+        }
+      },
       "user_id": {
         "name": "user_id",
         "in": "path",

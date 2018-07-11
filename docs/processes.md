@@ -131,20 +131,21 @@ Another process graph can be referenced with the process `process_graph`. This c
 
 #### Arguments
 
-* `imagery` *(required)*: Image collection to apply the process graph to
 * `uri` *(required)*: An URI to a process graph.
+* `variables`: An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.
 
 #### Examples
 
 ```
 {
   "process_id":"process_graph",
-  "imagery":{
-    "process_id":"get_data",
-    "data_id":"Sentinel2A-L1C"
-  },
-  "uri":"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+  "uri":"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef",
+  "variables": {
+  	"data_id":"Sentinel2A-L1C"
+  }
 }
 ```
+
+`data_id` is a variable defined by the process graph stored at `http://otherhost.org/api/v1/users/12345/process_graphs/abcdef` and should be replaced with the string `Sentinal2A-L1C`.
 
 ### _to be continued..._

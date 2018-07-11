@@ -29,24 +29,47 @@ A process MUST always contain a key-value-pair named `process_id` and MAY contai
 
 A process can have an arbitrary number of arguments.
 
-The key `<ArgumentName>` can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and the `_`. `<ArgumentName>` MUST NOT use the names `process_id` or `process_description` as it would result in a naming conflict.
+The key `<ArgumentName>` can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`. `<ArgumentName>` MUST NOT use the names `process_id` or `process_description` as it would result in a naming conflict.
 
 A value is defined as follows:
 
 ```
-<Value> := <string|number|array|boolean|null|object|Process>
+<Value> := <string|number|boolean|null|array|object|Process|Variable>
 ```
 
 *Note:* The specified data types except `Process` (see definition above) are the native data types supported by JSON. Some limitations apply:
 
 * An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
-* Objects are not allowed to have a key with the name `process_id` except for an object of type `Process`.
+* Objects are not allowed to have keys with the following names:
+  * `process_id`, except for objects of type `Process`
+  * `variable_id`, except for objects of type `Variable`
 
 *Note:* The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
+**Variables**
+
+Process graphs can also hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.
+
+Variables are defined as follows:
+
+```
+<Process> := {
+  "variable_id": <string>,
+  "description": <string>,
+  "type": <string>,
+  "default": <Value>
+}
+```
+
+The value for `type` is the expected data type for the content of the variable and MUST be one of `string` (default), `number`, `boolean`, `array` or `object`.
+
+The value for `variable_id` is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`.
+
+Whenever no value for the variable is defined, the `default` value is used. `<Value>` can be used as defined above, but MUST NOT be a `Variable`. Values for variables can be specified in the query string or body of endpoints supporting variables. See the API reference for more information.
+
 ### Examples
 
-**Example 1:** A full process graph definition.
+**Example 1:** A full process graph definition including a variable for the data_id.
 
 ```
 {
@@ -59,7 +82,12 @@ A value is defined as follows:
         "process_id":"filter_bbox",
         "imagery":{
           "process_id":"get_data",
-          "data_id":"S2_L2A_T32TPS_20M"
+          "data_id":{
+            "variable_id":"product",
+            "description":"Identifier or the dataset",
+            "type":"string",
+            "default":"S2_L2A_T32TPS_20M"
+          }
         },
         "left":652000,
         "right":672000,
