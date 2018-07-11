@@ -676,19 +676,35 @@
 </ul>
 <p><strong>Arguments</strong></p>
 <p>A process can have an arbitrary number of arguments.</p>
-<p>The key <code>&lt;ArgumentName&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and the <code>_</code>. <code>&lt;ArgumentName&gt;</code> MUST NOT use the names <code>process_id</code> or <code>process_description</code> as it would result in a naming conflict.</p>
+<p>The key <code>&lt;ArgumentName&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and <code>_</code>. <code>&lt;ArgumentName&gt;</code> MUST NOT use the names <code>process_id</code> or <code>process_description</code> as it would result in a naming conflict.</p>
 <p>A value is defined as follows:</p>
-<pre><code>&lt;Value&gt; := &lt;string|number|array|boolean|null|object|Process&gt;
+<pre><code>&lt;Value&gt; := &lt;string|number|boolean|null|array|object|Process|Variable&gt;
 </code></pre>
 
 <p><em>Note:</em> The specified data types except <code>Process</code> (see definition above) are the native data types supported by JSON. Some limitations apply:</p>
 <ul>
 <li>An array MUST always contain <em>one data type only</em> and is allowed to contain the data types allowed for <code>&lt;Value&gt;</code>.</li>
-<li>Objects are not allowed to have a key with the name <code>process_id</code> except for an object of type <code>Process</code>.</li>
+<li>Objects are not allowed to have keys with the following names:</li>
+<li><code>process_id</code>, except for objects of type <code>Process</code></li>
+<li><code>variable_id</code>, except for objects of type <code>Variable</code></li>
 </ul>
 <p><em>Note:</em> The expected names of arguments are defined by the process descriptions, which can be discovered with calls to <code>GET /processes</code> and <code>GET /udf_runtimes/{lang}/{udf_type}</code>. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named <code>imagery</code>. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using <code>collection</code> as a key once. </p>
+<p><strong>Variables</strong></p>
+<p>Process graphs can also hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.</p>
+<p>Variables are defined as follows:</p>
+<pre><code>&lt;Process&gt; := {
+  &quot;variable_id&quot;: &lt;string&gt;,
+  &quot;description&quot;: &lt;string&gt;,
+  &quot;type&quot;: &lt;string&gt;,
+  &quot;default&quot;: &lt;Value&gt;
+}
+</code></pre>
+
+<p>The value for <code>type</code> is the expected data type for the content of the variable and MUST be one of <code>string</code> (default), <code>number</code>, <code>boolean</code>, <code>array</code> or <code>object</code>.</p>
+<p>The value for <code>variable_id</code> is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and <code>_</code>.</p>
+<p>Whenever no value for the variable is defined, the <code>default</code> value is used. <code>&lt;Value&gt;</code> can be used as defined above, but MUST NOT be a <code>Variable</code>. Values for variables can be specified in the query string or body of endpoints supporting variables. See the API reference for more information.</p>
 <h3 id="examples">Examples</h3>
-<p><strong>Example 1:</strong> A full process graph definition.</p>
+<p><strong>Example 1:</strong> A full process graph definition including a variable for the data_id.</p>
 <pre><code>{
   &quot;process_id&quot;:&quot;min_time&quot;,
   &quot;imagery&quot;:{
@@ -699,7 +715,12 @@
         &quot;process_id&quot;:&quot;filter_bbox&quot;,
         &quot;imagery&quot;:{
           &quot;process_id&quot;:&quot;get_data&quot;,
-          &quot;data_id&quot;:&quot;S2_L2A_T32TPS_20M&quot;
+          &quot;data_id&quot;:{
+            &quot;variable_id&quot;:&quot;product&quot;,
+            &quot;description&quot;:&quot;Identifier or the dataset&quot;,
+            &quot;type&quot;:&quot;string&quot;,
+            &quot;default&quot;:&quot;S2_L2A_T32TPS_20M&quot;
+          }
         },
         &quot;left&quot;:652000,
         &quot;right&quot;:672000,
