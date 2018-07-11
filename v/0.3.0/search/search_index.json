@@ -316,6 +316,116 @@
             "title": "User-defined functions"
         },
         {
+            "location": "/processes/index.html",
+            "text": "Processes\n\n\nA process is defined in the API specification. It is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. \n\n\n\n\nThe name is the identifier for the process and MUST never contain a forward slash \n/\n. \n\n\nEach parameter has a name and the valid content follows a schema.\n\n\nThe content returned by a process also follows a schema.\n\n\nThe schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.\n\n\n\n\nopenEO specific formats\n\n\nTBD\n\n\nCore Processes\n\n\nThere are some processes that we define to be core processes that should be implemented by all back-ends:\n\n\n\n\nget_data\n\n\nfilter_bands\n\n\nfilter_daterange\n\n\nprocess_graph\n\n\nto be continued...\n\n\n\n\nNote:\n Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like.\n\n\nget_data\n\n\nFilters and selects a single dataset provided by the back-end.\n\n\nArguments\n\n\nAny of the properties of a dataset, e.g.\n\n\n\n\ndata_id\n: Filter by data id\n\n\nextent\n: Filter by extent\n\n\ntime\n: Filter by time\n\n\nbands\n: Filter by band ids\n\n\n...\n\n\n\n\nThe back-end provider decides which of the potential datasets is the most relevant one to be selected.\n\n\nExamples\n\n\n{\n  \"process_id\": \"get_data\",\n  \"data_id\":\"Sentinel2A-L1C\"\n}\n\n\n\n\n{\n  \"process_id\": \"get_data\",\n  \"platform\": \"landsat-7\",\n  \"sensor\": \"modis\", \n  \"derived_from\": null\n}\n\n\n\n\nfilter_bands\n\n\nAllows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\nAnd one of:\n\n\n\n\nbands\n: string or array of strings containing band ids.\n\n\nnames\n: string or array of strings containing band names.\n\n\nwavelengths\n: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"bands\":\"1\"\n}\n\n\n\n\n{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"wavelengths\":[\n    1300,\n    2000\n  ]\n}\n\n\n\n\nfilter_daterange\n\n\nAllows to filter an image collection by temporal extent.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\nAnd at least one of:\n\n\n\n\nfrom\n: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of \nto\n.\n\n\nto\n: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of \nfrom\n.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"filter_daterange\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"from\":\"2017-01-01\",\n  \"to\":\"2017-01-31\"\n}\n\n\n\n\nprocess_graph\n\n\nAnother process graph can be referenced with the process \nprocess_graph\n. This could even be an externally hosted process graph.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to apply the process graph to\n\n\nuri\n \n(required)\n: An URI to a process graph.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"process_graph\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"uri\":\"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\"\n}\n\n\n\n\nto be continued...",
+            "title": "Processes"
+        },
+        {
+            "location": "/processes/index.html#processes",
+            "text": "A process is defined in the API specification. It is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata.    The name is the identifier for the process and MUST never contain a forward slash  / .   Each parameter has a name and the valid content follows a schema.  The content returned by a process also follows a schema.  The schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.",
+            "title": "Processes"
+        },
+        {
+            "location": "/processes/index.html#openeo-specific-formats",
+            "text": "TBD",
+            "title": "openEO specific formats"
+        },
+        {
+            "location": "/processes/index.html#core-processes",
+            "text": "There are some processes that we define to be core processes that should be implemented by all back-ends:   get_data  filter_bands  filter_daterange  process_graph  to be continued...   Note:  Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like.",
+            "title": "Core Processes"
+        },
+        {
+            "location": "/processes/index.html#get_data",
+            "text": "Filters and selects a single dataset provided by the back-end.",
+            "title": "get_data"
+        },
+        {
+            "location": "/processes/index.html#arguments",
+            "text": "Any of the properties of a dataset, e.g.   data_id : Filter by data id  extent : Filter by extent  time : Filter by time  bands : Filter by band ids  ...   The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
+            "title": "Arguments"
+        },
+        {
+            "location": "/processes/index.html#examples",
+            "text": "{\n  \"process_id\": \"get_data\",\n  \"data_id\":\"Sentinel2A-L1C\"\n}  {\n  \"process_id\": \"get_data\",\n  \"platform\": \"landsat-7\",\n  \"sensor\": \"modis\", \n  \"derived_from\": null\n}",
+            "title": "Examples"
+        },
+        {
+            "location": "/processes/index.html#filter_bands",
+            "text": "Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.",
+            "title": "filter_bands"
+        },
+        {
+            "location": "/processes/index.html#arguments_1",
+            "text": "imagery   (required) : Image collection to filter   And one of:   bands : string or array of strings containing band ids.  names : string or array of strings containing band names.  wavelengths : number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
+            "title": "Arguments"
+        },
+        {
+            "location": "/processes/index.html#examples_1",
+            "text": "{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"bands\":\"1\"\n}  {\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"wavelengths\":[\n    1300,\n    2000\n  ]\n}",
+            "title": "Examples"
+        },
+        {
+            "location": "/processes/index.html#filter_daterange",
+            "text": "Allows to filter an image collection by temporal extent.",
+            "title": "filter_daterange"
+        },
+        {
+            "location": "/processes/index.html#arguments_2",
+            "text": "imagery   (required) : Image collection to filter   And at least one of:   from : Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of  to .  to : Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of  from .",
+            "title": "Arguments"
+        },
+        {
+            "location": "/processes/index.html#examples_2",
+            "text": "{\n  \"process_id\":\"filter_daterange\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"from\":\"2017-01-01\",\n  \"to\":\"2017-01-31\"\n}",
+            "title": "Examples"
+        },
+        {
+            "location": "/processes/index.html#process_graph",
+            "text": "Another process graph can be referenced with the process  process_graph . This could even be an externally hosted process graph.",
+            "title": "process_graph"
+        },
+        {
+            "location": "/processes/index.html#arguments_3",
+            "text": "imagery   (required) : Image collection to apply the process graph to  uri   (required) : An URI to a process graph.",
+            "title": "Arguments"
+        },
+        {
+            "location": "/processes/index.html#examples_3",
+            "text": "{\n  \"process_id\":\"process_graph\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"uri\":\"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\"\n}",
+            "title": "Examples"
+        },
+        {
+            "location": "/processes/index.html#to-be-continued",
+            "text": "",
+            "title": "to be continued..."
+        },
+        {
+            "location": "/processgraphs/index.html",
+            "text": "Process graphs\n\n\nA process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.\n\n\nSchematic definition\n\n\nProcess\n\n\nA single process in a process graph is defined as follows:\n\n\n<Process> := {\n  \"process_id\": <string>,\n  \"description\": <string>,\n  \"<ArgumentName>\": <Value>,\n  ...\n}\n\n\n\n\nA process MUST always contain a key-value-pair named \nprocess_id\n and MAY contain a \nprocess_description\n.  It MAY hold an arbitrary number of additional elements as arguments for the process.\n\n\nprocess_id\n can currently contain three types of processes:\n\n\n\n\nBackend-defined processes, which are listed at \nGET /processes\n, e.g. \nfilter_bands\n.\n\n\nUser-defined process graphs, which are listed at \nGET /users/{user_id}/process_graphs\n. \n  They are prefixed with \n/user/\n, e.g. \n/user/my_process_graph\n.\n\n\nUser-defined functions (UDF) are prefixed with \n/udf\n and additionally contain the runtime and the process name separated by \n/\n, e.g. \n/udf/Python/apply_pixel\n.\n\n\n\n\nArguments\n\n\nA process can have an arbitrary number of arguments.\n\n\nThe key \n<ArgumentName>\n can be any valid JSON key, but it is RECOMMENDED to use \nsnake case\n and limit the characters to \na-z\n, \n0-9\n and the \n_\n. \n<ArgumentName>\n MUST NOT use the names \nprocess_id\n or \nprocess_description\n as it would result in a naming conflict.\n\n\nA value is defined as follows:\n\n\n<Value> := <string|number|array|boolean|null|Process>\n\n\n\n\nNote:\n string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain \none data type only\n and is allowed to contain the data types allowed for \n<Value>\n. In consequence, the objects allowed to be part of an array are processes only.\n\n\nNote:\n The expected names of arguments are defined by the process descriptions, which can be discovered with calls to \nGET /processes\n and \nGET /udf_runtimes/{lang}/{udf_type}\n. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named \nimagery\n. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using \ncollection\n as a key once. \n\n\nExamples\n\n\nExample 1:\n A full process graph definition.\n\n\n{\n  \"process_id\":\"min_time\",\n  \"imagery\":{\n    \"process_id\":\"/udf/Python/custom_ndvi\",\n    \"imagery\":{\n      \"process_id\":\"filter_daterange\",\n      \"imagery\":{\n        \"process_id\":\"filter_bbox\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"S2_L2A_T32TPS_20M\"\n        },\n        \"left\":652000,\n        \"right\":672000,\n        \"top\":5161000,\n        \"bottom\":5181000,\n        \"srs\":\"EPSG:32632\"\n      },\n      \"from\":\"2017-01-01\",\n      \"to\":\"2017-01-31\"\n    },\n    \"red\":\"B04\",\n    \"nir\":\"B8A\"\n  }\n}\n\n\n\n\nExample 2:\n If a process needs multiple processes as input, it is allowed to use arrays of the respective types.\n\n\n{\n  \"imagery\":{\n    \"process_id\":\"union\",\n    \"collection\":[\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":8\n      },\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":5\n      }\n    ]\n  }\n}",
+            "title": "Process Graphs"
+        },
+        {
+            "location": "/processgraphs/index.html#process-graphs",
+            "text": "A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.",
+            "title": "Process graphs"
+        },
+        {
+            "location": "/processgraphs/index.html#schematic-definition",
+            "text": "",
+            "title": "Schematic definition"
+        },
+        {
+            "location": "/processgraphs/index.html#process",
+            "text": "A single process in a process graph is defined as follows:  <Process> := {\n  \"process_id\": <string>,\n  \"description\": <string>,\n  \"<ArgumentName>\": <Value>,\n  ...\n}  A process MUST always contain a key-value-pair named  process_id  and MAY contain a  process_description .  It MAY hold an arbitrary number of additional elements as arguments for the process.  process_id  can currently contain three types of processes:   Backend-defined processes, which are listed at  GET /processes , e.g.  filter_bands .  User-defined process graphs, which are listed at  GET /users/{user_id}/process_graphs . \n  They are prefixed with  /user/ , e.g.  /user/my_process_graph .  User-defined functions (UDF) are prefixed with  /udf  and additionally contain the runtime and the process name separated by  / , e.g.  /udf/Python/apply_pixel .   Arguments  A process can have an arbitrary number of arguments.  The key  <ArgumentName>  can be any valid JSON key, but it is RECOMMENDED to use  snake case  and limit the characters to  a-z ,  0-9  and the  _ .  <ArgumentName>  MUST NOT use the names  process_id  or  process_description  as it would result in a naming conflict.  A value is defined as follows:  <Value> := <string|number|array|boolean|null|Process>  Note:  string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain  one data type only  and is allowed to contain the data types allowed for  <Value> . In consequence, the objects allowed to be part of an array are processes only.  Note:  The expected names of arguments are defined by the process descriptions, which can be discovered with calls to  GET /processes  and  GET /udf_runtimes/{lang}/{udf_type} . Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named  imagery . The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using  collection  as a key once.",
+            "title": "Process"
+        },
+        {
+            "location": "/processgraphs/index.html#examples",
+            "text": "Example 1:  A full process graph definition.  {\n  \"process_id\":\"min_time\",\n  \"imagery\":{\n    \"process_id\":\"/udf/Python/custom_ndvi\",\n    \"imagery\":{\n      \"process_id\":\"filter_daterange\",\n      \"imagery\":{\n        \"process_id\":\"filter_bbox\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"S2_L2A_T32TPS_20M\"\n        },\n        \"left\":652000,\n        \"right\":672000,\n        \"top\":5161000,\n        \"bottom\":5181000,\n        \"srs\":\"EPSG:32632\"\n      },\n      \"from\":\"2017-01-01\",\n      \"to\":\"2017-01-31\"\n    },\n    \"red\":\"B04\",\n    \"nir\":\"B8A\"\n  }\n}  Example 2:  If a process needs multiple processes as input, it is allowed to use arrays of the respective types.  {\n  \"imagery\":{\n    \"process_id\":\"union\",\n    \"collection\":[\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":8\n      },\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":5\n      }\n    ]\n  }\n}",
+            "title": "Examples"
+        },
+        {
             "location": "/apiguidelines/index.html",
             "text": "General API Guidelines\n\n\nTo provide the smoothest possible experience, it's important to have these APIs follow consistent design guidelines, thus making using them easy and intuitive.\n\n\nLanguage\n\n\nLanguage\n\n\nGenerally, English language MUST be used for all names, documentation etc.\n\n\nIn the specification the key words \u201cMUST\u201d, \u201cMUST NOT\u201d, \u201cREQUIRED\u201d, \u201cSHALL\u201d, \u201cSHALL NOT\u201d, \u201cSHOULD\u201d, \u201cSHOULD NOT\u201d, \u201cRECOMMENDED\u201d, \u201cMAY\u201d, and \u201cOPTIONAL\u201d in this document are to be interpreted as described in \nRFC 2119\n.\n\n\nCasing\n\n\nAll names SHOULD be written in snake case, i.e. words are separated with one\u00a0underscore\u00a0character (_) and no spaces, with all letters lowercased. Example: \nhello_world\n. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. \nContent-Type\n or \nOpenEO-Costs\n, despite being case-insensitive according to \nRFC 7230\n.\n\n\nTechnical requirements\n\n\nHTTP\n\n\nThe API developed by the openEO project uses \nHTTP REST Level 2\n for communication between client and back-end server.\n\n\nPublic APIs MUST be available via HTTPS only and all inbound calls MUST be HTTPS. \n\n\nVerbs\n\n\nEndpoints SHOULD use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE).\n\n\nIf there is a need to transfer big chunks of data via GET requests, POST requests MAY be used as a replacement as they support to send data via request body.\n\n\nUnless otherwise stated, PATCH requests are only defined to work on the direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires to send the whole JSON object defined by the first-level property.\n\n\nResource naming\n\n\nNaming of endpoints SHOULD follow the REST principles. Therefore, endpoints SHOULD be centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoint with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.\n\n\nCross-Origin Resource Sharing (CORS)\n\n\nAll back-end providers SHOULD support CORS. More information can be found in the \ncorresponding section\n.\n\n\nStatus codes and error handling\n\n\nThe success of requests MUST be indicated using \nHTTP status codes\n according to \nRFC 7231\n. More information can be found in the section about \nstatus und error handling\n.\n\n\nRequests and response formats\n\n\nJSON\n\n\nWeb-based communication, especially when a mobile or other low-bandwidth client is involved, has moved quickly in the direction of JSON for a variety of reasons, including its tendency to be lighter weight and its ease of consumption with JavaScript-based clients. Therefore, services SHOULD use JSON as the default encoding. Other response formats can be requested using \nContent Negotiation\n.\n\n\nClients and servers MUST NOT rely on the order in which properties appears in JSON responses. When supported by the service, clients MAY request that array elements be returned in a specific order.\n\n\nCollections SHOULD NOT include nested JSON objects if those information can be requested from the individual resources.\n\n\nTemporal data\n\n\nDate, time, intervals and durations MUST be formatted according to ISO 8601 if there is an appropriate encoding available in the standard.",
             "title": "Specification Guidelines"
@@ -479,101 +589,6 @@
             "location": "/cors/index.html#remarks",
             "text": "Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.",
             "title": "Remarks"
-        },
-        {
-            "location": "/processgraphs/index.html",
-            "text": "Process graphs\n\n\nA process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.\n\n\nSchematic definition\n\n\nProcess\n\n\nA single process in a process graph is defined as follows:\n\n\n<Process> := {\n  \"process_id\": <string>,\n  \"description\": <string>,\n  \"<ArgumentName>\": <Value>,\n  ...\n}\n\n\n\n\nA process MUST always contain a key-value-pair named \nprocess_id\n and MAY contain a \nprocess_description\n.  It MAY hold an arbitrary number of additional elements as arguments for the process.\n\n\nprocess_id\n can currently contain three types of processes:\n\n\n\n\nBackend-defined processes, which are listed at \nGET /processes\n, e.g. \nfilter_bands\n.\n\n\nUser-defined process graphs, which are listed at \nGET /users/{user_id}/process_graphs\n. \n  They are prefixed with \n/user/\n, e.g. \n/user/my_process_graph\n.\n\n\nUser-defined functions (UDF) are prefixed with \n/udf\n and additionally contain the runtime and the process name separated by \n/\n, e.g. \n/udf/Python/apply_pixel\n.\n\n\n\n\nArguments\n\n\nA process can have an arbitrary number of arguments.\n\n\nThe key \n<ArgumentName>\n can be any valid JSON key, but it is RECOMMENDED to use \nsnake case\n and limit the characters to \na-z\n, \n0-9\n and the \n_\n. \n<ArgumentName>\n MUST NOT use the names \nprocess_id\n or \nprocess_description\n as it would result in a naming conflict.\n\n\nA value is defined as follows:\n\n\n<Value> := <string|number|array|boolean|null|Process>\n\n\n\n\nNote:\n string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain \none data type only\n and is allowed to contain the data types allowed for \n<Value>\n. In consequence, the objects allowed to be part of an array are processes only.\n\n\nNote:\n The expected names of arguments are defined by the process descriptions, which can be discovered with calls to \nGET /processes\n and \nGET /udf_runtimes/{lang}/{udf_type}\n. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named \nimagery\n. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using \ncollection\n as a key once. \n\n\nExamples\n\n\nExample 1:\n A full process graph definition.\n\n\n{\n  \"process_id\":\"min_time\",\n  \"imagery\":{\n    \"process_id\":\"/udf/Python/custom_ndvi\",\n    \"imagery\":{\n      \"process_id\":\"filter_daterange\",\n      \"imagery\":{\n        \"process_id\":\"filter_bbox\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"S2_L2A_T32TPS_20M\"\n        },\n        \"left\":652000,\n        \"right\":672000,\n        \"top\":5161000,\n        \"bottom\":5181000,\n        \"srs\":\"EPSG:32632\"\n      },\n      \"from\":\"2017-01-01\",\n      \"to\":\"2017-01-31\"\n    },\n    \"red\":\"B04\",\n    \"nir\":\"B8A\"\n  }\n}\n\n\n\n\nExample 2:\n If a process needs multiple processes as input, it is allowed to use arrays of the respective types.\n\n\n{\n  \"imagery\":{\n    \"process_id\":\"union\",\n    \"collection\":[\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":8\n      },\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":5\n      }\n    ]\n  }\n}\n\n\n\n\nCore processes\n\n\nThere are some processes that we define to be core processes that should be implemented by all back-ends:\n\n\n\n\nget_data\n\n\nfilter_bands\n\n\nfilter_daterange\n\n\nprocess_graph\n\n\nto be continued...\n\n\n\n\nNote:\n Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like and to supplement the schematic definition above.\n\n\nLimitation:\n Process names (process ids) MUST never contain a forward slash \n/\n.\n\n\nget_data\n\n\nFilters and selects a single dataset provided by the back-end.\n\n\nArguments\n\n\nAny of the properties of a dataset, e.g.\n\n\n\n\ndata_id\n: Filter by data id\n\n\nextent\n: Filter by extent\n\n\ntime\n: Filter by time\n\n\nbands\n: Filter by band ids\n\n\n...\n\n\n\n\nThe back-end provider decides which of the potential datasets is the most relevant one to be selected.\n\n\nExamples\n\n\n{\n  \"process_id\": \"get_data\",\n  \"data_id\":\"Sentinel2A-L1C\"\n}\n\n\n\n\n{\n  \"process_id\": \"get_data\",\n  \"platform\": \"landsat-7\",\n  \"sensor\": \"modis\", \n  \"derived_from\": null\n}\n\n\n\n\nfilter_bands\n\n\nAllows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\nAnd one of:\n\n\n\n\nbands\n: string or array of strings containing band ids.\n\n\nnames\n: string or array of strings containing band names.\n\n\nwavelengths\n: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"bands\":\"1\"\n}\n\n\n\n\n{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"wavelengths\":[\n    1300,\n    2000\n  ]\n}\n\n\n\n\nfilter_daterange\n\n\nAllows to filter an image collection by temporal extent.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\nAnd at least one of:\n\n\n\n\nfrom\n: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of \nto\n.\n\n\nto\n: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of \nfrom\n.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"filter_daterange\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"from\":\"2017-01-01\",\n  \"to\":\"2017-01-31\"\n}\n\n\n\n\nprocess_graph\n\n\nAnother process graph can be referenced with the process \nprocess_graph\n. This could even be an externally hosted process graph.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to apply the process graph to\n\n\nuri\n \n(required)\n: An URI to a process graph.\n\n\n\n\nExamples\n\n\n{\n  \"process_id\":\"process_graph\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"uri\":\"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\"\n}\n\n\n\n\nto be continued...",
-            "title": "Process Graphs"
-        },
-        {
-            "location": "/processgraphs/index.html#process-graphs",
-            "text": "A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.",
-            "title": "Process graphs"
-        },
-        {
-            "location": "/processgraphs/index.html#schematic-definition",
-            "text": "",
-            "title": "Schematic definition"
-        },
-        {
-            "location": "/processgraphs/index.html#process",
-            "text": "A single process in a process graph is defined as follows:  <Process> := {\n  \"process_id\": <string>,\n  \"description\": <string>,\n  \"<ArgumentName>\": <Value>,\n  ...\n}  A process MUST always contain a key-value-pair named  process_id  and MAY contain a  process_description .  It MAY hold an arbitrary number of additional elements as arguments for the process.  process_id  can currently contain three types of processes:   Backend-defined processes, which are listed at  GET /processes , e.g.  filter_bands .  User-defined process graphs, which are listed at  GET /users/{user_id}/process_graphs . \n  They are prefixed with  /user/ , e.g.  /user/my_process_graph .  User-defined functions (UDF) are prefixed with  /udf  and additionally contain the runtime and the process name separated by  / , e.g.  /udf/Python/apply_pixel .   Arguments  A process can have an arbitrary number of arguments.  The key  <ArgumentName>  can be any valid JSON key, but it is RECOMMENDED to use  snake case  and limit the characters to  a-z ,  0-9  and the  _ .  <ArgumentName>  MUST NOT use the names  process_id  or  process_description  as it would result in a naming conflict.  A value is defined as follows:  <Value> := <string|number|array|boolean|null|Process>  Note:  string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain  one data type only  and is allowed to contain the data types allowed for  <Value> . In consequence, the objects allowed to be part of an array are processes only.  Note:  The expected names of arguments are defined by the process descriptions, which can be discovered with calls to  GET /processes  and  GET /udf_runtimes/{lang}/{udf_type} . Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named  imagery . The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using  collection  as a key once.",
-            "title": "Process"
-        },
-        {
-            "location": "/processgraphs/index.html#examples",
-            "text": "Example 1:  A full process graph definition.  {\n  \"process_id\":\"min_time\",\n  \"imagery\":{\n    \"process_id\":\"/udf/Python/custom_ndvi\",\n    \"imagery\":{\n      \"process_id\":\"filter_daterange\",\n      \"imagery\":{\n        \"process_id\":\"filter_bbox\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"S2_L2A_T32TPS_20M\"\n        },\n        \"left\":652000,\n        \"right\":672000,\n        \"top\":5161000,\n        \"bottom\":5181000,\n        \"srs\":\"EPSG:32632\"\n      },\n      \"from\":\"2017-01-01\",\n      \"to\":\"2017-01-31\"\n    },\n    \"red\":\"B04\",\n    \"nir\":\"B8A\"\n  }\n}  Example 2:  If a process needs multiple processes as input, it is allowed to use arrays of the respective types.  {\n  \"imagery\":{\n    \"process_id\":\"union\",\n    \"collection\":[\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":8\n      },\n      {\n        \"process_id\":\"filter_bands\",\n        \"imagery\":{\n          \"process_id\":\"get_data\",\n          \"data_id\":\"Sentinel2-L1C\"\n        },\n        \"bands\":5\n      }\n    ]\n  }\n}",
-            "title": "Examples"
-        },
-        {
-            "location": "/processgraphs/index.html#core-processes",
-            "text": "There are some processes that we define to be core processes that should be implemented by all back-ends:   get_data  filter_bands  filter_daterange  process_graph  to be continued...   Note:  Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like and to supplement the schematic definition above.  Limitation:  Process names (process ids) MUST never contain a forward slash  / .",
-            "title": "Core processes"
-        },
-        {
-            "location": "/processgraphs/index.html#get_data",
-            "text": "Filters and selects a single dataset provided by the back-end.",
-            "title": "get_data"
-        },
-        {
-            "location": "/processgraphs/index.html#arguments",
-            "text": "Any of the properties of a dataset, e.g.   data_id : Filter by data id  extent : Filter by extent  time : Filter by time  bands : Filter by band ids  ...   The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processgraphs/index.html#examples_1",
-            "text": "{\n  \"process_id\": \"get_data\",\n  \"data_id\":\"Sentinel2A-L1C\"\n}  {\n  \"process_id\": \"get_data\",\n  \"platform\": \"landsat-7\",\n  \"sensor\": \"modis\", \n  \"derived_from\": null\n}",
-            "title": "Examples"
-        },
-        {
-            "location": "/processgraphs/index.html#filter_bands",
-            "text": "Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.",
-            "title": "filter_bands"
-        },
-        {
-            "location": "/processgraphs/index.html#arguments_1",
-            "text": "imagery   (required) : Image collection to filter   And one of:   bands : string or array of strings containing band ids.  names : string or array of strings containing band names.  wavelengths : number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processgraphs/index.html#examples_2",
-            "text": "{\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"bands\":\"1\"\n}  {\n  \"process_id\":\"filter_bands\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"wavelengths\":[\n    1300,\n    2000\n  ]\n}",
-            "title": "Examples"
-        },
-        {
-            "location": "/processgraphs/index.html#filter_daterange",
-            "text": "Allows to filter an image collection by temporal extent.",
-            "title": "filter_daterange"
-        },
-        {
-            "location": "/processgraphs/index.html#arguments_2",
-            "text": "imagery   (required) : Image collection to filter   And at least one of:   from : Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of  to .  to : Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of  from .",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processgraphs/index.html#examples_3",
-            "text": "{\n  \"process_id\":\"filter_daterange\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"from\":\"2017-01-01\",\n  \"to\":\"2017-01-31\"\n}",
-            "title": "Examples"
-        },
-        {
-            "location": "/processgraphs/index.html#process_graph",
-            "text": "Another process graph can be referenced with the process  process_graph . This could even be an externally hosted process graph.",
-            "title": "process_graph"
-        },
-        {
-            "location": "/processgraphs/index.html#arguments_3",
-            "text": "imagery   (required) : Image collection to apply the process graph to  uri   (required) : An URI to a process graph.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processgraphs/index.html#examples_4",
-            "text": "{\n  \"process_id\":\"process_graph\",\n  \"imagery\":{\n    \"process_id\":\"get_data\",\n    \"data_id\":\"Sentinel2A-L1C\"\n  },\n  \"uri\":\"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\"\n}",
-            "title": "Examples"
-        },
-        {
-            "location": "/processgraphs/index.html#to-be-continued",
-            "text": "",
-            "title": "to be continued..."
         },
         {
             "location": "/apireference/index.html",
