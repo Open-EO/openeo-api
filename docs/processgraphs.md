@@ -34,10 +34,13 @@ The key `<ArgumentName>` can be any valid JSON key, but it is RECOMMENDED to use
 A value is defined as follows:
 
 ```
-<Value> := <string|number|array|boolean|null|Process>
+<Value> := <string|number|array|boolean|null|object|Process>
 ```
 
-*Note:* string, number, array, boolean and null are the primitive data types supported by JSON. An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`. In consequence, the objects allowed to be part of an array are processes only.
+*Note:* The specified data types except `Process` (see definition above) are the native data types supported by JSON. Some limitations apply:
+
+* An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
+* Objects are not allowed to have a key with the name `process_id` except for an object of type `Process`.
 
 *Note:* The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
