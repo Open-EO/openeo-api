@@ -4,6 +4,14 @@ A process graph includes specific process calls, i.e. references to one or more 
 
 ## Schematic definition
 
+A process graph is defined to consist of chained processes:
+
+```
+<ProcessGraph> := <Process>
+```
+
+An argument value of a process can hold a Process again. This allows chaining of processes.
+
 ### Process
 
 A single process in a process graph is defined as follows:
@@ -25,7 +33,7 @@ A process MUST always contain a key-value-pair named `process_id` and MAY contai
   They are prefixed with `/user/`, e.g. `/user/my_process_graph`.
 * User-defined functions (UDF) are prefixed with `/udf` and additionally contain the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
 
-**Arguments**
+### Arguments
 
 A process can have an arbitrary number of arguments.
 
@@ -46,7 +54,7 @@ A value is defined as follows:
 
 *Note:* The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
-**Variables**
+### Variables
 
 Process graphs can also hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.
 
@@ -67,7 +75,7 @@ The value for `variable_id` is the name of the variable and can be any valid JSO
 
 Whenever no value for the variable is defined, the `default` value is used. `<Value>` can be used as defined above, but MUST NOT be a `Variable`. Values for variables can be specified in the query string or body of endpoints supporting variables. See the API reference for more information.
 
-### Examples
+## Examples
 
 **Example 1:** A full process graph definition including a variable for the data_id.
 
