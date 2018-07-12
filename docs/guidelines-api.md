@@ -1,4 +1,4 @@
-# General API Guidelines
+# API Development Guidelines
 
 To provide the smoothest possible experience, it's important to have these APIs follow consistent design guidelines, thus making using them easy and intuitive.
 
