@@ -1229,7 +1229,7 @@
     "/preview": {
       "post": {
         "summary": "Process and download EO data synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A `OpenEO-Costs` header MAY be sent with all responses. This endpoint could be used especially to generate small previews or  test process graphs before starting a batch job.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A header named `OpenEO-Costs` MAY be sent with all responses, which MUST include the costs for processing and downloading the data. This endpoint could be used especially to generate small previews or test process graphs before starting a batch job.",
         "tags": [
           "Process Graph Management"
         ],
@@ -1708,7 +1708,7 @@
       },
       "post": {
         "summary": "Publish a new web service.",
-        "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.",
+        "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.\n\n**Note:** Costs incured by shared web services are usually paid by the owner, but this depends on the web service type and whether it supports charge fees or not.",
         "tags": [
           "Web Service Management"
         ],
@@ -2244,7 +2244,7 @@
     "/jobs/{job_id}/estimate": {
       "get": {
         "summary": "Get an estimate for a job.",
-        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost. Costs may not include downloading costs. This can be indicated with the respective flag.",
         "tags": [
           "Job Management"
         ],
@@ -2273,6 +2273,12 @@
                       "type": "string",
                       "description": "Estimated duration for the operation. Duration must be specified according to ISO 8601.",
                       "example": "P1Y2M10DT2H30M"
+                    },
+                    "downloads_included": {
+                      "type": "integer",
+                      "description": "Specifies how many full downloads of the processed data are included in the estimate.",
+                      "example": false,
+                      "default": true
                     },
                     "expires": {
                       "type": "string",
@@ -2389,7 +2395,7 @@
       ],
       "get": {
         "summary": "Download information for a completed job.",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
         "tags": [
           "Job Management"
         ],
@@ -2409,25 +2415,39 @@
                   "type": "string",
                   "example": "Wed, 21 Oct 2018 07:28:00 GMT"
                 }
+              },
+              "OpenEO-Costs": {
+                "description": "Specifies the costs for fully downloading the data **once**, i.e. this header MAY change in subsequent calls. It MUST be set to `0` if the requester is the owner of the job and still has free downloads included in his processing charges estimated by `GET /jobs/{job_id}/estimate`.\n If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.",
+                "schema": {
+                  "$ref": "#/components/schemas/money"
+                }
               }
             },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/link"
-                  },
-                  "example": [
-                    {
-                      "href": "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
-                      "type": "image/tiff"
-                    },
-                    {
-                      "href": "https://openeo.org/api/v0/download/583fba8b2ce/2.tif",
-                      "type": "image/tiff"
+                  "type": "object",
+                  "required": [
+                    "links"
+                  ],
+                  "properties": {
+                    "links": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      },
+                      "example": [
+                        {
+                          "href": "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
+                          "type": "image/tiff"
+                        },
+                        {
+                          "href": "https://openeo.org/api/v0/download/583fba8b2ce/2.tif",
+                          "type": "image/tiff"
+                        }
+                      ]
                     }
-                  ]
+                  }
                 }
               },
               "application/metalink+xml": {
