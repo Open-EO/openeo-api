@@ -12,7 +12,7 @@ Server errors are defined as the server failing to correctly return in response 
 
 A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.
 
-```
+``` json
 {
   "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
   "code": 123,

@@ -22,7 +22,7 @@ There are some processes that we define to be core processes that should be impl
 * _to be continued..._
 
 !!! note
-    Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like.
+    Currently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like.
 
 ### get_data
 
@@ -42,14 +42,14 @@ The back-end provider decides which of the potential datasets is the most releva
 
 #### Examples
 
-```
+``` json
 {
   "process_id": "get_data",
   "data_id":"Sentinel2A-L1C"
 }
 ```
 
-```
+``` json
 {
   "process_id": "get_data",
   "platform": "landsat-7",
@@ -74,7 +74,7 @@ And one of:
 
 #### Examples
 
-```
+``` json
 {
   "process_id":"filter_bands",
   "imagery":{
@@ -85,7 +85,7 @@ And one of:
 }
 ```
 
-```
+``` json
 {
   "process_id":"filter_bands",
   "imagery":{
@@ -111,7 +111,7 @@ Allows to filter an image collection by temporal extent.
 
 #### Examples
 
-```
+``` json
 {
   "process_id":"filter_daterange",
   "imagery":{
@@ -133,7 +133,7 @@ Another process graph can be referenced with the process `process_graph`. This c
 
 #### Examples
 
-```
+``` json
 {
   "process_id":"process_graph",
   "uri":"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef",

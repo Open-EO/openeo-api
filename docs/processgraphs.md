@@ -52,7 +52,7 @@ A value is defined as follows:
       * `process_id`, except for objects of type `Process`
       * `variable_id`, except for objects of type `Variable`
 
-!!! warning
+!!! caution
     The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
 ### Variables
@@ -80,7 +80,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
 
 **Example 1:** A full process graph definition including a variable for the data_id.
 
-```
+``` json
 {
   "process_id":"min_time",
   "imagery":{
@@ -114,7 +114,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
 
 **Example 2:** If a process needs multiple processes as input, it is allowed to use arrays of the respective types.
 
-```
+``` json
 {
   "imagery":{
     "process_id":"union",

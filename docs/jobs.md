@@ -21,12 +21,10 @@ Temporal references are always specified on the basis of the [Gregorian calendar
 
 **Request**
 
-```
-Header:
+``` http
 POST /preview HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "process_graph":{
     "process_id":"min_time",
@@ -65,13 +63,11 @@ Body:
 ```
 
 **Response** 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: image/tiff
 Access-Control-Allow-Origin: <Origin>
 
-Body:
 omitted (the GeoTiff file contents)
 ```
 
@@ -79,12 +75,10 @@ omitted (the GeoTiff file contents)
 
 **Request**
 
-```
-Header:
+``` http
 POST /preview HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "process_graph":{
     "process_id":"zonal_statistics",
@@ -119,13 +113,11 @@ Body:
 
 **Response** 
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/octet-stream
 Access-Control-Allow-Origin: <Origin>
 
-Body:
 omitted (the GeoPackage file contents)
 ```
 

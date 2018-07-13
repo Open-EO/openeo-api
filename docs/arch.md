@@ -8,10 +8,10 @@ The openEO API defines a language how clients communicate to back-ends in order 
 4. API instances can run on back-end servers or additional intermediate layers, which then communicate to back-ends in a back-end specific way.
 5. Back-ends may add functionality and extend the API wherever there is need.
 6. There will be a central back-end registry service (openEO Hub), to allow users to search for back-ends with specific functionality and or data. 
-7. The openEO API will define *profiles* in order group specific functionality.
+7. The openEO API may define *profiles* in order group specific functionality.
 
-![Architecture](img/arch.png)
-
+![Architecture - openEO API shown in dark blue](img/arch.png)
+*Figure: Architecture - openEO API shown in dark blue*
 
 # Microservices
 

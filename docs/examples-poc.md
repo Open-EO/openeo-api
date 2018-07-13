@@ -23,19 +23,17 @@ Below, we define example use cases and how they are translated to sequences of A
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
 **Request**
-```
+``` http
 GET /data/Sentinel2A-L1C HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "product_id":"Sentinel-2A-L1C",
   "description":"Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
@@ -180,19 +178,17 @@ Body:
 #### 2. Check that needed processes are available
 
 **Request**
-```
+``` http
 GET /processes/filter_bbox HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "process_id":"filter_bbox",
   "description":"Drops observations from a collection that are located outside of a given bounding box.",
@@ -220,19 +216,17 @@ Body:
 ```
 
 **Request**
-```
+``` http
 GET /processes/filter_daterange HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "process_id":"filter_daterange",
   "description":"Drops observations from a collection that have been captured before a start or after a given end date.",
@@ -251,19 +245,17 @@ Body:
 ```
 
 **Request**
-```
+``` http
 GET /processes/NDVI HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "process_id":"NDVI",
   "description":"Finds the minimum value of time series for all bands of the input dataset.",
@@ -282,19 +274,17 @@ Body:
 ```
 
 **Request**
-```
+``` http
 GET /processes/min_time HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "process_id":"min_time",
   "description":"Finds the minimum value of time series for all bands of the input dataset.",
@@ -309,11 +299,10 @@ Body:
 #### 3. Create a job at the back-end 
 
 **Request**
-```
+``` http
 POST /jobs HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "process_graph":{
     "process_id":"min_time",
@@ -350,14 +339,12 @@ Body:
 }
 ```
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "job_id":"2a8ffb20c2b235a3f3e3351f",
   "status":"submitted",
@@ -372,11 +359,10 @@ Body:
 
 **Request**
 
-```
+``` http
 POST /services HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "job_id":"2a8ffb20c2b235a3f3e3351f",
   "type":"wcs",
@@ -388,14 +374,12 @@ Body:
 
 **Response**
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "service_id":"4dab456f6501bbcd",
   "service_url":"https://openeo.org/4dab456f6501bbcd/wcs",
@@ -410,7 +394,7 @@ Body:
 #### 5. Download the data on demand with WCS
 
 **Request**
-```
+``` http
 GET https://openeo.org/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCapabilities HTTP/1.1
 ```
 
@@ -418,7 +402,7 @@ GET https://openeo.org/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=Ge
 _omitted_
 
 **Request**
-```
+``` http
 GET https://openeo.org/4dab456f6501bbcd/wcs?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=2a8ffb20c2b235a3f3e3351f&FORMAT=image/tiff&SUBSET=x,http://www.opengis.net/def/crs/EPSG/0/4326(16.1,16.5)&SUBSET=y,http://www.opengis.net/def/crs/EPSG/0/4326(47.9,48.6)&&SIZE=x(200)&SIZE=y(200) HTTP/1.1
 ```
 
@@ -430,19 +414,16 @@ _omitted_
 
 **Request**
 
-```
+``` http
 PATCH /jobs/2a8ffb20c2b235a3f3e3351f/cancel HTTP/1.1
 ```
 
 **Response**
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
-
-Body: none
 ```
 
 
@@ -454,20 +435,18 @@ Body: none
 #### 1. Ask the back-end for available Sentinel 1 data
 
 **Request**
-```
+``` http
 GET /data/Sentinel1-L1-IW-GRD HTTP/1.1
 ```
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "product_id":"Sentinel1-L1-IW-GRD",
   "description":"Sentinel 1 C-band Synthetic Aperture Radar (SAR) Ground Range Data",
@@ -497,20 +476,18 @@ Body:
 #### 2. Ask the back-end whether it supports Python UDFs of type aggregate_time and get details about expected parameters
 
 **Request**
-```
+``` http
 GET /udf_runtimes HTTP/1.1
 ```
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "Python":{
     "udf_types":[
@@ -536,14 +513,13 @@ Body:
 ```
 
 **Request**
-```
+``` http
 GET /udf_runtimes/Python/aggregate_time HTTP/1.1
 ```
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
@@ -571,30 +547,26 @@ Access-Control-Allow-Credentials: true
 #### 3. Upload python script
 
 **Request**
-```
+``` http
 PUT /users/me/files/s1_aggregate.py HTTP/1.1
 ```
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
-
-Body: none
 ```
 
 
 #### 4. Create a job
 
 **Request**
-```
+``` http
 POST /jobs HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "process_graph":{
     "process_id":"/udf/Python/aggregate_time",
@@ -627,14 +599,12 @@ Body:
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
   "status":"submitted",
@@ -649,11 +619,10 @@ Body:
 
 **Request**
 
-```
+``` http
 POST /services HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "job_id":"3723c32fb7b24698832ca71f2d3f18aa",
   "type":"tms"
@@ -662,14 +631,12 @@ Body:
 
 **Response**
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "service_id":"9dab4b6f6523",
   "service_url":"http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms",
@@ -682,7 +649,7 @@ Body:
 
 
 **Example Request**
-```
+``` http
 GET http://cdn.cloudprovider.com/openeo/services/9dab4b6f6523/tms/2017-01-01/12/2232/2668/?bands=1 HTTP/1.1
 ```
 
@@ -698,20 +665,18 @@ _omitted_
 #### 1. Check whether Sentinel 2A Level 1C data is available at the back-end
 
 **Request**
-```
+``` http
 GET /data/Sentinel2A-L1C HTTP/1.1
 ```
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "product_id":"Sentinel-2A-L1C",
   "description":"Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
@@ -859,19 +824,17 @@ Body:
 
 
 **Request**
-```
+``` http
 GET /processes/zonal_statistics HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "process_id":"zonal_statistics",
   "description":"Runs a Python script for each time series of the input dataset.",
@@ -895,27 +858,23 @@ Body:
 #### 3. Upload a GeoJSON Polygon
 
 **Request**
-```
+``` http
 PUT /user/me/files/polygon1.json HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
-
-Body: none
 ```
 
 #### 4. Create a job
 **Request**
-```
+``` http
 POST /jobs HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
-Body:
 {
   "process_graph":{
     "process_id":"zonal_statistics",
@@ -958,14 +917,12 @@ Body:
 
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
   "status":"submitted",
@@ -980,37 +937,32 @@ Body:
 
 **Request**
 
-```
+``` http
 PATCH /jobs/f6ea12c5e283438a921b525af826da08/queue HTTP/1.1
 ```
 
 **Response**
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
-
-Body: none
 ```
 
 #### 6. Check job status twice
 
 **Request**
-```
+``` http
 GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
   "user_id":"bd6f9faf93b4",
@@ -1058,19 +1010,17 @@ Body:
 ```
 
 **Request**
-```
+``` http
 GET /jobs/f6ea12c5e283438a921b525af826da08 HTTP/1.1
 ```
 
 **Response**
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 {
   "job_id":"f6ea12c5e283438a921b525af826da08",
   "user_id":"bd6f9faf93b4",
@@ -1121,20 +1071,18 @@ Body:
 
 
 **Request**
-```
+``` http
 GET /jobs/f6ea12c5e283438a921b525af826da08/download HTTP/1.1
 ```
 
 **Response**
 
-```
-Header:
+``` http
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 Access-Control-Allow-Origin: <Origin>
 Access-Control-Allow-Credentials: true
 
-Body:
 [
   "https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg"
 ]
@@ -1146,7 +1094,7 @@ Body:
 
 **Request**
 
-```
+``` http
 GET https://cdn.openeo.org/4854b51643548ab8a858e2b8282711d8/1.gpkg HTTP/1.1
 ```
 
