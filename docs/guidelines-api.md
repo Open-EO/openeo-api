@@ -12,6 +12,8 @@ In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, �
 
 ### Casing
 
+Unless otherwise stated the API works case sensitive.
+
 All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lowercased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
 
 ## Technical requirements

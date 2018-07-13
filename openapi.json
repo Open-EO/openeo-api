@@ -15,7 +15,7 @@
   "info": {
     "title": "OpenEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications** in the 'General API Concept Description', which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n\n**Note:** This version is still incomplete and intended for working on prototypes. Check the [issue tracker](https://github.com/Open-EO/openeo-api/issues) for more information.",
+    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -172,7 +172,7 @@
                             "properties": {
                               "name": {
                                 "type": "string",
-                                "description": "Name of the plan.",
+                                "description": "Name of the plan. Is allowed to be *case insensitive* throughout the API.",
                                 "example": "free"
                               },
                               "description": {
@@ -222,7 +222,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nOutput format names are allowed to be *case insensitive* throughout the API.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -703,7 +703,7 @@
                       },
                       "parameters": {
                         "type": "object",
-                        "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter. Parameter names are case sensitive.",
+                        "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
                         "additionalProperties": {
                           "type": "object",
                           "required": [
@@ -1515,14 +1515,14 @@
     "/service_types": {
       "get": {
         "summary": "List supported web service protocols.",
-        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters is input that needs to be defined upon creation of a web service. Attributes are computed values that are defined by the web service during creation and based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.",
+        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters is input that needs to be defined upon creation of a web service. Attributes are computed values that are defined by the web service during creation and based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.\nWeb Service names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Web Service Management"
         ],
         "responses": {
           "200": {
-            "description": "An object with a map containing all web service names as keys and an  object that defines supported paramaters and attributes.",
+            "description": "An object with a map containing all web service names as keys and an object that defines supported paramaters and attributes.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2837,7 +2837,7 @@
       },
       "billing_plan": {
         "type": "string",
-        "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`.",
+        "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`. Billing plans MUST be accepted *case insensitive*.",
         "example": "free"
       },
       "data_id": {
@@ -3072,7 +3072,7 @@
         "example": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery."
       },
       "service_type": {
-        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`",
+        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
         "type": "string",
         "example": "wms"
       },
@@ -3149,7 +3149,7 @@
         "properties": {
           "format": {
             "type": "string",
-            "description": "One of the supported output formats."
+            "description": "One of the supported output formats. MUST be accepted *case insensitive*."
           },
           "arguments": {
             "type": "object",
@@ -3209,7 +3209,7 @@
         }
       },
       "refsys": {
-        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.\nReference systems MUST be accepted *case insensitive*.",
         "type": "string",
         "default": "EPSG:4326",
         "example": "EPSG:3857"
