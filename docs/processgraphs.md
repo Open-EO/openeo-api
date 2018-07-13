@@ -103,8 +103,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
         "bottom":5181000,
         "srs":"EPSG:32632"
       },
-      "from":"2017-01-01",
-      "to":"2017-01-31"
+      "extent":"2017-01-01/2017-01-31"
     },
     "red":"B04",
     "nir":"B8A"

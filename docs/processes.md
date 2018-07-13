@@ -106,10 +106,7 @@ Allows to filter an image collection by temporal extent.
 
 * `imagery` *(required)*: Image collection to filter
 
-And at least one of:
-
-* `from`: Includes all data newer than the specified ISO 8601 date or date-time with simultaneous consideration of `to`.
-* `to`: Includes all data older than the specified ISO 8601 date or date-time with simultaneous consideration of `from`.
+* `extent`: A temporal extent as specified in the [API guidelines](https://open-eo.github.io/openeo-api/v/0.3.0/guidelines-api/index.html#temporal-data).
 
 #### Examples
 
@@ -120,8 +117,7 @@ And at least one of:
     "process_id":"get_data",
     "data_id":"Sentinel2A-L1C"
   },
-  "from":"2017-01-01",
-  "to":"2017-01-31"
+  "extent":"2017-01-01/2017-01-31"
 }
 ```
 
