@@ -13,7 +13,8 @@ Below, we define example use cases and how they are translated to sequences of A
 2. [Create a monthly aggregated Sentinel 1 product from a custom Python script](#use-case-2)
 3. [Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons](#use-case-3)
 
-_Note:_ Authentication is not included in these examples. Enabling authentication needs the placeholder `<Origin>` to be set to the requesting host, including protocol, host name/IP and port, e.g. `http://localhost:8080`. This could be done by using the Origin header value from the request.
+!!! note
+    Authentication is not included in these examples. Enabling authentication needs the placeholder `<Origin>` to be set to the requesting host, including protocol, host name/IP and port, e.g. `http://localhost:8080`. This could be done by using the Origin header value from the request.
 
 ## Use Case 1
 

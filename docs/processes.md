@@ -21,7 +21,8 @@ There are some processes that we define to be core processes that should be impl
 * process_graph
 * _to be continued..._
 
-_Note:_ Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like.
+!!! note
+    Currently there are only few defined processes. Those are currently only meant as an example how future documentation of processes may look like.
 
 ### get_data
 

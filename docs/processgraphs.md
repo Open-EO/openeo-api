@@ -45,14 +45,15 @@ A value is defined as follows:
 <Value> := <string|number|boolean|null|array|object|Process|Variable>
 ```
 
-*Note:* The specified data types except `Process` (see definition above) are the native data types supported by JSON. Some limitations apply:
+!!! note
+    The specified data types except `Process` and `Variable` (see definition above) are the native data types supported by JSON. Some limitations apply:
+    * An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
+    * Objects are not allowed to have keys with the following names:
+      * `process_id`, except for objects of type `Process`
+      * `variable_id`, except for objects of type `Variable`
 
-* An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
-* Objects are not allowed to have keys with the following names:
-  * `process_id`, except for objects of type `Process`
-  * `variable_id`, except for objects of type `Variable`
-
-*Note:* The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
+!!! warning
+    The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
 ### Variables
 
