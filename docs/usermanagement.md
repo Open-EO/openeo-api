@@ -6,7 +6,7 @@ In general, the openEO API only defines a minimum subset of user management and 
 * handle storage space limits (disk quota),
 * manage billing, which includes to
   * query the credit a user has available,
-  * estimate costs for certain operations,
+  * estimate costs for certain operations (data processing and downloading),
   * get information about produced costs,
   * limit costs of certain operations.
 

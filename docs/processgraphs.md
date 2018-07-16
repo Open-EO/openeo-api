@@ -125,7 +125,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
           "process_id":"get_data",
           "data_id":"Sentinel2-L1C"
         },
-        "bands":8
+        "bands":"8"
       },
       {
         "process_id":"filter_bands",
@@ -133,7 +133,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
           "process_id":"get_data",
           "data_id":"Sentinel2-L1C"
         },
-        "bands":5
+        "bands":"5"
       }
     ]
   }
