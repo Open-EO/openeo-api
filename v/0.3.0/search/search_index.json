@@ -427,12 +427,12 @@
         },
         {
             "location": "/processes/index.html",
-            "text": "Processes\n\n\nA process is defined in the API specification. It is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. \n\n\n\n\nThe name is the identifier for the process and MUST never contain a forward slash \n/\n. \n\n\nEach parameter has a name and the valid content follows a schema.\n\n\nThe content returned by a process also follows a schema.\n\n\nThe schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.\n\n\n\n\nopenEO specific formats\n\n\nTBD\n\n\nCore Processes\n\n\nThere are some processes that we define to be core processes that should be implemented by all back-ends:\n\n\n\n\nget_data\n\n\nfilter_bands\n\n\nfilter_daterange\n\n\nprocess_graph\n\n\nto be continued...\n\n\n\n\n\n\nNote\n\n\nCurrently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like.\n\n\n\n\nget_data\n\n\nFilters and selects a single dataset provided by the back-end.\n\n\nArguments\n\n\nAny of the properties of a dataset, e.g.\n\n\n\n\ndata_id\n: Filter by data id\n\n\nextent\n: Filter by extent\n\n\ntime\n: Filter by time\n\n\nbands\n: Filter by band ids\n\n\n...\n\n\n\n\nThe back-end provider decides which of the potential datasets is the most relevant one to be selected.\n\n\nExamples\n\n\n{\n\n  \n\"process_id\"\n:\n \n\"get_data\"\n,\n\n  \n\"data_id\"\n:\n\"Sentinel2A-L1C\"\n\n\n}\n\n\n\n\n\n{\n\n  \n\"process_id\"\n:\n \n\"get_data\"\n,\n\n  \n\"platform\"\n:\n \n\"landsat-7\"\n,\n\n  \n\"sensor\"\n:\n \n\"modis\"\n,\n \n  \n\"derived_from\"\n:\n \nnull\n\n\n}\n\n\n\n\n\nfilter_bands\n\n\nAllows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.\n\n\nArguments\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\nAnd one of:\n\n\n\n\nbands\n: string or array of strings containing band ids.\n\n\nnames\n: string or array of strings containing band names.\n\n\nwavelengths\n: number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.\n\n\n\n\nExamples\n\n\n{\n\n  \n\"process_id\"\n:\n\"filter_bands\"\n,\n\n  \n\"imagery\"\n:{\n\n    \n\"process_id\"\n:\n\"get_data\"\n,\n\n    \n\"data_id\"\n:\n\"Sentinel2A-L1C\"\n\n  \n},\n\n  \n\"bands\"\n:\n\"1\"\n\n\n}\n\n\n\n\n\n{\n\n  \n\"process_id\"\n:\n\"filter_bands\"\n,\n\n  \n\"imagery\"\n:{\n\n    \n\"process_id\"\n:\n\"get_data\"\n,\n\n    \n\"data_id\"\n:\n\"Sentinel2A-L1C\"\n\n  \n},\n\n  \n\"wavelengths\"\n:[\n\n    \n1300\n,\n\n    \n2000\n\n  \n]\n\n\n}\n\n\n\n\n\nfilter_daterange\n\n\nAllows to filter an image collection by temporal extent.\n\n\nArguments\n\n\n\n\n\n\nimagery\n \n(required)\n: Image collection to filter\n\n\n\n\n\n\nextent\n: A temporal extent as specified in the \nAPI guidelines\n.\n\n\n\n\n\n\nExamples\n\n\n{\n\n  \n\"process_id\"\n:\n\"filter_daterange\"\n,\n\n  \n\"imagery\"\n:{\n\n    \n\"process_id\"\n:\n\"get_data\"\n,\n\n    \n\"data_id\"\n:\n\"Sentinel2A-L1C\"\n\n  \n},\n\n  \n\"extent\"\n:\n\"2017-01-01/2017-01-31\"\n\n\n}\n\n\n\n\n\nprocess_graph\n\n\nAnother process graph can be referenced with the process \nprocess_graph\n. This could even be an externally hosted process graph.\n\n\nArguments\n\n\n\n\nuri\n \n(required)\n: An URI to a process graph.\n\n\nvariables\n: An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding \nvariable_id\n for the value specified. The replacement for the variable is the value of the pair.\n\n\n\n\nExamples\n\n\n{\n\n  \n\"process_id\"\n:\n\"process_graph\"\n,\n\n  \n\"uri\"\n:\n\"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\"\n,\n\n  \n\"variables\"\n:\n \n{\n\n    \n\"data_id\"\n:\n\"Sentinel2A-L1C\"\n\n  \n}\n\n\n}\n\n\n\n\n\ndata_id\n is a variable defined by the process graph stored at \nhttp://otherhost.org/api/v1/users/12345/process_graphs/abcdef\n and should be replaced with the string \nSentinal2A-L1C\n.\n\n\nto be continued...",
-            "title": "Processes"
+            "text": "Processes\n\n\nA process is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. In openEO they are used to build a chain of processes (process graph), which can be applied to EO datasets to derive your own findings from the data.\n\n\nTo define new processes, back-end providers should know:\n\n\n\n\nThe name is the identifier for the process and MUST never contain a forward slash \n/\n. \n\n\nEach parameter has a name and the content follows a schema.\n\n\nThe content returned by a process also follows a schema.\n\n\nThe schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.\n\n\n\n\nopenEO specific formats\n\n\nTBD\n\n\nCore Processes\n\n\nThere are some processes that we define to be core processes that are pre-defined and back-ends should follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends.\n\n\nSee the \nprocess reference\n for pre-defined processes.\n\n\n\n\nNote\n\n\nCurrently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like.",
+            "title": "Introduction"
         },
         {
             "location": "/processes/index.html#processes",
-            "text": "A process is defined in the API specification. It is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata.    The name is the identifier for the process and MUST never contain a forward slash  / .   Each parameter has a name and the valid content follows a schema.  The content returned by a process also follows a schema.  The schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.",
+            "text": "A process is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. In openEO they are used to build a chain of processes (process graph), which can be applied to EO datasets to derive your own findings from the data.  To define new processes, back-end providers should know:   The name is the identifier for the process and MUST never contain a forward slash  / .   Each parameter has a name and the content follows a schema.  The content returned by a process also follows a schema.  The schema usually defines the data type and a format according to JSON schema. There are openEO specific formats defined below.",
             "title": "Processes"
         },
         {
@@ -442,73 +442,13 @@
         },
         {
             "location": "/processes/index.html#core-processes",
-            "text": "There are some processes that we define to be core processes that should be implemented by all back-ends:   get_data  filter_bands  filter_daterange  process_graph  to be continued...    Note  Currently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like.",
+            "text": "There are some processes that we define to be core processes that are pre-defined and back-ends should follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends.  See the  process reference  for pre-defined processes.   Note  Currently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like.",
             "title": "Core Processes"
         },
         {
-            "location": "/processes/index.html#get_data",
-            "text": "Filters and selects a single dataset provided by the back-end.",
-            "title": "get_data"
-        },
-        {
-            "location": "/processes/index.html#arguments",
-            "text": "Any of the properties of a dataset, e.g.   data_id : Filter by data id  extent : Filter by extent  time : Filter by time  bands : Filter by band ids  ...   The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processes/index.html#examples",
-            "text": "{ \n   \"process_id\" :   \"get_data\" , \n   \"data_id\" : \"Sentinel2A-L1C\"  }   { \n   \"process_id\" :   \"get_data\" , \n   \"platform\" :   \"landsat-7\" , \n   \"sensor\" :   \"modis\" ,  \n   \"derived_from\" :   null  }",
-            "title": "Examples"
-        },
-        {
-            "location": "/processes/index.html#filter_bands",
-            "text": "Allows to extract one or multiple bands of multi-band raster image collection. Bands can be chosen either by band id, band name or by wavelength.",
-            "title": "filter_bands"
-        },
-        {
-            "location": "/processes/index.html#arguments_1",
-            "text": "imagery   (required) : Image collection to filter   And one of:   bands : string or array of strings containing band ids.  names : string or array of strings containing band names.  wavelengths : number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processes/index.html#examples_1",
-            "text": "{ \n   \"process_id\" : \"filter_bands\" , \n   \"imagery\" :{ \n     \"process_id\" : \"get_data\" , \n     \"data_id\" : \"Sentinel2A-L1C\" \n   }, \n   \"bands\" : \"1\"  }   { \n   \"process_id\" : \"filter_bands\" , \n   \"imagery\" :{ \n     \"process_id\" : \"get_data\" , \n     \"data_id\" : \"Sentinel2A-L1C\" \n   }, \n   \"wavelengths\" :[ \n     1300 , \n     2000 \n   ]  }",
-            "title": "Examples"
-        },
-        {
-            "location": "/processes/index.html#filter_daterange",
-            "text": "Allows to filter an image collection by temporal extent.",
-            "title": "filter_daterange"
-        },
-        {
-            "location": "/processes/index.html#arguments_2",
-            "text": "imagery   (required) : Image collection to filter    extent : A temporal extent as specified in the  API guidelines .",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processes/index.html#examples_2",
-            "text": "{ \n   \"process_id\" : \"filter_daterange\" , \n   \"imagery\" :{ \n     \"process_id\" : \"get_data\" , \n     \"data_id\" : \"Sentinel2A-L1C\" \n   }, \n   \"extent\" : \"2017-01-01/2017-01-31\"  }",
-            "title": "Examples"
-        },
-        {
-            "location": "/processes/index.html#process_graph",
-            "text": "Another process graph can be referenced with the process  process_graph . This could even be an externally hosted process graph.",
-            "title": "process_graph"
-        },
-        {
-            "location": "/processes/index.html#arguments_3",
-            "text": "uri   (required) : An URI to a process graph.  variables : An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding  variable_id  for the value specified. The replacement for the variable is the value of the pair.",
-            "title": "Arguments"
-        },
-        {
-            "location": "/processes/index.html#examples_3",
-            "text": "{ \n   \"process_id\" : \"process_graph\" , \n   \"uri\" : \"http://otherhost.org/api/v1/users/12345/process_graphs/abcdef\" , \n   \"variables\" :   { \n     \"data_id\" : \"Sentinel2A-L1C\" \n   }  }   data_id  is a variable defined by the process graph stored at  http://otherhost.org/api/v1/users/12345/process_graphs/abcdef  and should be replaced with the string  Sentinal2A-L1C .",
-            "title": "Examples"
-        },
-        {
-            "location": "/processes/index.html#to-be-continued",
-            "text": "",
-            "title": "to be continued..."
+            "location": "/processreference/index.html",
+            "text": "Placeholder for generated process specifications.",
+            "title": "Reference"
         },
         {
             "location": "/processgraphs/index.html",
