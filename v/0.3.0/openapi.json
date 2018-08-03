@@ -13,9 +13,9 @@
     }
   ],
   "info": {
-    "title": "OpenEO API",
+    "title": "openEO API",
     "version": "0.3.0",
-    "description": "The OpenEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification. Particularly with regard to:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -27,7 +27,7 @@
     }
   },
   "externalDocs": {
-    "description": "General API Concept Description",
+    "description": "openEO Documentation",
     "url": "https://open-eo.github.io/openeo-api/v/0.3.0/"
   },
   "tags": [
@@ -2298,38 +2298,29 @@
       }
     },
     "/jobs/{job_id}/subscriptions": {
-      "post": {
-        "summary": "Subscribe to execution updates for a job.",
-        "description": "***Reserved for later use.** The WebSocket-based protocol communicating the job updates is to be defined.*",
+      "get": {
+        "summary": "Subscribe to execution updates for jobs.",
+        "description": "Get notified when execution updates for a job occure, e.g. status updates or debugging information.\n\nAfter upgrading from HTTP to the WebSockets protocol, the documentation regarding the openEO API for Subscriptions applies.",
         "tags": [
           "Job Management"
         ],
         "security": [
-          {},
           {
             "Bearer": []
           }
         ],
+        "externalDocs": {
+          "description": "openEO API for Subscriptions",
+          "url": "https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/"
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/job_id"
           },
           {
-            "name": "Upgrade",
-            "in": "header",
-            "description": "WebSocket handshake request header",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "websocket"
-              ]
-            }
-          },
-          {
             "name": "Connection",
             "in": "header",
-            "description": "WebSocket handshake request header",
+            "description": "WebSocket handshake request to indicate that an upgrade is requested.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2339,30 +2330,33 @@
             }
           },
           {
-            "name": "Sec-WebSocket-Key",
+            "name": "Upgrade",
             "in": "header",
-            "description": "WebSocket handshake request header",
+            "description": "WebSocket handshake request to indicate the protocol to upgrade to.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "websocket"
+              ]
             }
           },
           {
             "name": "Sec-WebSocket-Protocol",
             "in": "header",
-            "description": "WebSocket handshake request header",
+            "description": "The Sec-WebSocket-Protocol header specifies the WebSocket protocols that you wish to use.",
             "required": true,
             "schema": {
               "type": "string",
               "enum": [
-                "job_subscribe"
+                "org.openeo.jobs"
               ]
             }
           },
           {
             "name": "Sec-WebSocket-Version",
             "in": "header",
-            "description": "WebSocket handshake request header",
+            "description": "The WebSocket protocol version the client wishes to use when communicating with the server. This number should be the most recent version possible listed in the IANA WebSocket Version Number Registry.",
             "required": true,
             "schema": {
               "type": "number",
@@ -2374,7 +2368,7 @@
         ],
         "responses": {
           "101": {
-            "description": "Successful subscription to job updates returns in a protocol change to a web socket connection."
+            "description": "Successful subscription to job updates returns in a protocol change to a web socket connection. The web socket connection is described in the referenced openEO API for Subscriptions documentation."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
