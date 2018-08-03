@@ -1,6 +1,9 @@
 language: python
+
 python:
 - "3.5"
+
+node_js: 8
 
 sudo: required
 
@@ -9,14 +12,18 @@ before_install:
 - pip install mkdocs-material
 - pip install pymdown-extensions
 - pip install pygments
+- npm install -g asyncapi-docgen
 
 install:
 - mkdocs build --clean
 - cp openapi.json site/
-- cp processes.json site/
 - rm -f site/apireference/index.html
-- rm -f site/processreference/index.html
 - mv site/apireference.html site/apireference/index.html
+- cp subscriptions.json site/
+- rm -f site/apireference-subscriptions/index.html
+- adg subscriptions.json -o site/apireference-subscriptions
+- cp processes.json site/
+- rm -f site/processreference/index.html
 - mv site/processreference.html site/processreference/index.html
 
 script:
