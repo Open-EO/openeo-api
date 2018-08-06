@@ -222,7 +222,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and options SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format options supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or options MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nOutput format names are allowed to be *case insensitive* throughout the API.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nOutput format names are allowed to be *case insensitive* throughout the API.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -245,13 +245,12 @@
                     },
                     "formats": {
                       "type": "object",
-                      "properties": {
-                        "parameters": {
-                          "type": "object",
-                          "description": "List of supported output formats.",
-                          "additionalProperties": {
+                      "description": "List of supported output formats.",
+                      "additionalProperties": {
+                        "properties": {
+                          "parameters": {
+                            "description": "Specifies the supported parameters for this output format.",
                             "type": "object",
-                            "description": "Named parameters for this output format.",
                             "additionalProperties": {
                               "$ref": "#/components/schemas/argument"
                             }
@@ -934,7 +933,7 @@
                     {
                       "name": "filter_bands",
                       "summary": "Filter an image collection by bands.",
-                      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
+                      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.",
                       "min_parameters": 2,
                       "parameters": {
                         "imagery": {
@@ -1514,7 +1513,7 @@
     "/service_types": {
       "get": {
         "summary": "List supported web service protocols.",
-        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters is input that needs to be defined upon creation of a web service. Attributes are computed values that are defined by the web service during creation and based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.\nWeb Service names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters configure the web service and therefore need to be defined upon creation of a web service. Attributes are read-only characteristics of the web service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.\nWeb Service names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Web Service Management"
@@ -1532,14 +1531,14 @@
                     "properties": {
                       "parameters": {
                         "type": "object",
-                        "description": "List of parameters.",
+                        "description": "List of supported parameters for configuration.",
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
                         }
                       },
                       "attributes": {
                         "type": "object",
-                        "description": "List of attributes.",
+                        "description": "List of supported attributes.",
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
                         }
@@ -1548,7 +1547,7 @@
                   },
                   "example": {
                     "WMS": {
-                      "arguments": {
+                      "parameters": {
                         "version": {
                           "type": "string",
                           "description": "The WMS version to use.",
@@ -1572,7 +1571,7 @@
                       }
                     },
                     "WFS": {
-                      "arguments": {
+                      "parameters": {
                         "version": {
                           "type": "string",
                           "description": "The WFS version to use.",
@@ -1751,8 +1750,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "arguments": {
-                    "$ref": "#/components/schemas/service_arguments"
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1814,8 +1813,8 @@
                   "enabled": {
                     "$ref": "#/components/schemas/service_enabled"
                   },
-                  "arguments": {
-                    "$ref": "#/components/schemas/service_arguments"
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan"
@@ -1855,7 +1854,7 @@
                     "enabled",
                     "type",
                     "url",
-                    "arguments",
+                    "parameters",
                     "attributes",
                     "user_id"
                   ],
@@ -1881,12 +1880,12 @@
                     "enabled": {
                       "$ref": "#/components/schemas/service_enabled"
                     },
-                    "arguments": {
-                      "$ref": "#/components/schemas/service_arguments"
+                    "parameters": {
+                      "$ref": "#/components/schemas/service_parameters"
                     },
                     "attributes": {
                       "type": "object",
-                      "description": "Additional attributes a web service computes during creation of a web service depending on the input. For example, this could list the available layers for a WMS. See `GET /service_types` for supported attributes.",
+                      "description": "Additional attributes of the web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff. See `GET /service_types` for supported attributes.",
                       "additionalProperties": true,
                       "example": {
                         "layers": [
@@ -2954,7 +2953,7 @@
         }
       },
       "process_graph": {
-        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes including specific arguments.",
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes.",
         "type": "object",
         "required": [
           "process_id"
@@ -3073,9 +3072,9 @@
         "type": "string",
         "example": "wms"
       },
-      "service_arguments": {
+      "service_parameters": {
         "type": "object",
-        "description": "List of arguments for the parameters supported by the web service. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. ",
+        "description": "List of arguments, i.e. the parameter names supported by the web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. ",
         "additionalProperties": true,
         "example": {
           "version": 1.1
@@ -3148,14 +3147,15 @@
             "type": "string",
             "description": "One of the supported output formats. MUST be accepted *case insensitive*."
           },
-          "arguments": {
+          "parameters": {
             "type": "object",
+            "description": "List of arguments, i.e. the parameter names supported by the output format combined with actual values. See `GET /output_formats` for supported parameters and valid arguments.",
             "additionalProperties": true
           }
         },
         "example": {
           "format": "GTiff",
-          "arguments": {
+          "parameters": {
             "tiles": true,
             "compress": "jpeg",
             "photometric": "YCBCR",
@@ -3377,7 +3377,7 @@
             }
           }
         },
-        "description": "Description of one or more (chained) processes including their input arguments",
+        "description": "Description of one or more (chained) processes.",
         "required": true
       }
     },
