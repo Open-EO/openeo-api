@@ -17,14 +17,13 @@ before_install:
 install:
 - mkdocs build --clean
 - cp openapi.json site/
-- rm -f site/apireference/index.html
-- mv site/apireference.html site/apireference/index.html
-- cp subscriptions.json site/
-- rm -f site/apireference-subscriptions/index.html
-- adg subscriptions.json -o site/apireference-subscriptions
 - cp processes.json site/
+- rm -f site/apireference/index.html
 - rm -f site/processreference/index.html
-- mv site/processreference.html site/processreference/index.html
+- rm -f site/apireference-subscriptions/index.html
+- mv docs/apireference.html site/apireference/index.html
+- mv docs/processreference.html site/processreference/index.html
+- adg subscriptions.json -o site/apireference-subscriptions
 
 script:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
@@ -34,6 +33,7 @@ script:
 
 deploy:
   provider: pages
+  skip-cleanup: true
   github-token: $GITHUB_TOKEN
   keep-history: true
   committer-from-gh: true

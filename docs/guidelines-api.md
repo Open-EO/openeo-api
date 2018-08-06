@@ -42,7 +42,7 @@ All back-end providers SHOULD support CORS. More information can be found in the
 
 #### Status codes and error handling
 
-The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231). More information can be found in the section about [status und error handling](errorhandling.md).
+The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231). More information can be found in the section about [status und error handling](errors.md).
 
 ### Requests and response formats
 
