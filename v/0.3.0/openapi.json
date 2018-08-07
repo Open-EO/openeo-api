@@ -6,7 +6,7 @@
       "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication methods are not secure with HTTP only!",
       "variables": {
         "version": {
-          "default": "v0",
+          "default": "v0.3",
           "description": "API versioning is RECOMMENDED. It MUST not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
         }
       }
@@ -2296,88 +2296,6 @@
         }
       }
     },
-    "/jobs/{job_id}/subscriptions": {
-      "get": {
-        "summary": "Subscribe to execution updates for jobs.",
-        "description": "Get notified when execution updates for a job occure, e.g. status updates or debugging information.\n\nAfter upgrading from HTTP to the WebSockets protocol, the documentation regarding the openEO API for Subscriptions applies.",
-        "tags": [
-          "Job Management"
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "externalDocs": {
-          "description": "openEO API for Subscriptions",
-          "url": "https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/"
-        },
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/job_id"
-          },
-          {
-            "name": "Connection",
-            "in": "header",
-            "description": "WebSocket handshake request to indicate that an upgrade is requested.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "Upgrade"
-              ]
-            }
-          },
-          {
-            "name": "Upgrade",
-            "in": "header",
-            "description": "WebSocket handshake request to indicate the protocol to upgrade to.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "websocket"
-              ]
-            }
-          },
-          {
-            "name": "Sec-WebSocket-Protocol",
-            "in": "header",
-            "description": "The Sec-WebSocket-Protocol header specifies the WebSocket protocols that you wish to use.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "org.openeo.jobs"
-              ]
-            }
-          },
-          {
-            "name": "Sec-WebSocket-Version",
-            "in": "header",
-            "description": "The WebSocket protocol version the client wishes to use when communicating with the server. This number should be the most recent version possible listed in the IANA WebSocket Version Number Registry.",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "enum": [
-                13
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "101": {
-            "description": "Successful subscription to job updates returns in a protocol change to a web socket connection. The web socket connection is described in the referenced openEO API for Subscriptions documentation."
-          },
-          "4XX": {
-            "$ref": "#/components/responses/client_error_auth"
-          },
-          "5XX": {
-            "$ref": "#/components/responses/server_error"
-          }
-        }
-      }
-    },
     "/jobs/{job_id}/results": {
       "parameters": [
         {
@@ -2777,6 +2695,89 @@
                 }
               }
             }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/subscription": {
+      "get": {
+        "summary": "Subscribe to updates.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO datasets or added/deleted resources like files and process graphs.\n\nAfter upgrading from HTTP to the WebSockets protocol, the documentation regarding the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies.",
+        "tags": [
+          "Job Management",
+          "File Management",
+          "Process Graph Management",
+          "Web Service Management",
+          "EO Data Discovery"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "externalDocs": {
+          "description": "openEO API for Subscriptions",
+          "url": "https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/"
+        },
+        "parameters": [
+          {
+            "name": "Connection",
+            "in": "header",
+            "description": "WebSocket handshake request to indicate that an upgrade is requested.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Upgrade"
+              ]
+            }
+          },
+          {
+            "name": "Upgrade",
+            "in": "header",
+            "description": "WebSocket handshake request to indicate the protocol to upgrade to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "websocket"
+              ]
+            }
+          },
+          {
+            "name": "Sec-WebSocket-Protocol",
+            "in": "header",
+            "description": "The Sec-WebSocket-Protocol header specifies the WebSocket protocols that you wish to use. The protocol to use is always `openeo-{api_version}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openeo-v0.3"
+              ]
+            }
+          },
+          {
+            "name": "Sec-WebSocket-Version",
+            "in": "header",
+            "description": "The WebSocket protocol version the client wishes to use when communicating with the server. This number should be the most recent version possible listed in the IANA WebSocket Version Number Registry.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "enum": [
+                13
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Successful subscription to notifications returns in a protocol change to a web socket connection. The web socket connection is described in the referenced openEO API for Subscriptions documentation."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
