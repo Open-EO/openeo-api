@@ -89,6 +89,42 @@
     }
   },
   {
+    "name": "get_results",
+    "summary": "Loads pre-processed data from a job.",
+    "description": "Loads data that has been pre-processed by a batch job.",
+    "min_parameters": 1,
+    "parameters": {
+      "url": {
+        "description": "An URL to job results.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "url",
+          "examples": [
+            "http://host.com/api/v1/jobs/12345/results"
+          ]
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    },
+    "exceptions": {
+      "NotFound": {
+        "code": 101,
+        "description": "Data set doesn't exist."
+      },
+      "FileFormatNotSupported": {
+        "code": 102,
+        "description": "The file format of the specified data set is not supported to be read by the back-end."
+      }
+    }
+  },
+  {
     "name": "filter_bands",
     "summary": "Filter an image collection by bands.",
     "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
@@ -213,6 +249,13 @@
             "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
           ]
         }
+      },
+      "variables": {
+        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
+        "schema": {
+          "type": "object",
+          "additionalProperties": true
+        }
       }
     },
     "returns": {
@@ -224,8 +267,12 @@
     },
     "exceptions": {
       "NotFound": {
-        "code": 404,
+        "code": 101,
         "description": "Process graph doesn't exist."
+      },
+      "NotReadable": {
+        "code": 102,
+        "description": "Process graph can't be parsed."
       }
     }
   }
