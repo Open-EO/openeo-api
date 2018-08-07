@@ -19,7 +19,7 @@ A single process in a process graph is defined as follows:
 ```
 <Process> := {
   "process_id": <string>,
-  "description": <string>,
+  "process_description": <string>,
   "<ArgumentName>": <Value>,
   ...
 }
