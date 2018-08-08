@@ -1158,9 +1158,7 @@
                   ],
                   "properties": {
                     "user_id": {
-                      "description": "A unique identifier for the user, which is used for subsequent files to its own files, e.g. in the file management endpoint at `/files/{user_id}`.",
-                      "type": "string",
-                      "example": "sampleuser123"
+                      "$ref": "#/components/schemas/user_id"
                     },
                     "access_token": {
                       "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
@@ -1653,8 +1651,7 @@
                       "service_id",
                       "enabled",
                       "type",
-                      "url",
-                      "user_id"
+                      "url"
                     ],
                     "properties": {
                       "service_id": {
@@ -1674,9 +1671,6 @@
                       },
                       "enabled": {
                         "$ref": "#/components/schemas/service_enabled"
-                      },
-                      "user_id": {
-                        "$ref": "#/components/schemas/user_id"
                       },
                       "submitted": {
                         "$ref": "#/components/schemas/submitted"
@@ -1857,8 +1851,7 @@
                     "type",
                     "url",
                     "parameters",
-                    "attributes",
-                    "user_id"
+                    "attributes"
                   ],
                   "properties": {
                     "service_id": {
@@ -1895,9 +1888,6 @@
                           "evi"
                         ]
                       }
-                    },
-                    "user_id": {
-                      "$ref": "#/components/schemas/user_id"
                     },
                     "submitted": {
                       "$ref": "#/components/schemas/submitted"
@@ -1985,9 +1975,6 @@
                       },
                       "description": {
                         "$ref": "#/components/schemas/description"
-                      },
-                      "user_id": {
-                        "$ref": "#/components/schemas/user_id"
                       },
                       "status": {
                         "$ref": "#/components/schemas/status"
@@ -2179,9 +2166,6 @@
                     "output": {
                       "$ref": "#/components/schemas/output_format"
                     },
-                    "user_id": {
-                      "$ref": "#/components/schemas/user_id"
-                    },
                     "status": {
                       "$ref": "#/components/schemas/status"
                     },
@@ -2304,7 +2288,7 @@
       ],
       "get": {
         "summary": "Download information for a completed job.",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
         "tags": [
           "Job Management"
         ],
@@ -2339,6 +2323,15 @@
                     "links"
                   ],
                   "properties": {
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "updated": {
+                      "$ref": "#/components/schemas/updated"
+                    },
                     "links": {
                       "type": "array",
                       "items": {
