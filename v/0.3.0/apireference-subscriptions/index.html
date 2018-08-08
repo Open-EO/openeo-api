@@ -22,14 +22,6 @@
     <h2 class="navigation__header">Topics</h2>
     <ul class="navigation__list">
       <li class="navigation__list__item">
-        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.welcome">
-          
-          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
-          
-          openeo.welcome
-        </a>
-      </li>
-      <li class="navigation__list__item">
         <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.subscribe">
           
           
@@ -112,140 +104,11 @@
 
 <p><p>The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.</p>
 <p>This is a subset of the openEO API, which handles WebSocket-based protocols for subscriptions and notifications.</p>
-<p><code>openeo.subscribe</code>, <code>openeo.unsubsribe</code> and <code>openeo.welcome</code> MUST be implemeneted by all back-ends.</p>
 </p>
 
 
 <h2 class="section-header">Topics</h2>
 
-<div class="topic">
-  <a name="topic-openeo.welcome"></a>
-  <h3 class="topic__header">
-
-    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
-
-
-    openeo.welcome
-  </h3>
-
-
-  <h4>Message</h4>
-
-<div class="operation ">
-<p>Welcome message for clients.</p>
-
-<p>Sends the supported topics, excluding openeo.subscribe, openeo.unsubsribe and openeo.welcome. This message MUST be sent by all servers directly after the connection has been established.</p>
-
-
-
-<h4>Payload</h4>
-
-<a name="schema-Message Payload"></a>
-<div class="schema">
-
-  <table class="table">
-    <thead class="table__head">
-      <tr class="table__head__row">
-        <th class="table__head__cell">Name</th>
-        <th class="table__head__cell">Title</th>
-        <th class="table__head__cell">Type</th>
-        <th class="table__head__cell">Format</th>
-        <th class="table__head__cell">Default</th>
-        <th class="table__head__cell">Description</th>
-      </tr>
-    </thead>
-    <tbody class="table__body">
-        <tr class="table__body__row">
-          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell">
-            object
-            
-            
-            
-          </td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-        </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell">date-time</td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Date and time when the message was sent.</td>
-          </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Message type</td>
-          </tr>
-        <tr class="table__body__row">
-          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell">
-            object
-            
-            
-            
-          </td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-        </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              array
-              
-              
-              (string)
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-          </tr>
-    </tbody>
-  </table>
-
-<h4>Example</h4>
-
-<pre class="hljs"><code class="json"></code></pre>
-</div>
-
-  <h4>Example of payload <em>(generated)</em></h4>
-
-  <pre class="hljs"><code class="json">{
-  &quot;message&quot;: {
-    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
-    &quot;topic&quot;: &quot;openeo.welcome&quot;
-  },
-  &quot;payload&quot;: {
-    &quot;topics&quot;: [
-      &quot;openeo.jobs.output&quot;,
-      &quot;openeo.jobs.status&quot;,
-      &quot;openeo.data&quot;
-    ]
-  }
-}</code></pre>
-
-</div>
-</div>
 <div class="topic">
   <a name="topic-openeo.subscribe"></a>
   <h3 class="topic__header">
@@ -283,109 +146,52 @@
     </thead>
     <tbody class="table__body">
         <tr class="table__body__row">
-          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell">topics <span class="required-badge">(Required)</span></td>
           <td class="table__body__cell"></td>
           <td class="table__body__cell">
-            object
+            array
             
             
-            
+            (object)
           </td>
           <td class="table__body__cell"></td>
           <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
+          <td class="table__body__cell">A list of topics to (un)subscribe to.</td>
         </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell">date-time</td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Date and time when the message was sent.</td>
-          </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Message type</td>
-          </tr>
-        <tr class="table__body__row">
-          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell">
-            object
-            
-            
-            
-          </td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-        </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              array
-              
-              
-              (object)
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">A list of topics to (un)subscribe to.</td>
-          </tr>
-              <tr class="table__body__row">
-                <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell">
-                  string
-                  
-                  
-                  
-                </td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell">One of the supported publish topics.</td>
-              </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                string
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">One of the supported publish topics.</td>
+            </tr>
     </tbody>
   </table>
 
-<h4>Example</h4>
-
-<pre class="hljs"><code class="json"></code></pre>
 </div>
 
   <h4>Example of payload <em>(generated)</em></h4>
 
   <pre class="hljs"><code class="json">{
-  &quot;message&quot;: {
-    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
-    &quot;topic&quot;: &quot;openeo.subscribe&quot;
-  },
-  &quot;payload&quot;: {
-    &quot;topics&quot;: [
-      {
-        &quot;topic&quot;: &quot;openeo.jobs.status&quot;,
-        &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;
-      },
-      {
-        &quot;topic&quot;: &quot;openeo.files&quot;
-      }
-    ]
-  }
+  &quot;topics&quot;: [
+    {
+      &quot;topic&quot;: &quot;openeo.jobs.output&quot;,
+      &quot;job_id&quot;: 123
+    },
+    {
+      &quot;topic&quot;: &quot;openeo.jobs.status&quot;
+    },
+    {
+      &quot;topic&quot;: &quot;openeo.data&quot;,
+      &quot;data_id&quot;: &quot;MOD18Q1&quot;
+    }
+  ]
 }</code></pre>
 
 </div>
@@ -427,109 +233,52 @@
     </thead>
     <tbody class="table__body">
         <tr class="table__body__row">
-          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell">topics <span class="required-badge">(Required)</span></td>
           <td class="table__body__cell"></td>
           <td class="table__body__cell">
-            object
+            array
             
             
-            
+            (object)
           </td>
           <td class="table__body__cell"></td>
           <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
+          <td class="table__body__cell">A list of topics to (un)subscribe to.</td>
         </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell">date-time</td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Date and time when the message was sent.</td>
-          </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              string
-              
-              
-              
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">Message type</td>
-          </tr>
-        <tr class="table__body__row">
-          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell">
-            object
-            
-            
-            
-          </td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-          <td class="table__body__cell"></td>
-        </tr>
-          <tr class="table__body__row">
-            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">
-              array
-              
-              
-              (object)
-            </td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell"></td>
-            <td class="table__body__cell">A list of topics to (un)subscribe to.</td>
-          </tr>
-              <tr class="table__body__row">
-                <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell">
-                  string
-                  
-                  
-                  
-                </td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell"></td>
-                <td class="table__body__cell">One of the supported publish topics.</td>
-              </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                string
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">One of the supported publish topics.</td>
+            </tr>
     </tbody>
   </table>
 
-<h4>Example</h4>
-
-<pre class="hljs"><code class="json"></code></pre>
 </div>
 
   <h4>Example of payload <em>(generated)</em></h4>
 
   <pre class="hljs"><code class="json">{
-  &quot;message&quot;: {
-    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
-    &quot;topic&quot;: &quot;openeo.unsubscribe&quot;
-  },
-  &quot;payload&quot;: {
-    &quot;topics&quot;: [
-      {
-        &quot;topic&quot;: &quot;openeo.jobs.status&quot;,
-        &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;
-      },
-      {
-        &quot;topic&quot;: &quot;openeo.files&quot;
-      }
-    ]
-  }
+  &quot;topics&quot;: [
+    {
+      &quot;topic&quot;: &quot;openeo.jobs.output&quot;,
+      &quot;job_id&quot;: 123
+    },
+    {
+      &quot;topic&quot;: &quot;openeo.jobs.status&quot;
+    },
+    {
+      &quot;topic&quot;: &quot;openeo.data&quot;,
+      &quot;data_id&quot;: &quot;MOD18Q1&quot;
+    }
+  ]
 }</code></pre>
 
 </div>
@@ -1377,7 +1126,7 @@
   <h4>Example <em>(generated)</em></h4>
 
   <pre class="hljs"><code class="json">{
-  &quot;issued&quot;: &quot;2018-08-08T10:01:40Z&quot;,
+  &quot;issued&quot;: &quot;2018-08-08T10:01:53Z&quot;,
   &quot;topic&quot;: &quot;openeo.sample&quot;
 }</code></pre>
 </div>
@@ -1483,7 +1232,7 @@
           <td class="table__body__cell">A list of topics to (un)subscribe to.</td>
         </tr>
             <tr class="table__body__row">
-              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic </td>
               <td class="table__body__cell"></td>
               <td class="table__body__cell">
                 string
