@@ -3,7 +3,7 @@
 	"info": {
 	  "title": "openEO API for Subscriptions",
 	  "version": "0.3.0",
-	  "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API, which handles WebSocket-based protocols for subscriptions and notifications.\n",
+	  "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API, which handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.subscribe`, `openeo.unsubsribe` and `openeo.welcome` MUST be implemeneted by all back-ends.\n",
 	  "contact": {
 		"name": "openEO Consortium",
 		"url": "http://www.openeo.org",
@@ -20,17 +20,91 @@
 	},
 	"baseTopic": "openeo",
 	"topics": {
+	  "welcome": {
+		"publish": {
+		  "summary": "Welcome message for clients.",
+		  "description": "Sends the supported topics, excluding openeo.subscribe, openeo.unsubsribe and openeo.welcome. This message MUST be sent by all servers directly after the connection has been established.",
+		  "payload": {
+			"type": "object",
+			"required": [
+			  "message",
+			  "payload"
+			],
+			"properties": {
+			  "message": {
+				"$ref": "#/components/schemas/message"
+			  },
+			  "payload": {
+				"type": "object",
+				"required": [
+				  "topics"
+				],
+				"properties": {
+				  "topics": {
+					"type": "array",
+					"items": {
+					  "type": "string"
+					}
+				  }
+				}
+			  }
+			},
+			"example": {
+			  "message": {
+				"issued": "2018-08-07T14:06:36Z",
+				"topic": "openeo.welcome"
+			  },
+			  "payload": {
+				"topics": [
+				  "openeo.jobs.output",
+				  "openeo.jobs.status",
+				  "openeo.data"
+				]
+			  }
+			}
+		  }
+		}
+	  },
 	  "subscribe": {
 		"subscribe": {
 		  "summary": "Subscribes to certain topics.",
 		  "payload": {
 			"type": "object",
 			"required": [
-			  "topics"
+			  "message",
+			  "payload"
 			],
 			"properties": {
-			  "topics": {
-				"$ref": "#/components/schemas/topics"
+			  "message": {
+				"$ref": "#/components/schemas/message"
+			  },
+			  "payload": {
+				"type": "object",
+				"required": [
+				  "topics"
+				],
+				"properties": {
+				  "topics": {
+					"$ref": "#/components/schemas/topics"
+				  }
+				}
+			  }
+			},
+			"example": {
+			  "message": {
+				"issued": "2018-08-07T14:06:36Z",
+				"topic": "openeo.subscribe"
+			  },
+			  "payload": {
+				"topics": [
+				  {
+					"topic": "openeo.jobs.status",
+					"job_id": "a3cca2b2aa1e3b5b"
+				  },
+				  {
+					"topic": "openeo.files"
+				  }
+				]
 			  }
 			}
 		  }
@@ -42,11 +116,40 @@
 		  "payload": {
 			"type": "object",
 			"required": [
-			  "topics"
+			  "message",
+			  "payload"
 			],
 			"properties": {
-			  "topics": {
-				"$ref": "#/components/schemas/topics"
+			  "message": {
+				"$ref": "#/components/schemas/message"
+			  },
+			  "payload": {
+				"type": "object",
+				"required": [
+				  "topics"
+				],
+				"properties": {
+				  "topics": {
+					"$ref": "#/components/schemas/topics"
+				  }
+				}
+			  }
+			},
+			"example": {
+			  "message": {
+				"issued": "2018-08-07T14:06:36Z",
+				"topic": "openeo.unsubscribe"
+			  },
+			  "payload": {
+				"topics": [
+				  {
+					"topic": "openeo.jobs.status",
+					"job_id": "a3cca2b2aa1e3b5b"
+				  },
+				  {
+					"topic": "openeo.files"
+				  }
+				]
 			  }
 			}
 		  }
@@ -379,7 +482,7 @@
 			"type": "object",
 			"description": "A topic MUST be specified and may be complemented by restricting parameters, e.g. a job (id) to limit the subscription to. If no restricting parameter is specified, it (un)subscribes to all resources, e.g. all jobs.",
 			"required": [
-			  "type"
+			  "topic"
 			],
 			"properties": {
 			  "topic": {
