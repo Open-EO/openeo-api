@@ -3,7 +3,7 @@
 	"info": {
 		"title": "openEO API for Subscriptions",
 		"version": "0.3.0",
-		"description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API, which handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.subscribe`, `openeo.unsubsribe` and `openeo.welcome` MUST be implemeneted by all back-ends.\n",
+		"description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.subscribe`, `openeo.unsubsribe` and `openeo.welcome` MUST be implemeneted by all back-ends.\n",
 		"contact": {
 			"name": "openEO Consortium",
 			"url": "http://www.openeo.org",
@@ -23,7 +23,7 @@
 		"welcome": {
 			"publish": {
 				"summary": "Welcome message for clients.",
-				"description": "Sends the supported topics, excluding openeo.subscribe, openeo.unsubsribe and openeo.welcome. This message MUST be sent by all servers directly after the connection has been established.",
+				"description": "Sends the supported topics, excluding openeo.subscribe, openeo.unsubsribe and openeo.welcome (because these MUST be implemented by every back-end anyway). This message MUST be sent by all servers directly after the connection has been established.",
 				"payload": {
 					"type": "object",
 					"required": [
@@ -244,10 +244,10 @@
 												},
 												"parameters": {
 													"type": "object",
-													"description": "Key-Value-Pairs for the parameters of the process. The keys are the parameter names and the values are the actual values specified for the parameter.",
 													"additionalProperties": true
 												}
 											}
+													"description": "Key-value pairs for the parameters of the process. The keys are the parameter names and the values are the actual values specified for the parameter. Specify the empty object if the process does not have any parameters or was called without parameters.",
 										}
 									}
 								}
@@ -360,7 +360,7 @@
 								},
 								"path": {
 									"type": "string",
-									"description": "Path of the file, excluding the user id. MUST NOT be url-encoded."
+									"description": "Path of the file, relative to the user's root dir, i.e. MUST NOT contain the name of that root dir and MUST NOT start with a slash. MUST NOT be url-encoded."
 								},
 								"action": {
 									"type": "string",
@@ -390,7 +390,7 @@
 		},
 		"data": {
 			"publish": {
-				"summary": "Inform about changes regarding an EO dataset.",
+				"summary": "Inform about changes regarding an EO dataset. Of the `temporal_extent` and `spatial_extent` fields, at least one MUST be specified.",
 				"payload": {
 					"type": "object",
 					"required": [
