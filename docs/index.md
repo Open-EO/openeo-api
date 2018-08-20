@@ -2,7 +2,14 @@
 
 _Work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api/issues)._
 
-openEO develops an open API that connects clients like R, Python and JavaScript to big Earth observation cloud back-ends in a simple and unified way.
+openEO develops an open application programming interface(API) that connects clients like R, Python and JavaScript to big Earth observation cloud back-ends in a simple and unified way. The acronym openEO contracts two concepts:
+
+-	**open**: used here in the context of open source software; open source software is available in source code form, and can be freely modified and redistributed; the openEO project will create open source software, reusable under a liberal open source license (Apache 2.0)
+-	**EO**: Earth observation
+
+Jointly, the openEO targets the processing and analysis of Earth observation data. The main objectives of the project are the following concepts:
+-	**Simplicity**: nowadays, many end-users use Python or R to analyse data and JavaScript to develop web applications; analysing large amounts of EO imagery should be equally simple, and seamlessly integrate with existing workflows
+-	**Unification**: current EO cloud back-ends all have [a different API](https://www.r-spatial.org/2016/11/29/openeo.html), making EO data analysis hard to validate and reproduce and back-ends difficult to compare in terms of capability and costs, or to combine them in a joint analysis across back-ends. A unified API can resolve many of these problems.
 
 The following pages introduce the core concepts of the project. Make sure to introduce yourself to the major technical terms used in the openEO project by reading the [glossary](glossary.md).
 
