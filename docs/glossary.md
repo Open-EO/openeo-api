@@ -14,7 +14,10 @@ This glossary introduces the major technical terms used in the openEO project.
 
 Datasets are described with terms **Granules** and **Collections**. **Granule** typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation. 
 
-Definition of the Committee on Earth Observation Satellites (CEOS) including lists of the synonyms for these terms used by EO organisations can be found in [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/)
+Definition of the Committee on Earth Observation Satellites (CEOS) can be found in [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/). The same document lists the synonyms used (by organisations) for:
+
+- **granule**: dataset (ISO 19115), dataset (ESA), granule (NASA), product (ESA, CNES), scene (JAXA)
+- **collection**: dataset series (ISO 19115), collection (CNES, NASA), dataset (JAXA), dataset series (ESA), product (JAXA)
 
 The open geospatial consortium published a document on [OGC OpenSearch Geo and Time Extensions](https://portal.opengeospatial.org/files/?artifact_id=56866).
 
@@ -22,7 +25,7 @@ The open geospatial consortium published a document on [OGC OpenSearch Geo and T
 
 The terms _process and_ _process graph_ have specific meanings in the openEO API specification.
 
-A **process** is simply the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median,, on selected EO data), similar to a function definition in programming languages. 
+A **process** is simply the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median, on selected EO data), similar to a function definition in programming languages. 
 
 In this context openEO will:
 
