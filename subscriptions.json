@@ -403,12 +403,22 @@
                   "$ref": "#/components/schemas/data_id"
                 },
                 "temporal_extent": {
-                  "type": "string",
-                  "description": "MUST be specified if the temporal extent of the dataset has changed. Uses the same format as in the openEO API for temporal extents. Specifies the temporal extent of the change, not of the whole dataset."
+                  "type": "array",
+                  "description": "MUST be specified if the temporal extent of the dataset has changed. The temporal extent is specified by either a single timestamp or a start and an end time, each element formatted as a RFC 3339 date-time. Specifies the temporal extent of the data that has changed, not of the whole dataset. Example: The dataset covers images from beginning of 2015 until the end of 2018. A single image has been added, captured at the first day in 2019 at 01:00:00 UTC (1am). The spatial extent specified here must be an array containing a single string: `2019-01-01T01:00:00Z`.",
+                  "example": [
+                    "2016-01-01T02:30:00Z",
+                    "2016-01-01T04:45:00Z"
+                  ],
+                  "items": {
+                    "type": "string",
+                    "format": "date-time",
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
                 },
                 "spatial_extent": {
                   "type": "object",
-                  "description": "MUST be specified if the spatial extent of the dataset has changed. Uses the same object structure as in the openEO API for spatial extents. Specifies the spatial extent of the change, not of the whole dataset."
+                  "description": "MUST be specified if the spatial extent of the dataset has changed. Uses the same object structure as in the openEO API for spatial extents. Specifies the spatial extent of the data that has changed, not of the whole dataset. Example: The dataset covers the whole world and an image of Austria has been added. The spatial extent specified here must be the bounding box of Austria."
                 }
               }
             }
@@ -446,7 +456,7 @@
           "issued": {
             "type": "string",
             "format": "date-time",
-            "description": "Date and time when the message was sent."
+            "description": "Date and time when the message was sent, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
           },
           "topic": {
             "type": "string",

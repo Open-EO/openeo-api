@@ -56,4 +56,4 @@ Collections SHOULD NOT include nested JSON objects if those information can be r
 
 #### Temporal data
 
-Date, time, intervals and durations MUST be formatted according to ISO 8601 if there is an appropriate encoding available in the standard. Open date ranges are not supported by ISO 8601 and MUST be encoded as proposed by [Dublin Core Collection Description: Open Date Range Format](http://www.ukoln.ac.uk/metadata/dcmi/date-dccd-odrf/2005-08-13/).
+Date, time, intervals and durations MUST be formatted based on ISO 8601 or any profile ([RFC 3339](https://www.ietf.org/rfc/rfc3339) is strongly recommended) if there is an appropriate encoding available in the standard. All temporal data MUST by specified based on the Gregorian calendar.

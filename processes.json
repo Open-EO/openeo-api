@@ -14,8 +14,8 @@
           ]
         }
       },
-      "extent": {
-        "description": "Filter by extent",
+      "spatial_extent": {
+        "description": "Filter by spatial extent",
         "schema": {
           "type": "object",
           "required": [
@@ -45,10 +45,24 @@
           }
         }
       },
-      "time": {
+      "temporal_extent": {
         "description": "Filter by time",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+          "example": [
+            "2016-01-01T00:00:00Z",
+            "2017-10-01T00:00:00Z"
+          ],
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "minItems": 2,
+            "maxItems": 2
+          }
         }
       },
       "bands": {
@@ -198,24 +212,21 @@
           "format": "eodata"
         }
       },
-      "from": {
-        "description": "Includes all data newer than the specified RFC 3339 date-time with simultaneous consideration of `to`.",
-        "schema": {
-          "type": "string",
+      "extent": {
+        "type": "array",
+        "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+        "example": [
+          "2016-01-01T00:00:00Z",
+          "2017-10-01T00:00:00Z"
+        ],
+        "items": {
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date-time",
-          "examples": [
-            "2017-01-01T00:00:00Z"
-          ]
-        }
-      },
-      "to": {
-        "description": "Includes all data older than the specified RFC 3339 date-time with simultaneous consideration of `from`.",
-        "schema": {
-          "type": "string",
-          "format": "date-time",
-          "examples": [
-            "2017-01-31T23:59:59Z"
-          ]
+          "minItems": 2,
+          "maxItems": 2
         }
       }
     },

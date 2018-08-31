@@ -499,7 +499,10 @@
                       "bottom": 39,
                       "top": 71
                     },
-                    "temporal_extent": "2016-01-01/2017-10-01",
+                    "temporal_extent": [
+                      "2016-01-01T00:00:00Z",
+                      "2017-10-01T00:00:00Z"
+                    ],
                     "bands": [
                       {
                         "band_id": "1",
@@ -1007,24 +1010,21 @@
                             "format": "eodata"
                           }
                         },
-                        "from": {
-                          "description": "Includes all data newer than the specified RFC 3339 date-time with simultaneous consideration of `to`.",
-                          "schema": {
-                            "type": "string",
+                        "extent": {
+                          "type": "array",
+                          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+                          "example": [
+                            "2016-01-01T00:00:00Z",
+                            "2017-10-01T00:00:00Z"
+                          ],
+                          "items": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
                             "format": "date-time",
-                            "examples": [
-                              "2017-01-01T00:00:00Z"
-                            ]
-                          }
-                        },
-                        "to": {
-                          "description": "Includes all data older than the specified RFC 3339 date-time with simultaneous consideration of `from`.",
-                          "schema": {
-                            "type": "string",
-                            "format": "date-time",
-                            "examples": [
-                              "2017-01-31T23:59:59Z"
-                            ]
+                            "minItems": 2,
+                            "maxItems": 2
                           }
                         }
                       },
@@ -2253,7 +2253,7 @@
                     },
                     "duration": {
                       "type": "string",
-                      "description": "Estimated duration for the operation. Duration must be specified according to ISO 8601.",
+                      "description": "Estimated duration for the operation. Duration must be specified as a ISO 8601 duration.",
                       "example": "P1Y2M10DT2H30M"
                     },
                     "downloads_included": {
@@ -2264,7 +2264,8 @@
                     },
                     "expires": {
                       "type": "string",
-                      "description": "Time the estimate is valid for. Date and time have to be specified according to ISO 8601.",
+                      "format": "date-time",
+                      "description": "Time the estimate is valid for, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
                       "example": "2020-11-01T00:00:00Z"
                     }
                   }
@@ -2457,7 +2458,8 @@
                       },
                       "modified": {
                         "type": "string",
-                        "description": "Date and time the file has been modified at last in ISO8601 format"
+                        "format": "date-time",
+                        "description": "Date and time the file has lastly been modified, formatted according to a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
                       }
                     },
                     "additionalProperties": true
@@ -3033,14 +3035,14 @@
       },
       "submitted": {
         "type": "string",
-        "format": "dateTime",
-        "description": "Date and time of creation in ISO 8601 format",
+        "format": "date-time",
+        "description": "Date and time of creation, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
         "example": "2017-01-01T09:32:12Z"
       },
       "updated": {
         "type": "string",
-        "format": "dateTime",
-        "description": "Date and time of last status change in ISO 8601 format.",
+        "format": "date-time",
+        "description": "Date and time of last status change, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
         "example": "2017-01-01T09:36:18Z"
       },
       "user_id": {
@@ -3249,9 +3251,19 @@
         }
       },
       "temporal_extent": {
-        "type": "string",
-        "description": "Date/time intervals MUST be formatted according to ISO 8601. Open date ranges are not supported by ISO 8601 and MUST be encoded as proposed by [Dublin Core Collection Description: Open Date Range Format](http://www.ukoln.ac.uk/metadata/dcmi/date-dccd-odrf/2005-08-13/).",
-        "example": "2016-01-01/2017-10-01"
+        "type": "array",
+        "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+        "example": [
+          "2016-01-01T00:00:00Z",
+          "2017-10-01T00:00:00Z"
+        ],
+        "items": {
+          "type": "string",
+          "format": "date-time",
+          "minItems": 2,
+          "maxItems": 2,
+          "nullable": true
+        }
       },
       "json_schema": {
         "type": "object",
