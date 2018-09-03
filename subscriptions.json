@@ -3,7 +3,7 @@
   "info": {
     "title": "openEO API for Subscriptions",
     "version": "0.3.0",
-    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.subscribe`, `openeo.unsubsribe` and `openeo.welcome` MUST be implemeneted by all back-ends.\n",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.authorize`, `openeo.welcome`, `openeo.subscribe` and `openeo.unsubsribe` MUST be implemeneted by all back-ends.\n\n**Security considerations:** A handshake has to be performed directly after establishing the WebSocket connection. The client MUST send a `openeo.authorize` request and receives a `openeo.welcome` message after a successful authorization. The WebSocket connections MUST be closed by servers once a request with invalid authorization credentials is sent. Servers are allowed to close connections to clients that have not sent a `openeo.authorize` request 30 seconds after establishing a WebSocket connection.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://openeo.org/",
@@ -20,10 +20,38 @@
   },
   "baseTopic": "openeo",
   "topics": {
+    "authorize": {
+      "subscribe": {
+        "summary": "Starts a handshake with the server to authorize the client.",
+        "description": "The client MUST send a `openeo.authorize` request directly after establishing the WebSocket connection and a `openeo.welcome` will be sent by the server after successful authorization. The WebSocket connections MUST be closed if invalid authorization credentials are sent.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "authorization",
+            "message"
+          ],
+          "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "message": {
+              "$ref": "#/components/schemas/message"
+            }
+          },
+          "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.authorize"
+            }
+          }
+        }
+      }
+    },
     "welcome": {
       "publish": {
         "summary": "Welcome message for clients.",
-        "description": "Sends the supported topics, excluding openeo.subscribe, openeo.unsubsribe and openeo.welcome (because these MUST be implemented by every back-end anyway). This message MUST be sent by all servers directly after the connection has been established.",
+        "description": "Sends the supported topics, excluding `openeo.authorize`, `openeo.subscribe`, `openeo.unsubscribe` and `openeo.welcome` (because these MUST be implemented by every back-end anyway). This message MUST be sent by all servers directly after receiving the `openeo.authorize` message with valid credentials.",
         "payload": {
           "type": "object",
           "required": [
@@ -68,13 +96,18 @@
     "subscribe": {
       "subscribe": {
         "summary": "Subscribes to certain topics.",
+        "description": "The WebSocket connections MUST be closed if invalid authorization credentials are sent.",
         "payload": {
           "type": "object",
           "required": [
+            "authorization",
             "message",
             "payload"
           ],
           "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
             "message": {
               "$ref": "#/components/schemas/message"
             },
@@ -91,6 +124,7 @@
             }
           },
           "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
             "message": {
               "issued": "2018-08-07T14:06:36Z",
               "topic": "openeo.subscribe"
@@ -113,13 +147,18 @@
     "unsubscribe": {
       "subscribe": {
         "summary": "Unsubscribes from certain topics.",
+        "description": "The WebSocket connections MUST be closed if invalid authorization credentials are sent.",
         "payload": {
           "type": "object",
           "required": [
+            "authorization",
             "message",
             "payload"
           ],
           "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
             "message": {
               "$ref": "#/components/schemas/message"
             },
@@ -136,6 +175,7 @@
             }
           },
           "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
             "message": {
               "issued": "2018-08-07T14:06:36Z",
               "topic": "openeo.unsubscribe"
@@ -446,6 +486,11 @@
   },
   "components": {
     "schemas": {
+      "authorization": {
+        "type": "string",
+        "description": "Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually `Bearer`), a space and the actual token for authorization.",
+        "example": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0"
+      },
       "message": {
         "type": "object",
         "required": [
@@ -456,7 +501,7 @@
           "issued": {
             "type": "string",
             "format": "date-time",
-            "description": "Date and time when the message was sent, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+            "description": "Date and time when the message was sent, formatted as a RFC 3339 date-time."
           },
           "topic": {
             "type": "string",
