@@ -2704,7 +2704,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to updates.",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO datasets or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://`!\n2. The authorization token is sent in the query string, not as HTTP header. See the `authorization` parameter description for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO datasets or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Job Management",
           "File Management",
@@ -2713,24 +2713,13 @@
           "EO Data Discovery"
         ],
         "security": [
-          {
-            "WebSockets": []
-          }
+          {}
         ],
         "externalDocs": {
           "description": "openEO API for Subscriptions",
           "url": "https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/"
         },
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "query",
-            "description": "The Bearer token usually sent in the Authorization header, but without the `Bearer ` as prefix. For example, the header `Authorization: Bearer TOKEN` that is usually sent for authorization is not sent, but instead appended as query parameter: `authorization=TOKEN`. A sample URL could be: `wss://localhost/api/v0.3/subscription?authorization=TOKEN`",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "Connection",
             "in": "header",
@@ -3407,11 +3396,6 @@
       "Basic": {
         "type": "http",
         "scheme": "basic"
-      },
-      "WebSockets": {
-        "type": "apiKey",
-        "in": "query",
-        "name": "authorization"
       }
     }
   }
