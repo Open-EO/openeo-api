@@ -127,7 +127,7 @@
 <p><p>The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.</p>
 <p>This is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.</p>
 <p><code>openeo.authorize</code>, <code>openeo.welcome</code>, <code>openeo.subscribe</code> and <code>openeo.unsubsribe</code> MUST be implemeneted by all back-ends.</p>
-<p><strong>Security considerations:</strong> A handshake has to be performed directly after establishing the WebSocket connection. The client MUST send a <code>openeo.authorize</code> request and receives a <code>openeo.welcome</code> message after a successful authorization. The WebSocket connections MUST be closed by servers once a request with invalid authorization credentials is sent.</p>
+<p><strong>Security considerations:</strong> A handshake has to be performed directly after establishing the WebSocket connection. The client MUST send a <code>openeo.authorize</code> request and receives a <code>openeo.welcome</code> message after a successful authorization. The WebSocket connections MUST be closed by servers once a request with invalid authorization credentials is sent. Servers are allowed to close connections to clients that have not sent a <code>openeo.authorize</code> request 30 seconds after establishing a WebSocket connection.</p>
 </p>
 
 
@@ -147,8 +147,9 @@
   <h4>Message</h4>
 
 <div class="operation ">
-<p>Starts a handshake with the server to authorize the client. The WebSocket connections MUST be closed if invalid authorization credentials are sent.</p>
+<p>Starts a handshake with the server to authorize the client.</p>
 
+<p>The client MUST send a <code>openeo.authorize</code> request directly after establishing the WebSocket connection and a <code>openeo.welcome</code> will be sent by the server after successful authorization. The WebSocket connections MUST be closed if invalid authorization credentials are sent.</p>
 
 
 
@@ -1554,7 +1555,7 @@
   <h4>Example <em>(generated)</em></h4>
 
   <pre class="hljs"><code class="json">{
-  &quot;issued&quot;: &quot;2018-09-03T15:52:44Z&quot;,
+  &quot;issued&quot;: &quot;2018-09-03T16:04:57Z&quot;,
   &quot;topic&quot;: &quot;openeo.sample&quot;
 }</code></pre>
 </div>
