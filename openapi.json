@@ -223,7 +223,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nOutput format names are allowed to be *case insensitive* throughout the API.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats. ",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats.\n\nFile formats that can be used for multiple GIS spatial data types (e.g.  raster and vector) SHOULD define a parameter `gis_data_type` to allow speciying which data type should be used for writing.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -250,10 +250,25 @@
                       "additionalProperties": {
                         "type": "object",
                         "description": "Describes a specific output format. The key of the entry is the output format name.",
+                        "required": [
+                          "gis_data_types"
+                        ],
                         "properties": {
+                          "gis_data_types": {
+                            "type": "array",
+                            "description": "Specifies the supported GIS spatial data type for this format.",
+                            "items": {
+                              "$ref": "#/components/schemas/gis_data_type"
+                            }
+                          },
                           "parameters": {
                             "description": "Specifies the supported parameters for this output format.",
                             "type": "object",
+                            "properties": {
+                              "gis_data_type": {
+                                "$ref": "#/components/schemas/gis_data_type"
+                              }
+                            },
                             "additionalProperties": {
                               "$ref": "#/components/schemas/argument"
                             }
@@ -262,6 +277,9 @@
                       },
                       "example": {
                         "GTiff": {
+                          "gis_data_types": [
+                            "raster"
+                          ],
                           "parameters": {
                             "tiled": {
                               "type": "boolean",
@@ -303,16 +321,47 @@
                             }
                           }
                         },
-                        "PNG": {
+                        "GeoPackage": {
+                          "gis_data_types": [
+                            "raster",
+                            "vector"
+                          ],
                           "parameters": {
-                            "worldfile": {
-                              "type": "boolean",
-                              "description": "Force the generation of an associated ESRI world file.",
-                              "default": false
+                            "gis_data_type": {
+                              "type": "string",
+                              "enum": [
+                                "raster",
+                                "vector"
+                              ],
+                              "required": true
+                            },
+                            "version": {
+                              "type": "string",
+                              "descriptiion": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
+                              "enum": [
+                                "auto",
+                                1,
+                                1.1,
+                                1.2
+                              ],
+                              "default": "auto"
+                            },
+                            "geometry_name": {
+                              "type": "string",
+                              "description": "**VECTOR ONLY.** Column to use for the geometry column.",
+                              "default": "geom"
+                            },
+                            "table": {
+                              "type": "string",
+                              "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
                             }
                           }
                         },
-                        "JSON": {}
+                        "JSON": {
+                          "gis_data_types": [
+                            "other"
+                          ]
+                        }
                       }
                     }
                   }
@@ -3146,7 +3195,12 @@
           },
           "parameters": {
             "type": "object",
-            "description": "List of arguments, i.e. the parameter names supported by the output format combined with actual values. See `GET /output_formats` for supported parameters and valid arguments.",
+            "description": "List of arguments, i.e. the parameter names supported by the output format combined with actual values. \n\n`gis_data_type` is a special parameter only for output formats supporting multiple GIS spatial data types (e.g. raster and vector).\n\nSee `GET /output_formats` for more information, inclusing supported parameters and valid arguments.",
+            "properties": {
+              "gis_data_type": {
+                "$ref": "#/components/schemas/gis_data_type"
+              }
+            },
             "additionalProperties": true
           }
         },
@@ -3159,6 +3213,15 @@
             "jpeg_quality": 80
           }
         }
+      },
+      "gis_data_type": {
+        "type": "string",
+        "enum": [
+          "raster",
+          "vector",
+          "table",
+          "other"
+        ]
       },
       "error": {
         "description": "An error object declares addtional information about a client-side or server-side error.",
