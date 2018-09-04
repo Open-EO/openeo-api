@@ -53,7 +53,7 @@ A value is defined as follows:
       * `variable_id`, except for objects of type `Variable`
 
 !!! caution
-    The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes` and `GET /udf_runtimes/{lang}/{udf_type}`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
+    The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
 ### Variables
 
