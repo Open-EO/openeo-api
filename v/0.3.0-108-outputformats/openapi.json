@@ -1,0 +1,3465 @@
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://localhost/api/{version}/",
+      "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication methods are not secure with HTTP only!",
+      "variables": {
+        "version": {
+          "default": "v0.3",
+          "description": "API versioning is RECOMMENDED. It MUST not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
+        }
+      }
+    }
+  ],
+  "info": {
+    "title": "openEO API",
+    "version": "0.3.0",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.0/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
+    "contact": {
+      "name": "openEO Consortium",
+      "url": "http://www.openeo.org",
+      "email": "openeo@list.tuwien.ac.at"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "externalDocs": {
+    "description": "openEO Documentation",
+    "url": "https://open-eo.github.io/openeo-api/v/0.3.0/"
+  },
+  "tags": [
+    {
+      "name": "Capabilities",
+      "description": "General information about the API implementation and other supported capabilities at the back-end."
+    },
+    {
+      "name": "EO Data Discovery",
+      "description": "Discovery of Earth observation datasets that are available at the back-end."
+    },
+    {
+      "name": "Process Discovery",
+      "description": "Discovery of processes that are available at the back-end."
+    },
+    {
+      "name": "Authentication",
+      "description": "Authentication of users."
+    },
+    {
+      "name": "File Management",
+      "description": "Management of user-uploaded assets and processed data."
+    },
+    {
+      "name": "Process Graph Management",
+      "description": "Management of stored process graphs."
+    },
+    {
+      "name": "Job Management",
+      "description": "Management of batch processing tasks (jobs) and their results."
+    },
+    {
+      "name": "Web Service Management",
+      "description": "On-demand access to data using other web services protocols."
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Supported features and other general information about the back-end.",
+        "description": "The request will ask the back-end which version and endpoints of the openEO API are supported. Also lists available billing plans.",
+        "tags": [
+          "Capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the API version and supported endpoints / features.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "endpoints"
+                  ],
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "description": "Version number of the openEO specification this server works with.",
+                      "example": "0.3.0"
+                    },
+                    "endpoints": {
+                      "type": "array",
+                      "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented and do not return HTTP error code 501.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "path",
+                          "methods"
+                        ],
+                        "properties": {
+                          "path": {
+                            "description": "Path to the endpoint, starting from the base url of the API. MUST contain a leading slash, *must not* contain a trailing slash. Variables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name. It is RECOMMENDED that the path variable names fully follow the API specification.",
+                            "type": "string"
+                          },
+                          "methods": {
+                            "description": "Supported HTTP verbs in uppercase. It is not required to list OPTIONS as method (see the documentation regarding CORS).",
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "GET",
+                                "POST",
+                                "PATCH",
+                                "PUT",
+                                "DELETE"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "path": "/data",
+                          "methods": [
+                            "GET"
+                          ]
+                        },
+                        {
+                          "path": "/data/{data_id}",
+                          "methods": [
+                            "GET"
+                          ]
+                        },
+                        {
+                          "path": "/jobs",
+                          "methods": [
+                            "GET",
+                            "POST"
+                          ]
+                        },
+                        {
+                          "path": "/jobs/{job_id}",
+                          "methods": [
+                            "GET",
+                            "DELETE",
+                            "PATCH"
+                          ]
+                        }
+                      ]
+                    },
+                    "billing": {
+                      "description": "Billing related data, e.g. the currency used or available plans to process jobs. MUST be specified if the back-end uses any billing related functionalities, e.g. budgeting, estimates.",
+                      "type": "object",
+                      "required": [
+                        "currency"
+                      ],
+                      "properties": {
+                        "currency": {
+                          "description": "The currency the back-end is billing in. The currency MUST be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
+                          "type": "string",
+                          "example": "USD"
+                        },
+                        "plans": {
+                          "description": "Array of plans",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "description"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "Name of the plan. Is allowed to be *case insensitive* throughout the API.",
+                                "example": "free"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "A description that gives a rough overview over the plan.",
+                                "example": "Free plan. Calculates one tile per second and a maximum amount of 100 tiles per hour."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "URL to a web page with more details about the plan.",
+                                "format": "url",
+                                "example": "http://openeo.org/plans/free-plan"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.API.getCapabilities().then(capabilitiesObj => {\n  // ...\n});"
+          },
+          {
+            "lang": "Python",
+            "source": "import openeo\nsession = openeo.session(\"username\", endpoint=\"https://backend-provider.com/api/v0\")\nsession.list_capabilities()"
+          },
+          {
+            "lang": "R",
+            "source": "library(openeo)\nsession = connect(\"https://backend-provider.com/api/v0\")\nsession %>% listCapabilities()"
+          }
+        ]
+      }
+    },
+    "/output_formats": {
+      "get": {
+        "summary": "List supported output formats.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats.\n\nFile formats that can be used for multiple GIS spatial data types (e.g.  raster and vector) SHOULD define a parameter `gis_data_type` to allow speciying which data type should be used for writing.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "tags": [
+          "Capabilities",
+          "Job Management"
+        ],
+        "responses": {
+          "200": {
+            "description": "An object with the default output format and a map containing all output format names as keys and an object that defines supported paramaters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "default",
+                    "formats"
+                  ],
+                  "properties": {
+                    "default": {
+                      "type": "string",
+                      "example": "GTiff"
+                    },
+                    "formats": {
+                      "type": "object",
+                      "description": "List of supported output formats.",
+                      "additionalProperties": {
+                        "type": "object",
+                        "description": "Describes a specific output format. The key of the entry is the output format name.",
+                        "required": [
+                          "gis_data_types"
+                        ],
+                        "properties": {
+                          "gis_data_types": {
+                            "type": "array",
+                            "description": "Specifies the supported GIS spatial data type for this format.",
+                            "items": {
+                              "$ref": "#/components/schemas/gis_data_type"
+                            }
+                          },
+                          "parameters": {
+                            "description": "Specifies the supported parameters for this output format.",
+                            "type": "object",
+                            "properties": {
+                              "gis_data_type": {
+                                "$ref": "#/components/schemas/gis_data_type"
+                              }
+                            },
+                            "additionalProperties": {
+                              "$ref": "#/components/schemas/argument"
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "GTiff": {
+                          "gis_data_types": [
+                            "raster"
+                          ],
+                          "parameters": {
+                            "tiled": {
+                              "type": "boolean",
+                              "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
+                              "default": false
+                            },
+                            "compress": {
+                              "type": "string",
+                              "description": "Set the compression to use.",
+                              "default": "none",
+                              "enum": [
+                                "JPEG",
+                                "LZW",
+                                "DEFLATE",
+                                "NONE"
+                              ]
+                            },
+                            "photometric": {
+                              "type": "string",
+                              "description": "Set the photometric interpretation tag.",
+                              "enum": [
+                                "MINISBLACK",
+                                "MINISWHIT",
+                                "RGB",
+                                "CMYK",
+                                "YCBCR",
+                                "CIELAB",
+                                "ICCLAB",
+                                "ITULAB"
+                              ],
+                              "default": "RGB"
+                            },
+                            "jpeg_quality": {
+                              "type": "integer",
+                              "description": "Set the JPEG quality when using JPEG.",
+                              "minimum": 1,
+                              "maximum": 100,
+                              "default": 75
+                            }
+                          }
+                        },
+                        "GeoPackage": {
+                          "gis_data_types": [
+                            "raster",
+                            "vector"
+                          ],
+                          "parameters": {
+                            "gis_data_type": {
+                              "type": "string",
+                              "enum": [
+                                "raster",
+                                "vector"
+                              ],
+                              "required": true
+                            },
+                            "version": {
+                              "type": "string",
+                              "descriptiion": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
+                              "enum": [
+                                "auto",
+                                1,
+                                1.1,
+                                1.2
+                              ],
+                              "default": "auto"
+                            },
+                            "geometry_name": {
+                              "type": "string",
+                              "description": "**VECTOR ONLY.** Column to use for the geometry column.",
+                              "default": "geom"
+                            },
+                            "table": {
+                              "type": "string",
+                              "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
+                            }
+                          }
+                        },
+                        "JSON": {
+                          "gis_data_types": [
+                            "other"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.API.getOutputFormats().then(outputFormats => {\n  // ...\n});"
+          },
+          {
+            "lang": "Python",
+            "source": "session.get_outputformats()"
+          },
+          {
+            "lang": "R",
+            "source": "session %>% listFormats()"
+          }
+        ]
+      }
+    },
+    "/data": {
+      "get": {
+        "summary": "List available EO datasets.",
+        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n**Note:** This is a draft and may change in API version 0.4!",
+        "tags": [
+          "EO Data Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "data_id",
+                      "description"
+                    ],
+                    "properties": {
+                      "data_id": {
+                        "$ref": "#/components/schemas/data_id"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "source": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "example": [
+                    {
+                      "data_id": "MOD09Q1",
+                      "description": " MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V006",
+                      "source": "U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006"
+                    },
+                    {
+                      "data_id": "SENTINEL2-1C",
+                      "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
+                      "source": "European Space Agency (ESA)"
+                    },
+                    {
+                      "data_id": "LandsatETMPlus",
+                      "description": "Landsat Enhanced Thematic Mapper Plus (ETM+)",
+                      "source": "U.S. Geological Survey (USGS)"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.Data.get().then(datasets => {\n  // ...\n});"
+          },
+          {
+            "lang": "Python",
+            "source": "session.list_collections()"
+          },
+          {
+            "lang": "R",
+            "source": "session %>% listCollections()"
+          }
+        ]
+      }
+    },
+    "/data/{data_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/data_id"
+        }
+      ],
+      "get": {
+        "summary": "Full information about a specific EO dataset.",
+        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n**Note:** This is an early draft and will change in API version 0.4!",
+        "tags": [
+          "EO Data Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object with metadata of the EO dataset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data_id",
+                    "description",
+                    "extent",
+                    "bands"
+                  ],
+                  "properties": {
+                    "data_id": {
+                      "$ref": "#/components/schemas/data_id"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "links": {
+                      "description": "Additional links related to this EO dataset. Could reference to other meta data formats with additional information or a preview image.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      }
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "spatial_extent": {
+                      "$ref": "#/components/schemas/spatial_extent"
+                    },
+                    "temporal_extent": {
+                      "$ref": "#/components/schemas/temporal_extent"
+                    },
+                    "bands": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/band_description"
+                      }
+                    }
+                  },
+                  "additionalProperties": true,
+                  "example": {
+                    "data_id": "Sentinel-2A-L1C",
+                    "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
+                    "source": "European Space Agency (ESA)",
+                    "spatial_extent": {
+                      "crs": "EPSG:4326",
+                      "left": -34,
+                      "right": 35,
+                      "bottom": 39,
+                      "top": 71
+                    },
+                    "temporal_extent": [
+                      "2016-01-01T00:00:00Z",
+                      "2017-10-01T00:00:00Z"
+                    ],
+                    "bands": [
+                      {
+                        "band_id": "1",
+                        "wavelength_nm": 443.9,
+                        "res_m": 60,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "2",
+                        "name": "blue",
+                        "wavelength_nm": 496.6,
+                        "res_m": 10,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "3",
+                        "name": "green",
+                        "wavelength_nm": 560,
+                        "res_m": 10,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "4",
+                        "name": "red",
+                        "wavelength_nm": 664.5,
+                        "res_m": 10,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "5",
+                        "wavelength_nm": 703.9,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "6",
+                        "wavelength_nm": 740.2,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "7",
+                        "wavelength_nm": 782.5,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "8",
+                        "name": "nir",
+                        "wavelength_nm": 835.1,
+                        "res_m": 10,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "8a",
+                        "wavelength_nm": 864.8,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "9",
+                        "wavelength_nm": 945,
+                        "res_m": 60,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "10",
+                        "wavelength_nm": 1373.5,
+                        "res_m": 60,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "11",
+                        "wavelength_nm": 1613.7,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      },
+                      {
+                        "band_id": "12",
+                        "wavelength_nm": 2202.4,
+                        "res_m": 20,
+                        "scale": 0.0001,
+                        "offset": 0,
+                        "type": "int16",
+                        "unit": "1"
+                      }
+                    ],
+                    "links": [
+                      {
+                        "href": "https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c",
+                        "title": "ESA Sentinel-2 MSI Level-1C User Guide",
+                        "rel": "about"
+                      },
+                      {
+                        "href": "https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-1c-processing",
+                        "title": "ESA Sentinel-2 MSI Level-1C Processing",
+                        "rel": "about"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.Data.getById(\"Sentinel-2B\").then(data => {\n  // ...\n});"
+          },
+          {
+            "lang": "Python",
+            "source": "session.get_collection(\"Sentinel-2B\")"
+          },
+          {
+            "lang": "R",
+            "source": "session %>% describeCollection(\"Sentinel-2B\")"
+          }
+        ]
+      }
+    },
+    "/processes": {
+      "get": {
+        "summary": "List supported processes.",
+        "description": "The request asks the back-end for available processes and returns detailed process descriptions, including parameters and return values. Processes are described using the Functio specification for language-agnostic process descriptions.",
+        "tags": [
+          "Process Discovery"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Formal specification describing the supported processes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "description",
+                      "parameters",
+                      "returns"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Name used to identify the process. The id MUST be unique. It is RECOMMENDED to follow common programming naming conventions."
+                      },
+                      "summary": {
+                        "type": "string",
+                        "description": "A short summary of what the process does."
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "required": [
+                            "description",
+                            "schema"
+                          ],
+                          "properties": {
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            },
+                            "required": {
+                              "type": "boolean",
+                              "description": "Determines whether this parameter is mandatory.",
+                              "default": false
+                            },
+                            "dependencies": {
+                              "type": "array",
+                              "description": "A list of parameters that influence this parameter or this parameter depends on.",
+                              "items": {
+                                "type": "object",
+                                "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
+                                "required": [
+                                  "parameter"
+                                ],
+                                "properties": {
+                                  "description": {
+                                    "$ref": "#/components/schemas/description"
+                                  },
+                                  "parameter": {
+                                    "type": "string",
+                                    "description": "The name of the referenced parameter."
+                                  },
+                                  "ref_values": {
+                                    "type": "array",
+                                    "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
+                                    "items": {
+                                      "description": "Any data type allowed for the referenced parameter."
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "deprecated": {
+                              "type": "boolean",
+                              "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                              "default": false
+                            },
+                            "mime_type": {
+                              "type": "string",
+                              "description": "The mime type that the parameter is formatted with."
+                            },
+                            "schema": {
+                              "$ref": "#/components/schemas/json_schema"
+                            }
+                          }
+                        }
+                      },
+                      "min_parameters": {
+                        "type": "integer",
+                        "description": "Minimum number of parameters required for this process, including required parameters."
+                      },
+                      "returns": {
+                        "type": "object",
+                        "description": "The data that is returned from this process. If not specified the process does not return anything.",
+                        "required": [
+                          "description",
+                          "schema"
+                        ],
+                        "properties": {
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "mime_type": {
+                            "type": "string",
+                            "description": "The mime type that the returned data is formatted with."
+                          },
+                          "schema": {
+                            "$ref": "#/components/schemas/json_schema"
+                          }
+                        }
+                      },
+                      "deprecated": {
+                        "type": "boolean",
+                        "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
+                        "default": false
+                      },
+                      "exceptions": {
+                        "type": "object",
+                        "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "required": [
+                            "description"
+                          ],
+                          "properties": {
+                            "code": {
+                              "type": "integer",
+                              "description": "Code to identify the exception."
+                            },
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            }
+                          }
+                        }
+                      },
+                      "examples": {
+                        "type": "object",
+                        "description": "If parameters or return values are referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.",
+                        "additionalProperties": {
+                          "type": "object",
+                          "description": "The sourceCode field is mutually exclusive of the paramaters and returns fields, i.e. you can only specify either sourceCode or parameters/returns.",
+                          "required": [
+                            "description"
+                          ],
+                          "properties": {
+                            "summary": {
+                              "type": "string",
+                              "description": "Short summary for the example."
+                            },
+                            "description": {
+                              "$ref": "#/components/schemas/description"
+                            },
+                            "process_graph": {
+                              "$ref": "#/components/schemas/process_graph"
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "type": "array",
+                        "description": "Related links, e.g. additional external documentation for this process.",
+                        "items": {
+                          "$ref": "#/components/schemas/link"
+                        }
+                      }
+                    }
+                  },
+                  "example": [
+                    {
+                      "name": "get_data",
+                      "summary": "Selects a dataset.",
+                      "description": "Filters and selects a single dataset provided by the back-end. The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
+                      "min_parameters": 1,
+                      "parameters": {
+                        "data_id": {
+                          "description": "Filter by data id",
+                          "schema": {
+                            "type": "string",
+                            "examples": [
+                              "Sentinel2A-L1C"
+                            ]
+                          }
+                        },
+                        "extent": {
+                          "description": "Filter by extent",
+                          "schema": {
+                            "type": "object",
+                            "required": [
+                              "left",
+                              "right",
+                              "top",
+                              "bottom"
+                            ],
+                            "properties": {
+                              "crs": {
+                                "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+                                "type": "string",
+                                "default": "EPSG:4326"
+                              },
+                              "left": {
+                                "type": "number"
+                              },
+                              "right": {
+                                "type": "number"
+                              },
+                              "top": {
+                                "type": "number"
+                              },
+                              "bottom": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "time": {
+                          "description": "Filter by time",
+                          "schema": {
+                            "type": "string"
+                          }
+                        },
+                        "bands": {
+                          "description": "Filter by band IDs",
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "derived_from": {
+                          "description": "Filter by derived data set",
+                          "schema": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "license": {
+                          "description": "Filter by license",
+                          "schema": {
+                            "type": "string",
+                            "examples": [
+                              "Apache-2.0"
+                            ],
+                            "description": "If available, should be a license from the SPDX License List: https://spdx.org/licenses/"
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
+                      }
+                    },
+                    {
+                      "name": "filter_bands",
+                      "summary": "Filter an image collection by bands.",
+                      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.",
+                      "min_parameters": 2,
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
+                        },
+                        "bands": {
+                          "description": "string or array of strings containing band ids.",
+                          "schema": {
+                            "type": [
+                              "string",
+                              "array"
+                            ],
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "names": {
+                          "description": "string or array of strings containing band names.",
+                          "schema": {
+                            "type": [
+                              "string",
+                              "array"
+                            ],
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "wavelengths": {
+                          "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
+                          "schema": {
+                            "type": [
+                              "number",
+                              "array"
+                            ],
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
+                      }
+                    },
+                    {
+                      "name": "filter_daterange",
+                      "summary": "Filter an image collection by temporal extent.",
+                      "min_parameters": 1,
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
+                        },
+                        "extent": {
+                          "type": "array",
+                          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+                          "example": [
+                            "2016-01-01T00:00:00Z",
+                            "2017-10-01T00:00:00Z"
+                          ],
+                          "items": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time",
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
+                      }
+                    },
+                    {
+                      "name": "process_graph",
+                      "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.",
+                      "parameters": {
+                        "imagery": {
+                          "description": "EO data to process.",
+                          "required": true,
+                          "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
+                        },
+                        "url": {
+                          "description": "An URL to a process graph.",
+                          "required": true,
+                          "schema": {
+                            "type": "string",
+                            "format": "url",
+                            "examples": [
+                              "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+                            ]
+                          }
+                        }
+                      },
+                      "returns": {
+                        "description": "Processed EO data.",
+                        "schema": {
+                          "type": "object",
+                          "format": "eodata"
+                        }
+                      },
+                      "exceptions": {
+                        "NotFound": {
+                          "code": 404,
+                          "description": "Process graph doesn't exist."
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.Processes.get().then(processes => {\n  // ...\n});"
+          },
+          {
+            "lang": "Python",
+            "source": "session.get_all_processes()"
+          },
+          {
+            "lang": "R",
+            "source": "session %>% listProcesses()"
+          }
+        ]
+      }
+    },
+    "/credentials/oidc": {
+      "get": {
+        "summary": "Authentication with OpenID Connect.",
+        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {}
+        ],
+        "responses": {
+          "303": {
+            "description": "Specifies the location of the OpenID Connect discovery document.",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "example": "https://openeo.org/.well-known/openid-configuration"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/credentials/basic": {
+      "get": {
+        "summary": "Authentication with HTTP Basic.",
+        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "Basic": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials are correct and authentication succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "user_id",
+                    "access_token"
+                  ],
+                  "properties": {
+                    "user_id": {
+                      "$ref": "#/components/schemas/user_id"
+                    },
+                    "access_token": {
+                      "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
+                      "type": "string",
+                      "example": "b34ba2bdf9ac9ee1"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/validation": {
+      "post": {
+        "summary": "Validate a process graph.",
+        "description": "Validates a process graph without executing it. Checks whether the process graph is schematically correct and the processes are supported by the back-end. It also checks the parameter values against the schema, but MAY not check the values are adequate in the context of data. For example, a non-existing band name may not get rejected. Errors that occur during processing MAY not get reported, too. An example could be a division by zero.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Confirms that the process graph is valid"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph to be validated."
+        }
+      }
+    },
+    "/preview": {
+      "post": {
+        "summary": "Process and download EO data synchronously.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A header named `OpenEO-Costs` MAY be sent with all responses, which MUST include the costs for processing and downloading the data. This endpoint could be used especially to generate small previews or test process graphs before starting a batch job.",
+        "tags": [
+          "Process Graph Management",
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Result data in the specified output format",
+            "headers": {
+              "Content-Type": {
+                "description": "The appropriate mime type for the requested output format must be sent.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "OpenEO-Costs": {
+                "$ref": "#/components/schemas/money"
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "description": "Specifies the job details, e.g. the process graph and the output format.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph",
+                  "output"
+                ],
+                "properties": {
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "output": {
+                    "$ref": "#/components/schemas/output_format"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/process_graphs": {
+      "get": {
+        "summary": "List all user-specific process graphs.",
+        "description": "This service lists all process graphs of the authenticated user that are stored at the back-end.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON array with stored process graph meta data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Array of stored process graphs",
+                  "type": "array",
+                  "items": {
+                    "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
+                    "type": "object",
+                    "required": [
+                      "process_graph_id"
+                    ],
+                    "properties": {
+                      "process_graph_id": {
+                        "$ref": "#/components/schemas/process_graph_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Store a new process graph.",
+        "description": "Creates a unique resource for a provided process graph that can be reused in other process graphs.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/created"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph with its meta data."
+        }
+      }
+    },
+    "/process_graphs/{process_graph_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/process_graph_id"
+        }
+      ],
+      "get": {
+        "summary": "Full information about a process graph.",
+        "description": "Returns all information about a process graph.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/variables_query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object with process graph",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Defines full metadata of stored process graphs that have been submitted by users.",
+                  "type": "object",
+                  "required": [
+                    "process_graph_id",
+                    "process_graph"
+                  ],
+                  "properties": {
+                    "process_graph_id": {
+                      "$ref": "#/components/schemas/process_graph_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Modify a process graph.",
+        "description": "Replaces a process graph or modifies the title, but maintains the identifier.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The process graph data has been updated successfully."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Specifies the process graph with a title."
+        }
+      },
+      "delete": {
+        "summary": "Delete a process graph.",
+        "tags": [
+          "Process Graph Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The process graph has been successfully deleted"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/service_types": {
+      "get": {
+        "summary": "List supported web service protocols.",
+        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters configure the web service and therefore need to be defined upon creation of a web service. Attributes are read-only characteristics of the web service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.\nWeb Service names are allowed to be *case insensitive* throughout the API.",
+        "tags": [
+          "Capabilities",
+          "Web Service Management"
+        ],
+        "responses": {
+          "200": {
+            "description": "An object with a map containing all web service names as keys and an object that defines supported paramaters and attributes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "List of supported web services.",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "parameters": {
+                        "type": "object",
+                        "description": "List of supported parameters for configuration.",
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/argument"
+                        }
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "description": "List of supported attributes.",
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/argument"
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "WMS": {
+                      "parameters": {
+                        "version": {
+                          "type": "string",
+                          "description": "The WMS version to use.",
+                          "default": "1.3.0",
+                          "enum": [
+                            "1.1.1",
+                            "1.3.0"
+                          ]
+                        }
+                      },
+                      "attributes": {
+                        "layers": {
+                          "type": "array",
+                          "description": "Array of layer names.",
+                          "example": [
+                            "roads",
+                            "countries",
+                            "water_bodies"
+                          ]
+                        }
+                      }
+                    },
+                    "WFS": {
+                      "parameters": {
+                        "version": {
+                          "type": "string",
+                          "description": "The WFS version to use.",
+                          "default": "2.0.0",
+                          "enum": [
+                            "1.0.0",
+                            "1.1.0",
+                            "2.0.0"
+                          ]
+                        },
+                        "maxFeatures": {
+                          "type": "integer",
+                          "description": "Maximum number of features (since WFS 2.0.0 only).",
+                          "default": 10000,
+                          "minimum": 1,
+                          "maximum": 100000
+                        }
+                      },
+                      "attributes": {
+                        "typeNames": {
+                          "type": "array",
+                          "description": "Array of available feature type names.",
+                          "example": [
+                            "topp:states",
+                            "topp:cities"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "JavaScript",
+            "source": "OpenEO.Services.getCapabilities().then(supportedServices => {\n  // ...\n});"
+          },
+          {
+            "lang": "R",
+            "source": "session %>% services()"
+          }
+        ]
+      }
+    },
+    "/services": {
+      "get": {
+        "summary": "List all user-specific web services.",
+        "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of web service descriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "description": "Defines metadata of web services.",
+                    "type": "object",
+                    "required": [
+                      "service_id",
+                      "enabled",
+                      "type",
+                      "url"
+                    ],
+                    "properties": {
+                      "service_id": {
+                        "$ref": "#/components/schemas/service_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "url": {
+                        "$ref": "#/components/schemas/service_url"
+                      },
+                      "type": {
+                        "$ref": "#/components/schemas/service_type"
+                      },
+                      "enabled": {
+                        "$ref": "#/components/schemas/service_enabled"
+                      },
+                      "submitted": {
+                        "$ref": "#/components/schemas/submitted"
+                      },
+                      "plan": {
+                        "$ref": "#/components/schemas/billing_plan"
+                      },
+                      "costs": {
+                        "$ref": "#/components/schemas/money"
+                      },
+                      "budget": {
+                        "$ref": "#/components/schemas/budget"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a new web service.",
+        "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.\n\n**Note:** Costs incured by shared web services are usually paid by the owner, but this depends on the web service type and whether it supports charge fees or not.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/created"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "job_id",
+                  "type",
+                  "process_graph"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/service_type"
+                  },
+                  "enabled": {
+                    "$ref": "#/components/schemas/service_enabled"
+                  },
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                }
+              }
+            }
+          },
+          "description": "The base data for the web service to create"
+        }
+      }
+    },
+    "/services/{service_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/service_id"
+        }
+      ],
+      "patch": {
+        "summary": "Updates a web service.",
+        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. To change the web service type create a new web service.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Changes to the web service applied successfully."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "enabled": {
+                    "$ref": "#/components/schemas/service_enabled"
+                  },
+                  "parameters": {
+                    "$ref": "#/components/schemas/service_parameters"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                }
+              }
+            }
+          },
+          "description": "The data to change for the spcified web service."
+        }
+      },
+      "get": {
+        "summary": "Full information about a web service.",
+        "description": "Requests to this endpoint will return JSON description of the web service.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the created web service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Metadata of a web service.",
+                  "type": "object",
+                  "required": [
+                    "service_id",
+                    "process_graph",
+                    "enabled",
+                    "type",
+                    "url",
+                    "parameters",
+                    "attributes"
+                  ],
+                  "properties": {
+                    "service_id": {
+                      "$ref": "#/components/schemas/service_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    },
+                    "url": {
+                      "$ref": "#/components/schemas/service_url"
+                    },
+                    "type": {
+                      "$ref": "#/components/schemas/service_type"
+                    },
+                    "enabled": {
+                      "$ref": "#/components/schemas/service_enabled"
+                    },
+                    "parameters": {
+                      "$ref": "#/components/schemas/service_parameters"
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "description": "Additional attributes of the web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff. See `GET /service_types` for supported attributes.",
+                      "additionalProperties": true,
+                      "example": {
+                        "layers": [
+                          "ndvi",
+                          "evi"
+                        ]
+                      }
+                    },
+                    "submitted": {
+                      "$ref": "#/components/schemas/submitted"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/billing_plan"
+                    },
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a web service.",
+        "description": "Calling this endpoint will stop a given web service to access result data.",
+        "tags": [
+          "Web Service Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The web service has been successfully deleted."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "summary": "List all user-specific jobs.",
+        "description": "Requests to this endpoint will list all batch jobs submitted by a user with given id.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of job descriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Array of job descriptions",
+                  "type": "array",
+                  "items": {
+                    "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
+                    "type": "object",
+                    "required": [
+                      "job_id",
+                      "submitted",
+                      "locked"
+                    ],
+                    "properties": {
+                      "job_id": {
+                        "$ref": "#/components/schemas/job_id"
+                      },
+                      "title": {
+                        "$ref": "#/components/schemas/title"
+                      },
+                      "description": {
+                        "$ref": "#/components/schemas/description"
+                      },
+                      "status": {
+                        "$ref": "#/components/schemas/status"
+                      },
+                      "submitted": {
+                        "$ref": "#/components/schemas/submitted"
+                      },
+                      "updated": {
+                        "$ref": "#/components/schemas/updated"
+                      },
+                      "plan": {
+                        "$ref": "#/components/schemas/billing_plan"
+                      },
+                      "costs": {
+                        "$ref": "#/components/schemas/money"
+                      },
+                      "budget": {
+                        "$ref": "#/components/schemas/budget"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new job.",
+        "description": "Creates a new batch processing task (job) from one or more (chained) processes at the back-end.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/created"
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "process_graph"
+                ],
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "output": {
+                    "$ref": "#/components/schemas/output_format"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          },
+          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be overridden during batch job creation and by web services."
+        }
+      }
+    },
+    "/jobs/{job_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        }
+      ],
+      "patch": {
+        "summary": "Modify a job.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with error code 3005.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Changes to the job applied successfully."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "$ref": "#/components/schemas/title"
+                  },
+                  "description": {
+                    "$ref": "#/components/schemas/description"
+                  },
+                  "process_graph": {
+                    "$ref": "#/components/schemas/process_graph"
+                  },
+                  "output": {
+                    "$ref": "#/components/schemas/output_format"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan"
+                  },
+                  "budget": {
+                    "$ref": "#/components/schemas/budget"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          },
+          "description": "Specifies the job details to update."
+        }
+      },
+      "get": {
+        "summary": "Full information about a job.",
+        "description": "Returns detailed information about a submitted batch job.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full job information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Defines full metadata of batch jobs that have been submitted by users.",
+                  "type": "object",
+                  "required": [
+                    "job_id",
+                    "process_graph",
+                    "submitted"
+                  ],
+                  "properties": {
+                    "job_id": {
+                      "$ref": "#/components/schemas/job_id"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "process_graph": {
+                      "$ref": "#/components/schemas/process_graph"
+                    },
+                    "output": {
+                      "$ref": "#/components/schemas/output_format"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "submitted": {
+                      "$ref": "#/components/schemas/submitted"
+                    },
+                    "updated": {
+                      "$ref": "#/components/schemas/updated"
+                    },
+                    "plan": {
+                      "$ref": "#/components/schemas/billing_plan"
+                    },
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a job.",
+        "description": "Deletes all data related to this job. Computations are stopped and computed results are deleted. This job won't generate additional costs for processing.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The job has been successfully deleted."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/estimate": {
+      "get": {
+        "summary": "Get an estimate for a job.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost. Costs may not include downloading costs. This can be indicated with the respective flag.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/job_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The estimated costs. At least one of credits or time MUST be returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "costs": {
+                      "$ref": "#/components/schemas/money"
+                    },
+                    "duration": {
+                      "type": "string",
+                      "description": "Estimated duration for the operation. Duration must be specified as a ISO 8601 duration.",
+                      "example": "P1Y2M10DT2H30M"
+                    },
+                    "downloads_included": {
+                      "type": "integer",
+                      "description": "Specifies how many full downloads of the processed data are included in the estimate.",
+                      "example": false,
+                      "default": true
+                    },
+                    "expires": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Time the estimate is valid for, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                      "example": "2020-11-01T00:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/results": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/job_id"
+        }
+      ],
+      "get": {
+        "summary": "Download information for a completed job.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
+            "headers": {
+              "Expires": {
+                "description": "Indicates the expiration time of the signed URLs contained in this document. Needs to follow the specification at https://tools.ietf.org/html/rfc2616#section-14.21",
+                "schema": {
+                  "type": "string",
+                  "example": "Wed, 21 Oct 2018 07:28:00 GMT"
+                }
+              },
+              "OpenEO-Costs": {
+                "description": "Specifies the costs for fully downloading the data **once**, i.e. this header MAY change in subsequent calls. It MUST be set to `0` if the requester is the owner of the job and still has free downloads included in his processing charges estimated by `GET /jobs/{job_id}/estimate`.\n If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.",
+                "schema": {
+                  "$ref": "#/components/schemas/money"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "links"
+                  ],
+                  "properties": {
+                    "title": {
+                      "$ref": "#/components/schemas/title"
+                    },
+                    "description": {
+                      "$ref": "#/components/schemas/description"
+                    },
+                    "updated": {
+                      "$ref": "#/components/schemas/updated"
+                    },
+                    "links": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      },
+                      "example": [
+                        {
+                          "href": "https://openeo.org/api/v0/download/583fba8b2ce/1.tif",
+                          "type": "image/tiff"
+                        },
+                        {
+                          "href": "https://openeo.org/api/v0/download/583fba8b2ce/2.tif",
+                          "type": "image/tiff"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "application/metalink+xml": {
+                "examples": {
+                  "response": {
+                    "summary": "External metalink file as an example (no openEO related content).",
+                    "externalValue": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.metalink"
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Start processing a job.",
+        "description": "Adds a batch job to the processing queue to compute the results.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The creation of the resource has been queued successfully."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel processing a job.",
+        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing. A subset of processed results may be available for downloading depending on the state of the job as it was canceled. Results SHOULD not be deleted until the job is deleted or job processing is started again.",
+        "tags": [
+          "Job Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Processing the job has been successfully canceled."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/files/{user_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/user_id"
+        }
+      ],
+      "get": {
+        "summary": "List all user-specific files.",
+        "description": "This service lists all user-uploaded files that are stored at the back-end.",
+        "tags": [
+          "File Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as the file size and the timestamp of the last modification. All properties except the name are optional.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Path to the file"
+                      },
+                      "size": {
+                        "type": "integer",
+                        "description": "File size in bytes"
+                      },
+                      "modified": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Date and time the file has lastly been modified, formatted according to a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "example": [
+                    {
+                      "name": "test.txt",
+                      "size": 182,
+                      "modified": "2015-10-20T17:22:10Z"
+                    },
+                    {
+                      "name": "test.tif",
+                      "size": 183142,
+                      "modified": "2017-01-01T09:36:18Z"
+                    },
+                    {
+                      "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
+                      "size": 4183353142,
+                      "modified": "2018-01-03T10:55:29Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/files/{user_id}/{path}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/user_id"
+        },
+        {
+          "$ref": "#/components/parameters/file_path"
+        }
+      ],
+      "get": {
+        "summary": "Download a file.",
+        "description": "This service downloads a user files identified by its path relative to the user's root directory.",
+        "tags": [
+          "File Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "file from user storage",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Upload a file.",
+        "description": "This service uploads a new or updates an existing file at a given path.",
+        "tags": [
+          "File Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "$ref": "#/components/parameters/file_path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The file upload has been successful."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a file.",
+        "description": "This service deletes an existing user-uploaded file specified by its path.",
+        "tags": [
+          "File Management"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "$ref": "#/components/parameters/file_path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The file has been successfully deleted at the back-end."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "summary": "Information about the authenticated user.",
+        "description": "This endpoint always returns the user id and MAY return the disk quota available to the user. It MAY also return additional links related to the user, e.g. where payments are handled or the user profile could be changed.\nFor back-ends that involve accounting, this service MAY also return the currently available money or credits in the currency the back-end is working with.\nThis endpoint MAY be extended to fulfil the specification of the [OpenID Connect UserInfo Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo).",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the logged in user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Holds user information. If no budget or storage limit applies to the user account the corresponding properties MUST be omited.",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "required": [
+                    "user_id"
+                  ],
+                  "properties": {
+                    "user_id": {
+                      "$ref": "#/components/schemas/user_id"
+                    },
+                    "storage": {
+                      "description": "Information about the storage space available to the user.",
+                      "type": "object",
+                      "required": [
+                        "free",
+                        "quota"
+                      ],
+                      "properties": {
+                        "free": {
+                          "type": "integer",
+                          "description": "Free storage space in bytes, which is still availble to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
+                          "example": 536870912
+                        },
+                        "quota": {
+                          "type": "integer",
+                          "description": "Maximum storage space (disk quota) in bytes available to the user.",
+                          "example": 1073741824
+                        }
+                      }
+                    },
+                    "budget": {
+                      "$ref": "#/components/schemas/budget"
+                    },
+                    "links": {
+                      "description": "Additional links related to the user, e.g. where payments are handled or the user profile could be changed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      },
+                      "example": [
+                        {
+                          "href": "http://www.openeo.org/john_doe/payment/",
+                          "rel": "payment"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe/edit/",
+                          "rel": "edit"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe/",
+                          "rel": "about",
+                          "type": "text/html",
+                          "title": "User profile"
+                        },
+                        {
+                          "href": "http://www.openeo.org/john_doe.vcf",
+                          "rel": "about",
+                          "type": "text/vcard",
+                          "title": "vCard of the user"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/subscription": {
+      "get": {
+        "summary": "Subscribe to updates.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO datasets or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies for requests and responses.",
+        "tags": [
+          "Job Management",
+          "File Management",
+          "Process Graph Management",
+          "Web Service Management",
+          "EO Data Discovery"
+        ],
+        "security": [
+          {}
+        ],
+        "externalDocs": {
+          "description": "openEO API for Subscriptions",
+          "url": "https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/"
+        },
+        "parameters": [
+          {
+            "name": "Connection",
+            "in": "header",
+            "description": "WebSocket handshake request to indicate that an upgrade is requested.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Upgrade"
+              ]
+            }
+          },
+          {
+            "name": "Upgrade",
+            "in": "header",
+            "description": "WebSocket handshake request to indicate the protocol to upgrade to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "websocket"
+              ]
+            }
+          },
+          {
+            "name": "Sec-WebSocket-Protocol",
+            "in": "header",
+            "description": "The Sec-WebSocket-Protocol header specifies the WebSocket protocols that you wish to use. The protocol to use is always `openeo-{api_version}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openeo-v0.3"
+              ]
+            }
+          },
+          {
+            "name": "Sec-WebSocket-Version",
+            "in": "header",
+            "description": "The WebSocket protocol version the client wishes to use when communicating with the server. This number should be the most recent version possible listed in the IANA WebSocket Version Number Registry.",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "enum": [
+                13
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "description": "Successful subscription to notifications returns in a protocol change to a web socket connection. The web socket connection is described in the referenced openEO API for Subscriptions documentation."
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "link": {
+        "description": "A link to another resource on the web. Bases on [RFC5899](https://tools.ietf.org/html/rfc5988) and SHOULD follow [registered link relation types](https://www.iana.org/assignments/link-relations/link-relations.xml) whenever feasible.",
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "rel": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string",
+            "description": "The value MUST be a dereferenceable URI.",
+            "format": "uri"
+          },
+          "type": {
+            "type": "string",
+            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a mime-type."
+          },
+          "title": {
+            "type": "string",
+            "description": "Used as a human-readable label for a link."
+          }
+        }
+      },
+      "money": {
+        "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
+        "type": "number",
+        "example": 12.98
+      },
+      "budget": {
+        "type": "number",
+        "description": "Maximum amount of costs the user is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.",
+        "example": 100
+      },
+      "billing_plan": {
+        "type": "string",
+        "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`. Billing plans MUST be accepted *case insensitive*.",
+        "example": "free"
+      },
+      "data_id": {
+        "type": "string",
+        "description": "Unique identifier for EO datasets. MUST match the specified pattern.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~\\/]+$",
+        "example": "MOD18Q1"
+      },
+      "band_datatype": {
+        "type": "string",
+        "description": "Data type for band values including its bit size.",
+        "enum": [
+          "uint8",
+          "uint16",
+          "uint32",
+          "uint64",
+          "int8",
+          "int16",
+          "int32",
+          "int64",
+          "float16",
+          "float32",
+          "float64"
+        ]
+      },
+      "band_description": {
+        "type": "object",
+        "required": [
+          "band_id"
+        ],
+        "properties": {
+          "band_id": {
+            "description": "unique identifier for bands",
+            "type": "string"
+          },
+          "name": {
+            "description": "optional name to refer to bands by name such as 'red' instead of their band_id.",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/band_datatype"
+          },
+          "offset": {
+            "description": "Offset to convert band values to the actual measurement scale.",
+            "type": "number",
+            "default": 0
+          },
+          "scale": {
+            "description": "Scale to convert band values to the actual measurement scale.",
+            "type": "number",
+            "default": 1
+          },
+          "unit": {
+            "description": "Unit of measurements, preferably SI.",
+            "type": "string"
+          },
+          "nodata": {
+            "description": "Specific values representing no data.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "wavelength_nm": {
+            "description": "Wavelength of the band in nanometers.",
+            "type": "number"
+          },
+          "res_m": {
+            "description": "Spatial resolution of the band in meters.",
+            "type": "number"
+          }
+        },
+        "additionalProperties": true
+      },
+      "variable": {
+        "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.",
+        "type": "object",
+        "required": [
+          "variable_id"
+        ],
+        "properties": {
+          "variable_id": {
+            "type": "string",
+            "description": "The name of the variable. Can be any valid JSON key, but it is RECOMMENDED to use snake case and limit the characters to `a-z`, `0-9` and `_`."
+          },
+          "type": {
+            "type": "string",
+            "description": "The value for type is the expected data type for the content of the variable.",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "array",
+              "object"
+            ],
+            "default": "string"
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
+          },
+          "default": {
+            "description": "Whenever no value for the variable is defined, the default value is used.",
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "$ref": "#/components/schemas/process_graph"
+              }
+            ]
+          }
+        }
+      },
+      "process_graph": {
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes.",
+        "type": "object",
+        "required": [
+          "process_id"
+        ],
+        "properties": {
+          "process_id": {
+            "type": "string",
+            "description": "The unique identifier of the process."
+          },
+          "process_description": {
+            "$ref": "#/components/schemas/description"
+          }
+        },
+        "additionalProperties": {
+          "description": "Arguments for a process. The values can by any of the JSON data types. Additionally it can be any object of type `process_graph`. An array must always contain one data type only and is allowed to contain the data types allowed for argument values. Objects are not allowed to have a key with the name `process_id` except for the objects of type `process_graph`. See the API documentation for more information.",
+          "nullable": true,
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "$ref": "#/components/schemas/process_graph"
+            },
+            {
+              "$ref": "#/components/schemas/variable"
+            }
+          ]
+        },
+        "example": {
+          "process_id": "min_time",
+          "process_description": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.",
+          "imagery": {
+            "process_id": "NDVI",
+            "imagery": {
+              "process_id": "filter_daterange",
+              "imagery": {
+                "process_id": "get_data",
+                "data_id": "Sentinel2A-L1C"
+              },
+              "from": "2017-01-01",
+              "to": "2017-01-31"
+            },
+            "red": "4",
+            "nir": "8"
+          }
+        }
+      },
+      "process_graph_id": {
+        "type": "string",
+        "description": "Unique identifier of a job that is generated by the back-end during job submission. MUST match the specified pattern.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
+        "example": "cc2bab1e3b3a52aa"
+      },
+      "job_id": {
+        "type": "string",
+        "description": "Unique identifier of a job that is generated by the back-end during job submission. MUST match the specified pattern.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
+        "example": "a3cca2b2aa1e3b5b"
+      },
+      "submitted": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time of creation, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+        "example": "2017-01-01T09:32:12Z"
+      },
+      "updated": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time of last status change, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+        "example": "2017-01-01T09:36:18Z"
+      },
+      "user_id": {
+        "type": "string",
+        "description": "Unique identifier of the user. MUST match the specified pattern. SHOULD be a human-friendly user name instead of a randomly generated identifier.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
+        "example": "john_doe"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "submitted",
+          "queued",
+          "running",
+          "canceled",
+          "finished",
+          "error"
+        ],
+        "description": "The current status of a batch job. The default state for a job is `Submitted`. A job is `queued` after calling `POST /jobs/{job_id}/results`. It remains in this state until processing has been started, which changes the status to `running`. After the processing has been completed the status is `finished` and results can be downloaded by requesting `GET /jobs/{job_id}/results`. Whenever an error occurs the status must be set to `error`.",
+        "example": "running",
+        "default": "submitted"
+      },
+      "title": {
+        "description": "A short description to easily distinguish entities.",
+        "type": "string",
+        "example": "NDVI based on Sentinel 2"
+      },
+      "description": {
+        "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string",
+        "example": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery."
+      },
+      "service_type": {
+        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
+        "type": "string",
+        "example": "wms"
+      },
+      "service_parameters": {
+        "type": "object",
+        "description": "List of arguments, i.e. the parameter names supported by the web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. ",
+        "additionalProperties": true,
+        "example": {
+          "version": 1.1
+        }
+      },
+      "service_enabled": {
+        "type": "boolean",
+        "description": "Describes whether a web service is responding to requests (true) or not (false). Defaults to true. Disabled web services don't produce any costs.",
+        "default": true
+      },
+      "service_url": {
+        "type": "string",
+        "format": "url",
+        "description": "URL at which the web service is accessible. Doesn't necessarily need to be located within the API.",
+        "example": "https://openeo.org/wms/wms-a3cca9"
+      },
+      "service_id": {
+        "type": "string",
+        "description": "Unique identifier of a web service that is generated by the back-end during web service creation. MUST match the specified pattern.",
+        "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
+        "example": "wms-a3cca9"
+      },
+      "argument": {
+        "type": "object",
+        "description": "Describes a general argument for various entities.",
+        "required": [
+          "description"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "A brief description of the argument."
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Determines whether this argument is mandatory.",
+            "default": false
+          },
+          "default": {
+            "description": "The default value represents what would be assumed by the consumer of the input as the value of the argument if none is provided. The value MUST conform to the defined type for the argument defined at the same level. For example, if type is string, then default can be \"foo\" but cannot be 1."
+          },
+          "minimum": {
+            "type": "number",
+            "description": "Minimum value allowed for numeric arguments."
+          },
+          "maximum": {
+            "type": "number",
+            "description": "Maximum value allowed for numeric arguments."
+          },
+          "enum": {
+            "type": "array",
+            "description": "List of allowed values for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary.",
+            "items": {
+              "description": "A single value allowed for this argument."
+            }
+          },
+          "example": {
+            "description": "A free-form property to include an example for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary."
+          }
+        }
+      },
+      "output_format": {
+        "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
+        "type": "object",
+        "required": [
+          "format"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "description": "One of the supported output formats. MUST be accepted *case insensitive*."
+          },
+          "parameters": {
+            "type": "object",
+            "description": "List of arguments, i.e. the parameter names supported by the output format combined with actual values. \n\n`gis_data_type` is a special parameter only for output formats supporting multiple GIS spatial data types (e.g. raster and vector).\n\nSee `GET /output_formats` for more information, inclusing supported parameters and valid arguments.",
+            "properties": {
+              "gis_data_type": {
+                "$ref": "#/components/schemas/gis_data_type"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "example": {
+          "format": "GTiff",
+          "parameters": {
+            "tiles": true,
+            "compress": "jpeg",
+            "photometric": "YCBCR",
+            "jpeg_quality": 80
+          }
+        }
+      },
+      "gis_data_type": {
+        "type": "string",
+        "enum": [
+          "raster",
+          "vector",
+          "table",
+          "other"
+        ]
+      },
+      "error": {
+        "description": "An error object declares addtional information about a client-side or server-side error.",
+        "externalDocs": {
+          "description": "Additional information regarding error handling and a list of error codes.",
+          "url": "https://open-eo.github.io/openeo-api/v/0.3.0/errors/index.html"
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A back-end may add a unique identifier to the error response to be able to log and track errors with further non-disclosable details.",
+            "example": "550e8400-e29b-11d4-a716-446655440000"
+          },
+          "code": {
+            "type": "number",
+            "description": "The code is either one of the standardized error codes or a custom error code with a number greater than 10000.",
+            "example": 123
+          },
+          "message": {
+            "type": "string",
+            "description": "The message explains what the client might need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+            "example": "A sample error message."
+          },
+          "links": {
+            "description": "Additional links related to this error, e.g. a resource that is explaining the error and potential solutions in-depth or a contact e-mail address.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            },
+            "example": [
+              {
+                "href": "http://www.openeo.org/docs/errors/123",
+                "rel": "about"
+              }
+            ]
+          }
+        }
+      },
+      "refsys": {
+        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.\nReference systems MUST be accepted *case insensitive*.",
+        "type": "string",
+        "default": "EPSG:4326",
+        "example": "EPSG:3857"
+      },
+      "spatial_extent": {
+        "description": "Spatial extent covered by the data",
+        "type": "object",
+        "required": [
+          "left",
+          "right",
+          "top",
+          "bottom"
+        ],
+        "properties": {
+          "crs": {
+            "$ref": "#/components/schemas/refsys"
+          },
+          "left": {
+            "type": "number",
+            "example": -34
+          },
+          "right": {
+            "type": "number",
+            "example": 35
+          },
+          "top": {
+            "type": "number",
+            "example": 71
+          },
+          "bottom": {
+            "type": "number",
+            "example": 39
+          }
+        }
+      },
+      "temporal_extent": {
+        "type": "array",
+        "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+        "example": [
+          "2016-01-01T00:00:00Z",
+          "2017-10-01T00:00:00Z"
+        ],
+        "items": {
+          "type": "string",
+          "format": "date-time",
+          "minItems": 2,
+          "maxItems": 2,
+          "nullable": true
+        }
+      },
+      "json_schema": {
+        "type": "object",
+        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.3.0/processes/index.html), e.g. bbox or crs.",
+        "externalDocs": {
+          "url": "http://json-schema.org/",
+          "description": "JSON Schema draft-07"
+        }
+      }
+    },
+    "responses": {
+      "created": {
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\nExamples: * `POST /services` redirects to `GET /services/{service_id}` * `POST /jobs` redirects to `GET /jobs/{job_id}`",
+        "headers": {
+          "Location": {
+            "required": true,
+            "schema": {
+              "description": "URI to the newly created resource.",
+              "format": "uri",
+              "type": "string",
+              "example": "https://openeo.org/api/v0/resource/123"
+            }
+          }
+        }
+      },
+      "client_error": {
+        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request usually does not respond with HTTP status codes 401 and 403 due to missing authorization. HTTP status code 404 should be used if the value of a path parameter is invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "client_error_auth": {
+        "description": "The request can't be fulfilled due to an error on client-side, i.e. the request is invalid. The client should not repeat the request without modifications. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request MUST respond with HTTP status codes 401 if authorization is required or 403 if the authorization failed or access is forbidden in general to the authenticated user. HTTP status code 404 should be used if the value of a path parameter is invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "server_error": {
+        "description": "The request can't be fulfilled due to an error at the back-end. The error is never the client’s fault and therefore it is reasonable for the client to retry the exact same request that triggered this response. The response body SHOULD contain a JSON error object. MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "variables_query": {
+        "name": "*",
+        "in": "query",
+        "description": "Any variable that is defined by the referenced process graph can be used as query parameter. The key of the query parameter has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the query parameter serialized as JSON.",
+        "schema": {
+          "type": "string",
+          "description": "Serialized JSON"
+        }
+      },
+      "user_id": {
+        "name": "user_id",
+        "in": "path",
+        "description": "Unique user identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/user_id"
+        }
+      },
+      "process_graph_id": {
+        "name": "process_graph_id",
+        "in": "path",
+        "description": "Unique process graph identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/process_graph_id"
+        }
+      },
+      "service_id": {
+        "name": "service_id",
+        "in": "path",
+        "description": "Unique web service identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/service_id"
+        }
+      },
+      "job_id": {
+        "name": "job_id",
+        "in": "path",
+        "description": "Unique job identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/job_id"
+        }
+      },
+      "data_id": {
+        "name": "data_id",
+        "in": "path",
+        "description": "Unique dataset identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/data_id"
+        }
+      },
+      "file_path": {
+        "name": "path",
+        "in": "path",
+        "description": "Path of the file. Folder and file names in the path MUST be url-encoded. The path separator `/` MUST NOT be url-encoded.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "borders/europe.geojson"
+        }
+      }
+    },
+    "requestBodies": {
+      "process_graph": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/process_graph"
+            }
+          }
+        },
+        "description": "Description of one or more (chained) processes.",
+        "required": true
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "Basic": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}
