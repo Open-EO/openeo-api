@@ -37,7 +37,7 @@
     },
     {
       "name": "EO Data Discovery",
-      "description": "Discovery of Earth observation datasets that are available at the back-end."
+      "description": "Discovery of Earth observation collections that are available at the back-end."
     },
     {
       "name": "Process Discovery",
@@ -121,13 +121,19 @@
                       },
                       "example": [
                         {
-                          "path": "/data",
+                          "path": "/collections",
                           "methods": [
                             "GET"
                           ]
                         },
                         {
-                          "path": "/data/{data_id}",
+                          "path": "/collections/{name}",
+                          "methods": [
+                            "GET"
+                          ]
+                        },
+                        {
+                          "path": "/processes",
                           "methods": [
                             "GET"
                           ]
@@ -392,10 +398,10 @@
         ]
       }
     },
-    "/data": {
+    "/collections": {
       "get": {
         "summary": "List available EO datasets.",
-        "description": "Requests will ask the back-end for available data and will return an array of available datasets with very basic information such as their unique identifiers. Results can be filtered by space, time, and dataset name with very simple search expressions.\n\n**Note:** This is a draft and may change in API version 0.4!",
+        "description": "Requests will ask the back-end for available collections and will return an\narray of available collections with very basic information such as their\nunique identifiers.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -407,47 +413,101 @@
         ],
         "responses": {
           "200": {
-            "description": "An array of EO datasets including their unique identifiers and some basic metadata.",
+            "description": "A list of related links and collections, including their unique identifiers and some basic required metadata.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "data_id",
-                      "description"
-                    ],
-                    "properties": {
-                      "data_id": {
-                        "$ref": "#/components/schemas/data_id"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "source": {
-                        "type": "string"
+                  "type": "object",
+                  "required": [
+                    "collections",
+                    "links"
+                  ],
+                  "properties": {
+                    "collections": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "description",
+                          "license",
+                          "extent",
+                          "links"
+                        ],
+                        "additionalProperties": true,
+                        "properties": {
+                          "name": {
+                            "$ref": "#/components/schemas/collection_name"
+                          },
+                          "title": {
+                            "$ref": "#/components/schemas/title"
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "license": {
+                            "$ref": "#/components/schemas/license"
+                          },
+                          "extent": {
+                            "$ref": "#/components/schemas/extent"
+                          },
+                          "links": {
+                            "$ref": "#/components/schemas/collection_links"
+                          }
+                        }
                       }
                     },
-                    "additionalProperties": true
-                  },
-                  "example": [
-                    {
-                      "data_id": "MOD09Q1",
-                      "description": " MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN Grid V006",
-                      "source": "U.S. Geological Survey (USGS), DOI: 10.5067/MODIS/MOD09Q1.006"
-                    },
-                    {
-                      "data_id": "SENTINEL2-1C",
-                      "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
-                      "source": "European Space Agency (ESA)"
-                    },
-                    {
-                      "data_id": "LandsatETMPlus",
-                      "description": "Landsat Enhanced Thematic Mapper Plus (ETM+)",
-                      "source": "U.S. Geological Survey (USGS)"
+                    "links": {
+                      "description": "General links related to the data discovery service, for example  another service such as a OGC WCS that describes all the collections.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      }
                     }
-                  ]
+                  },
+                  "example": {
+                    "collections": [
+                      {
+                        "name": "Sentinel-2A",
+                        "title": "Sentinel-2A MSI L1C",
+                        "description": "Sentinel-2A is a wide-swath, high-resolution, multi-spectral imaging mission supporting Copernicus Land Monitoring studies, including the monitoring of vegetation, soil and water cover, as well as observation of inland waterways and coastal areas.",
+                        "license": "proprietary",
+                        "extent": {
+                          "spatial": [
+                            180,
+                            -56,
+                            -180,
+                            83
+                          ],
+                          "temporal": [
+                            "2015-06-23T00:00:00Z",
+                            null
+                          ]
+                        },
+                        "links": [
+                          {
+                            "rel": "self",
+                            "href": "https://openeo.org/api/collections/Sentinel-2A"
+                          },
+                          {
+                            "rel": "license",
+                            "href": "https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf"
+                          }
+                        ]
+                      }
+                    ],
+                    "links": [
+                      {
+                        "rel": "self",
+                        "href": "https://openeo.org/api/collections"
+                      },
+                      {
+                        "rel": "alternate",
+                        "href": "https://openeo.org/csw",
+                        "title": "openEO dataset catalog (OGC Catalogue Services 3.0)"
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -475,15 +535,21 @@
         ]
       }
     },
-    "/data/{data_id}": {
+    "/collections/{name}": {
       "parameters": [
         {
-          "$ref": "#/components/parameters/data_id"
+          "name": "name",
+          "in": "path",
+          "description": "Unique collection identifier.",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/collection_name"
+          }
         }
       ],
       "get": {
         "summary": "Full information about a specific EO dataset.",
-        "description": "The request will ask the back-end for further details about a dataset specified by the identifier `data_id`.\n\n**Note:** This is an early draft and will change in API version 0.4!",
+        "description": "The request will ask the back-end for further details about a collections\nspecified by the identifier `collection_name`.\n\nThis endpoint aims to be compatible with STAC and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -501,192 +567,283 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "data_id",
+                    "name",
                     "description",
+                    "license",
                     "extent",
-                    "bands"
+                    "links"
                   ],
+                  "additionalProperties": true,
                   "properties": {
-                    "data_id": {
-                      "$ref": "#/components/schemas/data_id"
+                    "name": {
+                      "$ref": "#/components/schemas/collection_name"
+                    },
+                    "title": {
+                      "$ref": "#/components/schemas/title"
                     },
                     "description": {
                       "$ref": "#/components/schemas/description"
                     },
-                    "links": {
-                      "description": "Additional links related to this EO dataset. Could reference to other meta data formats with additional information or a preview image.",
+                    "license": {
+                      "$ref": "#/components/schemas/license"
+                    },
+                    "extent": {
+                      "$ref": "#/components/schemas/extent"
+                    },
+                    "keywords": {
                       "type": "array",
+                      "description": "List of keywords describing the dataset.",
                       "items": {
-                        "$ref": "#/components/schemas/link"
+                        "type": "string"
                       }
                     },
-                    "source": {
-                      "type": "string"
+                    "version": {
+                      "type": "string",
+                      "description": "Version of the dataset. [Semantic Versioning (SemVer)](https://semver.org/) SHOULD be followed."
                     },
-                    "spatial_extent": {
-                      "$ref": "#/components/schemas/spatial_extent"
-                    },
-                    "temporal_extent": {
-                      "$ref": "#/components/schemas/temporal_extent"
-                    },
-                    "bands": {
+                    "provider": {
                       "type": "array",
+                      "description": "A list of data providers, the organizations which influenced the content of the dataset. Providers should be listed in chronological order with the most recent provider being the last element of the list. The hosting provider MUST NOT be listed here.",
                       "items": {
-                        "$ref": "#/components/schemas/band_description"
+                        "required": [
+                          "name"
+                        ],
+                        "properties": {
+                          "name": {
+                            "description": "The name of the organization or the individual.",
+                            "type": "string"
+                          },
+                          "url": {
+                            "description": "Homepage of the provider.",
+                            "type": "string",
+                            "format": "url"
+                          }
+                        }
+                      }
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/collection_links"
+                    },
+                    "eo:gsd": {
+                      "type": "number",
+                      "description": "The nominal Ground Sample Distance for the data, as measured in meters on the ground. Since GSD can vary across a scene depending on projection, this should be the average or most commonly used GSD in the center of the image. If the data includes multiple bands with different GSD values, this should be the value for the greatest number or most common bands. For instance, Landsat optical and short-wave IR bands are all 30 meters, but the panchromatic band is 15 meters. The eo:gsd should be 30 meters in this case since those are the bands most commonly used."
+                    },
+                    "eo:platform": {
+                      "type": "string",
+                      "description": "Unique name of the specific platform the instrument is attached to. For satellites this would be the name of the satellite (e.g., landsat-8, sentinel-2A), whereas for drones this would be a unique name for the drone."
+                    },
+                    "eo:constellation": {
+                      "type": "string",
+                      "description": "Name of the group or constellation that the platform belongs to. Example: The Sentinel-2 group has S2A and S2B, this field allows users to search for Sentinel-2 data without needing to specify which specific platform the data came from."
+                    },
+                    "eo:instrument": {
+                      "type": "string",
+                      "description": "Name of instrument or sensor used (e.g., MODIS, ASTER, OLI, Canon F-1), although for collections which contain data from multiple sensors this could also name multiple sensors. For example, data from the Landsat-8 platform is collected with the OLI sensor as well as the TIRS sensor, but the data is distributed together and commonly referred to as OLI_TIRS."
+                    },
+                    "eo:epsg": {
+                      "type": "number",
+                      "description": "A Coordinate Reference System (CRS) is the native reference system (sometimes called a 'projection') used by the data, and can usually be referenced using an EPSG code. If the data does not have a CRS, such as in the case of non-rectified imagery with Ground Control Points, eo:epsg should be set to null. It should also be set to null if a CRS exists, but for which there is no valid EPSG code.",
+                      "nullable": true
+                    },
+                    "eo:bands": {
+                      "type": "object",
+                      "description": "This is a dictionary of band information where each key in the dictionary is an identifier for the band (e.g., \"B01\", \"B02\", \"B1\", \"B5\", \"QA\").",
+                      "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                          "common_name": {
+                            "type": "string",
+                            "description": "Not required, but **STRONGLY RECOMMENDED*! The name commonly used to refer to the band to make it easier to search for bands across instruments. See the STAC EO extension for a list of accepted common names."
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "gsd": {
+                            "type": "number",
+                            "description": "Ground Sample distance, the nominal distance between pixel centers available, in meters. See eo:gsd for more information. Defaults to eo:gsd if not provided."
+                          },
+                          "accuracy": {
+                            "type": "number",
+                            "description": "The expected error between the measured location and the true location of a pixel, in meters on the ground."
+                          },
+                          "wavelength": {
+                            "type": "number",
+                            "description": "The center wavelength of the band, in microns."
+                          },
+                          "full_width_half_max": {
+                            "type": "number",
+                            "description": "Full width at half maximum (FWHM) is a common way to describe the size of a spectral band. It is the width, in microns, of the bandpass measured at a half of the maximum transmission. Thus, if the maximum transmission of the bandpass was 80%, the FWHM is measured as the width of the bandpass at 40% transmission."
+                          },
+                          "offset": {
+                            "description": "Offset to convert band values to the actual measurement scale.",
+                            "type": "number",
+                            "default": 0
+                          },
+                          "scale": {
+                            "description": "Scale to convert band values to the actual measurement scale.",
+                            "type": "number",
+                            "default": 1
+                          },
+                          "unit": {
+                            "description": "Unit of measurements, preferably SI.",
+                            "type": "string"
+                          },
+                          "nodata": {
+                            "description": "Specific values representing no data.",
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "resolution": {
+                            "description": "Spatial resolution of the band in meters.",
+                            "type": "number"
+                          },
+                          "periodicity": {
+                            "description": "Periodictity of the measurements, preferably specified using ISO 8601.",
+                            "type": "number"
+                          }
+                        }
                       }
                     }
                   },
-                  "additionalProperties": true,
                   "example": {
-                    "data_id": "Sentinel-2A-L1C",
-                    "description": "Sentinel 2 Level-1C: Top-of-atmosphere reflectances in cartographic geometry",
-                    "source": "European Space Agency (ESA)",
-                    "spatial_extent": {
-                      "crs": "EPSG:4326",
-                      "left": -34,
-                      "right": 35,
-                      "bottom": 39,
-                      "top": 71
-                    },
-                    "temporal_extent": [
-                      "2016-01-01T00:00:00Z",
-                      "2017-10-01T00:00:00Z"
+                    "name": "Sentinel-2A",
+                    "title": "Sentinel-2A MSI L1C",
+                    "description": "Sentinel-2A is a wide-swath, high-resolution, multi-spectral imaging mission supporting Copernicus Land Monitoring studies, including the monitoring of vegetation, soil and water cover, as well as observation of inland waterways and coastal areas.",
+                    "license": "proprietary",
+                    "keywords": [
+                      "copernicus",
+                      "esa",
+                      "eu",
+                      "msi",
+                      "radiance",
+                      "sentinel"
                     ],
-                    "bands": [
+                    "provider": [
                       {
-                        "band_id": "1",
-                        "wavelength_nm": 443.9,
-                        "res_m": 60,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "2",
-                        "name": "blue",
-                        "wavelength_nm": 496.6,
-                        "res_m": 10,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "3",
-                        "name": "green",
-                        "wavelength_nm": 560,
-                        "res_m": 10,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "4",
-                        "name": "red",
-                        "wavelength_nm": 664.5,
-                        "res_m": 10,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "5",
-                        "wavelength_nm": 703.9,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "6",
-                        "wavelength_nm": 740.2,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "7",
-                        "wavelength_nm": 782.5,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "8",
-                        "name": "nir",
-                        "wavelength_nm": 835.1,
-                        "res_m": 10,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "8a",
-                        "wavelength_nm": 864.8,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "9",
-                        "wavelength_nm": 945,
-                        "res_m": 60,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "10",
-                        "wavelength_nm": 1373.5,
-                        "res_m": 60,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "11",
-                        "wavelength_nm": 1613.7,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
-                      },
-                      {
-                        "band_id": "12",
-                        "wavelength_nm": 2202.4,
-                        "res_m": 20,
-                        "scale": 0.0001,
-                        "offset": 0,
-                        "type": "int16",
-                        "unit": "1"
+                        "name": "European Space Agency (ESA)",
+                        "url": "https://sentinel.esa.int/web/sentinel/user-guides/sentinel-2-msi"
                       }
                     ],
+                    "extent": {
+                      "spatial": [
+                        180,
+                        -56,
+                        -180,
+                        83
+                      ],
+                      "temporal": [
+                        "2015-06-23T00:00:00Z",
+                        null
+                      ]
+                    },
                     "links": [
                       {
-                        "href": "https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c",
-                        "title": "ESA Sentinel-2 MSI Level-1C User Guide",
-                        "rel": "about"
+                        "rel": "self",
+                        "href": "https://openeo.org/api/collections/Sentinel-2A"
                       },
                       {
-                        "href": "https://earth.esa.int/web/sentinel/technical-guides/sentinel-2-msi/level-1c-processing",
-                        "title": "ESA Sentinel-2 MSI Level-1C Processing",
-                        "rel": "about"
+                        "rel": "license",
+                        "href": "https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf"
+                      },
+                      {
+                        "rel": "about",
+                        "href": "https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c",
+                        "title": "ESA Sentinel-2 MSI Level-1C User Guide"
                       }
-                    ]
+                    ],
+                    "eo:epsg": 32632,
+                    "eo:platform": "sentinel-2a",
+                    "eo:constellation": "sentinel-2",
+                    "eo:bands": {
+                      "B1": {
+                        "common_name": "coastal",
+                        "center_wavelength": 4.439,
+                        "resolution": 60,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B2": {
+                        "common_name": "blue",
+                        "center_wavelength": 4.966,
+                        "resolution": 10,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B3": {
+                        "common_name": "green",
+                        "center_wavelength": 5.6,
+                        "resolution": 10,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B4": {
+                        "common_name": "red",
+                        "center_wavelength": 6.645,
+                        "resolution": 10,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B5": {
+                        "center_wavelength": 7.039,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B6": {
+                        "center_wavelength": 7.402,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B7": {
+                        "center_wavelength": 7.825,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B8": {
+                        "common_name": "nir",
+                        "center_wavelength": 8.351,
+                        "resolution": 10,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B8A": {
+                        "center_wavelength": 8.648,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B9": {
+                        "center_wavelength": 9.45,
+                        "resolution": 60,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B10": {
+                        "center_wavelength": 1.3735,
+                        "resolution": 60,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B11": {
+                        "common_name": "swir16",
+                        "center_wavelength": 1.6137,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      },
+                      "B12": {
+                        "common_name": "swir22",
+                        "center_wavelength": 2.2024,
+                        "resolution": 20,
+                        "scale": 0.0001,
+                        "offset": 0
+                      }
+                    }
                   }
                 }
               }
@@ -902,8 +1059,8 @@
                       "description": "Filters and selects a single dataset provided by the back-end. The back-end provider decides which of the potential datasets is the most relevant one to be selected.",
                       "min_parameters": 1,
                       "parameters": {
-                        "data_id": {
-                          "description": "Filter by data id",
+                        "name": {
+                          "description": "Filter by collection name",
                           "schema": {
                             "type": "string",
                             "examples": [
@@ -2834,6 +2991,13 @@
   },
   "components": {
     "schemas": {
+      "collection_links": {
+        "description": "Additional links related to this collection. Could reference to other meta data formats with additional information or a preview image.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/link"
+        }
+      },
       "link": {
         "description": "A link to another resource on the web. Bases on [RFC5899](https://tools.ietf.org/html/rfc5988) and SHOULD follow [registered link relation types](https://www.iana.org/assignments/link-relations/link-relations.xml) whenever feasible.",
         "type": "object",
@@ -2842,22 +3006,31 @@
         ],
         "properties": {
           "rel": {
-            "type": "string"
+            "type": "string",
+            "example": "related"
           },
           "href": {
             "type": "string",
-            "description": "The value MUST be a dereferenceable URI.",
-            "format": "uri"
+            "description": "The value MUST be a dereferenceable URL.",
+            "format": "url",
+            "example": "http://www.openeo.org"
           },
           "type": {
             "type": "string",
-            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a mime-type."
+            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a mime-type.",
+            "example": "text/html"
           },
           "title": {
             "type": "string",
-            "description": "Used as a human-readable label for a link."
+            "description": "Used as a human-readable label for a link.",
+            "example": "openEO"
           }
         }
+      },
+      "license": {
+        "type": "string",
+        "description": "Dataset's license(s) as a SPDX [License identifier](https://spdx.org/licenses/) or [expression](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60) or `proprietary` if the license is not on the SPDX license list. Proprietary licensed data SHOULD add a link to the license text with the `license` relation in the links section (*not* as a value of this fields).",
+        "example": "Apache-2.0"
       },
       "money": {
         "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
@@ -2874,77 +3047,11 @@
         "description": "The billing plan to process and charge the job with. The plans can be retrieved by calling `GET /`. Billing plans MUST be accepted *case insensitive*.",
         "example": "free"
       },
-      "data_id": {
+      "collection_name": {
         "type": "string",
         "description": "Unique identifier for EO datasets. MUST match the specified pattern.",
         "pattern": "^[A-Za-z0-9_\\-\\.~\\/]+$",
         "example": "MOD18Q1"
-      },
-      "band_datatype": {
-        "type": "string",
-        "description": "Data type for band values including its bit size.",
-        "enum": [
-          "uint8",
-          "uint16",
-          "uint32",
-          "uint64",
-          "int8",
-          "int16",
-          "int32",
-          "int64",
-          "float16",
-          "float32",
-          "float64"
-        ]
-      },
-      "band_description": {
-        "type": "object",
-        "required": [
-          "band_id"
-        ],
-        "properties": {
-          "band_id": {
-            "description": "unique identifier for bands",
-            "type": "string"
-          },
-          "name": {
-            "description": "optional name to refer to bands by name such as 'red' instead of their band_id.",
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/band_datatype"
-          },
-          "offset": {
-            "description": "Offset to convert band values to the actual measurement scale.",
-            "type": "number",
-            "default": 0
-          },
-          "scale": {
-            "description": "Scale to convert band values to the actual measurement scale.",
-            "type": "number",
-            "default": 1
-          },
-          "unit": {
-            "description": "Unit of measurements, preferably SI.",
-            "type": "string"
-          },
-          "nodata": {
-            "description": "Specific values representing no data.",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "wavelength_nm": {
-            "description": "Wavelength of the band in nanometers.",
-            "type": "number"
-          },
-          "res_m": {
-            "description": "Spatial resolution of the band in meters.",
-            "type": "number"
-          }
-        },
-        "additionalProperties": true
       },
       "variable": {
         "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.",
@@ -3049,7 +3156,7 @@
               "process_id": "filter_daterange",
               "imagery": {
                 "process_id": "get_data",
-                "data_id": "Sentinel2A-L1C"
+                "name": "Sentinel2A-L1C"
               },
               "from": "2017-01-01",
               "to": "2017-01-31"
@@ -3245,9 +3352,9 @@
             "description": "The code is either one of the standardized error codes or a custom error code with a number greater than 10000.",
             "example": 123
           },
-          "message": {
+          "description": {
             "type": "string",
-            "description": "The message explains what the client might need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+            "description": "A message explaining what the client may need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
           "links": {
@@ -3265,56 +3372,39 @@
           }
         }
       },
-      "refsys": {
-        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.\nReference systems MUST be accepted *case insensitive*.",
-        "type": "string",
-        "default": "EPSG:4326",
-        "example": "EPSG:3857"
-      },
-      "spatial_extent": {
-        "description": "Spatial extent covered by the data",
+      "extent": {
         "type": "object",
-        "required": [
-          "left",
-          "right",
-          "top",
-          "bottom"
-        ],
         "properties": {
-          "crs": {
-            "$ref": "#/components/schemas/refsys"
+          "spatial": {
+            "description": "The potential spatial extent covered by the dataset. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- Lower left corner, coordinate axis 1 (west)\n- Lower left corner, coordinate axis 2 (north)\n- Lower left corner, coordinate axis 3 (base, optional)\n- Upper right corner, coordinate axis 1 (east)\n- Upper right corner, coordinate axis 2 (south)\n- Upper right corner, coordinate axis 3 (height, optional)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 6,
+            "items": {
+              "type": "number"
+            },
+            "example": [
+              -180,
+              -90,
+              180,
+              90
+            ]
           },
-          "left": {
-            "type": "number",
-            "example": -34
-          },
-          "right": {
-            "type": "number",
-            "example": 35
-          },
-          "top": {
-            "type": "number",
-            "example": 71
-          },
-          "bottom": {
-            "type": "number",
-            "example": 39
+          "temporal": {
+            "type": "array",
+            "description": "Potential *temporal extent* covered by the dataset. The temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed. Only the Gregorian calendar is supported.",
+            "example": [
+              "2016-01-01T00:00:00Z",
+              "2017-10-01T00:00:00Z"
+            ],
+            "items": {
+              "type": "string",
+              "format": "date-time",
+              "minItems": 2,
+              "maxItems": 2,
+              "nullable": true
+            }
           }
-        }
-      },
-      "temporal_extent": {
-        "type": "array",
-        "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-        "example": [
-          "2016-01-01T00:00:00Z",
-          "2017-10-01T00:00:00Z"
-        ],
-        "items": {
-          "type": "string",
-          "format": "date-time",
-          "minItems": 2,
-          "maxItems": 2,
-          "nullable": true
         }
       },
       "json_schema": {
@@ -3333,8 +3423,8 @@
           "Location": {
             "required": true,
             "schema": {
-              "description": "URI to the newly created resource.",
-              "format": "uri",
+              "description": "URL to the newly created resource.",
+              "format": "url",
               "type": "string",
               "example": "https://openeo.org/api/v0/resource/123"
             }
@@ -3416,15 +3506,6 @@
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/job_id"
-        }
-      },
-      "data_id": {
-        "name": "data_id",
-        "in": "path",
-        "description": "Unique dataset identifier.",
-        "required": true,
-        "schema": {
-          "$ref": "#/components/schemas/data_id"
         }
       },
       "file_path": {
