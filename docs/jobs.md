@@ -35,7 +35,7 @@ Content-Type: application/json; charset=utf-8
         "imagery":{
           "process_id":"filter_bbox",
           "imagery":{
-            "process_id":"get_data",
+            "process_id":"get_collection",
             "name":"S2_L2A_T32TPS_20M"
           },
           "left":652000,
@@ -89,7 +89,7 @@ Content-Type: application/json; charset=utf-8
         "imagery":{
           "process_id":"filter_bands",
           "imagery":{
-            "process_id":"get_data",
+            "process_id":"get_collection",
             "name":"Sentinel2-L1C"
           },
           "bands":8

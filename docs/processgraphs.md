@@ -90,10 +90,10 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
       "imagery":{
         "process_id":"filter_bbox",
         "imagery":{
-          "process_id":"get_data",
+          "process_id":"get_collection",
           "name":{
             "variable_id":"product",
-            "description":"Identifier or the dataset",
+            "description":"Identifier of the collection",
             "type":"string",
             "default":"S2_L2A_T32TPS_20M"
           }
@@ -122,7 +122,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
       {
         "process_id":"filter_bands",
         "imagery":{
-          "process_id":"get_data",
+          "process_id":"get_collection",
           "name":"Sentinel2-L1C"
         },
         "bands":"8"
@@ -130,7 +130,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
       {
         "process_id":"filter_bands",
         "imagery":{
-          "process_id":"get_data",
+          "process_id":"get_collection",
           "name":"Sentinel2-L1C"
         },
         "bands":"5"
