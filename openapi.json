@@ -7,7 +7,7 @@
       "variables": {
         "version": {
           "default": "v0.3",
-          "description": "API versioning is RECOMMENDED. It MUST not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
+          "description": "API versioning is RECOMMENDED. It MUST not be used by the clients to detect the version number of the API. UsMe the version number returned from `GET /` instead."
         }
       }
     }
@@ -400,7 +400,7 @@
     },
     "/collections": {
       "get": {
-        "summary": "List available EO datasets.",
+        "summary": "List available EO datasets/collections.",
         "description": "Requests will ask the back-end for available collections and will return an\narray of available collections with very basic information such as their\nunique identifiers.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
@@ -504,7 +504,7 @@
                       {
                         "rel": "alternate",
                         "href": "https://openeo.org/csw",
-                        "title": "openEO dataset catalog (OGC Catalogue Services 3.0)"
+                        "title": "openEO catalog (OGC Catalogue Services 3.0)"
                       }
                     ]
                   }
@@ -522,7 +522,7 @@
         "x-code-samples": [
           {
             "lang": "JavaScript",
-            "source": "OpenEO.Data.get().then(datasets => {\n  // ...\n});"
+            "source": "OpenEO.Data.get().then(collections => {\n  // ...\n});"
           },
           {
             "lang": "Python",
@@ -548,8 +548,8 @@
         }
       ],
       "get": {
-        "summary": "Full information about a specific EO dataset.",
-        "description": "The request will ask the back-end for further details about a collections\nspecified by the identifier `collection_name`.\n\nThis endpoint aims to be compatible with STAC and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
+        "summary": "Full information about a specific EO dataset/collection.",
+        "description": "The request will ask the back-end for further details about a collections specified by the identifier `collection_name`.\n\nThis endpoint aims to be compatible with STAC and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -561,7 +561,7 @@
         ],
         "responses": {
           "200": {
-            "description": "JSON object with metadata of the EO dataset.",
+            "description": "JSON object with metadata about the collection.",
             "content": {
               "application/json": {
                 "schema": {
@@ -592,18 +592,18 @@
                     },
                     "keywords": {
                       "type": "array",
-                      "description": "List of keywords describing the dataset.",
+                      "description": "List of keywords describing the collection.",
                       "items": {
                         "type": "string"
                       }
                     },
                     "version": {
                       "type": "string",
-                      "description": "Version of the dataset. [Semantic Versioning (SemVer)](https://semver.org/) SHOULD be followed."
+                      "description": "Version of the collection. [Semantic Versioning (SemVer)](https://semver.org/) SHOULD be followed."
                     },
                     "provider": {
                       "type": "array",
-                      "description": "A list of data providers, the organizations which influenced the content of the dataset. Providers should be listed in chronological order with the most recent provider being the last element of the list. The hosting provider MUST NOT be listed here.",
+                      "description": "A list of data providers, the organizations which influenced the content of the collection. Providers should be listed in chronological order with the most recent provider being the last element of the list. The hosting provider MUST NOT be listed here.",
                       "items": {
                         "required": [
                           "name"
@@ -1068,15 +1068,15 @@
                             ]
                           }
                         },
-                        "extent": {
-                          "description": "Filter by extent",
+                        "spatial_extent": {
+                          "description": "Filter by spatial extent, may include a vertical axis (height or depth).",
                           "schema": {
                             "type": "object",
                             "required": [
-                              "left",
-                              "right",
-                              "top",
-                              "bottom"
+                              "west",
+                              "east",
+                              "north",
+                              "south"
                             ],
                             "properties": {
                               "crs": {
@@ -1084,25 +1084,51 @@
                                 "type": "string",
                                 "default": "EPSG:4326"
                               },
-                              "left": {
+                              "west": {
+                                "description": "Lower left corner, coordinate axis 1 (west).",
                                 "type": "number"
                               },
-                              "right": {
+                              "east": {
+                                "description": "Upper right corner, coordinate axis 1 (east).",
                                 "type": "number"
                               },
-                              "top": {
+                              "north": {
+                                "description": "Lower left corner, coordinate axis 2 (north).",
                                 "type": "number"
                               },
-                              "bottom": {
+                              "south": {
+                                "description": "Lower left corner, coordinate axis 1 (west).",
+                                "type": "number"
+                              },
+                              "base": {
+                                "description": "Lower left corner, coordinate axis 3 (base, optional).",
+                                "type": "number"
+                              },
+                              "height": {
+                                "description": "Upper right corner, coordinate axis 3 (height, optional).",
                                 "type": "number"
                               }
                             }
                           }
                         },
-                        "time": {
+                        "temporal_extent": {
                           "description": "Filter by time",
                           "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+                            "example": [
+                              "2016-01-01T00:00:00Z",
+                              "2017-10-01T00:00:00Z"
+                            ],
+                            "items": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
                           }
                         },
                         "bands": {
@@ -2910,7 +2936,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to updates.",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO datasets or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Job Management",
           "File Management",
@@ -3029,7 +3055,7 @@
       },
       "license": {
         "type": "string",
-        "description": "Dataset's license(s) as a SPDX [License identifier](https://spdx.org/licenses/) or [expression](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60) or `proprietary` if the license is not on the SPDX license list. Proprietary licensed data SHOULD add a link to the license text with the `license` relation in the links section (*not* as a value of this fields).",
+        "description": "Collection's license(s) as a SPDX [License identifier](https://spdx.org/licenses/) or [expression](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60) or `proprietary` if the license is not on the SPDX license list. Proprietary licensed data SHOULD add a link to the license text with the `license` relation in the links section (*not* as a value of this fields).",
         "example": "Apache-2.0"
       },
       "money": {
@@ -3049,9 +3075,9 @@
       },
       "collection_name": {
         "type": "string",
-        "description": "Unique identifier for EO datasets. MUST match the specified pattern.",
+        "description": "Unique identifier for EO collections. MUST match the specified pattern.",
         "pattern": "^[A-Za-z0-9_\\-\\.~\\/]+$",
-        "example": "MOD18Q1"
+        "example": "Sentinel-2A"
       },
       "variable": {
         "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.",
@@ -3158,8 +3184,10 @@
                 "process_id": "get_collection",
                 "name": "Sentinel2A-L1C"
               },
-              "from": "2017-01-01",
-              "to": "2017-01-31"
+              "extent": [
+                "2017-01-01T00:00:00Z",
+                "2017-01-31T23:59:59Z"
+              ]
             },
             "red": "4",
             "nir": "8"
@@ -3376,7 +3404,7 @@
         "type": "object",
         "properties": {
           "spatial": {
-            "description": "The potential spatial extent covered by the dataset. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- Lower left corner, coordinate axis 1 (west)\n- Lower left corner, coordinate axis 2 (north)\n- Lower left corner, coordinate axis 3 (base, optional)\n- Upper right corner, coordinate axis 1 (east)\n- Upper right corner, coordinate axis 2 (south)\n- Upper right corner, coordinate axis 3 (height, optional)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
+            "description": "The potential spatial extent covered by the collection. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- Lower left corner, coordinate axis 1 (west)\n- Lower left corner, coordinate axis 2 (north)\n- Lower left corner, coordinate axis 3 (base, optional)\n- Upper right corner, coordinate axis 1 (east)\n- Upper right corner, coordinate axis 2 (south)\n- Upper right corner, coordinate axis 3 (height, optional)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
             "type": "array",
             "minItems": 4,
             "maxItems": 6,
@@ -3392,7 +3420,7 @@
           },
           "temporal": {
             "type": "array",
-            "description": "Potential *temporal extent* covered by the dataset. The temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed. Only the Gregorian calendar is supported.",
+            "description": "Potential *temporal extent* covered by the collection. The temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed. Only the Gregorian calendar is supported.",
             "example": [
               "2016-01-01T00:00:00Z",
               "2017-10-01T00:00:00Z"
