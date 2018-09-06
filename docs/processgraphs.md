@@ -78,7 +78,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
 
 ## Examples
 
-**Example 1:** A full process graph definition including a variable for the data_id.
+**Example 1:** A full process graph definition including a variable for the collection `name`.
 
 ``` json
 {
@@ -91,7 +91,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
         "process_id":"filter_bbox",
         "imagery":{
           "process_id":"get_data",
-          "data_id":{
+          "name":{
             "variable_id":"product",
             "description":"Identifier or the dataset",
             "type":"string",
@@ -123,7 +123,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
         "process_id":"filter_bands",
         "imagery":{
           "process_id":"get_data",
-          "data_id":"Sentinel2-L1C"
+          "name":"Sentinel2-L1C"
         },
         "bands":"8"
       },
@@ -131,7 +131,7 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
         "process_id":"filter_bands",
         "imagery":{
           "process_id":"get_data",
-          "data_id":"Sentinel2-L1C"
+          "name":"Sentinel2-L1C"
         },
         "bands":"5"
       }

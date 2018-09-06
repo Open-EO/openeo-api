@@ -18,7 +18,7 @@ You can implement a back-end in iterations. It is recommended to start by implem
 For example, you could start by implementing the following endpoints in the first iteration:
 
 * Capabilities: `GET /` and `GET /output_formats`
-* Data discovery: `GET /data` and `GET /data/{data_id}`
+* Data discovery: `GET /collections` and `GET /collections/{name}`
 * Process discovery: `GET /processes`
 * Data processing: `POST /preview`
 * Authentication (if required): `GET /credentials/basic`
