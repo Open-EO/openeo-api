@@ -13,8 +13,8 @@ STAC has several extensions (see their [repository](https://github.com/radiantea
 Some commonly used extensions are:
 
 - EO extension (mostly integrated within openEO)
-- Scientific extension
-- Dimensions extension
+- Scientific extension (integrated within openEO)
+- Dimensions extension (draft)
 
 ## Links
 
@@ -33,10 +33,10 @@ The following table lists relation types that are commonly used as `rel` types i
 | `root` / `parent` | URL to the data discovery endpoint.                          | Collections            |
 | `child`           | URL to a child STAC Catalog or STAC Dataset.                 | Collections            |
 | `item`            | URL to a STAC Item.                                          | Collections            |
-| `license`         | The license URL for the dataset SHOULD be specified if the `license` field is set to `proprietary`. If there is no public license URL available, it is RECOMMENDED to supplement the STAC catalog with the license text in separate file and link to this file. | Collections            |
+| `license`         | The license URL for the dataset SHOULD be specified if the `license` field is set to `proprietary`. If there is no public license URL available, it is RECOMMENDED to supplement the collection with the license text in a separate file and link to this file. | Collections            |
 | `alternate`       | An alternative representation of the metadata. This could be a web service such as OGC WCS or OGC CSW or a metadata document following another standard such as ISO 19115, INSPIRE or DCAT. | Discovery +Collections |
 | `about`           | A resource that is related or further explains the entity, e.g. a user guide. | Discovery +Collections |
 | `derived_from`    | Allows referencing the data this collection was derived from. | Collections            |
-| `cite-as`         | A [DOI](https://www.doi.org/) link for citation purposes (see STAC Scientific Extension). | Collections            |
+| `cite-as`         | For all DOI names specified, the respective DOI links SHOULD be added to the links section of the catalog with the `rel` type `cite-as`. | Collections            |
 
 More relation types may be listed in the STAC documentation.
