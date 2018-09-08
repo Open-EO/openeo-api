@@ -8,7 +8,7 @@ The openEO API defines a language how clients communicate to back-ends in order 
 4. API instances can run on back-end servers or additional intermediate layers, which then communicate to back-ends in a back-end specific way.
 5. Back-ends may add functionality and extend the API wherever there is need.
 6. There will be a central back-end registry service (openEO Hub), to allow users to search for back-ends with specific functionality and or data. 
-7. The openEO API may define *profiles* in order group specific functionality.
+7. The openEO API may define *profiles* in order to group specific functionality.
 
 ![Architecture - openEO API shown in dark blue](img/arch.png)
 *Figure: Architecture - openEO API shown in dark blue*
@@ -26,6 +26,6 @@ To simplify and structure the development, the API is divided into a few microse
 | Job Management             | Organizes and manages jobs that run processes on back-ends. |
 | File Management            | Organizes and manages user-uploaded files. |
 | Process Graph Management   | Organizes and manages user-defined process graphs.  |
-| Web Service Management     | Web services to to access data and job results, e.g. as WCS or WMTS service. |
+| Web Service Management     | Web services to access data and job results, e.g. as WCS or WMTS service. |
 | User Content               | User content and accounting. |
 | Authentication             | Authentication of users. |
