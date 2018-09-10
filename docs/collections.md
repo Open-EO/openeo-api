@@ -1,7 +1,6 @@
 # Data Discovery (Collections)
 
-openEO strives for compatibility with [STAC 0.6](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. 
-Implementing the data discovery endpoints of openEO should also produce valid STAC and WFS 3.0 documents, including partial compatibility with their APIs.
+openEO strives for compatibility with [STAC 0.6](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Implementing the data discovery endpoints of openEO should also produce mostly valid STAC and WFS 3.0 responses, including an incomplete compatibility with their APIs (see below).
 
 !!! warning
 	STAC and OGC WFS 3.0, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.
@@ -40,3 +39,23 @@ The following table lists relation types that are commonly used as `rel` types i
 | `cite-as`         | For all DOI names specified, the respective DOI links SHOULD be added to the links section of the catalog with the `rel` type `cite-as`. | Collections            |
 
 More relation types may be listed in the STAC documentation.
+
+## Compatibility with WFS and STAC APIs
+
+The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with WFS 3.0 and STAC. The only limitation with regard to response compatibility is that openEO allows open date ranges and WFS does not (see [issue WFS_FES#155](https://github.com/opengeospatial/WFS_FES/issues/155)). Additionally, STAC and WFS define additional endpoints that need to be implemented to be fully compatible. The additional information can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+
+### WFS 3.0 compatibility
+
+As of now, WFS 3.0 requires more endpoints for full compatibility. You should make the following changes to your API to implement a valid WFS:
+
+* Add a `links` property to the `GET /` request that links to the WFS endpoints.
+* Implement `GET /api` and return the WFS OpenAPI document.
+* Implement `GET /conformance` and specify which conformance classes your WFS conforms to.
+* Implement `GET /collections/{collection-name}/items` and `GET /collections/{collection-name}/items/{feature-id}` to support retrieval of individual features.
+
+### STAC compatibility
+
+As of now, STAC has two more required endpoints that need to be implemented:
+
+* `GET /stac`
+* `POST /stac/search`

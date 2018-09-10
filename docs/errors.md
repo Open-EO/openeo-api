@@ -4,7 +4,7 @@ The success of requests MUST be indicated using [HTTP status codes](https://tool
 
 If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
 
-In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
+In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
 
 Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors *do* contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. 
 
@@ -71,6 +71,10 @@ The openEO API often uses the following HTTP status codes for failed requests:
 If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
 
 All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
+
+## openEO error codes
+
+The following list of error codes is **incomplete**. These error codes will evolve over time. If you are missing any common error, please contribute it by adding an [issue](https://github.com/Open-EO/openeo-api/issues/new), creating a pull request or get in contact in our [chat room](https://openeo-chat.eodc.eu/channel/public).
 
 ### General error codes (xxx)
 

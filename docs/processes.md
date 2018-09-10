@@ -11,7 +11,12 @@ To define new processes, back-end providers should know:
 
 ## openEO specific formats
 
-TBD
+| Format Name | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| `eodata`    | A proprietary way to pass the processed data from one process to another. |
+
+!!! note
+    These formats are still evolving and will likely change with the definition of the openEO processes for openEO API version 0.4.
 
 ## Core Processes
 
