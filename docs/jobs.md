@@ -97,10 +97,10 @@ Content-Type: application/json; charset=utf-8
           },
           "bands":8
         },
-        "left":16.1,
-        "right":16.6,
-        "top":48.6,
-        "bottom":47.2
+        "west":16.1,
+        "east":16.6,
+        "north":48.6,
+        "south":47.2
       },
       "extent":[
         "2017-01-01T00:00:00Z",
