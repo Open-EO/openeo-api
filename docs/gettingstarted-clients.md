@@ -4,7 +4,7 @@ For easy access to openEO back-ends it is essential to provide client libraries 
 
 ## Client library developers
 
-If your preferred programming list is not part of the [available client libraries](gettingstarted-users.md) you may consider writing your own client library. Our client libraries are basically translating the openEO API into native concepts of the programming languages. Working with openEO should feel like being a [first-class citizen](https://en.wikipedia.org/wiki/First-class_citizen) of the programming language.
+If your preferred programming language is not part of the [available client libraries](gettingstarted-users.md) you may consider writing your own client library. Our client libraries are basically translating the openEO API into native concepts of the programming languages. Working with openEO should feel like being a [first-class citizen](https://en.wikipedia.org/wiki/First-class_citizen) of the programming language.
 
 Get started by reading the [guidelines to develop client libraries](guidelines-clients.md), which have been written to ensure the client libraries provide a consistent feel and behavior across programming languages. You certainly need to understand the concepts behind [jobs](jobs.md), [processes](processes.md) and [process graphs](processgraphs.md). This helps you understand the [API specification](apireference.md) and related documents.
 
