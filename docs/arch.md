@@ -17,15 +17,15 @@ The openEO API defines a language how clients communicate to back-ends in order 
 
 To simplify and structure the development, the API is divided into a few microservices.
 
-| Microservice               | Description                                                  |
-| -------------------------- | ------------------------------------------------------------ |
-| Capabilities               | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |
-| EO Data Discovery          | Describes which datasets and image collections are available at the back-end. |
-| Process Discovery          | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
-| UDF Runtime Discovery      | Allows discovering the programming languages and their runtime environments to execute user-defined functions. |
-| Job Management             | Organizes and manages jobs that run processes on back-ends. |
-| File Management            | Organizes and manages user-uploaded files. |
-| Process Graph Management   | Organizes and manages user-defined process graphs.  |
-| Web Service Management     | Web services to access data and job results, e.g. as WCS or WMTS service. |
-| User Content               | User content and accounting. |
-| Authentication             | Authentication of users. |
+| Microservice                  | Description                                                  |
+| ----------------------------- | ------------------------------------------------------------ |
+| Capabilities                  | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |
+| EO Data Discovery             | Describes which datasets and image collections are available at the back-end. |
+| Process Discovery             | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
+| UDF Runtime Discovery         | Allows discovering the programming languages and their runtime environments to execute user-defined functions. |
+| Job Management                | Organizes and manages jobs that run processes on back-ends. |
+| File Management               | Organizes and manages user-uploaded files. |
+| Process Graph Management      | Organizes and manages user-defined process graphs.  |
+| Secondary Services Management | External web services to access data and job results such as a OGC WMTS service. |
+| User Content                  | User content and accounting. |
+| Authentication                | Authentication of users. |
