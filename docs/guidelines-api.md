@@ -20,7 +20,7 @@ All names SHOULD be written in snake case, i.e. words are separated with one un
 
 ### HTTP
 
-The API developed by the openEO project uses [HTTP REST Level 2](https://en.wikipedia.org/wiki/Representational_state_transfer) for communication between client and back-end server.
+The API developed by the openEO project uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer)[Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
 
 Public APIs MUST be available via HTTPS only and all inbound calls MUST be HTTPS. 
 
