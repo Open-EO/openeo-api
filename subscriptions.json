@@ -449,16 +449,53 @@
                     "2016-01-01T02:30:00Z",
                     "2016-01-01T04:45:00Z"
                   ],
+                  "minItems": 1,
+                  "maxItems": 2,
                   "items": {
                     "type": "string",
-                    "format": "date-time",
-                    "minItems": 1,
-                    "maxItems": 2
+                    "format": "date-time"
                   }
                 },
                 "spatial_extent": {
                   "type": "object",
-                  "description": "MUST be specified if the spatial extent of the dataset has changed. Uses the same object structure as in the openEO API for spatial extents. Specifies the spatial extent of the data that has changed, not of the whole dataset. Example: The dataset covers the whole world and an image of Austria has been added. The spatial extent specified here must be the bounding box of Austria."
+                  "description": "MUST be specified if the spatial extent of the dataset has changed. Specifies the spatial extent of the data that has changed, not of the whole dataset. Example: The dataset covers the whole world and an image of Austria has been added. The spatial extent specified here must be the bounding box of Austria.",
+                  "required": [
+                    "west",
+                    "east",
+                    "north",
+                    "south"
+                  ],
+                  "properties": {
+                    "crs": {
+                      "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\n\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+                      "type": "string",
+                      "default": "EPSG:4326"
+                    },
+                    "west": {
+                      "description": "Lower left corner, coordinate axis 1 (west).",
+                      "type": "number"
+                    },
+                    "east": {
+                      "description": "Upper right corner, coordinate axis 1 (east).",
+                      "type": "number"
+                    },
+                    "north": {
+                      "description": "Lower left corner, coordinate axis 2 (north).",
+                      "type": "number"
+                    },
+                    "south": {
+                      "description": "Lower left corner, coordinate axis 1 (west).",
+                      "type": "number"
+                    },
+                    "base": {
+                      "description": "Lower left corner, coordinate axis 3 (base, optional).",
+                      "type": "number"
+                    },
+                    "height": {
+                      "description": "Upper right corner, coordinate axis 3 (height, optional).",
+                      "type": "number"
+                    }
+                  }
                 }
               }
             }
@@ -471,9 +508,11 @@
           },
           "payload": {
             "name": "MOD18Q1",
-            "temporal_extent": "2018-08-07T15:30:00Z/2018-08-08T16:43:00Z",
+            "temporal_extent": [
+              "2018-08-07T15:30:00Z",
+              "2018-08-08T16:43:00Z"
+            ],
             "spatial_extent": {
-              "srs": "EPSG:4326",
               "west": 34.6,
               "east": 35.1,
               "south": 39.6,
