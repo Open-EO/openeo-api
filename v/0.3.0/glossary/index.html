@@ -300,8 +300,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#datasets" title="Datasets" class="md-nav__link">
-    Datasets
+  <a href="#eo-data" title="EO data" class="md-nav__link">
+    EO data
   </a>
   
 </li>
@@ -700,8 +700,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#datasets" title="Datasets" class="md-nav__link">
-    Datasets
+  <a href="#eo-data" title="EO data" class="md-nav__link">
+    EO data
   </a>
   
 </li>
@@ -749,25 +749,17 @@
 <li><strong>big Earth observation cloud back-end</strong>: server infrastructure where industry and researchers analyse large amounts of EO data</li>
 <li><strong>User defined functions (UDFs)</strong>: concept, that enables the users to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data. See the section on <a href="../udfs/">UDFs</a> for more information.</li>
 </ul>
-<h2 id="datasets">Datasets</h2>
-<p>Datasets are described with terms <strong>Granules</strong> and <strong>Collections</strong>. <strong>Granule</strong> typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while <strong>collection</strong> is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation. </p>
-<p>Definition of the Committee on Earth Observation Satellites (CEOS) can be found in <a href="http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/">CEOS OpenSearch Best Practice Document v1.2</a>. The same document lists the synonyms used (by organisations) for:</p>
+<h2 id="eo-data">EO data</h2>
+<p>In our domain, different terms are used to describe EO data(sets). Within openEO, a <strong>granule</strong> typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a <strong>collection</strong> is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.</p>
+<p>The <a href="http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/">CEOS OpenSearch Best Practice Document v1.2</a> lists synonyms used (by organizations) for:</p>
 <ul>
 <li><strong>granule</strong>: dataset (ISO 19115), dataset (ESA), granule (NASA), product (ESA, CNES), scene (JAXA)</li>
 <li><strong>collection</strong>: dataset series (ISO 19115), collection (CNES, NASA), dataset (JAXA), dataset series (ESA), product (JAXA)</li>
 </ul>
-<p>The open geospatial consortium published a document on <a href="https://portal.opengeospatial.org/files/?artifact_id=56866">OGC OpenSearch Geo and Time Extensions</a>.</p>
 <h2 id="processes-process-graphs-and-jobs">Processes, Process Graphs and Jobs</h2>
-<p>The terms <em>process and</em> <em>process graph</em> have specific meanings in the openEO API specification.</p>
-<p>A <strong>process</strong> is simply the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median, on selected EO data), similar to a function definition in programming languages. </p>
-<p>In this context openEO will:</p>
-<ol>
-<li>consider, or allow considering, band as a dimension</li>
-<li>consider imagery (image collections) to consist of one <em>or more</em> collections, as argument to functions; allow filtering on a particular collection, or joining them into a single collection</li>
-<li>allow filtering on attributes, e.g. on cloud-free pixels, or pixels inside a <code>MULTIPOLYGON</code> describing the floodplains of the Danube. This filters on attributes rather than dimensions.</li>
-<li>Provide generic aggregate operations that aggregate over one or more dimensions. Clients may provide dimension-specific aggregation functions for particular cases (such as <code>min_time</code>) </li>
-</ol>
-<p>A <strong>process graph</strong> includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.</p>
+<p>The terms <em>process</em> and <em>process graph</em> have specific meanings in the openEO API specification.</p>
+<p>A <strong>process</strong> is the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median, on selected EO data), similar to a function definition in programming languages. </p>
+<p>A <strong>process graph</strong> chains specific process calls. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.</p>
 <h2 id="aggregation-and-resampling">Aggregation and resampling</h2>
 <p><strong><em>Aggregation</em></strong> computes new values from sets of values that are <em>uniquely</em> assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells), and an aggregation function (e.g., <code>mean</code>) that computes one or more new values from the original ones.</p>
 <p>Examples:</p>
