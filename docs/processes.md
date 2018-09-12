@@ -1,6 +1,6 @@
 # Processes
 
-A process is an operation that performs a specific task on a set of parameters and returns a result. It's definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. In openEO they are used to build a chain of processes (process graph), which can be applied to EO datasets to derive your own findings from the data.
+A process is an operation that performs a specific task on a set of parameters and returns a result. Its definition includes a name, a set of parameters, a return type, a set of possible errors or exceptions and some other metadata. In openEO they are used to build a chain of processes (process graph), which can be applied to EO datasets to derive your own findings from the data.
 
 To define new processes, back-end providers should know:
 

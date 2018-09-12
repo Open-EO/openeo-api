@@ -61,7 +61,7 @@
     },
     {
       "name": "Secondary Services Management",
-      "description": "On-demand access to data using other web services protocols."
+      "description": "On-demand access to data using other web service protocols."
     }
   ],
   "paths": {
@@ -229,7 +229,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats.\n\nFile formats that define multiple GIS spatial data types in `gis_data_types` (e.g. raster and vector) SHOULD define a parameter `gis_data_type` in the `parameters` for the output format to allow speciying which data type should be used for writing job or other results.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats.\n\nFile formats that define multiple GIS spatial data types in `gis_data_types` (e.g. raster and vector) SHOULD define a parameter `gis_data_type` in the `parameters` for the output format to allow speciying which data type should be used for writing job or other results.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -1798,20 +1798,20 @@
     },
     "/service_types": {
       "get": {
-        "summary": "List supported web service protocols.",
-        "description": "The request will ask the back-end for supported web service protocols, e.g. WMS or WCS. The response is an object of all available web service protocols, including their parameters and attributes.\nParameters configure the web service and therefore need to be defined upon creation of a web service. Attributes are read-only characteristics of the web service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the web services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective web services.\nWeb Service names are allowed to be *case insensitive* throughout the API.",
+        "summary": "List supported secondary web service protocols.",
+        "description": "The request will ask the back-end for supported secondary web service protocols, e.g. WMS or WCS. The response is an object of all available secondary web service protocols, including their parameters and attributes.\nParameters configure the service and therefore need to be defined upon creation of a service. Attributes are read-only characteristics of the service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective services.\nService names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Secondary Services Management"
         ],
         "responses": {
           "200": {
-            "description": "An object with a map containing all web service names as keys and an object that defines supported paramaters and attributes.",
+            "description": "An object with a map containing all service names as keys and an object that defines supported paramaters and attributes.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "List of supported web services.",
+                  "description": "List of supported secondary web services.",
                   "additionalProperties": {
                     "type": "object",
                     "properties": {
@@ -1913,8 +1913,8 @@
     },
     "/services": {
       "get": {
-        "summary": "List all user-specific web services.",
-        "description": "Requests to this endpoint will list all running web services submitted by a user with given id.",
+        "summary": "List all user-specific secondary web services.",
+        "description": "Requests to this endpoint will list all running secondary web services submitted by a user with given id.",
         "tags": [
           "Secondary Services Management"
         ],
@@ -1925,13 +1925,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Array of web service descriptions",
+            "description": "Array of service descriptions",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "description": "Defines metadata of web services.",
+                    "description": "Defines metadata of services.",
                     "type": "object",
                     "required": [
                       "service_id",
@@ -1985,8 +1985,8 @@
         }
       },
       "post": {
-        "summary": "Publish a new web service.",
-        "description": "Calling this endpoint will create a web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.\n\n**Note:** Costs incured by shared web services are usually paid by the owner, but this depends on the web service type and whether it supports charge fees or not.",
+        "summary": "Publish a new secondary web service.",
+        "description": "Calling this endpoint will create a secondary web service such as WMTS, TMS or WCS. The underlying data is processes on-demand, but a process graph may simply access results from a batch job. Computations should be performed in the sense that it is only evaluated for the requested spatial / temporal extent and resolution.\n\n**Note:** Costs incured by shared secondary web services are usually paid by the owner, but this depends on the service type and whether it supports charging fees or not.",
         "tags": [
           "Secondary Services Management"
         ],
@@ -2045,7 +2045,7 @@
               }
             }
           },
-          "description": "The base data for the web service to create"
+          "description": "The base data for the secondary web service to create"
         }
       }
     },
@@ -2056,8 +2056,8 @@
         }
       ],
       "patch": {
-        "summary": "Updates a web service.",
-        "description": "Calling this endpoint will change the specified web service, but maintain its identifier. Changes can be grouped in a single request. To change the web service type create a new web service.",
+        "summary": "Updates a secondary web service.",
+        "description": "Calling this endpoint will change the specified secondary web service, but maintain its identifier. Changes can be grouped in a single request. To change the service type create a new service.",
         "tags": [
           "Secondary Services Management"
         ],
@@ -2068,7 +2068,7 @@
         ],
         "responses": {
           "204": {
-            "description": "Changes to the web service applied successfully."
+            "description": "Changes to the service were applied successfully."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2108,12 +2108,12 @@
               }
             }
           },
-          "description": "The data to change for the spcified web service."
+          "description": "The data to change for the spcified secondary web service."
         }
       },
       "get": {
-        "summary": "Full information about a web service.",
-        "description": "Requests to this endpoint will return JSON description of the web service.",
+        "summary": "Full information about a secondary web service.",
+        "description": "Requests to this endpoint will return JSON description of the secondary web service.",
         "tags": [
           "Secondary Services Management"
         ],
@@ -2124,11 +2124,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Details of the created web service",
+            "description": "Details of the created service",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Metadata of a web service.",
+                  "description": "Metadata of a service.",
                   "type": "object",
                   "required": [
                     "service_id",
@@ -2166,7 +2166,7 @@
                     },
                     "attributes": {
                       "type": "object",
-                      "description": "Additional attributes of the web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff. See `GET /service_types` for supported attributes.",
+                      "description": "Additional attributes of the secondary web service, e.g. available layers for a WMS based on the bands in the underlying GeoTiff. See `GET /service_types` for supported attributes.",
                       "additionalProperties": true,
                       "example": {
                         "layers": [
@@ -2201,8 +2201,8 @@
         }
       },
       "delete": {
-        "summary": "Delete a web service.",
-        "description": "Calling this endpoint will stop a given web service to access result data.",
+        "summary": "Delete a secondary web service.",
+        "description": "Calling this endpoint will stop a given secondary web service to access result data.",
         "tags": [
           "Secondary Services Management"
         ],
@@ -2213,7 +2213,7 @@
         ],
         "responses": {
           "204": {
-            "description": "The web service has been successfully deleted."
+            "description": "The service has been successfully deleted."
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -2348,7 +2348,7 @@
               }
             }
           },
-          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be overridden during batch job creation and by web services."
+          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be overridden during batch job creation and by secondary web services."
         }
       }
     },
@@ -3304,7 +3304,7 @@
       },
       "service_parameters": {
         "type": "object",
-        "description": "List of arguments, i.e. the parameter names supported by the web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the web service, visualization details or any other web service dependant configuration. ",
+        "description": "List of arguments, i.e. the parameter names supported by the secondary web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the service, visualization details or any other service dependant configuration. ",
         "additionalProperties": true,
         "example": {
           "version": 1.1
@@ -3312,18 +3312,18 @@
       },
       "service_enabled": {
         "type": "boolean",
-        "description": "Describes whether a web service is responding to requests (true) or not (false). Defaults to true. Disabled web services don't produce any costs.",
+        "description": "Describes whether a secondary web service is responding to requests (true) or not (false). Defaults to true. Disabled services don't produce any costs.",
         "default": true
       },
       "service_url": {
         "type": "string",
         "format": "url",
-        "description": "URL at which the web service is accessible. Doesn't necessarily need to be located within the API.",
+        "description": "URL at which the secondary web service is accessible. Doesn't necessarily need to be located within the API.",
         "example": "https://openeo.org/wms/wms-a3cca9"
       },
       "service_id": {
         "type": "string",
-        "description": "Unique identifier of a web service that is generated by the back-end during web service creation. MUST match the specified pattern.",
+        "description": "Unique identifier of a secondary web service that is generated by the back-end during creation. MUST match the specified pattern.",
         "pattern": "^[A-Za-z0-9_\\-\\.~]+$",
         "example": "wms-a3cca9"
       },
@@ -3427,7 +3427,7 @@
           },
           "description": {
             "type": "string",
-            "description": "A message explaining what the client may need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Acceppt-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+            "description": "A message explaining what the client may need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
           "links": {
@@ -3562,7 +3562,7 @@
       "service_id": {
         "name": "service_id",
         "in": "path",
-        "description": "Unique web service identifier.",
+        "description": "Unique secondary web service identifier.",
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/service_id"

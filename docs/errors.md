@@ -29,7 +29,7 @@ Sending `code` and `message` is REQUIRED.
 
 * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
 
-  By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Acceppt-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
+  By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
 
 * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
 
@@ -58,7 +58,7 @@ The openEO API often uses the following HTTP status codes for failed requests:
   The client **did** provide authorization details (usually using the Authorization header), but the provided credentials or the authorization token is invalid or has expired.
 
 - **404 Not Found**:
-  The resource specified by the path does not exist, i.e. one of the the resources belonging to the specified identifiers are not available at the back-end.
+  The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
   *Note:* Unsupported endpoints MUST use HTTP status code 501.
 
 - **500 Internal Server Error**:
@@ -151,7 +151,7 @@ None yet.
 | 4032              | Authorization token invalid or expired.                      |                                          | 403              |
 | 4033              |                                                              | Credentials are not correct.             | 403              |
 
-### Web services (5xxx)
+### Seondary web services (5xxx)
 
 | openEO Error Code | Description               | Message                                                      | HTTP Status Code |
 | ----------------- | ------------------------- | ------------------------------------------------------------ | ---------------- |
