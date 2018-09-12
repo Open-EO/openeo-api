@@ -1,6 +1,6 @@
 # Process graphs
 
-A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
+A process graph is a chain of specific [processes](processes.md). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
 
 ## Schematic definition
 
@@ -26,12 +26,7 @@ A single process in a process graph is defined as follows:
 ```
 A process MUST always contain a key-value-pair named `process_id` and MAY contain a `process_description`.  It MAY hold an arbitrary number of additional elements as arguments for the process.
 
-`process_id` can currently contain three types of processes:
-
-* Backend-defined processes, which are listed at `GET /processes`, e.g. `filter_bands`.
-* User-defined process graphs, which are listed at `GET /users/{user_id}/process_graphs`. 
-  They are prefixed with `/user/`, e.g. `/user/my_process_graph`.
-* User-defined functions (UDF) are prefixed with `/udf` and additionally contain the runtime and the process name separated by `/`, e.g. `/udf/Python/apply_pixel`.
+`process_id` can contain any of the processes defined by a back-end, which are all listed at `GET /processes`, e.g. `get_collection` to retrieve data from a specific collection for processing.
 
 ### Arguments
 
