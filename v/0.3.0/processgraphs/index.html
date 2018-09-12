@@ -766,7 +766,7 @@
                 
                 
                 <h1 id="process-graphs">Process graphs</h1>
-<p>A process graph includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.</p>
+<p>A process graph is a chain of specific <a href="../processes/">processes</a>. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.</p>
 <h2 id="schematic-definition">Schematic definition</h2>
 <p>A process graph is defined to consist of chained processes:</p>
 <div class="codehilite"><pre><span></span>&lt;ProcessGraph&gt; := &lt;Process&gt;
@@ -783,13 +783,7 @@
 }
 </pre></div>
 A process MUST always contain a key-value-pair named <code>process_id</code> and MAY contain a <code>process_description</code>.  It MAY hold an arbitrary number of additional elements as arguments for the process.</p>
-<p><code>process_id</code> can currently contain three types of processes:</p>
-<ul>
-<li>Backend-defined processes, which are listed at <code>GET /processes</code>, e.g. <code>filter_bands</code>.</li>
-<li>User-defined process graphs, which are listed at <code>GET /users/{user_id}/process_graphs</code>. 
-  They are prefixed with <code>/user/</code>, e.g. <code>/user/my_process_graph</code>.</li>
-<li>User-defined functions (UDF) are prefixed with <code>/udf</code> and additionally contain the runtime and the process name separated by <code>/</code>, e.g. <code>/udf/Python/apply_pixel</code>.</li>
-</ul>
+<p><code>process_id</code> can contain any of the processes defined by a back-end, which are all listed at <code>GET /processes</code>, e.g. <code>get_collection</code> to retrieve data from a specific collection for processing.</p>
 <h3 id="arguments">Arguments</h3>
 <p>A process can have an arbitrary number of arguments.</p>
 <p>The key <code>&lt;ArgumentName&gt;</code> can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and <code>_</code>. <code>&lt;ArgumentName&gt;</code> MUST NOT use the names <code>process_id</code> or <code>process_description</code> as it would result in a naming conflict.</p>
