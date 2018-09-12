@@ -10,31 +10,22 @@ This glossary introduces the major technical terms used in the openEO project.
 - **big Earth observation cloud back-end**: server infrastructure where industry and researchers analyse large amounts of EO data
 - **User defined functions (UDFs)**: concept, that enables the users to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data. See the section on [UDFs](udfs.md) for more information.
 
-## Datasets
+## EO data
 
-Datasets are described with terms **Granules** and **Collections**. **Granule** typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation. 
+In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
 
-Definition of the Committee on Earth Observation Satellites (CEOS) can be found in [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/). The same document lists the synonyms used (by organisations) for:
+The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists synonyms used (by organizations) for:
 
 - **granule**: dataset (ISO 19115), dataset (ESA), granule (NASA), product (ESA, CNES), scene (JAXA)
 - **collection**: dataset series (ISO 19115), collection (CNES, NASA), dataset (JAXA), dataset series (ESA), product (JAXA)
 
-The open geospatial consortium published a document on [OGC OpenSearch Geo and Time Extensions](https://portal.opengeospatial.org/files/?artifact_id=56866).
-
 ## Processes, Process Graphs and Jobs
 
-The terms _process and_ _process graph_ have specific meanings in the openEO API specification.
+The terms _process_ and _process graph_ have specific meanings in the openEO API specification.
 
-A **process** is simply the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median, on selected EO data), similar to a function definition in programming languages. 
+A **process** is the description of an operation as provided by the back end (e.g. computing statistical operation, such as mean or median, on selected EO data), similar to a function definition in programming languages. 
 
-In this context openEO will:
-
-1. consider, or allow considering, band as a dimension
-2. consider imagery (image collections) to consist of one _or more_ collections, as argument to functions; allow filtering on a particular collection, or joining them into a single collection
-3. allow filtering on attributes, e.g. on cloud-free pixels, or pixels inside a `MULTIPOLYGON` describing the floodplains of the Danube. This filters on attributes rather than dimensions.
-4. Provide generic aggregate operations that aggregate over one or more dimensions. Clients may provide dimension-specific aggregation functions for particular cases (such as `min_time`) 
-
-A **process graph** includes specific process calls, i.e. references to one or more processes including specific values for input arguments similar to a function call in programming. However, process graphs can chain multiple processes. In particular, arguments of processes in general can be again (recursive) process graphs, input datasets, or simple scalar or array values.
+A **process graph** chains specific process calls. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
 
 ## Aggregation and resampling
 
