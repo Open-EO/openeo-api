@@ -586,8 +586,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#processes-scope-processgraphbuilder" title="Processes (Scope: ProcessGraphBuilder)" class="md-nav__link">
-    Processes (Scope: ProcessGraphBuilder)
+  <a href="#processes" title="Processes" class="md-nav__link">
+    Processes
   </a>
   
 </li>
@@ -891,8 +891,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#processes-scope-processgraphbuilder" title="Processes (Scope: ProcessGraphBuilder)" class="md-nav__link">
-    Processes (Scope: ProcessGraphBuilder)
+  <a href="#processes" title="Processes" class="md-nav__link">
+    Processes
   </a>
   
 </li>
@@ -1339,7 +1339,7 @@ obj.version();
 </tr>
 </tbody>
 </table>
-<h2 id="processes-scope-processgraphbuilder">Processes (Scope: <code>ProcessGraphBuilder</code>)</h2>
+<h2 id="processes">Processes</h2>
 <p>The processes a back-end supports may be offered by the clients as methods in its own scope. The method names should follow the process names, but the conventions listed above can be applied here as well, e.g. converting <code>filter_bands</code> to <code>filterBands</code>. As parameters have no natural or technical ordering in the JSON objects, clients must come up with a reasonable ordering of parameters if required. This could be inspired by existing clients. The way of building a process graph from processes heavily depends on the technical capabilities of the programming language. Therefore it may differ between the client libraries. Follow the best practices of the programming language, e.g. support method chaining if possible.</p>
 <h2 id="workflow-example">Workflow example</h2>
 <p>Some simplified example workflows using different programming styles are listed below. The following steps are executed:</p>
@@ -1364,15 +1364,15 @@ cap <span class="o">%&gt;%</span> <span class="kp">version</span><span class="p"
 con <span class="o">%&gt;%</span> describeCollection<span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 con <span class="o">%&gt;%</span> listProcesses<span class="p">()</span>
 
-pgb <span class="o">=</span> con <span class="o">%&gt;%</span> get_process_graph_builder<span class="p">()</span>
-process_graph <span class="o">=</span> pgb<span class="o">$</span>get_collection<span class="p">(</span>name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
-  pgb<span class="o">$</span>filter_bbox<span class="p">(</span>east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> srs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  pgb<span class="o">$</span>filter_daterange<span class="p">(</span>extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
+pgb <span class="o">=</span> con <span class="o">%&gt;%</span> pgb<span class="p">()</span>
+processgraph <span class="o">=</span> pgb<span class="o">$</span>getCollection<span class="p">(</span>name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+  pgb<span class="o">$</span>filterBbox<span class="p">(</span>east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> srs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  pgb<span class="o">$</span>filterDaterange<span class="p">(</span>extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
   pgb<span class="o">$</span>NDVI<span class="p">(</span>nir <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> red <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  pgb<span class="o">$</span>min_time<span class="p">()</span>
-process_graph <span class="o">=</span> con <span class="o">%&gt;%</span> build_process_graph<span class="p">(</span>pgb<span class="p">)</span>
+  pgb<span class="o">$</span>minTime<span class="p">()</span>
+process_graph <span class="o">=</span> con <span class="o">%&gt;%</span> toJSON<span class="p">(</span>processgraph<span class="p">)</span>
 
-job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>process_graph<span class="p">)</span>
+job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>processgraph<span class="p">)</span>
 job <span class="o">%&gt;%</span> startJob<span class="p">()</span>
 job <span class="o">%&gt;%</span> describeJob<span class="p">()</span>
 job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span class="s">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
@@ -1387,14 +1387,14 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">describe_collection</span><span class="p">(</span><span class="s2">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">list_processes</span><span class="p">()</span>
 
-<span class="n">processes</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">get_process_graph_builder</span><span class="p">();</span>
+<span class="n">processes</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">get_processes</span><span class="p">();</span>
 <span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Sentinel-2A&quot;</span><span class="p">);</span>
 <span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">filter_bbox</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">east</span> <span class="o">=</span> <span class="mi">652000</span><span class="p">,</span> <span class="n">west</span> <span class="o">=</span> <span class="mi">672000</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="mi">5161000</span><span class="p">,</span> <span class="n">south</span> <span class="o">=</span> <span class="mi">5181000</span><span class="p">,</span> <span class="n">srs</span> <span class="o">=</span> <span class="s2">&quot;EPSG:32632&quot;</span><span class="p">)</span>
 <span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">filter_daterange</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s2">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">])</span>
 <span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">NDVI</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">nir</span> <span class="o">=</span> <span class="s2">&quot;B4&quot;</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="s2">&quot;B8A&quot;</span><span class="p">)</span>
 <span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">min_time</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>
 
-<span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">timeseries</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+<span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
 <span class="n">job</span><span class="o">.</span><span class="n">start_job</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">job</span><span class="o">.</span><span class="n">describe_job</span><span class="p">()</span>
 <span class="n">job</span><span class="o">.</span><span class="n">download_results</span><span class="p">(</span><span class="s2">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
