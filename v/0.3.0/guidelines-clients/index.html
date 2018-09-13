@@ -524,8 +524,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#request-to-method-mapping" title="Request to method mapping" class="md-nav__link">
-    Request to method mapping
+  <a href="#method-mappings" title="Method mappings" class="md-nav__link">
+    Method mappings
   </a>
   
     <nav class="md-nav">
@@ -582,6 +582,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processes-scope-processgraphbuilder" title="Processes (Scope: ProcessGraphBuilder)" class="md-nav__link">
+    Processes (Scope: ProcessGraphBuilder)
+  </a>
   
 </li>
       
@@ -822,8 +829,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#request-to-method-mapping" title="Request to method mapping" class="md-nav__link">
-    Request to method mapping
+  <a href="#method-mappings" title="Method mappings" class="md-nav__link">
+    Method mappings
   </a>
   
     <nav class="md-nav">
@@ -880,6 +887,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processes-scope-processgraphbuilder" title="Processes (Scope: ProcessGraphBuilder)" class="md-nav__link">
+    Processes (Scope: ProcessGraphBuilder)
+  </a>
   
 </li>
       
@@ -976,8 +990,8 @@ obj.version();
 <span class="nt">con</span><span class="p">.</span><span class="nc">getCapabilities</span><span class="o">();</span>
 </pre></div></li>
 </ul>
-<h2 id="request-to-method-mapping">Request to method mapping</h2>
-<p><strong>Note:</strong> Subscriptions and some scopes for JSON objects are still missing.</p>
+<h2 id="method-mappings">Method mappings</h2>
+<p><strong>Note:</strong> Subscriptions and some scopes for response JSON objects are still missing. We are open for proposals.</p>
 <p>Italic values are the default values, parameters with a leading <code>?</code> are optional.</p>
 <p><strong>ToDo:</strong> Allow sorting and other operations for lists?</p>
 <h3 id="scope-openeo">Scope: <code>openEO</code></h3>
@@ -993,7 +1007,7 @@ obj.version();
 <tr>
 <td>Connect to a back-end, including authentication. Returns <code>Connection</code>.</td>
 <td><code>connect(url, ?username, ?password, ?authType)</code></td>
-<td><strong>authType</strong>: <em>null</em>, basic, oidc</td>
+<td><strong>authType</strong>: basic or <em>oidc</em>. Only applies if username and password are set.</td>
 </tr>
 <tr>
 <td>Get client library version.</td>
@@ -1183,7 +1197,7 @@ obj.version();
 <td>Download a user file.</td>
 <td><code>GET /files/{user_id}/{path}</code></td>
 <td><code>downloadFile(target)</code></td>
-<td></td>
+<td><strong>target</strong>: Path to a local file or folder.</td>
 </tr>
 <tr>
 <td>Upload a user file.</td>
@@ -1257,7 +1271,7 @@ obj.version();
 <td>Download job results.</td>
 <td><code>GET /jobs/{job_id}/results</code> &gt; ...</td>
 <td><code>downloadResults(target)</code></td>
-<td></td>
+<td><strong>target</strong>: Path to a local folder.</td>
 </tr>
 </tbody>
 </table>
@@ -1325,17 +1339,40 @@ obj.version();
 </tr>
 </tbody>
 </table>
+<h2 id="processes-scope-processgraphbuilder">Processes (Scope: <code>ProcessGraphBuilder</code>)</h2>
+<p>The processes a back-end supports may be offered by the clients as methods in its own scope. The method names should follow the process names, but the conventions listed above can be applied here as well, e.g. converting <code>filter_bands</code> to <code>filterBands</code>. As parameters have no natural or technical ordering in the JSON objects, clients must come up with a reasonable ordering of parameters if required. This could be inspired by existing clients. The way of building a process graph from processes heavily depends on the technical capabilities of the programming language. Therefore it may differ between the client libraries. Follow the best practices of the programming language, e.g. support method chaining if possible.</p>
 <h2 id="workflow-example">Workflow example</h2>
-<p>Some simplified example workflows using different programming styles are listed below.</p>
+<p>Some simplified example workflows using different programming styles are listed below. The following steps are executed:</p>
+<ol>
+<li>Loading the client library.</li>
+<li>Connecting to a back-end and authenticating with username and password via OpenID Connect.</li>
+<li>Requesting the capabilities and showing the implemented openEO version of the back-end.</li>
+<li>Showing information about the "Sentinel-2A" collection.</li>
+<li>Showing information about all processes supported by the back-end.</li>
+<li>Building a simple process graph.</li>
+<li>Creating a job.</li>
+<li>Pushing the job to the processing queue.</li>
+<li>After a while, showing the job details, e.g. checking the job status.</li>
+<li>Once processing is finished, downloading the job results to the local directory <code>/tmp/job_results/</code>.</li>
+</ol>
 <h3 id="r-functional-style">R (functional style)</h3>
 <div class="codehilite"><pre><span></span><span class="kn">library</span><span class="p">(</span>openeo<span class="p">)</span>
-con <span class="o">=</span> connect<span class="p">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">,</span> <span class="s">&quot;oidc&quot;</span><span class="p">)</span>
+
+con <span class="o">=</span> connect<span class="p">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
 cap <span class="o">=</span> <span class="kp">capabilities</span><span class="p">()</span>
 cap <span class="o">%&gt;%</span> <span class="kp">version</span><span class="p">()</span>
 con <span class="o">%&gt;%</span> describeCollection<span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 con <span class="o">%&gt;%</span> listProcesses<span class="p">()</span>
-pg <span class="o">=</span> <span class="kc">...</span>
-job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>pg<span class="p">)</span>
+
+pgb <span class="o">=</span> con <span class="o">%&gt;%</span> get_process_graph_builder<span class="p">()</span>
+process_graph <span class="o">=</span> pgb<span class="o">$</span>get_collection<span class="p">(</span>name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+  pgb<span class="o">$</span>filter_bbox<span class="p">(</span>east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> srs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  pgb<span class="o">$</span>filter_daterange<span class="p">(</span>extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
+  pgb<span class="o">$</span>NDVI<span class="p">(</span>nir <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> red <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  pgb<span class="o">$</span>min_time<span class="p">()</span>
+process_graph <span class="o">=</span> con <span class="o">%&gt;%</span> build_process_graph<span class="p">(</span>pgb<span class="p">)</span>
+
+job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>process_graph<span class="p">)</span>
 job <span class="o">%&gt;%</span> startJob<span class="p">()</span>
 job <span class="o">%&gt;%</span> describeJob<span class="p">()</span>
 job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span class="s">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
@@ -1343,13 +1380,21 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 
 <h3 id="python-mixed-style">Python (mixed style)</h3>
 <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">openeo</span>
-<span class="n">con</span> <span class="o">=</span> <span class="n">openeo</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;oidc&quot;</span><span class="p">)</span>
+
+<span class="n">con</span> <span class="o">=</span> <span class="n">openeo</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span>
 <span class="n">cap</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">capabilities</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">cap</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">describe_collection</span><span class="p">(</span><span class="s2">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">list_processes</span><span class="p">()</span>
-<span class="n">pg</span> <span class="o">=</span> <span class="o">...</span>
-<span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>
+
+<span class="n">processes</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">get_process_graph_builder</span><span class="p">();</span>
+<span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Sentinel-2A&quot;</span><span class="p">);</span>
+<span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">filter_bbox</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">east</span> <span class="o">=</span> <span class="mi">652000</span><span class="p">,</span> <span class="n">west</span> <span class="o">=</span> <span class="mi">672000</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="mi">5161000</span><span class="p">,</span> <span class="n">south</span> <span class="o">=</span> <span class="mi">5181000</span><span class="p">,</span> <span class="n">srs</span> <span class="o">=</span> <span class="s2">&quot;EPSG:32632&quot;</span><span class="p">)</span>
+<span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">filter_daterange</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s2">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">])</span>
+<span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">NDVI</span><span class="p">(</span><span class="n">pg</span><span class="p">,</span> <span class="n">nir</span> <span class="o">=</span> <span class="s2">&quot;B4&quot;</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="s2">&quot;B8A&quot;</span><span class="p">)</span>
+<span class="n">pg</span> <span class="o">=</span> <span class="n">processes</span><span class="o">.</span><span class="n">min_time</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>
+
+<span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">timeseries</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
 <span class="n">job</span><span class="o">.</span><span class="n">start_job</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">job</span><span class="o">.</span><span class="n">describe_job</span><span class="p">()</span>
 <span class="n">job</span><span class="o">.</span><span class="n">download_results</span><span class="p">(</span><span class="s2">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
@@ -1357,27 +1402,40 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 
 <h3 id="java-object-oriented-style">Java (object oriented style)</h3>
 <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">org.openeo.*</span><span class="o">;</span>
+
 <span class="n">OpenEO</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OpenEO</span><span class="o">();</span>
-<span class="n">Connection</span> <span class="n">con</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;oidc&quot;</span><span class="o">);</span>
+<span class="n">Connection</span> <span class="n">con</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
 <span class="n">Capabilities</span> <span class="n">cap</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">capabilities</span><span class="o">();</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">cap</span><span class="o">.</span><span class="na">version</span><span class="o">());</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">describeCollection</span><span class="o">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="o">));</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">listProcesses</span><span class="o">());</span>
-<span class="n">ProcessGraph</span> <span class="n">pg</span> <span class="o">=</span> <span class="o">...;</span>
-<span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">createJob</span><span class="o">(</span><span class="n">pg</span><span class="o">);</span>
+
+<span class="n">ProcessGraphBuilder</span> <span class="n">pgb</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">getProcessGraphBuilder</span><span class="o">()</span>
+<span class="c1">// Chain processes... (TBD)</span>
+<span class="n">ProcessGraph</span> <span class="n">processGraph</span> <span class="o">=</span> <span class="n">pgb</span><span class="o">.</span><span class="na">buildProcessGraph</span><span class="o">();</span>
+
+<span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">createJob</span><span class="o">(</span><span class="n">processGraph</span><span class="o">);</span>
 <span class="n">job</span><span class="o">.</span><span class="na">startJob</span><span class="o">();</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">job</span><span class="o">.</span><span class="na">describeJob</span><span class="o">());</span>
 <span class="n">job</span><span class="o">.</span><span class="na">downloadResults</span><span class="o">(</span><span class="s">&quot;/tmp/job_results/&quot;</span><span class="o">);</span>
 </pre></div>
 
 <h3 id="php-procedural-style">PHP (procedural style)</h3>
-<div class="codehilite"><pre><span></span><span class="x">$connection = openeo_connect(&quot;http://openeo.org&quot;, &quot;username&quot;, &quot;password&quot;, &quot;oidc&quot;);</span>
+<div class="codehilite"><pre><span></span><span class="x">require_once(&quot;/path/to/openeo.php&quot;);</span>
+
+<span class="x">$connection = openeo_connect(&quot;http://openeo.org&quot;, &quot;username&quot;, &quot;password&quot;);</span>
 <span class="x">$capabilities = openeo_capabilities($connection);</span>
 <span class="x">echo openeo_capabilities_version($capabilites);</span>
 <span class="x">echo openeo_describe_collection($connection, &quot;Sentinel-2A&quot;);</span>
 <span class="x">echo openeo_list_processes($connection);</span>
-<span class="x">$process_graph = ...;</span>
-<span class="x">$job = openeo_create_job($connection, $process_graph);</span>
+
+<span class="x">$pg = openeo_process($pg, &quot;get_collection&quot;, [&quot;name&quot; =&gt; &quot;Sentinel-2A&quot;]);</span>
+<span class="x">$pg = openeo_process($pg, &quot;filter_bbox&quot;, [&quot;east&quot; =&gt; 652000, &quot;west&quot; =&gt; 672000, &quot;north&quot; =&gt; 5161000, &quot;south&quot; =&gt; 5181000, &quot;srs&quot; =&gt; &quot;EPSG:32632&quot;]);</span>
+<span class="x">$pg = openeo_process($pg, &quot;filter_daterange&quot;, [&quot;extent&quot; =&gt; [&quot;2017-01-01T00:00:00Z&quot;, &quot;2017-01-31T23:59:59Z&quot;]]);</span>
+<span class="x">$pg = openeo_process($pg, &quot;NDVI&quot;, [&quot;red&quot; =&gt; &quot;B4&quot;, &quot;nir&quot; =&gt; &quot;B8A&quot;]);</span>
+<span class="x">$pg = openeo_process($pg, &quot;min_time&quot;);</span>
+
+<span class="x">$job = openeo_create_job($connection, $pg);</span>
 <span class="x">openeo_start_job($job);</span>
 <span class="x">echo openeo_describe_job($job);</span>
 <span class="x">openeo_download_results($job, &quot;/tmp/job_results/&quot;);</span>
