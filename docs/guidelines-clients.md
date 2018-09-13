@@ -21,7 +21,7 @@ Example for the `version` method in `openEO`:
 
 * Procedural style: `openeo_version()` 
 * OO style:
-  ```
+  ```java
   OpenEO obj = new OpenEO();
   obj.version();
   ```
@@ -31,20 +31,20 @@ If you can't store scope data in an object, you may need to pass these informati
 Example:
 
 * Procedural style:
-  ```
+  ```php
   $connection = openeo_connect("https://openeo.org");
   openeo_get_capabilities($connection);
   ```
 * OO style:
-  ```
+  ```java
   OpenEO obj = new OpenEO();
   Connection con = obj.connect("https://openeo.org");
   con.getCapabilities();
   ```
 
-## Request to method mapping
+## Method mappings
 
-**Note:** Subscriptions and some scopes for JSON objects are still missing.
+**Note:** Subscriptions and some scopes for response JSON objects are still missing. We are open for proposals.
 
 Italic values are the default values, parameters with a leading `?` are optional.
 
@@ -52,10 +52,10 @@ Italic values are the default values, parameters with a leading `?` are optional
 
 ### Scope: `openEO`
 
-| Description                                                  | Client method                                   | Parameters                        |
-| ------------------------------------------------------------ | ----------------------------------------------- | --------------------------------- |
-| Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?username, ?password, ?authType)` | **authType**: *null*, basic, oidc |
-| Get client library version.                                  | `version()`                                     |                                   |
+| Description                                                  | Client method                                   | Parameters                                                   |
+| ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------ |
+| Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?username, ?password, ?authType)` | **authType**: basic or *oidc*. Only applies if username and password are set. |
+| Get client library version.                                  | `version()`                                     |                                                              |
 
 ### Scope: `Connection`
 
@@ -96,26 +96,26 @@ Should be prefixed with `capabilities` if required.
 
 The `File` internally knows the `user_id` and the `path`.
 
-| Description           | API Request                      | Client method          | Parameters |
-| --------------------- | -------------------------------- | ---------------------- | ---------- |
-| Download a user file. | `GET /files/{user_id}/{path}`    | `downloadFile(target)` |            |
-| Upload a user file.   | `PUT /files/{user_id}/{path}`    | `uploadFile(source)`   |            |
-| Delete a user file.   | `DELETE /files/{user_id}/{path}` | `deleteFile()`         |            |
+| Description           | API Request                      | Client method          | Parameters                                  |
+| --------------------- | -------------------------------- | ---------------------- | ------------------------------------------- |
+| Download a user file. | `GET /files/{user_id}/{path}`    | `downloadFile(target)` | **target**: Path to a local file or folder. |
+| Upload a user file.   | `PUT /files/{user_id}/{path}`    | `uploadFile(source)`   |                                             |
+| Delete a user file.   | `DELETE /files/{user_id}/{path}` | `deleteFile()`         |                                             |
 
 ### Scope: `Job`
 
 The `Job` scope internally knows the `job_id`.
 
-| Description                                | API Request                        | Client method             | Parameters                 |
-| ------------------------------------------ | ---------------------------------- | ------------------------- | -------------------------- |
-| Get all job information.                   | `GET /jobs/{job_id}`               | `describeJob()`           |                            |
-| Update a job.                              | `PATCH /jobs/{job_id}`             | `updateJob(...)`          | TBD                        |
-| Delete a job                               | `DELETE /jobs/{job_id}`            | `deleteJob()`             |                            |
-| Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()`           |                            |
-| Start / queue a job for processing.        | `POST /jobs/{job_id}/results`      | `startJob()`              |                            |
-| Stop / cancel job processing.              | `DELETE /jobs/{job_id}/results`    | `stopJob()`               |                            |
-| Get document with download links.          | `GET /jobs/{job_id}/results`       | `listResults(?type)`      | **type**: *json*, metalink |
-| Download job results.                      | `GET /jobs/{job_id}/results` > ... | `downloadResults(target)` |                            |
+| Description                                | API Request                        | Client method             | Parameters                          |
+| ------------------------------------------ | ---------------------------------- | ------------------------- | ----------------------------------- |
+| Get all job information.                   | `GET /jobs/{job_id}`               | `describeJob()`           |                                     |
+| Update a job.                              | `PATCH /jobs/{job_id}`             | `updateJob(...)`          | TBD                                 |
+| Delete a job                               | `DELETE /jobs/{job_id}`            | `deleteJob()`             |                                     |
+| Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()`           |                                     |
+| Start / queue a job for processing.        | `POST /jobs/{job_id}/results`      | `startJob()`              |                                     |
+| Stop / cancel job processing.              | `DELETE /jobs/{job_id}/results`    | `stopJob()`               |                                     |
+| Get document with download links.          | `GET /jobs/{job_id}/results`       | `listResults(?type)`      | **type**: *json*, metalink          |
+| Download job results.                      | `GET /jobs/{job_id}/results` > ... | `downloadResults(target)` | **target**: Path to a local folder. |
 
 ### Scope: `ProcessGraph`
 
@@ -137,21 +137,45 @@ The `Service` scope internally knows the `service_id`.
 | Update a secondary web service.                    | `PATCH /services/{service_id}`  | `updateService(...)` | TBD        |
 | Delete a secondary web service.                    | `DELETE /services/{service_id}` | `deleteService()`    |            |
 
+## Processes
+
+The processes a back-end supports may be offered by the clients as methods in its own scope. The method names should follow the process names, but the conventions listed above can be applied here as well, e.g. converting `filter_bands` to `filterBands`. As parameters have no natural or technical ordering in the JSON objects, clients must come up with a reasonable ordering of parameters if required. This could be inspired by existing clients. The way of building a process graph from processes heavily depends on the technical capabilities of the programming language. Therefore it may differ between the client libraries. Follow the best practices of the programming language, e.g. support method chaining if possible.
+
 ## Workflow example
 
-Some simplified example workflows using different programming styles are listed below.
+Some simplified example workflows using different programming styles are listed below. The following steps are executed:
+
+1. Loading the client library.
+2. Connecting to a back-end and authenticating with username and password via OpenID Connect.
+3. Requesting the capabilities and showing the implemented openEO version of the back-end.
+4. Showing information about the "Sentinel-2A" collection.
+5. Showing information about all processes supported by the back-end.
+6. Building a simple process graph.
+7. Creating a job.
+8. Pushing the job to the processing queue.
+9. After a while, showing the job details, e.g. checking the job status.
+10. Once processing is finished, downloading the job results to the local directory `/tmp/job_results/`.
 
 ### R (functional style)
 
 ```r
 library(openeo)
-con = connect("https://openeo.org", "username", "password", "oidc")
+
+con = connect("https://openeo.org", "username", "password")
 cap = capabilities()
 cap %>% version()
 con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
-pg = ...
-job = con %>% createJob(pg)
+
+pgb = con %>% pgb()
+processgraph = pgb$getCollection(name = "Sentinel-2A") %>% 
+  pgb$filterBbox(east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632") %>%
+  pgb$filterDaterange(extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
+  pgb$NDVI(nir = "B4", red = "B8A") %>%
+  pgb$minTime()
+process_graph = con %>% toJSON(processgraph)
+
+job = con %>% createJob(processgraph)
 job %>% startJob()
 job %>% describeJob()
 job %>% downloadResults("/tmp/job_results/")
@@ -161,13 +185,21 @@ job %>% downloadResults("/tmp/job_results/")
 
 ```python
 import openeo
-con = openeo.connect("https://openeo.org", "username", "password", "oidc")
+
+con = openeo.connect("https://openeo.org", "username", "password")
 cap = con.capabilities()
 print cap.version()
 print con.describe_collection("Sentinel-2A")
 print con.list_processes()
-pg = ...
-job = con.create_job(pg)
+
+processes = con.get_processes();
+pg = processes.get_collection(name = "Sentinel-2A");
+pg = processes.filter_bbox(pg, east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632")
+pg = processes.filter_daterange(pg, extent = ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
+pg = processes.NDVI(pg, nir = "B4", red = "B8A")
+pg = processes.min_time(pg)
+
+job = con.create_job(pg.graph)
 job.start_job()
 print job.describe_job()
 job.download_results("/tmp/job_results/")
@@ -177,14 +209,19 @@ job.download_results("/tmp/job_results/")
 
 ```java
 import org.openeo.*;
+
 OpenEO obj = new OpenEO();
-Connection con = obj.connect("https://openeo.org", "username", "password", "oidc");
+Connection con = obj.connect("https://openeo.org", "username", "password");
 Capabilities cap = con.capabilities();
 System.out.println(cap.version());
 System.out.println(con.describeCollection("Sentinel-2A"));
 System.out.println(con.listProcesses());
-ProcessGraph pg = ...;
-Job job = con.createJob(pg);
+
+ProcessGraphBuilder pgb = con.getProcessGraphBuilder()
+// Chain processes... (TBD)
+ProcessGraph processGraph = pgb.buildProcessGraph();
+
+Job job = con.createJob(processGraph);
 job.startJob();
 System.out.println(job.describeJob());
 job.downloadResults("/tmp/job_results/");
@@ -193,13 +230,21 @@ job.downloadResults("/tmp/job_results/");
 ### PHP (procedural style)
 
 ```php
-$connection = openeo_connect("http://openeo.org", "username", "password", "oidc");
+require_once("/path/to/openeo.php");
+
+$connection = openeo_connect("http://openeo.org", "username", "password");
 $capabilities = openeo_capabilities($connection);
 echo openeo_capabilities_version($capabilites);
 echo openeo_describe_collection($connection, "Sentinel-2A");
 echo openeo_list_processes($connection);
-$process_graph = ...;
-$job = openeo_create_job($connection, $process_graph);
+
+$pg = openeo_process($pg, "get_collection", ["name" => "Sentinel-2A"]);
+$pg = openeo_process($pg, "filter_bbox", ["east" => 652000, "west" => 672000, "north" => 5161000, "south" => 5181000, "srs" => "EPSG:32632"]);
+$pg = openeo_process($pg, "filter_daterange", ["extent" => ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"]]);
+$pg = openeo_process($pg, "NDVI", ["red" => "B4", "nir" => "B8A"]);
+$pg = openeo_process($pg, "min_time");
+
+$job = openeo_create_job($connection, $pg);
 openeo_start_job($job);
 echo openeo_describe_job($job);
 openeo_download_results($job, "/tmp/job_results/");
