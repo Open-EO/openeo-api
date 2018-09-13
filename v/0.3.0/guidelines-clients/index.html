@@ -580,13 +580,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#scope-subscription" title="Scope: Subscription" class="md-nav__link">
-    Scope: Subscription
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -878,13 +871,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#scope-subscription" title="Scope: Subscription" class="md-nav__link">
-    Scope: Subscription
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -977,22 +963,28 @@ obj.version();
 </pre></div></li>
 </ul>
 <h2 id="request-to-method-mapping">Request to method mapping</h2>
+<p><strong>Note:</strong> Subscriptions and some scopes for JSON objects are still missing.</p>
+<p>Italic values are the default values, parameters with a leading <code>?</code> are optional.</p>
+<p><strong>ToDo:</strong> Allow sorting and other operations for lists?</p>
 <h3 id="scope-openeo">Scope: <code>openEO</code></h3>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Connect to a back-end, including authentication. Returns <code>Connection</code>.</td>
-<td><code>connect</code></td>
+<td><code>connect(url, ?username, ?password, ?authType)</code></td>
+<td><strong>authType</strong>: <em>null</em>, basic, oidc</td>
 </tr>
 <tr>
 <td>Get client library version.</td>
-<td><code>version</code></td>
+<td><code>version()</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -1003,300 +995,353 @@ obj.version();
 <th>Description</th>
 <th>API Request</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Get the capabilities of the back-end. Returns <code>Capabilities</code>.</td>
 <td><code>GET /</code></td>
-<td><code>listCapabilities</code></td>
+<td><code>capabilities()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List the supported output file formats.</td>
 <td><code>GET /output_formats</code></td>
-<td><code>listFileTypes</code></td>
+<td><code>listFileTypes()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List the supported secondary service types.</td>
 <td><code>GET /service_types</code></td>
-<td><code>listServiceTypes</code></td>
+<td><code>listServiceTypes()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List all collections available on the back-end.</td>
 <td><code>GET /collections</code></td>
-<td><code>listCollections</code></td>
+<td><code>listCollections()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Get information about a single collection.</td>
 <td><code>GET /collections/{name}</code></td>
-<td><code>describeCollection</code></td>
+<td><code>describeCollection(name)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List all processes available on the back-end.</td>
 <td><code>GET /processes</code></td>
-<td><code>listProcesses</code></td>
+<td><code>listProcesses()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Authenticate with OpenID Connect (if not specified in <code>connect</code>).</td>
 <td><code>GET /credentials/oidc</code></td>
-<td><code>autenticateOIDC</code></td>
+<td><code>autenticateOIDC(username, password)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Authenticate with HTTP Basic (if not specified in <code>connect</code>).</td>
 <td><code>GET /credentials/basic</code></td>
-<td><code>authenticateBasic</code></td>
+<td><code>authenticateBasic(username, password)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Get information about the authenticated user.</td>
 <td><code>GET /me</code></td>
-<td><code>describeUser</code></td>
+<td><code>describeUser()</code></td>
+<td></td>
 </tr>
 <tr>
-<td>Lists all files from a user.</td>
+<td>Lists all files from a user. Returns a list of <code>File</code>.</td>
 <td><code>GET /files/{user_id}</code></td>
-<td><code>listFiles</code></td>
+<td><code>listFiles(?user_id)</code></td>
+<td><strong>user_id</strong>: defaults to authenticated user.</td>
+</tr>
+<tr>
+<td>Creates a (virtual) file. Returns a <code>File</code>.</td>
+<td><em>None</em></td>
+<td><code>createFile(path, ?user_id)</code></td>
+<td><strong>user_id</strong>: defaults to authenticated user.</td>
 </tr>
 <tr>
 <td>Validates a process graph.</td>
 <td><code>POST /validate</code></td>
-<td><code>validateProcessGraph</code></td>
+<td><code>validateProcessGraph(process_graph)</code></td>
+<td></td>
 </tr>
 <tr>
-<td>Lists all process graphs of the authenticated user.</td>
+<td>Lists all process graphs of the authenticated user.Returns a list of <code>ProcessGraph</code>.</td>
 <td><code>GET /process_graphs</code></td>
-<td><code>listProcessGraphs</code></td>
+<td><code>listProcessGraphs()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Executes a process graph synchronously.</td>
 <td><code>POST /preview</code></td>
-<td><code>execute</code></td>
+<td><code>execute(process_graph, ...)</code></td>
+<td>TBD</td>
 </tr>
 <tr>
-<td>Lists all jobs of the authenticated user.</td>
+<td>Lists all jobs of the authenticated user. Returns a list of <code>Job</code>.</td>
 <td><code>GET /jobs</code></td>
-<td><code>listJobs</code></td>
+<td><code>listJobs()</code></td>
+<td></td>
 </tr>
 <tr>
-<td>Creates a new job.</td>
+<td>Creates a new job. Returns a <code>Job</code>.</td>
 <td><code>POST /jobs</code></td>
-<td><code>createJob</code></td>
+<td><code>createJob(process_graph, ...)</code></td>
+<td>TBD</td>
 </tr>
 <tr>
-<td>Lists all secondary services of the authenticated user.</td>
+<td>Lists all secondary services of the authenticated user. Returns a list of <code>Service</code>.</td>
 <td><code>GET /services</code></td>
-<td><code>listServices</code></td>
+<td><code>listServices()</code></td>
+<td></td>
 </tr>
 <tr>
-<td>Creates a new secondary service.</td>
+<td>Creates a new secondary service. Returns  a <code>Service</code>.</td>
 <td><code>POST /services</code></td>
-<td><code>createService</code></td>
+<td><code>createService(...)</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="scope-capabilities">Scope <code>Capabilities</code></h3>
+<p>Should be prefixed with <code>capabilities</code> if required.</p>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>Field</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Get openEO version.</td>
-<td>version</td>
 <td><code>version</code></td>
+<td><code>version()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List all supported features / endpoints.</td>
-<td>endpoints</td>
-<td><code>listFeatures</code></td>
+<td><code>endpoints</code></td>
+<td><code>listFeatures()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Check whether a feature / endpoint is supported.</td>
-<td>endpoints</td>
-<td><code>hasFeature</code></td>
+<td><code>endpoints</code> &gt; ...</td>
+<td><code>hasFeature(method_name)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Get default billing currency.</td>
-<td>billing &gt; currency</td>
-<td><code>currency</code></td>
+<td><code>billing</code> &gt; <code>currency</code></td>
+<td><code>currency()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>List all billing plans.</td>
-<td>billing &gt; plans</td>
-<td><code>listPlans</code></td>
+<td><code>billing</code> &gt; <code>plans</code></td>
+<td><code>listPlans()</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="scope-file">Scope: <code>File</code></h3>
+<p>The <code>File</code> internally knows the <code>user_id</code> and the <code>path</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>API Request</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Download a user file.</td>
 <td><code>GET /files/{user_id}/{path}</code></td>
-<td><code>downloadFile</code></td>
+<td><code>downloadFile(target)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Upload a user file.</td>
 <td><code>PUT /files/{user_id}/{path}</code></td>
-<td><code>uploadFile</code></td>
+<td><code>uploadFile(source)</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Delete a user file.</td>
 <td><code>DELETE /files/{user_id}/{path}</code></td>
-<td><code>deleteFile</code></td>
+<td><code>deleteFile()</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="scope-job">Scope: <code>Job</code></h3>
+<p>The <code>Job</code> scope internally knows the <code>job_id</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>API Request</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Get all job information.</td>
 <td><code>GET /jobs/{job_id}</code></td>
-<td><code>describeJob</code></td>
+<td><code>describeJob()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Update a job.</td>
 <td><code>PATCH /jobs/{job_id}</code></td>
-<td><code>updateJob</code></td>
+<td><code>updateJob(...)</code></td>
+<td>TBD</td>
 </tr>
 <tr>
 <td>Delete a job</td>
 <td><code>DELETE /jobs/{job_id}</code></td>
-<td><code>deleteJob</code></td>
+<td><code>deleteJob()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Calculate an time/cost estimate for a job.</td>
 <td><code>GET /jobs/{job_id}/estimate</code></td>
-<td><code>estimateJob</code></td>
+<td><code>estimateJob()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Start / queue a job for processing.</td>
 <td><code>POST /jobs/{job_id}/results</code></td>
-<td><code>queueJob</code></td>
-</tr>
-<tr>
-<td>Download job results.</td>
-<td><code>GET /jobs/{job_id}/results</code></td>
-<td><code>downloadJob</code></td>
+<td><code>startJob()</code></td>
+<td></td>
 </tr>
 <tr>
 <td>Stop / cancel job processing.</td>
 <td><code>DELETE /jobs/{job_id}/results</code></td>
-<td><code>cancelJob</code></td>
+<td><code>stopJob()</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Get document with download links.</td>
+<td><code>GET /jobs/{job_id}/results</code></td>
+<td><code>listResults(?type)</code></td>
+<td><strong>type</strong>: <em>json</em>, metalink</td>
+</tr>
+<tr>
+<td>Download job results.</td>
+<td><code>GET /jobs/{job_id}/results</code> &gt; ...</td>
+<td><code>downloadResults(target)</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="scope-processgraph">Scope: <code>ProcessGraph</code></h3>
+<p>The <code>ProcessGraph</code> scope internally knows the <code>pg_id</code> (<code>process_graph_id</code>).</p>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>API Request</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td></td>
+<td>Get all information about a stored process graph.</td>
 <td><code>GET /process_graphs/{pg_id}</code></td>
-<td><code>describeProcessGraph</code></td>
+<td><code>describeProcessGraph()</code></td>
+<td></td>
 </tr>
 <tr>
-<td></td>
+<td>Update a stored process graph.</td>
 <td><code>PATCH /process_graphs/{pg_id}</code></td>
-<td><code>updateProcessGraph</code></td>
+<td><code>updateProcessGraph(...)</code></td>
+<td>TBD</td>
 </tr>
 <tr>
-<td></td>
+<td>Delete a stored process graph.</td>
 <td><code>DELETE /process_graphs/{pg_id}</code></td>
-<td><code>deleteProcessGraph</code></td>
+<td><code>deleteProcessGraph()</code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="scope-service">Scope: <code>Service</code></h3>
+<p>The <code>Service</code> scope internally knows the <code>service_id</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Description</th>
 <th>API Request</th>
 <th>Client method</th>
+<th>Parameters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td></td>
+<td>Get all information about a secondary web service.</td>
 <td><code>GET /services/{service_id}</code></td>
-<td><code>describeService</code></td>
+<td><code>describeService()</code></td>
+<td></td>
 </tr>
 <tr>
-<td></td>
+<td>Update a secondary web service.</td>
 <td><code>PATCH /services/{service_id}</code></td>
-<td><code>updateService</code></td>
+<td><code>updateService(...)</code></td>
+<td>TBD</td>
 </tr>
 <tr>
-<td></td>
+<td>Delete a secondary web service.</td>
 <td><code>DELETE /services/{service_id}</code></td>
-<td><code>deleteService</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="scope-subscription">Scope: <code>Subscription</code></h3>
-<table>
-<thead>
-<tr>
-<th>Description</th>
-<th>API Request</th>
-<th>Client method</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
+<td><code>deleteService()</code></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <h2 id="workflow-example">Workflow example</h2>
-<p>Some example workflows using different programming styles are listed below.</p>
+<p>Some simplified example workflows using different programming styles are listed below.</p>
 <h3 id="r-functional-style">R (functional style)</h3>
+<p>TBD</p>
 <h3 id="java-object-oriented-style">Java (object oriented style)</h3>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">org.openeo.*</span><span class="o">;</span>
+
+<span class="n">OpenEO</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OpenEO</span><span class="o">();</span>
+<span class="n">Connection</span> <span class="n">con</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="o">);</span>
+<span class="n">Capabilities</span> <span class="n">cap</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">getCapabilities</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">cap</span><span class="o">.</span><span class="na">version</span><span class="o">());</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">describeCollection</span><span class="o">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="o">));</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">listProcesses</span><span class="o">());</span>
+<span class="n">ProcessGraph</span> <span class="n">pg</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="n">Job</span> <span class="n">job</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">createJob</span><span class="o">(</span><span class="n">pg</span><span class="o">);</span>
+<span class="n">job</span><span class="o">.</span><span class="na">startJob</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">job</span><span class="o">.</span><span class="na">describeJob</span><span class="o">());</span>
+<span class="n">job</span><span class="o">.</span><span class="na">downloadResults</span><span class="o">(</span><span class="s">&quot;/tmp/job_results&quot;</span><span class="o">);</span>
+</pre></div>
+
 <h3 id="php-procedural-style">PHP (procedural style)</h3>
-<div class="codehilite"><pre><span></span><span class="x">$connection = openeo_connect(&#39;http://openeo.org&#39;);</span>
-<span class="x">echo openeo_get_capabilities($connection);</span>
-<span class="x">echo openeo_get_collection($connection, &quot;Sentinel-2A&quot;);</span>
-<span class="x">echo openeo_get_processes($connection);</span>
-<span class="x">openeo_authenticate_oidc($connection, &quot;username&quot;, &quot;password&quot;);</span>
+<div class="codehilite"><pre><span></span><span class="x">$connection = openeo_connect(&#39;http://openeo.org&#39;, &quot;username&quot;, &quot;password&quot;);</span>
+<span class="x">$capabilities = openeo_capabilities($connection);</span>
+<span class="x">echo openeo_capabilities_version($capabilites);</span>
+<span class="x">echo openeo_describe_collection($connection, &quot;Sentinel-2A&quot;);</span>
+<span class="x">echo openeo_list_processes($connection);</span>
+<span class="x">$process_graph = ...;</span>
 <span class="x">$job = openeo_create_job($connection, $process_graph);</span>
-<span class="x">...</span>
+<span class="x">openeo_start_job($job);</span>
+<span class="x">echo openeo_describe_job($job);</span>
+<span class="x">openeo_download_results($job, &quot;/tmp/job_results&quot;);</span>
 </pre></div>
                 
                   
