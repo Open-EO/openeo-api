@@ -9,7 +9,7 @@ There are some processes that we define to be core processes that are pre-define
 See the **[process reference](processreference.md)** for pre-defined processes.
 
 !!! note
-    Currently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like until the core processes get defined in version 0.4.
+​    Currently, there are only few defined processes. Those are only meant as an example how future documentation of processes may look like until the core processes get defined in version 0.4.
 
 ## Defining processes
 
@@ -26,9 +26,11 @@ To define new processes, back-end providers should know:
 
 In addition to the native data formats specified by JSON schema, openEO defines a set of specific formats that should be re-used in process schema definitions:
 
-| Format Name | Description                                                  |
-| ----------- | ------------------------------------------------------------ |
-| `eodata`    | A proprietary way to pass the processed data from one process to another. |
+| Format Name       | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| `eodata`          | A proprietary way to pass the processed data from one process to another. |
+| `temporal_extent` | A temporal extent as formally specified by the openEO API.   |
+| `spatial_extent`  | A spatial extent (with crs) as formally specified by the openEO API. |
 
 !!! note
-    These formats are still evolving and will likely change with the definition of the openEO processes for openEO API version 0.4.
+​    These formats are still evolving and will likely change with the definition of the openEO processes for openEO API version 0.4.
