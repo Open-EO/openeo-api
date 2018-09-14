@@ -15,70 +15,21 @@
         }
       },
       "spatial_extent": {
-        "description": "Filter by spatial extent, may include a vertical axis (height or depth).",
+        "description": "Filter by spatial extent.",
         "schema": {
           "type": "object",
-          "required": [
-            "west",
-            "east",
-            "north",
-            "south"
-          ],
-          "properties": {
-            "crs": {
-              "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
-              "type": "string",
-              "default": "EPSG:4326"
-            },
-            "west": {
-              "description": "Lower left corner, coordinate axis 1 (west).",
-              "type": "number"
-            },
-            "east": {
-              "description": "Upper right corner, coordinate axis 1 (east).",
-              "type": "number"
-            },
-            "north": {
-              "description": "Lower left corner, coordinate axis 2 (north).",
-              "type": "number"
-            },
-            "south": {
-              "description": "Upper right corner, coordinate axis 2 (south).",
-              "type": "number"
-            },
-            "base": {
-              "description": "Lower left corner, coordinate axis 3 (base, optional).",
-              "type": "number"
-            },
-            "height": {
-              "description": "Upper right corner, coordinate axis 3 (height, optional).",
-              "type": "number"
-            }
-          }
+          "format": "spatial_extent"
         }
       },
       "temporal_extent": {
-        "description": "Filter by time",
+        "description": "Filter by time.",
         "schema": {
           "type": "array",
-          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-          "example": [
-            "2016-01-01T00:00:00Z",
-            "2017-10-01T00:00:00Z"
-          ],
-          "items": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time",
-            "minItems": 2,
-            "maxItems": 2
-          }
+          "format": "temporal_extent"
         }
       },
       "bands": {
-        "description": "Filter by band IDs",
+        "description": "Filter by band id.",
         "schema": {
           "type": "array",
           "items": {
@@ -86,23 +37,14 @@
           }
         }
       },
-      "derived_from": {
-        "description": "Filter by derived data set",
-        "schema": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      },
       "license": {
-        "description": "Filter by license",
+        "description": "Filter by license.",
         "schema": {
           "type": "string",
+          "description": "SPDX License identifier, SPDX expression, or the string proprietary if the license is not on the SPDX license list.",
           "examples": [
             "Apache-2.0"
-          ],
-          "description": "If available, should be a license from the SPDX License List: https://spdx.org/licenses/"
+          ]
         }
       }
     },
@@ -116,7 +58,7 @@
   },
   {
     "name": "get_results",
-    "summary": "Loads pre-processed data from a job.",
+    "summary": "Loads results from a job.",
     "description": "Loads data that has been pre-processed by a batch job.",
     "min_parameters": 1,
     "parameters": {
@@ -152,7 +94,7 @@
   },
   {
     "name": "filter_bands",
-    "summary": "Filter an image collection by bands.",
+    "summary": "Filters by bands.",
     "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
     "min_parameters": 2,
     "parameters": {
@@ -189,7 +131,7 @@
         }
       },
       "wavelengths": {
-        "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
+        "description": "Either a number specifying a specific wavelength or a two-element array of numbers specifying a minimum and maximum wavelength.",
         "schema": {
           "type": [
             "number",
@@ -213,8 +155,7 @@
   },
   {
     "name": "filter_daterange",
-    "summary": "Filter an image collection by temporal extent.",
-    "min_parameters": 1,
+    "summary": "Filters by temporal extent.",
     "parameters": {
       "imagery": {
         "description": "EO data to process.",
@@ -226,6 +167,8 @@
       },
       "extent": {
         "type": "array",
+        "format": "temporal_extent",
+        "required": true,
         "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
         "example": [
           "2016-01-01T00:00:00Z",
@@ -252,6 +195,7 @@
   },
   {
     "name": "process_graph",
+    "summary": "Loads another process graph.",
     "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.",
     "parameters": {
       "imagery": {
@@ -296,6 +240,232 @@
       "NotReadable": {
         "code": 102,
         "description": "Process graph can't be parsed."
+      }
+    }
+  },
+  {
+    "name": "filter_bbox",
+    "summary": "Filters by spatial extent.",
+    "parameters": {
+      "imagery": {
+        "description": "EO data to process.",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      },
+      "extent": {
+        "description": "Spatial extent, may include a vertical axis (height or depth).",
+        "schema": {
+          "type": "object",
+          "format": "spatial_extent",
+          "required": [
+            "west",
+            "east",
+            "north",
+            "south"
+          ],
+          "properties": {
+            "crs": {
+              "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+              "type": "string",
+              "default": "EPSG:4326"
+            },
+            "west": {
+              "description": "Lower left corner, coordinate axis 1 (west).",
+              "type": "number"
+            },
+            "east": {
+              "description": "Upper right corner, coordinate axis 1 (east).",
+              "type": "number"
+            },
+            "north": {
+              "description": "Lower left corner, coordinate axis 2 (north).",
+              "type": "number"
+            },
+            "south": {
+              "description": "Upper right corner, coordinate axis 2 (south).",
+              "type": "number"
+            },
+            "base": {
+              "description": "Lower left corner, coordinate axis 3 (base, optional).",
+              "type": "number"
+            },
+            "height": {
+              "description": "Upper right corner, coordinate axis 3 (height, optional).",
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    }
+  },
+  {
+    "name": "NDVI",
+    "summary": "Calculates the Normalized Difference Vegetation Index.",
+    "parameters": {
+      "imagery": {
+        "description": "EO data to process.",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      },
+      "red": {
+        "description": "Band id of the red band.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "nir": {
+        "description": "Band id of the near-infrared band.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    },
+    "exceptions": {
+      "RedBandInvalid": {
+        "description": "The specified red band is not available or contains invalid data."
+      },
+      "NirBandInvalid": {
+        "description": "The specified nir band is not available or contains invalid data."
+      }
+    }
+  },
+  {
+    "name": "min_time",
+    "summary": "Calculates minimum values of time series.",
+    "description": "Finds the minimum value of time series for all bands of the input dataset.",
+    "parameters": {
+      "imagery": {
+        "description": "EO data to process.",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    }
+  },
+  {
+    "name": "max_time",
+    "summary": "Calculates maximum values of time series.",
+    "description": "Finds the maximum value of time series for all bands of the input dataset.",
+    "parameters": {
+      "imagery": {
+        "description": "EO data to process.",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    }
+  },
+  {
+    "name": "zonal_statistics",
+    "summary": "Calculates zonal statistics.",
+    "description": "Calculates statistics for each zone specified in a file.",
+    "parameters": {
+      "imagery": {
+        "description": "EO data to process.",
+        "required": true,
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      },
+      "regions": {
+        "description": "GeoJSON or a path to a GeoJSON file containing the regions. For paths you must specify the path to a user-uploaded file without the user id in the path.",
+        "required": true,
+        "schema": {
+          "type": [
+            "object",
+            "string"
+          ]
+        }
+      },
+      "func": {
+        "description": "Statistical function to calculate for the specified zones.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "min",
+            "max",
+            "mean",
+            "median",
+            "mod"
+          ]
+        }
+      },
+      "scale": {
+        "description": "A nominal scale in meters of the projection to work in.",
+        "schema": {
+          "type": "number",
+          "default": 1000
+        }
+      },
+      "interval": {
+        "description": "Interval to group the time series.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "day",
+            "week",
+            "month",
+            "year"
+          ],
+          "default": "day"
+        }
+      }
+    },
+    "returns": {
+      "description": "Processed EO data.",
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    },
+    "exceptions": {
+      "FileNotFound": {
+        "description": "The specified file does not exist."
+      },
+      "GeoJsonInvalid": {
+        "description": "The GeoJSON object is invalid."
       }
     }
   }
