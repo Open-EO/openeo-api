@@ -888,355 +888,377 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "name",
-                      "description",
-                      "parameters",
-                      "returns"
-                    ],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "description": "Name used to identify the process. The id MUST be unique. It is RECOMMENDED to follow common programming naming conventions."
-                      },
-                      "summary": {
-                        "type": "string",
-                        "description": "A short summary of what the process does."
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "parameters": {
+                  "type": "object",
+                  "required": [
+                    "processes",
+                    "links"
+                  ],
+                  "properties": {
+                    "processes": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
-                        "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
-                        "additionalProperties": {
-                          "type": "object",
-                          "required": [
-                            "description",
-                            "schema"
-                          ],
-                          "properties": {
-                            "description": {
-                              "$ref": "#/components/schemas/description"
-                            },
-                            "required": {
-                              "type": "boolean",
-                              "description": "Determines whether this parameter is mandatory.",
-                              "default": false
-                            },
-                            "dependencies": {
-                              "type": "array",
-                              "description": "A list of parameters that influence this parameter or this parameter depends on.",
-                              "items": {
-                                "type": "object",
-                                "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
-                                "required": [
-                                  "parameter"
-                                ],
-                                "properties": {
-                                  "description": {
-                                    "$ref": "#/components/schemas/description"
-                                  },
-                                  "parameter": {
-                                    "type": "string",
-                                    "description": "The name of the referenced parameter."
-                                  },
-                                  "ref_values": {
-                                    "type": "array",
-                                    "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
-                                    "items": {
-                                      "description": "Any data type allowed for the referenced parameter."
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "deprecated": {
-                              "type": "boolean",
-                              "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
-                              "default": false
-                            },
-                            "mime_type": {
-                              "type": "string",
-                              "description": "The mime type that the parameter is formatted with."
-                            },
-                            "schema": {
-                              "$ref": "#/components/schemas/json_schema"
-                            }
-                          }
-                        }
-                      },
-                      "min_parameters": {
-                        "type": "integer",
-                        "description": "Minimum number of parameters required for this process, including required parameters."
-                      },
-                      "returns": {
-                        "type": "object",
-                        "description": "The data that is returned from this process. If not specified the process does not return anything.",
                         "required": [
+                          "name",
                           "description",
-                          "schema"
+                          "parameters",
+                          "returns"
                         ],
                         "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Name used to identify the process. The id MUST be unique. It is RECOMMENDED to follow common programming naming conventions."
+                          },
+                          "summary": {
+                            "type": "string",
+                            "description": "A short summary of what the process does."
+                          },
                           "description": {
                             "$ref": "#/components/schemas/description"
                           },
-                          "mime_type": {
-                            "type": "string",
-                            "description": "The mime type that the returned data is formatted with."
+                          "parameters": {
+                            "type": "object",
+                            "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
+                            "additionalProperties": {
+                              "type": "object",
+                              "required": [
+                                "description",
+                                "schema"
+                              ],
+                              "properties": {
+                                "description": {
+                                  "$ref": "#/components/schemas/description"
+                                },
+                                "required": {
+                                  "type": "boolean",
+                                  "description": "Determines whether this parameter is mandatory.",
+                                  "default": false
+                                },
+                                "dependencies": {
+                                  "type": "array",
+                                  "description": "A list of parameters that influence this parameter or this parameter depends on.",
+                                  "items": {
+                                    "type": "object",
+                                    "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
+                                    "required": [
+                                      "parameter"
+                                    ],
+                                    "properties": {
+                                      "description": {
+                                        "$ref": "#/components/schemas/description"
+                                      },
+                                      "parameter": {
+                                        "type": "string",
+                                        "description": "The name of the referenced parameter."
+                                      },
+                                      "ref_values": {
+                                        "type": "array",
+                                        "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
+                                        "items": {
+                                          "description": "Any data type allowed for the referenced parameter."
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "deprecated": {
+                                  "type": "boolean",
+                                  "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                                  "default": false
+                                },
+                                "mime_type": {
+                                  "type": "string",
+                                  "description": "The mime type that the parameter is formatted with."
+                                },
+                                "schema": {
+                                  "$ref": "#/components/schemas/json_schema"
+                                }
+                              }
+                            }
                           },
-                          "schema": {
-                            "$ref": "#/components/schemas/json_schema"
-                          }
-                        }
-                      },
-                      "deprecated": {
-                        "type": "boolean",
-                        "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
-                        "default": false
-                      },
-                      "exceptions": {
-                        "type": "object",
-                        "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
-                        "additionalProperties": {
-                          "type": "object",
-                          "required": [
-                            "description"
-                          ],
-                          "properties": {
-                            "code": {
-                              "type": "integer",
-                              "description": "Code to identify the exception."
-                            },
-                            "description": {
-                              "$ref": "#/components/schemas/description"
+                          "min_parameters": {
+                            "type": "integer",
+                            "description": "Minimum number of parameters required for this process, including required parameters."
+                          },
+                          "returns": {
+                            "type": "object",
+                            "description": "The data that is returned from this process. If not specified the process does not return anything.",
+                            "required": [
+                              "description",
+                              "schema"
+                            ],
+                            "properties": {
+                              "description": {
+                                "$ref": "#/components/schemas/description"
+                              },
+                              "mime_type": {
+                                "type": "string",
+                                "description": "The mime type that the returned data is formatted with."
+                              },
+                              "schema": {
+                                "$ref": "#/components/schemas/json_schema"
+                              }
+                            }
+                          },
+                          "deprecated": {
+                            "type": "boolean",
+                            "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
+                            "default": false
+                          },
+                          "exceptions": {
+                            "type": "object",
+                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
+                            "additionalProperties": {
+                              "type": "object",
+                              "required": [
+                                "description"
+                              ],
+                              "properties": {
+                                "code": {
+                                  "type": "integer",
+                                  "description": "Code to identify the exception."
+                                },
+                                "description": {
+                                  "$ref": "#/components/schemas/description"
+                                }
+                              }
+                            }
+                          },
+                          "examples": {
+                            "type": "object",
+                            "description": "If parameters or return values are referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.",
+                            "additionalProperties": {
+                              "type": "object",
+                              "description": "The sourceCode field is mutually exclusive of the paramaters and returns fields, i.e. you can only specify either sourceCode or parameters/returns.",
+                              "required": [
+                                "description"
+                              ],
+                              "properties": {
+                                "summary": {
+                                  "type": "string",
+                                  "description": "Short summary for the example."
+                                },
+                                "description": {
+                                  "$ref": "#/components/schemas/description"
+                                },
+                                "process_graph": {
+                                  "$ref": "#/components/schemas/process_graph"
+                                }
+                              }
+                            }
+                          },
+                          "links": {
+                            "type": "array",
+                            "description": "Related links, e.g. additional external documentation for this process.",
+                            "items": {
+                              "$ref": "#/components/schemas/link"
                             }
                           }
-                        }
-                      },
-                      "examples": {
-                        "type": "object",
-                        "description": "If parameters or return values are referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.",
-                        "additionalProperties": {
-                          "type": "object",
-                          "description": "The sourceCode field is mutually exclusive of the paramaters and returns fields, i.e. you can only specify either sourceCode or parameters/returns.",
-                          "required": [
-                            "description"
-                          ],
-                          "properties": {
-                            "summary": {
-                              "type": "string",
-                              "description": "Short summary for the example."
-                            },
-                            "description": {
-                              "$ref": "#/components/schemas/description"
-                            },
-                            "process_graph": {
-                              "$ref": "#/components/schemas/process_graph"
-                            }
-                          }
-                        }
-                      },
-                      "links": {
-                        "type": "array",
-                        "description": "Related links, e.g. additional external documentation for this process.",
-                        "items": {
-                          "$ref": "#/components/schemas/link"
                         }
                       }
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/list_links"
                     }
                   },
-                  "example": [
-                    {
-                      "name": "get_collection_example",
-                      "summary": "Selects a collection.",
-                      "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
-                      "min_parameters": 1,
-                      "parameters": {
-                        "name": {
-                          "description": "Filter by collection name",
-                          "schema": {
-                            "type": "string",
-                            "examples": [
-                              "Sentinel2A-L1C"
-                            ]
+                  "example": {
+                    "processes": [
+                      {
+                        "name": "get_collection_example",
+                        "summary": "Selects a collection.",
+                        "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
+                        "min_parameters": 1,
+                        "parameters": {
+                          "name": {
+                            "description": "Filter by collection name",
+                            "schema": {
+                              "type": "string",
+                              "examples": [
+                                "Sentinel2A-L1C"
+                              ]
+                            }
+                          },
+                          "spatial_extent": {
+                            "description": "Filter by spatial extent, may include a vertical axis (height or depth).",
+                            "schema": {
+                              "type": "object",
+                              "format": "spatial_extent"
+                            }
+                          },
+                          "temporal_extent": {
+                            "description": "Filter by time",
+                            "schema": {
+                              "type": "array",
+                              "format": "temporal_extent"
+                            }
+                          },
+                          "bands": {
+                            "description": "Filter by band IDs",
+                            "schema": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
                           }
                         },
-                        "spatial_extent": {
-                          "description": "Filter by spatial extent, may include a vertical axis (height or depth).",
+                        "returns": {
+                          "description": "Processed EO data.",
                           "schema": {
                             "type": "object",
-                            "format": "spatial_extent"
+                            "format": "eodata"
+                          }
+                        }
+                      },
+                      {
+                        "name": "filter_bands_example",
+                        "summary": "Filter an image collection by bands.",
+                        "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
+                        "min_parameters": 2,
+                        "parameters": {
+                          "imagery": {
+                            "description": "EO data to process.",
+                            "required": true,
+                            "schema": {
+                              "type": "object",
+                              "format": "eodata"
+                            }
+                          },
+                          "bands": {
+                            "description": "string or array of strings containing band ids.",
+                            "schema": {
+                              "type": [
+                                "string",
+                                "array"
+                              ],
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "names": {
+                            "description": "string or array of strings containing band names.",
+                            "schema": {
+                              "type": [
+                                "string",
+                                "array"
+                              ],
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "wavelengths": {
+                            "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
+                            "schema": {
+                              "type": [
+                                "number",
+                                "array"
+                              ],
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "number"
+                              }
+                            }
                           }
                         },
-                        "temporal_extent": {
-                          "description": "Filter by time",
+                        "returns": {
+                          "description": "Processed EO data.",
                           "schema": {
+                            "type": "object",
+                            "format": "eodata"
+                          }
+                        }
+                      },
+                      {
+                        "name": "filter_daterange_example",
+                        "summary": "Filter an image collection by temporal extent.",
+                        "description": "Example - do not use, it's not an official process description!",
+                        "min_parameters": 1,
+                        "parameters": {
+                          "imagery": {
+                            "description": "EO data to process.",
+                            "required": true,
+                            "schema": {
+                              "type": "object",
+                              "format": "eodata"
+                            }
+                          },
+                          "extent": {
                             "type": "array",
-                            "format": "temporal_extent"
+                            "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+                            "example": [
+                              "2016-01-01T00:00:00Z",
+                              "2017-10-01T00:00:00Z"
+                            ],
+                            "items": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
                           }
                         },
-                        "bands": {
-                          "description": "Filter by band IDs",
+                        "returns": {
+                          "description": "Processed EO data.",
                           "schema": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
+                            "type": "object",
+                            "format": "eodata"
                           }
                         }
                       },
-                      "returns": {
-                        "description": "Processed EO data.",
-                        "schema": {
-                          "type": "object",
-                          "format": "eodata"
-                        }
-                      }
-                    },
-                    {
-                      "name": "filter_bands_example",
-                      "summary": "Filter an image collection by bands.",
-                      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
-                      "min_parameters": 2,
-                      "parameters": {
-                        "imagery": {
-                          "description": "EO data to process.",
-                          "required": true,
+                      {
+                        "name": "process_graph_example",
+                        "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
+                        "parameters": {
+                          "imagery": {
+                            "description": "EO data to process.",
+                            "required": true,
+                            "schema": {
+                              "type": "object",
+                              "format": "eodata"
+                            }
+                          },
+                          "url": {
+                            "description": "An URL to a process graph.",
+                            "required": true,
+                            "schema": {
+                              "type": "string",
+                              "format": "url",
+                              "examples": [
+                                "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
+                              ]
+                            }
+                          }
+                        },
+                        "returns": {
+                          "description": "Processed EO data.",
                           "schema": {
                             "type": "object",
                             "format": "eodata"
                           }
                         },
-                        "bands": {
-                          "description": "string or array of strings containing band ids.",
-                          "schema": {
-                            "type": [
-                              "string",
-                              "array"
-                            ],
-                            "items": {
-                              "type": "string"
-                            }
+                        "exceptions": {
+                          "NotFound": {
+                            "code": 404,
+                            "description": "Process graph doesn't exist."
                           }
-                        },
-                        "names": {
-                          "description": "string or array of strings containing band names.",
-                          "schema": {
-                            "type": [
-                              "string",
-                              "array"
-                            ],
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "wavelengths": {
-                          "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
-                          "schema": {
-                            "type": [
-                              "number",
-                              "array"
-                            ],
-                            "minItems": 2,
-                            "maxItems": 2,
-                            "items": {
-                              "type": "number"
-                            }
-                          }
-                        }
-                      },
-                      "returns": {
-                        "description": "Processed EO data.",
-                        "schema": {
-                          "type": "object",
-                          "format": "eodata"
                         }
                       }
-                    },
-                    {
-                      "name": "filter_daterange_example",
-                      "summary": "Filter an image collection by temporal extent.",
-                      "description": "Example - do not use, it's not an official process description!",
-                      "min_parameters": 1,
-                      "parameters": {
-                        "imagery": {
-                          "description": "EO data to process.",
-                          "required": true,
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
-                          }
-                        },
-                        "extent": {
-                          "type": "array",
-                          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-                          "example": [
-                            "2016-01-01T00:00:00Z",
-                            "2017-10-01T00:00:00Z"
-                          ],
-                          "items": {
-                            "type": [
-                              "string",
-                              "null"
-                            ],
-                            "format": "date-time",
-                            "minItems": 2,
-                            "maxItems": 2
-                          }
-                        }
-                      },
-                      "returns": {
-                        "description": "Processed EO data.",
-                        "schema": {
-                          "type": "object",
-                          "format": "eodata"
-                        }
+                    ],
+                    "links": [
+                      {
+                        "rel": "alternate",
+                        "href": "https://openeo.org/processes",
+                        "type": "text/html",
+                        "title": "HTML version of the processes"
                       }
-                    },
-                    {
-                      "name": "process_graph_example",
-                      "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
-                      "parameters": {
-                        "imagery": {
-                          "description": "EO data to process.",
-                          "required": true,
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
-                          }
-                        },
-                        "url": {
-                          "description": "An URL to a process graph.",
-                          "required": true,
-                          "schema": {
-                            "type": "string",
-                            "format": "url",
-                            "examples": [
-                              "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
-                            ]
-                          }
-                        }
-                      },
-                      "returns": {
-                        "description": "Processed EO data.",
-                        "schema": {
-                          "type": "object",
-                          "format": "eodata"
-                        }
-                      },
-                      "exceptions": {
-                        "NotFound": {
-                          "code": 404,
-                          "description": "Process graph doesn't exist."
-                        }
-                      }
-                    }
-                  ]
+                    ]
+                  }
                 }
               }
             }
@@ -1452,24 +1474,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Array of stored process graphs",
-                  "type": "array",
-                  "items": {
-                    "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
-                    "type": "object",
-                    "required": [
-                      "process_graph_id"
-                    ],
-                    "properties": {
-                      "process_graph_id": {
-                        "$ref": "#/components/schemas/process_graph_id"
-                      },
-                      "title": {
-                        "$ref": "#/components/schemas/title"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
+                  "type": "object",
+                  "required": [
+                    "process_graphs",
+                    "links"
+                  ],
+                  "properties": {
+                    "process_graphs": {
+                      "description": "Array of stored process graphs",
+                      "type": "array",
+                      "items": {
+                        "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
+                        "type": "object",
+                        "required": [
+                          "process_graph_id"
+                        ],
+                        "properties": {
+                          "process_graph_id": {
+                            "$ref": "#/components/schemas/process_graph_id"
+                          },
+                          "title": {
+                            "$ref": "#/components/schemas/title"
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          }
+                        }
                       }
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/list_links"
                     }
                   }
                 }
@@ -1782,47 +1816,59 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "description": "Defines metadata of services.",
-                    "type": "object",
-                    "required": [
-                      "service_id",
-                      "enabled",
-                      "type",
-                      "url"
-                    ],
-                    "properties": {
-                      "service_id": {
-                        "$ref": "#/components/schemas/service_id"
-                      },
-                      "title": {
-                        "$ref": "#/components/schemas/title"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "url": {
-                        "$ref": "#/components/schemas/service_url"
-                      },
-                      "type": {
-                        "$ref": "#/components/schemas/service_type"
-                      },
-                      "enabled": {
-                        "$ref": "#/components/schemas/service_enabled"
-                      },
-                      "submitted": {
-                        "$ref": "#/components/schemas/submitted"
-                      },
-                      "plan": {
-                        "$ref": "#/components/schemas/billing_plan"
-                      },
-                      "costs": {
-                        "$ref": "#/components/schemas/money"
-                      },
-                      "budget": {
-                        "$ref": "#/components/schemas/budget"
+                  "type": "object",
+                  "required": [
+                    "services",
+                    "links"
+                  ],
+                  "properties": {
+                    "services": {
+                      "type": "array",
+                      "items": {
+                        "description": "Defines metadata of services.",
+                        "type": "object",
+                        "required": [
+                          "service_id",
+                          "enabled",
+                          "type",
+                          "url"
+                        ],
+                        "properties": {
+                          "service_id": {
+                            "$ref": "#/components/schemas/service_id"
+                          },
+                          "title": {
+                            "$ref": "#/components/schemas/title"
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "url": {
+                            "$ref": "#/components/schemas/service_url"
+                          },
+                          "type": {
+                            "$ref": "#/components/schemas/service_type"
+                          },
+                          "enabled": {
+                            "$ref": "#/components/schemas/service_enabled"
+                          },
+                          "submitted": {
+                            "$ref": "#/components/schemas/submitted"
+                          },
+                          "plan": {
+                            "$ref": "#/components/schemas/billing_plan"
+                          },
+                          "costs": {
+                            "$ref": "#/components/schemas/money"
+                          },
+                          "budget": {
+                            "$ref": "#/components/schemas/budget"
+                          }
+                        }
                       }
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/list_links"
                     }
                   }
                 }
@@ -2095,44 +2141,56 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "Array of job descriptions",
-                  "type": "array",
-                  "items": {
-                    "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
-                    "type": "object",
-                    "required": [
-                      "job_id",
-                      "submitted",
-                      "locked"
-                    ],
-                    "properties": {
-                      "job_id": {
-                        "$ref": "#/components/schemas/job_id"
-                      },
-                      "title": {
-                        "$ref": "#/components/schemas/title"
-                      },
-                      "description": {
-                        "$ref": "#/components/schemas/description"
-                      },
-                      "status": {
-                        "$ref": "#/components/schemas/status"
-                      },
-                      "submitted": {
-                        "$ref": "#/components/schemas/submitted"
-                      },
-                      "updated": {
-                        "$ref": "#/components/schemas/updated"
-                      },
-                      "plan": {
-                        "$ref": "#/components/schemas/billing_plan"
-                      },
-                      "costs": {
-                        "$ref": "#/components/schemas/money"
-                      },
-                      "budget": {
-                        "$ref": "#/components/schemas/budget"
+                  "type": "object",
+                  "required": [
+                    "jobs",
+                    "links"
+                  ],
+                  "properties": {
+                    "jobs": {
+                      "description": "Array of job descriptions",
+                      "type": "array",
+                      "items": {
+                        "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
+                        "type": "object",
+                        "required": [
+                          "job_id",
+                          "submitted",
+                          "locked"
+                        ],
+                        "properties": {
+                          "job_id": {
+                            "$ref": "#/components/schemas/job_id"
+                          },
+                          "title": {
+                            "$ref": "#/components/schemas/title"
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "status": {
+                            "$ref": "#/components/schemas/status"
+                          },
+                          "submitted": {
+                            "$ref": "#/components/schemas/submitted"
+                          },
+                          "updated": {
+                            "$ref": "#/components/schemas/updated"
+                          },
+                          "plan": {
+                            "$ref": "#/components/schemas/billing_plan"
+                          },
+                          "costs": {
+                            "$ref": "#/components/schemas/money"
+                          },
+                          "budget": {
+                            "$ref": "#/components/schemas/budget"
+                          }
+                        }
                       }
+                    },
+                    "links": {
+                      "$ref": "#/components/schemas/list_links"
                     }
                   }
                 }
@@ -2579,46 +2637,61 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "name"
-                    ],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "description": "Path to the file"
-                      },
-                      "size": {
-                        "type": "integer",
-                        "description": "File size in bytes"
-                      },
-                      "modified": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+                  "type": "object",
+                  "required": [
+                    "files",
+                    "links"
+                  ],
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Path to the file"
+                          },
+                          "size": {
+                            "type": "integer",
+                            "description": "File size in bytes"
+                          },
+                          "modified": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+                          }
+                        },
+                        "additionalProperties": true
                       }
                     },
-                    "additionalProperties": true
-                  },
-                  "example": [
-                    {
-                      "name": "test.txt",
-                      "size": 182,
-                      "modified": "2015-10-20T17:22:10Z"
-                    },
-                    {
-                      "name": "test.tif",
-                      "size": 183142,
-                      "modified": "2017-01-01T09:36:18Z"
-                    },
-                    {
-                      "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
-                      "size": 4183353142,
-                      "modified": "2018-01-03T10:55:29Z"
+                    "links": {
+                      "$ref": "#/components/schemas/list_links"
                     }
-                  ]
+                  },
+                  "example": {
+                    "files": [
+                      {
+                        "name": "test.txt",
+                        "size": 182,
+                        "modified": "2015-10-20T17:22:10Z"
+                      },
+                      {
+                        "name": "test.tif",
+                        "size": 183142,
+                        "modified": "2017-01-01T09:36:18Z"
+                      },
+                      {
+                        "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
+                        "size": 4183353142,
+                        "modified": "2018-01-03T10:55:29Z"
+                      }
+                    ],
+                    "links": {}
+                  }
                 }
               }
             }
@@ -2922,6 +2995,13 @@
     "schemas": {
       "collection_links": {
         "description": "Additional links related to this collection. Could reference to other meta data formats with additional information or a preview image.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/link"
+        }
+      },
+      "list_links": {
+        "description": "Additional links related to this list of resources. Could reference to alternative formats such as a rendered HTML version.\n\nThe links could also be used for pagination using the [rel types](https://www.iana.org/assignments/link-relations/link-relations.xhtml) `first`, `prev`, `next` and `last`. Pagination is currently OPTIONAL and clients may not support it. Therefore it MUST be implemented in a way that clients not supporting pagination get all resources regardless.",
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/link"

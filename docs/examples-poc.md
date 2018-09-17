@@ -141,265 +141,267 @@ GET /processes HTTP/1.1
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
-[
-  {
-    "name": "get_collection",
-    "summary": "Selects a collection.",
-    "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.",
-    "min_parameters": 1,
-    "parameters": {
-      "name": {
-        "description": "Filter by collection name",
-        "schema": {
-          "type": "string",
-          "examples": [
-            "Sentinel2A-L1C"
-          ]
-        }
-      
-    },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
-      }
-    }
-  },
-  {
-    "name": "filter_bands",
-    "summary": "Filters by bands.",
-    "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
-    "min_parameters": 2,
-    "parameters": {
-      "imagery": {
-        "description": "EO data to process.",
-        "required": true,
+{
+  "processes": [
+    {
+      "name": "get_collection",
+      "summary": "Selects a collection.",
+      "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.",
+      "min_parameters": 1,
+      "parameters": {
+        "name": {
+          "description": "Filter by collection name",
+          "schema": {
+            "type": "string",
+            "examples": [
+              "Sentinel2A-L1C"
+            ]
+          }
+      },
+      "returns": {
+        "description": "Processed EO data.",
         "schema": {
           "type": "object",
           "format": "eodata"
         }
-      },
-      "bands": {
-        "description": "string or array of strings containing band ids.",
-        "schema": {
-          "type": [
-            "string",
-            "array"
-          ],
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "names": {
-        "description": "string or array of strings containing band names.",
-        "schema": {
-          "type": [
-            "string",
-            "array"
-          ],
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "wavelengths": {
-        "description": "Either a number specifying a specific wavelength or a two-element array of numbers specifying a minimum and maximum wavelength.",
-        "schema": {
-          "type": [
-            "number",
-            "array"
-          ],
-          "minItems": 2,
-          "maxItems": 2,
-          "items": {
-            "type": "number"
-          }
-        }
       }
     },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
-      }
-    }
-  },
-  {
-    "name": "filter_daterange",
-    "summary": "Filters by temporal extent.",
-    "parameters": {
-      "imagery": {
-        "description": "EO data to process.",
-        "required": true,
-        "schema": {
-          "type": "object",
-          "format": "eodata"
-        }
-      },
-      "extent": {
-        "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-        "schema": {
-          "type": "array",
-          "format": "temporal_extent",
+    {
+      "name": "filter_bands",
+      "summary": "Filters by bands.",
+      "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at one of the other arguments is required to be specified.",
+      "min_parameters": 2,
+      "parameters": {
+        "imagery": {
+          "description": "EO data to process.",
           "required": true,
-          "example": [
-            "2016-01-01T00:00:00Z",
-            "2017-10-01T00:00:00Z"
-          ],
-          "items": {
+          "schema": {
+            "type": "object",
+            "format": "eodata"
+          }
+        },
+        "bands": {
+          "description": "string or array of strings containing band ids.",
+          "schema": {
             "type": [
               "string",
-              "null"
+              "array"
             ],
-            "format": "date-time",
-            "minItems": 2,
-            "maxItems": 2
+            "items": {
+              "type": "string"
+            }
           }
-        }
-      }
-    },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
-      }
-    }
-  },
-  {
-    "name": "filter_bbox",
-    "summary": "Filters by spatial extent.",
-    "parameters": {
-      "imagery": {
-        "description": "EO data to process.",
-        "required": true,
-        "schema": {
-          "type": "object",
-          "format": "eodata"
-        }
-      },
-      "extent": {
-        "description": "Spatial extent, may include a vertical axis (height or depth).",
-        "schema": {
-          "type": "object",
-          "format": "spatial_extent",
-          "required": [
-            "west",
-            "east",
-            "north",
-            "south"
-          ],
-          "properties": {
-            "crs": {
-              "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
-              "type": "string",
-              "default": "EPSG:4326"
-            },
-            "west": {
-              "description": "Lower left corner, coordinate axis 1 (west).",
-              "type": "number"
-            },
-            "east": {
-              "description": "Upper right corner, coordinate axis 1 (east).",
-              "type": "number"
-            },
-            "north": {
-              "description": "Lower left corner, coordinate axis 2 (north).",
-              "type": "number"
-            },
-            "south": {
-              "description": "Upper right corner, coordinate axis 2 (south).",
-              "type": "number"
-            },
-            "base": {
-              "description": "Lower left corner, coordinate axis 3 (base, optional).",
-              "type": "number"
-            },
-            "height": {
-              "description": "Upper right corner, coordinate axis 3 (height, optional).",
+        },
+        "names": {
+          "description": "string or array of strings containing band names.",
+          "schema": {
+            "type": [
+              "string",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "wavelengths": {
+          "description": "Either a number specifying a specific wavelength or a two-element array of numbers specifying a minimum and maximum wavelength.",
+          "schema": {
+            "type": [
+              "number",
+              "array"
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
               "type": "number"
             }
           }
         }
-      }
-    },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
-      }
-    }
-  },
-  {
-    "name": "NDVI",
-    "summary": "Calculates the Normalized Difference Vegetation Index.",
-    "parameters": {
-      "imagery": {
-        "description": "EO data to process.",
-        "required": true,
-        "schema": {
-          "type": "object",
-          "format": "eodata"
-        }
       },
-      "red": {
-        "description": "Band id of the red band.",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      },
-      "nir": {
-        "description": "Band id of the near-infrared band.",
-        "required": true,
-        "schema": {
-          "type": "string"
-        }
-      }
-    },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
-      }
-    },
-    "exceptions": {
-      "RedBandInvalid": {
-        "description": "The specified red band is not available or contains invalid data."
-      },
-      "NirBandInvalid": {
-        "description": "The specified nir band is not available or contains invalid data."
-      }
-    }
-  },
-  {
-    "name": "min_time",
-    "summary": "Calculates minimum values of time series.",
-    "description": "Finds the minimum value of time series for all bands of the input dataset.",
-    "parameters": {
-      "imagery": {
-        "description": "EO data to process.",
-        "required": true,
+      "returns": {
+        "description": "Processed EO data.",
         "schema": {
           "type": "object",
           "format": "eodata"
         }
       }
     },
-    "returns": {
-      "description": "Processed EO data.",
-      "schema": {
-        "type": "object",
-        "format": "eodata"
+    {
+      "name": "filter_daterange",
+      "summary": "Filters by temporal extent.",
+      "parameters": {
+        "imagery": {
+          "description": "EO data to process.",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "format": "eodata"
+          }
+        },
+        "extent": {
+          "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
+          "schema": {
+            "type": "array",
+            "format": "temporal_extent",
+            "required": true,
+            "example": [
+              "2016-01-01T00:00:00Z",
+              "2017-10-01T00:00:00Z"
+            ],
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time",
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        }
+      },
+      "returns": {
+        "description": "Processed EO data.",
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      }
+    },
+    {
+      "name": "filter_bbox",
+      "summary": "Filters by spatial extent.",
+      "parameters": {
+        "imagery": {
+          "description": "EO data to process.",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "format": "eodata"
+          }
+        },
+        "extent": {
+          "description": "Spatial extent, may include a vertical axis (height or depth).",
+          "schema": {
+            "type": "object",
+            "format": "spatial_extent",
+            "required": [
+              "west",
+              "east",
+              "north",
+              "south"
+            ],
+            "properties": {
+              "crs": {
+                "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+                "type": "string",
+                "default": "EPSG:4326"
+              },
+              "west": {
+                "description": "Lower left corner, coordinate axis 1 (west).",
+                "type": "number"
+              },
+              "east": {
+                "description": "Upper right corner, coordinate axis 1 (east).",
+                "type": "number"
+              },
+              "north": {
+                "description": "Lower left corner, coordinate axis 2 (north).",
+                "type": "number"
+              },
+              "south": {
+                "description": "Upper right corner, coordinate axis 2 (south).",
+                "type": "number"
+              },
+              "base": {
+                "description": "Lower left corner, coordinate axis 3 (base, optional).",
+                "type": "number"
+              },
+              "height": {
+                "description": "Upper right corner, coordinate axis 3 (height, optional).",
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "returns": {
+        "description": "Processed EO data.",
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      }
+    },
+    {
+      "name": "NDVI",
+      "summary": "Calculates the Normalized Difference Vegetation Index.",
+      "parameters": {
+        "imagery": {
+          "description": "EO data to process.",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "format": "eodata"
+          }
+        },
+        "red": {
+          "description": "Band id of the red band.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        "nir": {
+          "description": "Band id of the near-infrared band.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": {
+        "description": "Processed EO data.",
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
+      },
+      "exceptions": {
+        "RedBandInvalid": {
+          "description": "The specified red band is not available or contains invalid data."
+        },
+        "NirBandInvalid": {
+          "description": "The specified nir band is not available or contains invalid data."
+        }
+      }
+    },
+    {
+      "name": "min_time",
+      "summary": "Calculates minimum values of time series.",
+      "description": "Finds the minimum value of time series for all bands of the input dataset.",
+      "parameters": {
+        "imagery": {
+          "description": "EO data to process.",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "format": "eodata"
+          }
+        }
+      },
+      "returns": {
+        "description": "Processed EO data.",
+        "schema": {
+          "type": "object",
+          "format": "eodata"
+        }
       }
     }
-  }
-]
+  ],
+  "links": {}
+}
 ```
 
 ### 4. Request the supported secondary web service types
