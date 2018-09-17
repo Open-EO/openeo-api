@@ -51,5 +51,6 @@ The following headers MUST be included with every response:
 | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is RECOMMENDED to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers SHOULD NOT be sent at all. | `http://client.isp.com:80` |
 | Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value MUST be `true`. | `true`                     |
 
-!!! hint
-    Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
+!!! tip
+    Most server can send the required headers and the responses to the OPTIONS requests globally.
+	Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.

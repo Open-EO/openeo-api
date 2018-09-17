@@ -7,7 +7,8 @@ This page gives a detailed description of the openEO proof of concept use cases.
 3. [Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-uploaded polygons](#use-case-3)
 
 !!! note
-​    [CORS](cors.md) and authentication is not included in these examples for simplicity. Repeating calls are also not included as it would not make much sense to list the same discovery requests for each use case individually.
+    [CORS](cors.md) and authentication is not included in these examples for simplicity.
+    Repeating calls are also not included as it would not make much sense to list the same discovery requests for each use case individually.
 
 ## Use Case 1
 
@@ -932,7 +933,7 @@ Content-Type: application/json; charset=utf-8
 }
 ```
 
-### 8. Download file(s)
+### 6. Download file(s)
 
 **Request**
 

@@ -64,14 +64,15 @@ Parameters with a leading `?` are optional.
 
 ### Scope: `openEO`
 
-| Description                                                  | Client method                                    |
-| ------------------------------------------------------------ | ------------------------------------------------ |
-| Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?username, ?password, ?auth_type)` |
-| Get client library version.                                  | `version()`                                      |
+| Description                                                  | Client method                             |
+| ------------------------------------------------------------ | ----------------------------------------- |
+| Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?auth_type, ?auth_options)` |
+| Get client library version.                                  | `version()`                               |
 
 #### Parameters
 
-* **auth_type** in `connect`: `basic` or `oidc` (non-exclusive). Only applies if username and password are set and then defaults to `oidc`.
+* **auth_type** in `connect`: `null`, `basic` or `oidc` (non-exclusive). Defaults to `null` (no authentication).
+* **auth_options** in `connect`: May hold additional data for authentication, for example a username and password for `basic` authentication.
 
 ### Scope: `Connection` (API)
 
@@ -83,9 +84,9 @@ Parameters with a leading `?` are optional.
 | List all collections available on the back-end.              | `GET /collections`        | `listCollections()`                                          |
 | Get information about a single collection.                   | `GET /collections/{name}` | `describeCollection(name)`                                   |
 | List all processes available on the back-end.                | `GET /processes`          | `listProcesses()`                                            |
-| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `autenticateOIDC(username, password)`                        |
+| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `autenticateOIDC(?options)`                                  |
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`  | `authenticateBasic(username, password)`                      |
-| Get information about the authenticated user.                | `GET /me`                 | `describeUser()`                                             |
+| Get information about the authenticated user.                | `GET /me`                 | `describeAccount()`                                          |
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`    | `listFiles(?user_id)`                                        |
 | Creates a (virtual) file. Returns a `File`.                  | *None*                    | `createFile(path, ?user_id)`                                 |
 | Validates a process graph.                                   | `POST /validate`          | `validateProcessGraph(process_graph)`                        |
@@ -99,10 +100,11 @@ Parameters with a leading `?` are optional.
 #### Parameters
 
 * **user_id** in `listFiles` and `createFile`: Defaults to the user id of the authenticated user.
+* **options** in `authenticateOIDC`: May hold additional data required for OpenID connect authentication.
 
 ### Scope `Capabilities` (Content)
 
-Should be prefixed with `Capabilities` if required. In non-object-oriented paradigms it is likely required as `version()` in this scope and the scope `OpenEO` could collide. For example, `version()` in this scope could be named `openeo_capabilities_version()` in procedural style.
+Should be prefixed with `Capabilities` if required. In non-object-oriented paradigms it is likely required as `version()` in this scope and the scope `OpenEO` could collide. For example, `version()` in this scope could be named `openeo_capabilities_version()` in procedural style.
 
 | Description                                      | Field                  | Client method             |
 | ------------------------------------------------ | ---------------------- | ------------------------- |
