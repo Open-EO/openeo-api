@@ -1,32 +1,42 @@
-sudo: required
-services:
-- docker
+language: python
 
-env:
-  global:
-  - GIT_NAME: "Travis CI Documentation Builder"
-  - GIT_EMAIL: marius.appel@uni-muenster.de
-  - GH_REF: git@github.com:Open-EO/openeo-api.git
+python:
+- "3.5"
+
+node_js: 8
+
+sudo: required
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_cc1eefc65230_key -iv $encrypted_cc1eefc65230_iv -in docs/deploy_key.enc -out deploy_key -d
-- chmod 600 deploy_key
-- echo -e "Host github \n\t HostName github.com \n\t IdentityFile $TRAVIS_BUILD_DIR/deploy_key" >> ~/.ssh/config
+- pip install mkdocs
+- pip install mkdocs-material
+- pip install pymdown-extensions
+- pip install pygments
+- npm install -g asyncapi-docgen
 
 install:
-- cd docs
-- docker build -t openeo/apidocs .
+- mkdocs build --clean
+- cp openapi.json site/
+- cp processes.json site/
+- rm -f site/apireference/index.html
+- rm -f site/processreference/index.html
+- rm -f site/apireference-subscriptions/index.html
+- mv docs/apireference.html site/apireference/index.html
+- mv docs/processreference.html site/processreference/index.html
+- adg subscriptions.json -o site/apireference-subscriptions
 
 script:
-- rm -rf site
-- docker run -v $PWD:/shared --env TRAVIS_BRANCH=$TRAVIS_BRANCH openeo/apidocs
-- eval "$(ssh-agent -s)"
-- ssh-add $TRAVIS_BUILD_DIR/deploy_key
-- git clone --branch gh-pages https://github.com/Open-EO/openeo-api /tmp/gh-pages
-- if [[ $TRAVIS_BRANCH == 'master' ]] ; then cd /tmp/gh-pages/ && rm -rf !(v) && cd - && cp -R site/* /tmp/gh-pages/ ; fi
-- if [[ $TRAVIS_BRANCH != 'master' ]] ; then rm -rf /tmp/gh-pages/v/$TRAVIS_BRANCH && mkdir -p /tmp/gh-pages/v/$TRAVIS_BRANCH/ && cp -R site/* /tmp/gh-pages/v/$TRAVIS_BRANCH/ ; fi
-- git config user.name "Travis CI Documentation Builder"
-- git config user.email "marius.appel@uni-muenster.de"
-- cd /tmp/gh-pages && git add .
-- git commit -m "Automated documentation build[ci skip]"
-- git push --force "${GH_REF}" gh-pages:gh-pages
+- git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
+- cd gh-pages
+- if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
+- if [[ $TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then rm -rf v/$TRAVIS_BRANCH/ && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  committer-from-gh: true
+  local-dir: gh-pages
+  on:
+    all_branches: true

@@ -1,40 +1,29 @@
-# openEO API prototype for proof of concept
+# openEO API
 
-[![Status](https://img.shields.io/badge/Status-proof--of--concept-yellow.svg)]()
+openEO develops an open API to connect R, python and javascript clients to big Earth observation cloud back-ends in a simple and unified way. This repository contains this API, the openEO (core) API.
 
-This repository provides a draft [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) definition of the [openEO](http://openeo.org) API for rapid prototyping and a proof of concept. The complete API is described in `swagger.json`. An additional description of core ideas and concepts including the API specification itself can be found at **[https://open-eo.github.io/openeo-api](https://open-eo.github.io/openeo-api/)**. Since swagger 2.0 does not support JSON schema combinations with `oneOf` and `anyOf`, this definition lacks a formalization of process argument values. 
+* **[Documentation / Specification](https://open-eo.github.io/openeo-api/v/0.3.0/index.html)**
 
-## Documentation and editing
-You can use [swagger-ui](https://github.com/swagger-api/swagger-ui) and [swagger-editor]() to
-inspect and edit the API specification. Using Docker, the following commands will run swagger-ui on localhost at port 80. 
+## Versions
 
-```
-git clone https://github.com/Open-EO/openeo-api.git && cd openeo-api
-docker run -p 80:8080 -e SWAGGER_JSON=/api/swagger.json -v $PWD:/api swaggerapi/swagger-ui
-# -> open browser at http://localhost
-```
+The openEO (core) API is currently released in version **0.3**. 
 
-Alternatively, you may import the URL `https://raw.githubusercontent.com/Open-EO/openeo-api/master/swagger.json` directly in [editor.swagger.io](https://editor.swagger.io/) or in the [swagger-ui demo](http://petstore.swagger.io/).
+**Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
 
-## Generating server stubs
+| Version / Branch                                             | Status  | Description                                                  |
+| ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
+| [0.0.1](https://github.com/Open-EO/openeo-api/tree/0.0.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.1/index.html)) | legacy  | First draft with basic ideas, loosely implemented.           |
+| [0.0.2](https://github.com/Open-EO/openeo-api/tree/0.0.2) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.2/index.html)) | legacy  | Proof of concept, implemented.                               |
+| [**0.3.0**](https://github.com/Open-EO/openeo-api/tree/0.3.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.0/index.html)) | current | Currently in implementation by clients and back-ends. Major rework. |
+| [0.4.0](https://github.com/Open-EO/openeo-api/tree/0.4.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.0/index.html)) | planned | Planned to add data set and process descriptions and an extension concept. |
 
-**NodeJS**
+See also the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
 
-```
-git clone https://github.com/Open-EO/openeo-api.git && cd openeo-api
-docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate -i https://raw.githubusercontent.com/Open-EO/openeo-api/master/swagger.json -l nodejs-server -o /local/
-npm start
-```
+## Repository
 
-**JAVA JAXRS**
+This repository contains a set of files formally and technically describing the openEO API, each with a human-readable and easily browseable version:
 
-```
-git clone https://github.com/swagger-api/swagger-codegen.git && cd swagger-codegen
-mvn clean package
-cd ..
-git clone https://github.com/Open-EO/openeo-api.git && cd openeo-api
-java -jar ./swagger-codegen/modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i ./openeo-api/swagger.json -l jaxrs -o ./openEO_swagger/java -c ./openeo-api/java_jaxrs_generator.conf
-```
-
-
-## Generating client stubs
+* [openapi.json](openapi.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.3.0/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
+* [processes.json](processes.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.3.0/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
+* [subscriptions.json](subscriptions.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.3.0/apireference-subscriptions/)) provides the [AsyncAPI](https://www.asyncapi.com/) 1.2 definitions for the WebSocket-based subscriptions and notifications API for openEO.
+* [docs/](docs/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.3.0/)) contains all additional written documentation, including 'getting started' guides, the architecture, feature descriptions, development guidelines and more.

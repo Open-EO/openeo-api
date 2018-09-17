@@ -1,0 +1,1 @@
+Placeholder for generated API specification for subscriptions.
