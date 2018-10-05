@@ -11,7 +11,7 @@ For best experience libraries should still embrace best practices common in thei
 
 ### Casing
 
-Clients can use `snake_case`, `camelCase` or any method used commonly in their environment. For example, the API request to get a list of collections can either be names `get_collections` or `getCollections`. This applies for all names, including scopes, method names and parameters.
+Clients can use `snake_case`, `camelCase` or any method used commonly in their environment. For example, the API request to get a list of collections can either be names `get_collections` or `getCollections`. This applies for all names, including scopes, method names and parameters, but it SHOULD be applied consistently. 
 
 ### Scopes
 
