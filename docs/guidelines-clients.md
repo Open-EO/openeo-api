@@ -155,13 +155,13 @@ The `Job` scope internally knows the `job_id`.
 
 ### Scope: `ProcessGraph` (API)
 
-The `ProcessGraph` scope internally knows the `pg_id` (`process_graph_id`).
+The `ProcessGraph` scope internally knows the `process_graph_id`.
 
 | Description                                       | API Request                      | Client method                                              |
 | ------------------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
-| Get all information about a stored process graph. | `GET /process_graphs/{pg_id}`    | `describeProcessGraph()`                                   |
-| Update a stored process graph.                    | `PATCH /process_graphs/{pg_id}`  | `updateProcessGraph(?process_graph, ?title, ?description)` |
-| Delete a stored process graph.                    | `DELETE /process_graphs/{pg_id}` | `deleteProcessGraph()`                                     |
+| Get all information about a stored process graph. | `GET /process_graphs/{process_graph_id}`    | `describeProcessGraph()`                                   |
+| Update a stored process graph.                    | `PATCH /process_graphs/{process_graph_id}`  | `updateProcessGraph(?process_graph, ?title, ?description)` |
+| Delete a stored process graph.                    | `DELETE /process_graphs/{process_graph_id}` | `deleteProcessGraph()`                                     |
 
 ### Scope: `Service` (API)
 
