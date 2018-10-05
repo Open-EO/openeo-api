@@ -17,7 +17,7 @@ The openEO (core) API is currently released in version **0.3**. This branch spec
 | [0.3.0](https://github.com/Open-EO/openeo-api/tree/0.3.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.0/index.html)) | current | Currently in implementation by clients and back-ends. Major rework. |
 | [**0.4.0-draft**](https://github.com/Open-EO/openeo-api/tree/0.4.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.0/index.html)) | planned | Planned to add data set and process descriptions and an extension concept. |
 
-See also the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
+See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
 
 ## Repository
 
