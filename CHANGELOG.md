@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Added missing `createProcessGraph` method to client development guidelines.
+- More consistent client development guidelines (casing of parameter names, typo in method name `autenticateOIDC`)
 
 
 ## [0.3.0] - 2018-09-21
