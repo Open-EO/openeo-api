@@ -1112,7 +1112,7 @@
 <h3 id="casing">Casing</h3>
 <p>Clients can use <code>snake_case</code>, <code>camelCase</code> or any method used commonly in their environment. For example, the API request to get a list of collections can either be names <code>get_collections</code> or <code>getCollections</code>. This applies for all names, including scopes, method names and parameters, but it SHOULD be applied consistently. </p>
 <h3 id="scopes">Scopes</h3>
-<p>Methods usually have a different scope, in object-oriented (OO) programming methods would be part of a class. If programming languages don't have functionalities to scope you may need to simulate it somehow to prevent name collisions. Best practices for this will likely evolve over time.</p>
+<p>Methods usually have a different scope, in object-oriented (OO) programming methods would be part of a class. If programming languages don't have functionalities to scope you may need to simulate it somehow to prevent name collisions, e.g. by adding a prefix to the method names as in the PHP example below. Best practices for this will likely evolve over time.</p>
 <p>Example for the <code>version</code> method in <code>openEO</code>:</p>
 <ul>
 <li>Procedural style: <code>openeo_version()</code> </li>
@@ -1496,13 +1496,11 @@ cap <span class="o">%&gt;%</span> <span class="kp">version</span><span class="p"
 con <span class="o">%&gt;%</span> describeCollection<span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 con <span class="o">%&gt;%</span> listProcesses<span class="p">()</span>
 
-pgb <span class="o">=</span> con <span class="o">%&gt;%</span> pgb<span class="p">()</span>
-processgraph <span class="o">=</span> pgb<span class="o">$</span>getCollection<span class="p">(</span>name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
-  pgb<span class="o">$</span>filterBbox<span class="p">(</span>east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> srs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  pgb<span class="o">$</span>filterDaterange<span class="p">(</span>extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
-  pgb<span class="o">$</span>NDVI<span class="p">(</span>nir <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> red <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  pgb<span class="o">$</span>minTime<span class="p">()</span>
-process_graph <span class="o">=</span> con <span class="o">%&gt;%</span> toJSON<span class="p">(</span>processgraph<span class="p">)</span>
+processgraph <span class="o">=</span> process<span class="p">(</span><span class="s">&quot;get_collection&quot;</span><span class="p">,</span> name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+  process<span class="p">(</span><span class="s">&quot;filterBbox&quot;</span><span class="p">,</span> east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> srs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  process<span class="p">(</span><span class="s">&quot;filterDaterange&quot;</span><span class="p">,</span> extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
+  process<span class="p">(</span><span class="s">&quot;NDVI&quot;</span><span class="p">,</span> nir <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> red <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  process<span class="p">(</span><span class="s">&quot;minTime&quot;</span><span class="p">)</span>
 
 job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>processgraph<span class="p">)</span>
 job <span class="o">%&gt;%</span> startJob<span class="p">()</span>
