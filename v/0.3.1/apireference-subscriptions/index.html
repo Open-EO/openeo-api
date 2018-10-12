@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>openEO API for Subscriptions 0.3.0 documentation</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/atom-one-dark.min.css" />
+</head>
+<body>
+  <div class="navigation">
+    <div class="navigation__logo">
+      <h1 class="navigation__logo__name">openEO API for Subscriptions</h1>
+      <div class="navigation__logo__version">0.3.0</div>
+    </div>
+    <h2 class="navigation__header">Introduction</h2>
+    <ul class="navigation__list">
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#info">Basic Information</a>
+      </li>
+    </ul>
+
+    <h2 class="navigation__header">Topics</h2>
+    <ul class="navigation__list">
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.authorize">
+          
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--subscribe" title="Subscribe"></span>
+          openeo.authorize
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.welcome">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.welcome
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.subscribe">
+          
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--subscribe" title="Subscribe"></span>
+          openeo.subscribe
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.unsubscribe">
+          
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--subscribe" title="Subscribe"></span>
+          openeo.unsubscribe
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.jobs.output">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.jobs.output
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.jobs.debug">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.jobs.debug
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.jobs.status">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.jobs.status
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.files">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.files
+        </a>
+      </li>
+      <li class="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#topic-openeo.data">
+          
+          <span class="navigation__list__item__topic-indicator navigation__list__item__topic-indicator--publish" title="Publish"></span>
+          
+          openeo.data
+        </a>
+      </li>
+    </ul>
+
+    <h2 class="navigation__header">Messages</h2>
+    <ul class="navigation__list">
+    </ul>
+
+    <h2 class="navigation__header">Schemas</h2>
+    <ul class="navigation__list">
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-authorization">authorization</a>
+      </li>
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-message">message</a>
+      </li>
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-collection_name">collection_name</a>
+      </li>
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-job_id">job_id</a>
+      </li>
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-user_id">user_id</a>
+      </li>
+      <li clas="navigation__list__item">
+        <a class="navigation__list__item-text navigation__list__item-text--link" href="#schema-topics">topics</a>
+      </li>
+    </ul>
+  </div>
+  <div class="documentation"><a name="info"></a>
+<h1>openEO API for Subscriptions 0.3.0</h1>
+
+<p><p>The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.</p>
+<p>This is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.</p>
+<p><code>openeo.authorize</code>, <code>openeo.welcome</code>, <code>openeo.subscribe</code> and <code>openeo.unsubsribe</code> MUST be implemeneted by all back-ends.</p>
+<p><strong>Security considerations:</strong> A handshake has to be performed directly after establishing the WebSocket connection. The client MUST send a <code>openeo.authorize</code> request and receives a <code>openeo.welcome</code> message after a successful authorization. The WebSocket connections MUST be closed by servers once a request with invalid authorization credentials is sent. Servers are allowed to close connections to clients that have not sent a <code>openeo.authorize</code> request 30 seconds after establishing a WebSocket connection.</p>
+</p>
+
+
+<h2 class="section-header">Topics</h2>
+
+<div class="topic">
+  <a name="topic-openeo.authorize"></a>
+  <h3 class="topic__header">
+
+
+    <span class="operation-badge operation-badge--subscribe topic__header__operation-badge">Subscribe</span>
+
+    openeo.authorize
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Starts a handshake with the server to authorize the client.</p>
+
+<p>The client MUST send a <code>openeo.authorize</code> request directly after establishing the WebSocket connection and a <code>openeo.welcome</code> will be sent by the server after successful authorization. The WebSocket connections MUST be closed if invalid authorization credentials are sent.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">authorization <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually &#x60;Bearer&#x60;), a space and the actual token for authorization.</td>
+        </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;authorization&quot;: &quot;Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0&quot;,
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.authorize&quot;
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.welcome"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.welcome
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Welcome message for clients.</p>
+
+<p>Sends the supported topics, excluding <code>openeo.authorize</code>, <code>openeo.subscribe</code>, <code>openeo.unsubscribe</code> and <code>openeo.welcome</code> (because these MUST be implemented by every back-end anyway). This message MUST be sent by all servers directly after receiving the <code>openeo.authorize</code> message with valid credentials.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              array
+              
+              
+              (string)
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+          </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.welcome&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;topics&quot;: [
+      &quot;openeo.jobs.output&quot;,
+      &quot;openeo.jobs.status&quot;,
+      &quot;openeo.data&quot;
+    ]
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.subscribe"></a>
+  <h3 class="topic__header">
+
+
+    <span class="operation-badge operation-badge--subscribe topic__header__operation-badge">Subscribe</span>
+
+    openeo.subscribe
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Subscribes to certain topics.</p>
+
+<p>Additional parameters that may be used to restrict the scope of the subscription are described in the specific messages. For example, a restriction of a subscription to a specific job.</p>
+<p>The WebSocket connections MUST be closed if invalid authorization credentials are sent.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">authorization <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually &#x60;Bearer&#x60;), a space and the actual token for authorization.</td>
+        </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              array
+              
+              
+              (object)
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">A list of topics to (un)subscribe to/from.</td>
+          </tr>
+              <tr class="table__body__row">
+                <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell">
+                  string
+                  
+                  
+                  
+                </td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell">One of the supported publish topics.</td>
+              </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;authorization&quot;: &quot;Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0&quot;,
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.subscribe&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;topics&quot;: [
+      {
+        &quot;topic&quot;: &quot;openeo.jobs.status&quot;,
+        &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;
+      },
+      {
+        &quot;topic&quot;: &quot;openeo.files&quot;
+      }
+    ]
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.unsubscribe"></a>
+  <h3 class="topic__header">
+
+
+    <span class="operation-badge operation-badge--subscribe topic__header__operation-badge">Subscribe</span>
+
+    openeo.unsubscribe
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Unsubscribes from certain topics.</p>
+
+<p>The WebSocket connections MUST be closed if invalid authorization credentials are sent.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">authorization <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually &#x60;Bearer&#x60;), a space and the actual token for authorization.</td>
+        </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topics <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              array
+              
+              
+              (object)
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">A list of topics to (un)subscribe to/from.</td>
+          </tr>
+              <tr class="table__body__row">
+                <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell">
+                  string
+                  
+                  
+                  
+                </td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell"></td>
+                <td class="table__body__cell">One of the supported publish topics.</td>
+              </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;authorization&quot;: &quot;Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0&quot;,
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.unsubscribe&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;topics&quot;: [
+      {
+        &quot;topic&quot;: &quot;openeo.jobs.status&quot;,
+        &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;
+      },
+      {
+        &quot;topic&quot;: &quot;openeo.files&quot;
+      }
+    ]
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.jobs.output"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.jobs.output
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Data written to the output console with processes of a job.</p>
+
+<p>Subscriptions to this message can be restricted to a certain job by specifying a <code>job_id</code>.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>job_id <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Unique identifier of a job that is generated by the back-end during job submission.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>output <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Output data of any type</td>
+          </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.jobs.debug&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;,
+    &quot;output&quot;: &quot;Hello world!&quot;
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.jobs.debug"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.jobs.debug
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Debugging information from job execution.</p>
+
+<p>Subscriptions to this message can be restricted to a certain job by specifying a <code>job_id</code>.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>job_id <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Unique identifier of a job that is generated by the back-end during job submission.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>message <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">The thrown debug message</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>process </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              object
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Process throwing the debug message.</td>
+          </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>name <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                string
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Name of the process.</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>parameters <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                object
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Key-value pairs for the parameters of the process. The keys are the parameter names and the values are the actual values specified for the parameter. Specify the empty object if the process does not have any parameters or was called without parameters.</td>
+            </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.jobs.debug&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;,
+    &quot;message&quot;: &quot;Invalid SRS specified, defaulting to EPSG:4326.&quot;,
+    &quot;process&quot;: {
+      &quot;name&quot;: &quot;filter_bbox&quot;,
+      &quot;parameters&quot;: {
+        &quot;srs&quot;: &quot;EPSG:9999&quot;,
+        &quot;west&quot;: 55,
+        &quot;east&quot;: 56,
+        &quot;north&quot;: 11,
+        &quot;south&quot;: 10
+      }
+    }
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.jobs.status"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.jobs.status
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Inform about a status change of a job.</p>
+
+<p>Subscriptions to this message can be restricted to a certain job by specifying a <code>job_id</code>.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>job_id <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Unique identifier of a job that is generated by the back-end during job submission.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>status <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Current status</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>progress </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              number
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Progress of a running job in percent.</td>
+          </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.jobs.status&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;job_id&quot;: &quot;a3cca2b2aa1e3b5b&quot;,
+    &quot;status&quot;: &quot;running&quot;,
+    &quot;progress&quot;: 75.5
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.files"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.files
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Inform about changes regarding the user files.</p>
+
+<p>Subscriptions to this message can't be restricted to a certain file or folder.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>user_id <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Unique identifier of the user.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>path <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Path of the file, relative to the user&#x27;s root dir, i.e. MUST NOT contain the name of that root dir and MUST NOT start with a slash. MUST NOT be url-encoded.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>action <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Describes what has changed.</td>
+          </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json"></code></pre>
+</div>
+
+  <h4>Example of payload <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.files&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;user_id&quot;: &quot;john_doe&quot;,
+    &quot;path&quot;: &quot;new_file.txt&quot;,
+    &quot;action&quot;: &quot;created&quot;
+  }
+}</code></pre>
+
+</div>
+</div>
+<div class="topic">
+  <a name="topic-openeo.data"></a>
+  <h3 class="topic__header">
+
+    <span class="operation-badge operation-badge--publish topic__header__operation-badge">Publish</span>
+
+
+    openeo.data
+  </h3>
+
+
+  <h4>Message</h4>
+
+<div class="operation ">
+<p>Inform about changes regarding an EO dataset.</p>
+
+<p>At least one of the <code>temporal_extent</code> and <code>spatial_extent</code> fields MUST be specified.</p>
+<p>Subscriptions to this message can be restricted to a certain collection by specifying  <code>name</code> and providing a valid collection name.</p>
+
+
+
+<h4>Payload</h4>
+
+<a name="schema-Message Payload"></a>
+<div class="schema">
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">message <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>issued <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell">date-time</td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Message type</td>
+          </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">payload <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            object
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+        </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>name <span class="required-badge">(Required)</span></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              string
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">Unique identifier for EO datasets.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>temporal_extent </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              array
+              
+              
+              (string)
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">MUST be specified if the temporal extent of the dataset has changed. The temporal extent is always specified as an array, that consists of either a single timestamp or a start and an end time, each element formatted as a RFC 3339 date-time. Specifies the temporal extent of the data that has changed, not of the whole dataset. Example: The dataset covers images from beginning of 2015 until the end of 2018. A single image has been added, captured at the first day in 2019 at 01:00:00 UTC (1am). The spatial extent specified here must be an array containing a single string: &#x60;2019-01-01T01:00:00Z&#x60;.</td>
+          </tr>
+          <tr class="table__body__row">
+            <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>spatial_extent </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">
+              object
+              
+              
+              
+            </td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell"></td>
+            <td class="table__body__cell">MUST always be specified. It is the spatial extent of the data that was changed. Specifies the spatial extent of the data that has changed, not of the whole dataset. Example: The dataset covers the whole world and an image of Austria has been added. The spatial extent specified here must be the bounding box of Austria.</td>
+          </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>crs </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                string
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">EPSG:4326</td>
+              <td class="table__body__cell">Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.
+            
+            Defaults to &#x60;EPSG:4326&#x60; unless the client explicitly requests a different coordinate reference system.</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>west <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Lower left corner, coordinate axis 1 (west).</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>east <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Upper right corner, coordinate axis 1 (east).</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>north <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Lower left corner, coordinate axis 2 (north).</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>south <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Upper right corner, coordinate axis 2 (south).</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>base </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Lower left corner, coordinate axis 3 (base, optional).</td>
+            </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-space"></span><span class="tree-leaf"></span>height </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                number
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">Upper right corner, coordinate axis 3 (height, optional).</td>
+            </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">{
+  &quot;message&quot;: {
+    &quot;issued&quot;: &quot;2018-08-07T14:06:36Z&quot;,
+    &quot;topic&quot;: &quot;openeo.data&quot;
+  },
+  &quot;payload&quot;: {
+    &quot;name&quot;: &quot;MOD18Q1&quot;,
+    &quot;temporal_extent&quot;: [
+      &quot;2018-08-07T15:30:00Z&quot;,
+      &quot;2018-08-08T16:43:00Z&quot;
+    ],
+    &quot;spatial_extent&quot;: {
+      &quot;west&quot;: 34.6,
+      &quot;east&quot;: 35.1,
+      &quot;south&quot;: 39.6,
+      &quot;north&quot;: 40.1
+    }
+  }
+}</code></pre>
+
+</div>
+</div>
+<h2 class="section-header">Messages</h2>
+
+<h2 class="section-header">Schemas</h2>
+
+<a name="schema-authorization"></a>
+<div class="schema">
+  <h4>authorization</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">authorization </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually &#x60;Bearer&#x60;), a space and the actual token for authorization.</td>
+        </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">&quot;Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0&quot;</code></pre>
+</div>
+<a name="schema-message"></a>
+<div class="schema">
+  <h4>message</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">issued <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell">date-time</td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Date and time when the message was sent, formatted as a RFC 3339 date-time.</td>
+        </tr>
+        <tr class="table__body__row">
+          <td class="table__body__cell">topic <span class="required-badge">(Required)</span></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Message type</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <h4>Example <em>(generated)</em></h4>
+
+  <pre class="hljs"><code class="json">{
+  &quot;issued&quot;: &quot;2018-10-12T14:43:27Z&quot;,
+  &quot;topic&quot;: &quot;openeo.sample&quot;
+}</code></pre>
+</div>
+<a name="schema-collection_name"></a>
+<div class="schema">
+  <h4>collection_name</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">collection_name </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Unique identifier for EO datasets.</td>
+        </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">&quot;MOD18Q1&quot;</code></pre>
+</div>
+<a name="schema-job_id"></a>
+<div class="schema">
+  <h4>job_id</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">job_id </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Unique identifier of a job that is generated by the back-end during job submission.</td>
+        </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">&quot;a3cca2b2aa1e3b5b&quot;</code></pre>
+</div>
+<a name="schema-user_id"></a>
+<div class="schema">
+  <h4>user_id</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">user_id </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            string
+            
+            
+            
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">Unique identifier of the user.</td>
+        </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">&quot;john_doe&quot;</code></pre>
+</div>
+<a name="schema-topics"></a>
+<div class="schema">
+  <h4>topics</h4>
+
+  <table class="table">
+    <thead class="table__head">
+      <tr class="table__head__row">
+        <th class="table__head__cell">Name</th>
+        <th class="table__head__cell">Title</th>
+        <th class="table__head__cell">Type</th>
+        <th class="table__head__cell">Format</th>
+        <th class="table__head__cell">Default</th>
+        <th class="table__head__cell">Description</th>
+      </tr>
+    </thead>
+    <tbody class="table__body">
+        <tr class="table__body__row">
+          <td class="table__body__cell">topics </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">
+            array
+            
+            
+            (object)
+          </td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell"></td>
+          <td class="table__body__cell">A list of topics to (un)subscribe to/from.</td>
+        </tr>
+            <tr class="table__body__row">
+              <td class="table__body__cell"><span class="tree-space"></span><span class="tree-leaf"></span>topic <span class="required-badge">(Required)</span></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">
+                string
+                
+                
+                
+              </td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell"></td>
+              <td class="table__body__cell">One of the supported publish topics.</td>
+            </tr>
+    </tbody>
+  </table>
+
+<h4>Example</h4>
+
+<pre class="hljs"><code class="json">[
+  {
+    &quot;topic&quot;: &quot;openeo.jobs.output&quot;,
+    &quot;job_id&quot;: 123
+  },
+  {
+    &quot;topic&quot;: &quot;openeo.jobs.status&quot;
+  },
+  {
+    &quot;topic&quot;: &quot;openeo.data&quot;,
+    &quot;name&quot;: &quot;MOD18Q1&quot;
+  }
+]</code></pre>
+</div>
+</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" type="application/javascript"></script>
+  <script type="application/javascript">
+    function removeCurrentLinkSelection () {
+      var links = document.querySelectorAll('.navigation__list__item-text--link');
+      if (!links) return;
+
+      for (var i=0; i < links.length; i++) {
+        links[i].classList.remove('navigation__list__item-text--link--active');
+      }
+    }
+
+    function selectCurrentLink () {
+      removeCurrentLinkSelection();
+
+      var hash = window.location.hash;
+      if (!hash) return;
+
+      var link = document.querySelector("a[href='"+hash+"']");
+      if (!link) return;
+
+      link.classList.add('navigation__list__item-text--link--active');
+    }
+
+    function highlightCode () {
+      var blocks = document.querySelectorAll('.hljs code');
+
+      for(var i=0; i < blocks.length; i++) {
+        hljs.highlightBlock(blocks[i]);
+      }
+    }
+
+    function bindExpandButtons () {
+      var buttons = document.querySelectorAll('.table__expand');
+
+      for(var i=0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', function (e) {
+          var tableRow = document.querySelector('[data-nested-index="' + e.target.attributes['data-index'].value + '"]');
+          tableRow.classList.toggle('table__body__row--with-nested--expanded');
+          e.target.classList.toggle('table__expand--open');
+        });
+      }
+    }
+
+    window.addEventListener('hashchange', selectCurrentLink);
+    window.addEventListener('load', selectCurrentLink);
+    window.addEventListener('load', highlightCode);
+    window.addEventListener('load', bindExpandButtons);
+  </script>
+</body>
+</html>
