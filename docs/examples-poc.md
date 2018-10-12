@@ -28,7 +28,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "endpoints": [
     {
       "path": "/collections",
