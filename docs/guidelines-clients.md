@@ -15,7 +15,7 @@ Clients can use `snake_case`, `camelCase` or any method used commonly in their e
 
 ### Scopes
 
-Methods usually have a different scope, in object-oriented (OO) programming methods would be part of a class. If programming languages don't have functionalities to scope you may need to simulate it somehow to prevent name collisions. Best practices for this will likely evolve over time.
+Methods usually have a different scope, in object-oriented (OO) programming methods would be part of a class. If programming languages don't have functionalities to scope you may need to simulate it somehow to prevent name collisions, e.g. by adding a prefix to the method names as in the PHP example below. Best practices for this will likely evolve over time.
 
 Example for the `version` method in `openEO`:
 
@@ -203,13 +203,11 @@ cap %>% version()
 con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
 
-pgb = con %>% pgb()
-processgraph = pgb$getCollection(name = "Sentinel-2A") %>% 
-  pgb$filterBbox(east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632") %>%
-  pgb$filterDaterange(extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
-  pgb$NDVI(nir = "B4", red = "B8A") %>%
-  pgb$minTime()
-process_graph = con %>% toJSON(processgraph)
+processgraph = process("get_collection", name = "Sentinel-2A") %>% 
+  process("filterBbox", east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632") %>%
+  process("filterDaterange", extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
+  process("NDVI", nir = "B4", red = "B8A") %>%
+  process("minTime")
 
 job = con %>% createJob(processgraph)
 job %>% startJob()
