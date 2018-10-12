@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed a wrong definition of the header `OpenEO-Costs` in `/preview`.
 - Added missing `createProcessGraph` method to client development guidelines.
+- Fixed typo in method `authenticateOIDC` in client development guidelines.
 
 ## [0.3.0] - 2018-09-21
 First version after proof of concept tackling many major issues. No changelog available.

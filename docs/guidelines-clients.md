@@ -84,7 +84,7 @@ Parameters with a leading `?` are optional.
 | List all collections available on the back-end.              | `GET /collections`        | `listCollections()`                                          |
 | Get information about a single collection.                   | `GET /collections/{name}` | `describeCollection(name)`                                   |
 | List all processes available on the back-end.                | `GET /processes`          | `listProcesses()`                                            |
-| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `autenticateOIDC(?options)`                                  |
+| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `authenticateOIDC(?options)`                                  |
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`  | `authenticateBasic(username, password)`                      |
 | Get information about the authenticated user.                | `GET /me`                 | `describeAccount()`                                          |
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`    | `listFiles(?user_id)`                                        |
