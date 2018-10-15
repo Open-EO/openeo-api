@@ -6,10 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - ?
 
+### Added
+- `createProcessGraph` method to client development guidelines.
+
 ### Fixed
 - Fixed a wrong definition of the header `OpenEO-Costs` in `/preview`.
-- Added missing `createProcessGraph` method to client development guidelines.
 - Fixed typo in method `authenticateOIDC` in client development guidelines.
+- Fixed the definition of spatial extents by swapping north and south.
+- Replaced the outdated occurrences of `srs` with `crs` in spatial extents.
+- Added missing required descriptions to process definitions.
 
 ## [0.3.0] - 2018-09-21
 First version after proof of concept tackling many major issues. No changelog available.

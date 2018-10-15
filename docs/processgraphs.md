@@ -93,11 +93,13 @@ Whenever no value for the variable is defined, the `default` value is used. `<Va
             "default":"S2_L2A_T32TPS_20M"
           }
         },
-        "west":652000,
-        "east":672000,
-        "north":5161000,
-        "south":5181000,
-        "srs":"EPSG:32632"
+        "extent":{
+          "west":652000,
+          "south":5181000,
+          "east":672000,
+          "north":5161000,
+          "crs":"EPSG:32632"
+        }
       },
       "extent":[
         "2017-01-01T00:00:00Z",

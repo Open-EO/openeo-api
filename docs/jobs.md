@@ -38,11 +38,13 @@ Content-Type: application/json; charset=utf-8
             "process_id":"get_collection",
             "name":"S2_L2A_T32TPS_20M"
           },
-          "east":652000,
-          "west":672000,
-          "north":5161000,
-          "south":5181000,
-          "srs":"EPSG:32632"
+          "extent":{
+            "west":672000,
+            "south":5181000,
+            "east":652000,
+            "north":5161000,
+            "crs":"EPSG:32632"
+          }
         },
         "extent":[
           "2017-01-01T00:00:00Z",
@@ -97,10 +99,12 @@ Content-Type: application/json; charset=utf-8
           },
           "bands":8
         },
-        "west":16.1,
-        "east":16.6,
-        "north":48.6,
-        "south":47.2
+        "extent":{
+          "west":16.1,
+          "south":47.2,
+          "east":16.6,
+          "north":48.6
+        }
       },
       "extent":[
         "2017-01-01T00:00:00Z",

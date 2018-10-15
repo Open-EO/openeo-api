@@ -204,7 +204,7 @@ con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
 
 processgraph = process("get_collection", name = "Sentinel-2A") %>% 
-  process("filterBbox", east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632") %>%
+  process("filterBbox", west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632") %>%
   process("filterDaterange", extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
   process("NDVI", nir = "B4", red = "B8A") %>%
   process("minTime")
@@ -228,7 +228,7 @@ print con.list_processes()
 
 processes = con.get_processes();
 pg = processes.get_collection(name = "Sentinel-2A");
-pg = processes.filter_bbox(pg, east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632")
+pg = processes.filter_bbox(pg, west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632")
 pg = processes.filter_daterange(pg, extent = ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
 pg = processes.NDVI(pg, nir = "B4", red = "B8A")
 pg = processes.min_time(pg)
@@ -273,7 +273,7 @@ echo openeo_describe_collection($connection, "Sentinel-2A");
 echo openeo_list_processes($connection);
 
 $pg = openeo_process($pg, "get_collection", ["name" => "Sentinel-2A"]);
-$pg = openeo_process($pg, "filter_bbox", ["east" => 652000, "west" => 672000, "north" => 5161000, "south" => 5181000, "srs" => "EPSG:32632"]);
+$pg = openeo_process($pg, "filter_bbox", ["west" => 672000, "south" => 5181000, "east" => 652000, "north" => 5161000, "crs" => "EPSG:32632"]);
 $pg = openeo_process($pg, "filter_daterange", ["extent" => ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"]]);
 $pg = openeo_process($pg, "NDVI", ["red" => "B4", "nir" => "B8A"]);
 $pg = openeo_process($pg, "min_time");
