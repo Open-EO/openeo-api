@@ -15,7 +15,7 @@ The openEO (core) API is currently released in version **0.3.0**. This branch sp
 | [0.0.1](https://github.com/Open-EO/openeo-api/tree/0.0.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.1/index.html)) | legacy  | First draft with basic ideas, loosely implemented.           |
 | [0.0.2](https://github.com/Open-EO/openeo-api/tree/0.0.2) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.2/index.html)) | legacy  | Proof of concept, implemented.                               |
 | [0.3.0](https://github.com/Open-EO/openeo-api/tree/0.3.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.1/index.html)) | legacy | Major rework. |
-| [**0.3.1**](https://github.com/Open-EO/openeo-api/tree/0.3.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.1/index.html)) | current | Fixes issues in the `/preview` endpoint. |
+| [**0.3.1**](https://github.com/Open-EO/openeo-api/tree/0.3.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.1/index.html)) | current | Fixing minor issues, see the changelog. |
 | [0.4.0](https://github.com/Open-EO/openeo-api/tree/0.4.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.0/index.html)) | planned | Planned to add data set and process descriptions and an extension concept. |
 
 See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
