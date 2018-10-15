@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - More consistent client development guidelines (casing of parameter names).
+- `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
 
 ### Deprecated
 - ...

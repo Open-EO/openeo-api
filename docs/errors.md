@@ -109,7 +109,7 @@ None yet.
 | ----------------- | -------------------------------------------------------- | ------------------------ | ---------------- |
 | 1401              | Server couldn't store file due to server-side reasons.   | Unable to store file.    | 500              |
 | 1402              | The storage quota has been exceeded by the user.         | Insufficient Storage.    | 400              |
-| 1410              | File format, file extension or mime type is not allowed. | File type not allowed.   | 400              |
+| 1410              | File format, file extension or media type is not allowed. | File type not allowed.   | 400              |
 | 1411              | File exceeds allowed maximum file size.                  | File size it too large.  | 400              |
 | 1412              | The content of the file is invalid.                      | File content is invalid. | 400              |
 | 1413              | The file is locked by a running job or another process.  | File is locked.          | 400              |
