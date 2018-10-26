@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `createProcessGraph` method to client development guidelines.
 - JSON file with all potential errors.
 - Name for errors, which will deprecate the numeric error codes.
+- Allow setting a plan for `/preview`
+- Default billing plan in capabilities.
+
+### Changed
+- Several optional fields such as `output`, `title` and `description` are now nullable instead of requiring to omit them.
+- The output format is not required in `/preview` any more and thus allows falling back to the default.
+
+### Deprecated
+- Numeric openEO error codes are soon to be replaced with textual codes.
+- `eo:resolution` in collection bands is a duplicate of `eo:gsd`. Use `eo:gsd` instead.
 
 ### Fixed
 - Fixed a wrong definition of the header `OpenEO-Costs` in `/preview`.

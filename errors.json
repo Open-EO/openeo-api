@@ -1,8 +1,17 @@
 {
-	"PathNotFound": {
+	"Internal": {
+		"code": 500,
+		"description": "An internal server error with a proprietary message.",
+		"message": "Server error: {message}",
+		"http": 500,
+		"tags": [
+			"general"
+		]
+	},
+	"NotFound": {
 		"code": 404,
-		"description": "To be used if the path is invalid, i.e. the requested resource is not available. Note: Unsupported endpoints MUST use code 501.",
-		"message": "Path not found.",
+		"description": "To be used if the requested resource does not exist. Note: Unsupported endpoints MUST send an 'FeatureUnsupported' error. There are also specialized errors for missing jobs (JobNotFound), files (FileNotFound), etc.",
+		"message": "Resource not found.",
 		"http": 404,
 		"tags": [
 			"general"
@@ -17,11 +26,29 @@
 			"general"
 		]
 	},
-	"ServiceUnavailable": {
+	"InfrastructureMaintenance": {
 		"code": 503,
-		"description": null,
-		"message": "Service not available at the moment.",
+		"description": "Service is currently not available, but the infrastructure is currently undergoing maintenance work.",
+		"message": "Service is not available at the moment due to maintenance work. Please try again later.",
 		"http": 503,
+		"tags": [
+			"general"
+		]
+	},
+	"InfrastructureBusy": {
+		"code": 603,
+		"description": "Service is generally available, but the infrastructure can't handle it at the moment as too many requests are processed.",
+		"message": "Service is not available at the moment due to overloading. Please try again later.",
+		"http": 503,
+		"tags": [
+			"general"
+		]
+	},
+	"Timeout": {
+		"code": 408,
+		"description": "The request took too long and timed out.",
+		"message": "Request timed out.",
+		"http": 408,
 		"tags": [
 			"general"
 		]
@@ -53,13 +80,64 @@
 			"general"
 		]
 	},
+	"BudgetInvalid": {
+		"code": 621,
+		"description": "The specified budget is too low as it is either smaller than or equal to 0 or below the costs.",
+		"message": "The specified budget is too low.",
+		"http": 400,
+		"tags": [
+			"job",
+			"secondary_service"
+		]
+	},
+	"NoDataForUpdate": {
+		"code": 631,
+		"description": "For PATCH requests: No valid data specified at all.",
+		"message": "No valid data specified to be updated.",
+		"http": 400,
+		"tags": [
+			"job",
+			"secondary_service",
+			"process_graph"
+		]
+	},
+	"PropertyNotEditable": {
+		"code": 632,
+		"description": "For PATCH requests: The specified parameter can't be updated. It is read-only.",
+		"message": "Specified property '{property}' is read-only.",
+		"http": 400,
+		"tags": [
+			"job",
+			"secondary_service",
+			"process_graph"
+		]
+	},
+	"WebSocketUpgradeNotRequested": {
+		"code": 801,
+		"description": "In order to subscribe the connection must be upgradable to WebSockets.",
+		"message": "Client sent invalid request to establish subscriptions.",
+		"http": 400,
+		"tags": [
+			"general"
+		]
+	},
+	"CollectionNotFound": {
+		"code": 700,
+		"description": "The requested collection does not exist.",
+		"message": "Collection does not exist.",
+		"http": 404,
+		"tags": [
+			"collections"
+		]
+	},
 	"StorageFailure": {
 		"code": 1401,
-		"description": "Server couldn't store file due to server-side reasons.",
-		"message": "Unable to store file.",
+		"description": "Server couldn't store file(s) due to server-side reasons.",
+		"message": "Unable to store file(s).",
 		"http": 500,
 		"tags": [
-			"file"
+			"file",
+			"job"
 		]
 	},
 	"StorageQuotaExceeded": {
@@ -68,13 +146,41 @@
 		"message": "Insufficient Storage.",
 		"http": 400,
 		"tags": [
+			"file",
+			"job"
+		]
+	},
+	"FileNotFound": {
+		"code": 1400,
+		"description": "The requested file does not exist.",
+		"message": "File does not exist.",
+		"http": 404,
+		"tags": [
+			"file"
+		]
+	},
+	"FilePathInvalid": {
+		"code": 1403,
+		"description": "The specified path is invalid or not accessible. Path could contain invalid characters, an invalid user ID or point to an existing folder or a location outside of the user folder.",
+		"message": "File path is invalid.",
+		"http": 400,
+		"tags": [
+			"file"
+		]
+	},
+	"ContentTypeInvalid": {
+		"code": 1409,
+		"description": "The specified media (MIME) type used in the Content-Type header is not allowed.",
+		"message": "Media type specified in the request is not supported. Supported media types: {types}",
+		"http": 400,
+		"tags": [
 			"file"
 		]
 	},
 	"FileTypeInvalid": {
 		"code": 1410,
-		"description": "File format, file extension or mime type is not allowed.",
-		"message": "File type not allowed.",
+		"description": "File format, file extension or media (MIME) type is not allowed.",
+		"message": "File type not allowed. Allowed file types: {types}",
 		"http": 400,
 		"tags": [
 			"file"
@@ -83,7 +189,7 @@
 	"FileSizeExceeded": {
 		"code": 1411,
 		"description": "File exceeds allowed maximum file size.",
-		"message": "File size it too large.",
+		"message": "File size it too large. Maximum file size: {size}",
 		"http": 400,
 		"tags": [
 			"file"
@@ -105,6 +211,15 @@
 		"http": 400,
 		"tags": [
 			"file"
+		]
+	},
+	"ProcessGraphNotFound": {
+		"code": 2000,
+		"description": "The requested process graph does not exist.",
+		"message": "Process graph does not exist.",
+		"http": 404,
+		"tags": [
+			"process_graphs"
 		]
 	},
 	"ProcessGraphMissing": {
@@ -170,11 +285,11 @@
 			"process_graphs"
 		]
 	},
-	"RequestTimeout": {
-		"code": 408,
-		"description": "The (synchronous) request timed out.",
-		"message": "Request timed out.",
-		"http": 408,
+	"JobNotFound": {
+		"code": 5101,
+		"description": "The requested job does not exist.",
+		"message": "The job does not exist.",
+		"http": 404,
 		"tags": [
 			"jobs"
 		]
@@ -182,7 +297,7 @@
 	"FormatUnsupported": {
 		"code": 3001,
 		"description": null,
-		"message": "Output format '{format}' not supported.",
+		"message": "Output format not supported.",
 		"http": 400,
 		"tags": [
 			"jobs"
@@ -217,29 +332,29 @@
 	},
 	"JobLocked": {
 		"code": 3005,
-		"description": "The job is currently locked due to an enabled service or a running batch computation and can't be modified meanwhile.",
-		"message": "Job is locked.",
+		"description": "The job is currently locked due to a running batch computation and can't be modified meanwhile.",
+		"message": "Job is locked due to a queued or running batch computation.",
 		"http": 400,
 		"tags": [
 			"jobs"
 		]
 	},
-	"ProcessingNotFinished": {
+	"JobNotFinished": {
 		"code": 3006,
-		"description": "The job has not finished computing the results yet. Try again later.",
-		"message": "Result processing has not finished yet.",
+		"description": null,
+		"message": "Job has not finished computing the results yet. Please try again later.",
 		"http": 400,
 		"tags": [
 			"jobs"
 		]
 	},
-	"AuthorizationRequired": {
-		"code": 401,
-		"description": "The back-end responds with this error code whenever the HTTP status code 401 is appropriate (see above) and no other openEO error code in the 4000 range is suitable.",
-		"message": "Unauthorized.",
-		"http": 401,
+	"JobNotStarted": {
+		"code": 3007,
+		"description": "Job has not been queued or started yet or was canceled and not restarted by the user.",
+		"message": "Job hasn't been started yet.",
+		"http": 400,
 		"tags": [
-			"auth"
+			"jobs"
 		]
 	},
 	"PaymentRequired": {
@@ -248,23 +363,27 @@
 		"message": "Payment required.",
 		"http": 402,
 		"tags": [
-			"billing"
+			"billing",
+			"job",
+			"secondary_service"
 		]
 	},
-	"PermissionsInsufficient": {
-		"code": 403,
-		"description": "The back-end responds with this error code whenever the HTTP status code 403 is appropriate (see above) and no other openEO error code in the 4000 range is suitable.",
-		"message": "Forbidden.",
-		"http": 403,
-		"tags": [
-			"auth"
-		]
-	},
-	"PasswordInsecure": {
-		"code": 4001,
-		"description": "The specified password is not considered secure by the policy of the back-end provider or no password was given at all. The user needs to specify a different password to proceed.",
-		"message": "Password does not meet the requirements.",
+	"BillingPlanInvalid": {
+		"code": 4101,
+		"description": "The specified billing plan is not on the list of available plans.",
+		"message": "The specified billing plan is not valid.",
 		"http": 400,
+		"tags": [
+			"billing",
+			"job",
+			"secondary_service"
+		]
+	},
+	"AuthenticationRequired": {
+		"code": 401,
+		"description": "The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.",
+		"message": "Unauthorized.",
+		"http": 401,
 		"tags": [
 			"auth"
 		]
@@ -296,49 +415,49 @@
 			"auth"
 		]
 	},
+	"ServiceNotFound": {
+		"code": 5000,
+		"description": "The requested secondary service does not exist.",
+		"message": "Service does not exist.",
+		"http": 404,
+		"tags": [
+			"secondary_service"
+		]
+	},
 	"ServiceUnsupported": {
 		"code": 5001,
 		"description": null,
-		"message": "Service type is not supported.",
+		"message": "Secondary service type is not supported.",
 		"http": 400,
 		"tags": [
-			"web_services"
-		]
-	},
-	"JobNotFound": {
-		"code": 5101,
-		"description": "Invalid job id specified.",
-		"message": "Job does not exist.",
-		"http": 400,
-		"tags": [
-			"web_services"
+			"secondary_service"
 		]
 	},
 	"ServiceArgumentUnsupported": {
 		"code": 5102,
 		"description": null,
-		"message": "Service argument '{argument}' is not supported.",
+		"message": "Secondary service argument '{argument}' is not supported.",
 		"http": 400,
 		"tags": [
-			"web_services"
+			"secondary_service"
 		]
 	},
 	"ServiceArgumentInvalid": {
 		"code": 5103,
 		"description": null,
-		"message": "Invalid value '{value}' for the service argument '{argument}' specified.",
+		"message": "Invalid value '{value}' for the secondary service argument '{argument}' specified.",
 		"http": 400,
 		"tags": [
-			"web_services"
+			"secondary_service"
 		]
 	},
 	"ServiceArgumentRequired": {
 		"code": 5104,
 		"description": null,
-		"message": "Required service argument '{argument}' is missing.",
+		"message": "Required secondary service argument '{argument}' is missing.",
 		"http": 400,
 		"tags": [
-			"web_services"
+			"secondary_service"
 		]
 	}
 }

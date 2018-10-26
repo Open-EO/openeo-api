@@ -52,10 +52,10 @@ The openEO API often uses the following HTTP status codes for failed requests:
   The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
 
 - **401 Unauthorized**:
-  The client **did not** provide any authorization details (usually using the Authorization header), but authorization is required for this request to be processed.
+  The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
 
 - **403 Forbidden**:
-  The client **did** provide authorization details (usually using the Authorization header), but the provided credentials or the authorization token is invalid or has expired.
+  The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
 
 - **404 Not Found**:
   The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
