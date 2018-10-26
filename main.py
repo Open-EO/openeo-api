@@ -16,7 +16,9 @@ def build_error_list():
     with open('errors.json') as f:
         data = json.load(f)
 
+    # Group by tag in a dict
     errors = {}
+    tags = []
     for key, val in data.items():
         val['name'] = key
         if 'description' not in val or val['description'] is None:
@@ -28,14 +30,25 @@ def build_error_list():
         if 'tags' not in val or val['tags'] is None or not val['tags']:
             raise Exception("No tags specified for error: " + key)
         for tag in val['tags']:
-            if tag in errors:
-                errors[tag].append(val)
-            else:
-                errors[tag] = [val]
+            if tag not in tags:
+                tags.append(tag)
+                errors[tag] = {}
+            errors[tag][key] = val
 
+    tags.sort()
+
+    # Create table of contents
     html = ""
-    for tag, error in errors.items():
-        html += "<h3>" + tag.replace('_', ' ').title() + "</h3>"
+    html += "<h3>Categories</h3>"
+    html += "<ul>"
+    for tag in tags:
+        html += "<li><a href='#" + slugify(tag) + "'>" + tag + "</a></li>"
+    html += "</ul>"
+
+    # Generate tables with errors
+    for tag in tags:
+        html += "<a name='" + slugify(tag) + "'></a>"
+        html += "<h3>" + tag + "</h3>"
         html += "<table>"
         html += "<tr>"
         html += "<th>openEO Error Code</th>"
@@ -44,14 +57,18 @@ def build_error_list():
         html += "<th>Message</th>"
         html += "<th>HTTP Status Code</th>"
         html += "</tr>"
-        for val in error:
+        for key in sorted(errors[tag].keys()):
+            error = errors[tag][key]
             html += "<tr>"
-            html += "<td>" + str(val['code']) + "</td>"
-            html += "<td>" + val['name'] + "</td>"
-            html += "<td>" + val['description'] + "</td>"
-            html += "<td>" + val['message'] + "</td>"
-            html += "<td>" + str(val['http']) + "</td>"
+            html += "<td>" + str(error['code']) + "</td>"
+            html += "<td>" + error['name'] + "</td>"
+            html += "<td>" + error['description'] + "</td>"
+            html += "<td>" + error['message'] + "</td>"
+            html += "<td>" + str(error['http']) + "</td>"
             html += "</tr>"
         html += "</table>"
 
     return html
+
+def slugify(title):
+    return title.lower().replace(' ', '_')
