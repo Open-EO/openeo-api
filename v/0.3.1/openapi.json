@@ -91,7 +91,7 @@
                     },
                     "endpoints": {
                       "type": "array",
-                      "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented and do not return HTTP error code 501.",
+                      "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented and do not return openEO error `FeatureUnsupported` / HTTP error code 501.",
                       "items": {
                         "type": "object",
                         "required": [
@@ -166,6 +166,11 @@
                           "description": "The currency the back-end is billing in. The currency MUST be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
                           "type": "string",
                           "example": "USD"
+                        },
+                        "default_plan": {
+                          "type": "string",
+                          "description": "Name of the default plan to use when the user doesn't specify a plan. Is allowed to be *case insensitive* throughout the API.",
+                          "example": "free"
                         },
                         "plans": {
                           "description": "Array of plans",
@@ -412,10 +417,10 @@
                             "$ref": "#/components/schemas/collection_name"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/collection_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/collection_description"
                           },
                           "license": {
                             "$ref": "#/components/schemas/license"
@@ -565,10 +570,10 @@
                       "$ref": "#/components/schemas/collection_name"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/collection_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/collection_description"
                     },
                     "license": {
                       "$ref": "#/components/schemas/license"
@@ -585,11 +590,11 @@
                     },
                     "version": {
                       "type": "string",
-                      "description": "Version of the collection. [Semantic Versioning (SemVer)](https://semver.org/) SHOULD be followed."
+                      "description": "Version of the collection."
                     },
                     "provider": {
                       "type": "array",
-                      "description": "A list of data providers, the organizations which influenced the content of the collection. Providers should be listed in chronological order with the most recent provider being the last element of the list. The hosting provider MUST NOT be listed here.",
+                      "description": "A list of data providers, the organizations which influenced the content of the collection. Providers should be listed in chronological order with the most recent provider being the last element of the list.",
                       "items": {
                         "required": [
                           "name"
@@ -620,7 +625,7 @@
                     },
                     "eo:constellation": {
                       "type": "string",
-                      "description": "Name of the group or constellation that the platform belongs to. Example: The Sentinel-2 group has S2A and S2B, this field allows users to search for Sentinel-2 data without needing to specify which specific platform the data came from."
+                      "description": "The name of the group of satellites that have similar payloads and have their orbits arranged in a way to increase the temporal resolution of acquisitions of data with similar geometric and radiometric characteristics. Examples are the Sentinel-2 constellation, which has S2A and S2B and RapidEye. This field allows users to search for Sentinel-2 data, for example, without needing to specify which specific platform the data came from."
                     },
                     "eo:instrument": {
                       "type": "string",
@@ -628,7 +633,7 @@
                     },
                     "eo:epsg": {
                       "type": "number",
-                      "description": "A Coordinate Reference System (CRS) is the native reference system (sometimes called a 'projection') used by the data, and can usually be referenced using an EPSG code. If the data does not have a CRS, such as in the case of non-rectified imagery with Ground Control Points, eo:epsg should be set to null. It should also be set to null if a CRS exists, but for which there is no valid EPSG code.",
+                      "description": "A Coordinate Reference System (CRS) is the native reference system (sometimes called a 'projection') used by the data, and can usually be referenced using an EPSG code. If the data does not have a CRS, such as in the case of non-rectified imagery with Ground Control Points, eo:epsg should be set to null. It should also be set to `null` if a CRS exists, but for which there is no valid EPSG code.",
                       "nullable": true
                     },
                     "eo:bands": {
@@ -684,7 +689,8 @@
                           },
                           "resolution": {
                             "description": "Spatial resolution of the band, in meters.",
-                            "type": "number"
+                            "type": "number",
+                            "deprecated": true
                           },
                           "periodicity": {
                             "description": "Periodictity of the measurements, preferably specified using ISO 8601.",
@@ -1396,7 +1402,7 @@
     "/preview": {
       "post": {
         "summary": "Process and download EO data synchronously.",
-        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending error code 408. A header named `OpenEO-Costs` MAY be sent with all responses, which MUST include the costs for processing and downloading the data. This endpoint could be used especially to generate small previews or test process graphs before starting a batch job.",
+        "description": "Process graphs will be executed directly and the result will be downloaded in the specified format. Requests might time-out after a certain amount of time by sending openEO error `RequestTimeout`. A header named `OpenEO-Costs` MAY be sent with all responses, which MUST include the costs for processing and downloading the data. This endpoint could be used especially to generate small previews or test process graphs before starting a batch job.",
         "tags": [
           "Process Graph Management",
           "Job Management"
@@ -1439,8 +1445,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "process_graph",
-                  "output"
+                  "process_graph"
                 ],
                 "properties": {
                   "process_graph": {
@@ -1451,6 +1456,9 @@
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
+                  },
+                  "plan": {
+                    "$ref": "#/components/schemas/billing_plan_defaultable"
                   }
                 }
               }
@@ -1938,7 +1946,7 @@
                     "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
+                    "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -2001,7 +2009,7 @@
                     "$ref": "#/components/schemas/service_parameters"
                   },
                   "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
+                    "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -2252,7 +2260,7 @@
                     "$ref": "#/components/schemas/output_format"
                   },
                   "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
+                    "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -2262,7 +2270,7 @@
               }
             }
           },
-          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format. The output format might be overridden during batch job creation and by secondary web services."
+          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format."
         }
       }
     },
@@ -2274,7 +2282,7 @@
       ],
       "patch": {
         "summary": "Modify a job.",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with error code 3005.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with openEO error `JobLocked`.",
         "tags": [
           "Job Management"
         ],
@@ -2313,7 +2321,7 @@
                     "$ref": "#/components/schemas/output_format"
                   },
                   "plan": {
-                    "$ref": "#/components/schemas/billing_plan"
+                    "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -2489,7 +2497,7 @@
       ],
       "get": {
         "summary": "Download information for a completed job.",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error code 3006.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nDepending on the `Accept` header, the response is either a JSON array containing links or a metalink XML document.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
         "tags": [
           "Job Management"
         ],
@@ -3053,8 +3061,14 @@
         "type": "number",
         "nullable": true,
         "default": null,
-        "description": "Maximum amount of costs the user is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with error code 402 if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought. Setting the buget to `null` means there is no specified budget.",
+        "description": "Maximum amount of costs the user is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought. Setting the buget to `null` means there is no specified budget.",
         "example": 100
+      },
+      "billing_plan_defaultable": {
+        "type": "string",
+        "description": "The billing plan to process and charge the job with.\n\nThe plans and the default plan can be retrieved by calling `GET /`.\n\nBilling plans MUST be accepted *case insensitive*. Billing plans not on the list of available plans MUST be rejected with openEO error `BillingPlanInvalid`.\n\nIf no billing plan is specified by the client, the server MUST default to the default billing plan in `GET /`. If the default billing plan of the provider changes, the job or service MUST not be affected by the change, i.e. the default plan which is valid during job or service creation must be permanently assigned to the job or service until the client requests to change it.",
+        "example": "free",
+        "nullable": true
       },
       "billing_plan": {
         "type": "string",
@@ -3229,12 +3243,22 @@
       "title": {
         "description": "A short description to easily distinguish entities.",
         "type": "string",
+        "nullable": true,
         "example": "NDVI based on Sentinel 2"
       },
       "description": {
         "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
         "type": "string",
+        "nullable": true,
         "example": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery."
+      },
+      "collection_title": {
+        "description": "A short descriptive one-line title for the collection.",
+        "type": "string"
+      },
+      "collection_description": {
+        "description": "Detailed multi-line description to fully explain the collection. [CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string"
       },
       "service_type": {
         "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
@@ -3308,6 +3332,7 @@
       "output_format": {
         "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
         "type": "object",
+        "nullable": true,
         "required": [
           "format"
         ],
