@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Several optional fields such as `output`, `title` and `description` are now nullable instead of requiring to omit them.
 - The output format is not required in `POST /preview` any more and thus allows falling back to the default.
+- The `extent` parameters in `filter_bbox` and `filter_daterange` are formally required now.
 
 ### Deprecated
 - Numeric openEO error codes are soon to be replaced with textual error codes.
