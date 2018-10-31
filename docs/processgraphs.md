@@ -41,8 +41,7 @@ A value is defined as follows:
 ```
 
 !!! note
-​    The specified data types except `Process` and `Variable` (see definition above) are the native data types supported by JSON. Some limitations apply:
-​    * An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
+​    The specified data types except `Process` and `Variable` (see definition above) are the native data types supported by JSON. Limitations apply:
 ​    * Objects are not allowed to have keys with the following names:
 ​      * `process_id`, except for objects of type `Process`
 ​      * `variable_id`, except for objects of type `Variable`

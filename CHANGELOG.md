@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced the outdated occurrences of `srs` with `crs` in spatial extents.
 - Added missing required descriptions to process definitions.
 - Added missing error messages.
+- Fixed unclear specification for arrays used as process graph arguments.
 
 ## [0.3.0] - 2018-09-21
 First version after proof of concept tackling many major issues. No changelog available.
