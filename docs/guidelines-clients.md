@@ -98,9 +98,9 @@ Parameters with a leading `?` are optional.
 | Validates a process graph.                                   | `POST /validate`          | `validateProcessGraph(process_graph)`                        |
 | Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs`     | `listProcessGraphs()`                                        |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`    | `createProcessGraph(process_graph, ?title, ?description)`    |
-| Executes a process graph synchronously.                      | `POST /preview`           | `execute(process_graph, output_format, ?output_parameters, ?budget)` |
+| Executes a process graph synchronously.                      | `POST /preview`           | `execute(process_graph, ?output_format, ?output_parameters, ?budget)` |
 | Lists all jobs of the authenticated user. Returns a list of `Job`. | `GET /jobs`               | `listJobs()`                                                 |
-| Creates a new job. Returns a `Job`.                          | `POST /jobs`              | `createJob(process_graph, output_format, ?output_parameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Creates a new job. Returns a `Job`.                          | `POST /jobs`              | `createJob(process_graph, ?output_format, ?output_parameters, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Lists all secondary services of the authenticated user. Returns a list of `Service`. | `GET /services`           | `listServices()`                                             |
 | Creates a new secondary service. Returns  a `Service`.       | `POST /services`          | `createService(process_graph, type, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)` |
 
