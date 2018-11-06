@@ -28,7 +28,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "endpoints": [
     {
       "path": "/collections",
@@ -289,9 +289,9 @@ Content-Type: application/json; charset=utf-8
             "format": "spatial_extent",
             "required": [
               "west",
+              "south",
               "east",
-              "north",
-              "south"
+              "north"
             ],
             "properties": {
               "crs": {
@@ -300,27 +300,27 @@ Content-Type: application/json; charset=utf-8
                 "default": "EPSG:4326"
               },
               "west": {
-                "description": "Lower left corner, coordinate axis 1 (west).",
-                "type": "number"
-              },
-              "east": {
-                "description": "Upper right corner, coordinate axis 1 (east).",
-                "type": "number"
-              },
-              "north": {
-                "description": "Lower left corner, coordinate axis 2 (north).",
+                "description": "West (lower left corner, coordinate axis 1).",
                 "type": "number"
               },
               "south": {
-                "description": "Upper right corner, coordinate axis 2 (south).",
+                "description": "South (lower left corner, coordinate axis 2).",
+                "type": "number"
+              },
+              "east": {
+                "description": "East (upper right corner, coordinate axis 1).",
+                "type": "number"
+              },
+              "north": {
+                "description": "North (upper right corner, coordinate axis 2).",
                 "type": "number"
               },
               "base": {
-                "description": "Lower left corner, coordinate axis 3 (base, optional).",
+                "description": "Base (optional, lower left corner, coordinate axis 3).",
                 "type": "number"
               },
               "height": {
-                "description": "Upper right corner, coordinate axis 3 (height, optional).",
+                "description": "Height (optional, upper right corner, coordinate axis 3).",
                 "type": "number"
               }
             }
@@ -657,9 +657,9 @@ Content-Type: application/json; charset=utf-8
         },
         "extent":{
           "west":16.1,
+          "south":47.2,
           "east":16.6,
-          "north":48.6,
-          "south":47.2
+          "north":48.6
         }
       },
       "extent":[
@@ -806,9 +806,9 @@ Content-Type: application/json; charset=utf-8
         },
         "extent":{
           "west":16.1,
+          "south":47.2,
           "east":16.6,
-          "north":48.6,
-          "south":47.2
+          "north":48.6
         }
       },
       "extent":[
@@ -881,9 +881,9 @@ Content-Type: application/json; charset=utf-8
         },
         "extent":{
           "west":16.1,
+          "south":47.2,
           "east":16.6,
-          "north":48.6,
-          "south":47.2
+          "north":48.6
         }
       },
       "extent":[

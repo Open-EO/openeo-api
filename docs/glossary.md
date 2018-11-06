@@ -16,8 +16,8 @@ In our domain, different terms are used to describe EO data(sets). Within openEO
 
 The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists synonyms used (by organizations) for:
 
-- **granule**: dataset (ISO 19115), dataset (ESA), granule (NASA), product (ESA, CNES), scene (JAXA)
-- **collection**: dataset series (ISO 19115), collection (CNES, NASA), dataset (JAXA), dataset series (ESA), product (JAXA)
+- **granule**: dataset (ESA, ISO 19115), granule (NASA), product (ESA, CNES), scene (JAXA)
+- **collection**: dataset series (ESA, ISO 19115), collection (CNES, NASA), dataset (JAXA), product (JAXA)
 
 ## Processes and process graphs
 

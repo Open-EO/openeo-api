@@ -15,12 +15,12 @@ Clients can use `snake_case`, `camelCase` or any method used commonly in their e
 
 ### Scopes
 
-Methods usually have a different scope, in object-oriented (OO) programming methods would be part of a class. If programming languages don't have functionalities to scope you may need to simulate it somehow to prevent name collisions. Best practices for this will likely evolve over time.
+Each method belongs to a scope. To achieve this in object-oriented (OO) programming languages, methods would be part of a class. If programming languages don't support scopes, you may need to simulate it somehow to prevent name collisions, e.g. by adding a prefix to the method names (like in the "procedural style" example below). Best practices for this will likely evolve over time.
 
 Example for the `version` method in `openEO`:
 
 * Procedural style: `openeo_version()` 
-* OO style:
+* Object-oriented style:
   ```java
   OpenEO obj = new OpenEO();
   obj.version();
@@ -35,18 +35,24 @@ Example:
   $connection = openeo_connect("https://openeo.org");
   openeo_get_capabilities($connection);
   ```
-* OO style:
+* Object-oriented style:
   ```java
   OpenEO obj = new OpenEO();
   Connection con = obj.connect("https://openeo.org");
   con.getCapabilities();
   ```
 
-There are three types of scopes: 
+### Scope categories
 
-* Root (only the scope `openEO`).
-* API (mostly methods hiding API calls). These may be implemented asynchronously. Method names across root and API scopes MUST be unique.
-* Content (mostly methods hiding the complexity of request and response content, i.e. JSON objects). Usually synchronously implemented. Method names should be prefixed if name collisions are likely. See the `Capabilities` scope for an example.
+Each scope is assigned to a scope category, of which there are three:
+
+* *Root* category: Contains only the scope `openEO`.
+* *API* category: Mostly methods hiding API calls to the back-ends. Methods may be implemented asynchronously. Contains the scopes `Connection`, `File`, `Job`, `ProcessGraph`, `Service`.
+* *Content*: Mostly methods hiding the complexity of response content. Methods are usually implemented synchronously. Currently contains only the scope `Capabilities`. Method names should be prefixed if name collisions are likely.
+
+Method names across ALL the scopes that belong to the *root* or *API* categories MUST be unique. This is the case because the parameter in `hasFeature(method_name)` must be unambiguous.
+
+Method names of scopes in the *Content* category may collide with method names of scopes in the *root*/*API* categories, as is the case with `version()` (relates to (1) the client library version in `openEO` scope and (2) the API version in `Connection` scope).
 
 ### Parameters
 
@@ -62,7 +68,7 @@ Some methods have a long list of (optional) parameters. This is easy to implemen
 
 Parameters with a leading `?` are optional.
 
-### Scope: `openEO`
+### Scope: `openEO` (root category)
 
 | Description                                                  | Client method                             |
 | ------------------------------------------------------------ | ----------------------------------------- |
@@ -74,7 +80,7 @@ Parameters with a leading `?` are optional.
 * **auth_type** in `connect`: `null`, `basic` or `oidc` (non-exclusive). Defaults to `null` (no authentication).
 * **auth_options** in `connect`: May hold additional data for authentication, for example a username and password for `basic` authentication.
 
-### Scope: `Connection` (API)
+### Scope: `Connection` (API category)
 
 | Description                                                  | API Request               | Client method                                                |
 | ------------------------------------------------------------ | ------------------------- | ------------------------------------------------------------ |
@@ -84,16 +90,17 @@ Parameters with a leading `?` are optional.
 | List all collections available on the back-end.              | `GET /collections`        | `listCollections()`                                          |
 | Get information about a single collection.                   | `GET /collections/{name}` | `describeCollection(name)`                                   |
 | List all processes available on the back-end.                | `GET /processes`          | `listProcesses()`                                            |
-| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `autenticateOIDC(?options)`                                  |
+| Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`   | `authenticateOIDC(?options)`                                  |
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`  | `authenticateBasic(username, password)`                      |
 | Get information about the authenticated user.                | `GET /me`                 | `describeAccount()`                                          |
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`    | `listFiles(?user_id)`                                        |
 | Creates a (virtual) file. Returns a `File`.                  | *None*                    | `createFile(path, ?user_id)`                                 |
 | Validates a process graph.                                   | `POST /validate`          | `validateProcessGraph(process_graph)`                        |
-| Lists all process graphs of the authenticated user.Returns a list of `ProcessGraph`. | `GET /process_graphs`     | `listProcessGraphs()`                                        |
-| Executes a process graph synchronously.                      | `POST /preview`           | `execute(process_graph, output_format, ?output_parameters, ?budget)` |
+| Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs`     | `listProcessGraphs()`                                        |
+| Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`    | `createProcessGraph(process_graph, ?title, ?description)`    |
+| Executes a process graph synchronously.                      | `POST /preview`           | `execute(process_graph, ?output_format, ?output_parameters, ?budget)` |
 | Lists all jobs of the authenticated user. Returns a list of `Job`. | `GET /jobs`               | `listJobs()`                                                 |
-| Creates a new job. Returns a `Job`.                          | `POST /jobs`              | `createJob(process_graph, output_format, ?output_parameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Creates a new job. Returns a `Job`.                          | `POST /jobs`              | `createJob(process_graph, ?output_format, ?output_parameters, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Lists all secondary services of the authenticated user. Returns a list of `Service`. | `GET /services`           | `listServices()`                                             |
 | Creates a new secondary service. Returns  a `Service`.       | `POST /services`          | `createService(process_graph, type, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)` |
 
@@ -102,7 +109,7 @@ Parameters with a leading `?` are optional.
 * **user_id** in `listFiles` and `createFile`: Defaults to the user id of the authenticated user.
 * **options** in `authenticateOIDC`: May hold additional data required for OpenID connect authentication.
 
-### Scope `Capabilities` (Content)
+### Scope `Capabilities` (Content category)
 
 Should be prefixed with `Capabilities` if required. In non-object-oriented paradigms it is likely required as `version()` in this scope and the scope `OpenEO` could collide. For example, `version()` in this scope could be named `openeo_capabilities_version()` in procedural style.
 
@@ -116,11 +123,11 @@ Should be prefixed with `Capabilities` if required. In non-object-oriented parad
 
 #### Parameters
 
-* **method_name** in `hasFeature`: The name of a client method in API scope.
+* **method_name** in `hasFeature`: The name of a client method in any of the scopes that are part of the *API* category. E.g. `hasFeature("describeAccount")` checks whether the `GET /me` endpoint is contained in the capabilities response's `endpoints` object.
 
-### Scope: `File` (API)
+### Scope: `File` (API category)
 
-The `File` internally knows the `user_id` and the `path`.
+The `File` scope internally knows the `user_id` and the `path`.
 
 | Description           | API Request                      | Client method          |
 | --------------------- | -------------------------------- | ---------------------- |
@@ -132,7 +139,7 @@ The `File` internally knows the `user_id` and the `path`.
 
 * **target** in `downloadFile`: Path to a local file or folder.
 
-### Scope: `Job` (API)
+### Scope: `Job` (API category)
 
 The `Job` scope internally knows the `job_id`.
 
@@ -152,7 +159,7 @@ The `Job` scope internally knows the `job_id`.
 * **type** in `listResult`: Either `json` or `metalink` (non-exclusive). Defaults to `json`.
 * **target** in `downloadResults`: Path to a local folder.
 
-### Scope: `ProcessGraph` (API)
+### Scope: `ProcessGraph` (API category)
 
 The `ProcessGraph` scope internally knows the `pg_id` (`process_graph_id`).
 
@@ -162,7 +169,7 @@ The `ProcessGraph` scope internally knows the `pg_id` (`process_graph_id`).
 | Update a stored process graph.                    | `PATCH /process_graphs/{pg_id}`  | `updateProcessGraph(?process_graph, ?title, ?description)` |
 | Delete a stored process graph.                    | `DELETE /process_graphs/{pg_id}` | `deleteProcessGraph()`                                     |
 
-### Scope: `Service` (API)
+### Scope: `Service` (API category)
 
 The `Service` scope internally knows the `service_id`.
 
@@ -202,13 +209,11 @@ cap %>% version()
 con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
 
-pgb = con %>% pgb()
-processgraph = pgb$getCollection(name = "Sentinel-2A") %>% 
-  pgb$filterBbox(east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632") %>%
-  pgb$filterDaterange(extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
-  pgb$NDVI(nir = "B4", red = "B8A") %>%
-  pgb$minTime()
-process_graph = con %>% toJSON(processgraph)
+processgraph = process("get_collection", name = "Sentinel-2A") %>% 
+  process("filterBbox", west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632") %>%
+  process("filterDaterange", extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
+  process("NDVI", nir = "B4", red = "B8A") %>%
+  process("minTime")
 
 job = con %>% createJob(processgraph)
 job %>% startJob()
@@ -229,7 +234,7 @@ print con.list_processes()
 
 processes = con.get_processes();
 pg = processes.get_collection(name = "Sentinel-2A");
-pg = processes.filter_bbox(pg, east = 652000, west = 672000, north = 5161000, south = 5181000, srs = "EPSG:32632")
+pg = processes.filter_bbox(pg, west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632")
 pg = processes.filter_daterange(pg, extent = ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
 pg = processes.NDVI(pg, nir = "B4", red = "B8A")
 pg = processes.min_time(pg)
@@ -274,7 +279,7 @@ echo openeo_describe_collection($connection, "Sentinel-2A");
 echo openeo_list_processes($connection);
 
 $pg = openeo_process($pg, "get_collection", ["name" => "Sentinel-2A"]);
-$pg = openeo_process($pg, "filter_bbox", ["east" => 652000, "west" => 672000, "north" => 5161000, "south" => 5181000, "srs" => "EPSG:32632"]);
+$pg = openeo_process($pg, "filter_bbox", ["west" => 672000, "south" => 5181000, "east" => 652000, "north" => 5161000, "crs" => "EPSG:32632"]);
 $pg = openeo_process($pg, "filter_daterange", ["extent" => ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"]]);
 $pg = openeo_process($pg, "NDVI", ["red" => "B4", "nir" => "B8A"]);
 $pg = openeo_process($pg, "min_time");
