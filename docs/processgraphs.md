@@ -41,14 +41,13 @@ A value is defined as follows:
 ```
 
 !!! note
-    The specified data types except `Process` and `Variable` (see definition above) are the native data types supported by JSON. Some limitations apply:
-    * An array MUST always contain *one data type only* and is allowed to contain the data types allowed for `<Value>`.
-    * Objects are not allowed to have keys with the following names:
-      * `process_id`, except for objects of type `Process`
-      * `variable_id`, except for objects of type `Variable`
+​    The specified data types except `Process` and `Variable` (see definition above) are the native data types supported by JSON. Limitations apply:
+​    * Objects are not allowed to have keys with the following names:
+​      * `process_id`, except for objects of type `Process`
+​      * `variable_id`, except for objects of type `Variable`
 
 !!! caution
-    The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
+​    The expected names of arguments are defined by the process descriptions, which can be discovered with calls to `GET /processes`. Therefore, the key name for a key-value-pair holding an image collection as value doesn't necessarily need to be named `imagery`. The name depends on the name of the corresponding process argument the image collection is assigned to. Example 2 demonstrates this by using `collection` as a key once. 
 
 ### Variables
 
@@ -57,7 +56,7 @@ Process graphs can also hold a variable, which can be filled in later. For share
 Variables are defined as follows:
 
 ```
-<Process> := {
+<Variable> := {
   "variable_id": <string>,
   "description": <string>,
   "type": <string>,
