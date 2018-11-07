@@ -15,9 +15,9 @@ A JSON error object SHOULD be sent with all responses that have a status code be
 ``` json
 {
   "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
-  "code": 123,
+  "code": "SampleError",
   "message": "A sample error message.",
-  "url": "http://www.openeo.org/docs/errors/123"
+  "url": "http://www.openeo.org/docs/errors/SampleError"
 }
 ```
 
@@ -25,7 +25,7 @@ Sending `code` and `message` is REQUIRED.
 
 * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
 
-* The `code` is either one of the standardized openEO error codes below or a proprietary error code. Please note, that the numeric error code will be replaced by a descriptive textual code such as `SampleError` in API v0.4.0.
+* The `code` is either one of the standardized textual openEO error codes below or a proprietary error code.
 
 * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
 

@@ -1013,19 +1013,26 @@
                           },
                           "exceptions": {
                             "type": "object",
-                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
+                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys define the error code. This schema follows the schema of the  general openEO error list (see errors.json).",
                             "additionalProperties": {
                               "type": "object",
                               "required": [
-                                "description"
+                                "message"
                               ],
                               "properties": {
-                                "code": {
-                                  "type": "integer",
-                                  "description": "Code to identify the exception."
-                                },
                                 "description": {
-                                  "$ref": "#/components/schemas/description"
+                                  "type": "string",
+                                  "description": "Detailed description to fully explain the error to client users and back-end developers. This should not be shown in the clients directly, but may be linked to in the errors `url` property.  \n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation."
+                                },
+                                "message": {
+                                  "type": "string",
+                                  "description": "Explains the reason the server is rejecting the request. This message is intended to be displayed to the client user. For \"4xx\" error codes the message should explain shortly how the client needs to modify the request.\n\nThe message MAY contain variables, which are enclosed by curly brackets. Example: `{variable_name}`",
+                                  "example": "The value specified for the process argument '{argument}' in process '{process}' is invalid: {reason}"
+                                },
+                                "http": {
+                                  "type": "integer",
+                                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.0/errors/). Defaults to `400`.",
+                                  "default": 400
                                 }
                               }
                             }
@@ -1250,8 +1257,7 @@
                         },
                         "exceptions": {
                           "NotFound": {
-                            "code": 404,
-                            "description": "Process graph doesn't exist."
+                            "message": "Process graph doesn't exist."
                           }
                         }
                       }
@@ -3394,13 +3400,13 @@
             "example": "550e8400-e29b-11d4-a716-446655440000"
           },
           "code": {
-            "type": "number",
-            "description": "The code is either one of the standardized error codes or a custom error code with a number greater than 10000.",
-            "example": 123
+            "type": "string",
+            "description": "The code is either one of the standardized error codes or a custom error code.",
+            "example": "SampleError"
           },
           "message": {
             "type": "string",
-            "description": "A message explaining what the client may need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+            "description": "A message explaining what the client may need to change or what difficulties the server is facing. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
           "links": {
@@ -3411,7 +3417,7 @@
             },
             "example": [
               {
-                "href": "http://www.openeo.org/docs/errors/123",
+                "href": "http://www.openeo.org/docs/errors/SampleError",
                 "rel": "about"
               }
             ]
