@@ -1390,7 +1390,7 @@
                 ],
                 "properties": {
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -1568,7 +1568,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -1595,11 +1595,6 @@
             "Bearer": []
           }
         ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/variables_query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "JSON object with process graph",
@@ -1623,7 +1618,7 @@
                       "$ref": "#/components/schemas/description"
                     },
                     "process_graph": {
-                      "$ref": "#/components/schemas/process_graph"
+                      "$ref": "#/components/schemas/process_graph_vars"
                     }
                   }
                 }
@@ -1673,7 +1668,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -3157,9 +3152,6 @@
             "$ref": "#/components/schemas/process_graph"
           },
           {
-            "$ref": "#/components/schemas/variable"
-          },
-          {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/process_graph_arg_value"
@@ -3167,16 +3159,45 @@
           }
         ]
       },
+      "process_graph_arg_value_vars": {
+        "description": "Arguments for a process. See the API documentation for more information.",
+        "nullable": true,
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/process_graph"
+          },
+          {
+            "$ref": "#/components/schemas/variable"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/process_graph_arg_value_vars"
+            }
+          }
+        ]
+      },
       "process_graph": {
-        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes.",
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does NOT* allow process graph variables.",
         "type": "object",
         "required": [
           "process_id"
         ],
         "properties": {
           "process_id": {
-            "type": "string",
-            "description": "The unique identifier of the process."
+            "$ref": "#/components/schemas/process_id"
           },
           "process_description": {
             "$ref": "#/components/schemas/description"
@@ -3201,10 +3222,65 @@
                 "2017-01-31T23:59:59Z"
               ]
             },
-            "red": "4",
-            "nir": "8"
+            "red": "B4",
+            "nir": "B8"
           }
         }
+      },
+      "process_graph_vars": {
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does* allow process graph variables.",
+        "type": "object",
+        "required": [
+          "process_id"
+        ],
+        "properties": {
+          "process_id": {
+            "$ref": "#/components/schemas/process_id"
+          },
+          "process_description": {
+            "$ref": "#/components/schemas/description"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/process_graph_arg_value_vars"
+        },
+        "example": {
+          "process_id": "min_time",
+          "imagery": {
+            "process_id": "NDVI",
+            "imagery": {
+              "process_id": "filter_daterange",
+              "imagery": {
+                "process_id": "get_collection",
+                "name": {
+                  "variable_id": "collection",
+                  "type": "string",
+                  "default": "Sentinel2A-L1C"
+                }
+              },
+              "extent": [
+                "2017-01-01T00:00:00Z",
+                "2017-01-31T23:59:59Z"
+              ]
+            },
+            "red": {
+              "variable_id": "red_band",
+              "type": "string",
+              "default": "B4"
+            },
+            "nir": {
+              "variable_id": "nir_band",
+              "type": "string",
+              "default": "B8"
+            }
+          }
+        }
+      },
+      "process_id": {
+        "type": "string",
+        "description": "The unique identifier of the process.",
+        "pattern": "^[A-Za-z0-9_\\-]+$",
+        "example": "ndvi"
       },
       "process_graph_id": {
         "type": "string",
@@ -3514,15 +3590,6 @@
       }
     },
     "parameters": {
-      "variables_query": {
-        "name": "*",
-        "in": "query",
-        "description": "Any variable that is defined by the referenced process graph can be used as query parameter. The key of the query parameter has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the query parameter serialized as JSON.",
-        "schema": {
-          "type": "string",
-          "description": "Serialized JSON"
-        }
-      },
       "user_id": {
         "name": "user_id",
         "in": "path",

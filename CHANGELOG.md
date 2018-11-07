@@ -9,18 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ...
 
 ### Changed
-- More consistent client development guidelines (casing of parameter names).
+- More consistent client development guidelines (casing of parameter names). [#124](https://github.com/Open-EO/openeo-api/issues/124)
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
 - The schema for `exceptions` defined in process descriptions (`GET /processes`) follows the general schema for openEO errors.
 
-### Deprecated
-- ...
-
 ### Removed
-- Numeric openEO error codes. Replaced in responses with textual error codes.
+- Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
+- Removed the query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
 
 ### Fixed
-- ...
+- Separated `process_graph` schemas that allow and don't allow process graph variables. [#150](https://github.com/Open-EO/openeo-api/issues/150)
 
 ## [0.3.1] - 2018-11-06
 
@@ -29,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON file with all specified errors.
 - Textual error codes for each specified error.
 - Allow setting a plan for `POST /preview`
-- Default billing plan in `GET /`.
+- Default billing plan in `GET /`. [#141](https://github.com/Open-EO/openeo-api/issues/141)
 - Job ID in JSON response for `GET /jobs/{job_id}/results`.
 
 ### Changed
