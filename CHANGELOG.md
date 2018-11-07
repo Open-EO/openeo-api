@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More consistent client development guidelines (casing of parameter names). [#124](https://github.com/Open-EO/openeo-api/issues/124)
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
 - The schema for `exceptions` defined in process descriptions (`GET /processes`) follows the general schema for openEO errors.
+- The `name` property of processes has changed its name to `id` for consistency.
 
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
