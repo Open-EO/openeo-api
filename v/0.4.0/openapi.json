@@ -1359,7 +1359,7 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph.",
-        "description": "Validates a process graph without executing it. Checks whether the process graph is schematically correct and the processes are supported by the back-end. It also checks the parameter values against the schema, but MAY not check the values are adequate in the context of data. For example, a non-existing band name may not get rejected. Errors that occur during processing MAY not get reported, too. An example could be a division by zero.",
+        "description": "Validates a process graph without executing it. A process graph is considered valid unless \nthe `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported\nby the back-end. It MUST also checks the parameter values against the schema,\nbut checking whether the values are adequate in the context of data is OPTIONAL.\nFor example, a non-existing band name may may get rejected only by a few back-ends.\nErrors that usually occure during processing MAY NOT get reported, e.g. if a\nreferenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once\nthey found the first error. \n\nPlease note that a validation always returns with HTTP status code 200.\nError codes in the 4xx and 5xx ranges MUST be returned only when the generel\nvalidation request is invalid (e.g. server is busy or no process graph parameter specified),\nbut never if the process graph validation found an error (e.g. an unsupported process).",
         "tags": [
           "Process Graph Management"
         ],
@@ -1369,8 +1369,27 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Confirms that the process graph is valid"
+          "200": {
+            "description": "Returns the validation result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "description": "List of errors. An empty list indicates a successful validation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/error"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
