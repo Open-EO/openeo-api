@@ -2447,7 +2447,7 @@
     "/jobs/{job_id}/estimate": {
       "get": {
         "summary": "Get an estimate for a job.",
-        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost. Costs may not include downloading costs. This can be indicated with the respective flag.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration, the costs, the size or a combination of them. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate. Starting to process data afterwards MAY be charged at a higher cost. Costs MAY NOT include downloading costs. This can be indicated with the `downloads_included` flag.",
         "tags": [
           "Job Management"
         ],
@@ -2463,7 +2463,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The estimated costs. At least one of credits or time MUST be returned.",
+            "description": "The estimated costs with regard to money, processing time and storage capacity. At least one of `costs`, `duration` or `size` MUST be provided.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2474,8 +2474,13 @@
                     },
                     "duration": {
                       "type": "string",
-                      "description": "Estimated duration for the operation. Duration must be specified as a ISO 8601 duration.",
+                      "description": "Estimated duration for the operation. Duration MUST be specified as a ISO 8601 duration.",
                       "example": "P1Y2M10DT2H30M"
+                    },
+                    "size": {
+                      "type": "integer",
+                      "description": "Estimated required storage capacity, i.e. the size of the generated files. Size MUST be specified in bytes.",
+                      "example": 157286400
                     },
                     "downloads_included": {
                       "type": "integer",
