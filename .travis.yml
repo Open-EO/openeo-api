@@ -13,18 +13,16 @@ before_install:
 - pip install mkdocs-macros-plugin
 - pip install pymdown-extensions
 - pip install pygments
-- npm install -g asyncapi-docgen
+- npm install -g asyncapi-generator
 
 install:
 - mv CHANGELOG.md docs/changelog.md
+- ag subscriptions.json markdown
+- \mv -f asyncapi.md docs/apireference-subscriptions.md
 - mkdocs build --clean
 - cp *.json site/
-- rm -f site/apireference/index.html
-- rm -f site/processreference/index.html
-- rm -f site/apireference-subscriptions/index.html
-- mv docs/apireference.html site/apireference/index.html
-- mv docs/processreference.html site/processreference/index.html
-- adg subscriptions.json -o site/apireference-subscriptions
+- \mv -f docs/apireference.html site/apireference/index.html
+- \mv -f docs/processreference.html site/processreference/index.html
 
 script:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
