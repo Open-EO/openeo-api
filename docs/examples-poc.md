@@ -246,9 +246,11 @@ Content-Type: application/json; charset=utf-8
             "type": "array",
             "format": "temporal_extent",
             "required": true,
-            "example": [
-              "2016-01-01T00:00:00Z",
-              "2017-10-01T00:00:00Z"
+            "examples": [
+              [
+                "2016-01-01T00:00:00Z",
+                "2017-10-01T00:00:00Z"
+              ]
             ],
             "items": {
               "type": [
