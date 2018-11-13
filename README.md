@@ -25,6 +25,6 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 This repository contains a set of files formally and technically describing the openEO API, each with a human-readable and easily browseable version:
 
 * [openapi.json](openapi.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
-* [processes.json](processes.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
+* [processes/](processes/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
 * [subscriptions.json](subscriptions.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/)) provides the [AsyncAPI](https://www.asyncapi.com/) 1.2 definitions for the WebSocket-based subscriptions and notifications API for openEO.
 * [docs/](docs/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/)) contains all additional written documentation, including 'getting started' guides, the architecture, feature descriptions, development guidelines and more.

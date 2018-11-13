@@ -1,0 +1,74 @@
+{
+  "name": "zonal_statistics",
+  "summary": "Calculates zonal statistics.",
+  "description": "Calculates statistics for each zone specified in a file.",
+  "parameters": {
+    "imagery": {
+      "description": "EO data to process.",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    },
+    "regions": {
+      "description": "GeoJSON or a path to a GeoJSON file containing the regions. For paths you must specify the path to a user-uploaded file without the user id in the path.",
+      "required": true,
+      "schema": {
+        "type": [
+          "object",
+          "string"
+        ]
+      }
+    },
+    "func": {
+      "description": "Statistical function to calculate for the specified zones.",
+      "required": true,
+      "schema": {
+        "type": "string",
+        "enum": [
+          "min",
+          "max",
+          "mean",
+          "median",
+          "mod"
+        ]
+      }
+    },
+    "scale": {
+      "description": "A nominal scale in meters of the projection to work in.",
+      "schema": {
+        "type": "number",
+        "default": 1000
+      }
+    },
+    "interval": {
+      "description": "Interval to group the time series.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "day",
+          "week",
+          "month",
+          "year"
+        ],
+        "default": "day"
+      }
+    }
+  },
+  "returns": {
+    "description": "Processed EO data.",
+    "schema": {
+      "type": "object",
+      "format": "eodata"
+    }
+  },
+  "exceptions": {
+    "FileNotFound": {
+      "description": "The specified file does not exist."
+    },
+    "GeoJsonInvalid": {
+      "description": "The GeoJSON object is invalid."
+    }
+  }
+}

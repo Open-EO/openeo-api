@@ -1,0 +1,68 @@
+{
+  "name": "filter_bbox",
+  "summary": "Filters by spatial extent.",
+  "description": "Drops observations from a collection that are located outside of a given bounding box.",
+  "parameters": {
+    "imagery": {
+      "description": "EO data to process.",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "format": "eodata"
+      }
+    },
+    "extent": {
+      "description": "Spatial extent, may include a vertical axis (height or depth).",
+      "required": true,
+      "schema": {
+        "type": "object",
+        "format": "spatial_extent",
+        "additionalProperties": false,
+        "required": [
+          "west",
+          "south",
+          "east",
+          "north"
+        ],
+        "properties": {
+          "crs": {
+            "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings.\nDefaults to `EPSG:4326` unless the client explicitly requests a different coordinate reference system.",
+            "type": "string",
+            "default": "EPSG:4326"
+          },
+          "west": {
+            "description": "West (lower left corner, coordinate axis 1).",
+            "type": "number"
+          },
+          "south": {
+            "description": "South (lower left corner, coordinate axis 2).",
+            "type": "number"
+          },
+          "east": {
+            "description": "East (upper right corner, coordinate axis 1).",
+            "type": "number"
+          },
+          "north": {
+            "description": "North (upper right corner, coordinate axis 2).",
+            "type": "number"
+          },
+          "base": {
+            "description": "Base (optional, lower left corner, coordinate axis 3).",
+            "type": "number"
+          },
+          "height": {
+            "description": "Height (optional, upper right corner, coordinate axis 3).",
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "returns": {
+    "description": "Processed EO data.",
+    "schema": {
+      "type": "object",
+      "format": "eodata"
+    }
+  }
+}
