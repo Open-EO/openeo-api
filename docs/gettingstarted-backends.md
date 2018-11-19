@@ -10,8 +10,8 @@ You certainly need to understand the [architecture](arch.md) of openEO and conce
 
 If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [Swagger code generator](https://github.com/swagger-api/swagger-codegen). If you are using Python or NodeJS to implement your driver you may re-use some common modules of existing driver implementations:
 
-* [Python Driver Commons](https://github.com/Open-EO/openeo-python-driver)
-* [NodeJS Driver Commons](https://github.com/Open-EO/openeo-nodejs-commons)
+* [Python Driver](https://github.com/Open-EO/openeo-python-driver)
+* [NodeJS Driver](https://github.com/Open-EO/openeo-nodejs-driver)
 
 You can implement a back-end in iterations. It is recommended to start by implementing the [Capabilities](apireference.md#tag/Capabilities) microservice. [EO Data Discovery](apireference.md#tag/EO-Data-Discovery), [Process Discovery](apireference.md#tag/Process-Discovery) are important for the client libraries to be available, too. Afterwards you should implement [Job Management](apireference.md#tag/Job-Management) or [synchronous data processing](apireference.md#/paths/~1preview/post). All other microservices can be added later and are not strictly required to run openEO services. Keep in mind that you don't need to implement all endpoints in the first iteration and that you can specify in the Capabilities, which endpoints you are supporting.
 

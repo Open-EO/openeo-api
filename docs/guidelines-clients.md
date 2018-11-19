@@ -17,13 +17,13 @@ Clients can use `snake_case`, `camelCase` or any method used commonly in their e
 
 Each method belongs to a scope. To achieve this in object-oriented (OO) programming languages, methods would be part of a class. If programming languages don't support scopes, you may need to simulate it somehow to prevent name collisions, e.g. by adding a prefix to the method names (like in the "procedural style" example below). Best practices for this will likely evolve over time.
 
-Example for the `version` method in `openEO`:
+Example for the `clientVersion` method in `openEO`:
 
-* Procedural style: `openeo_version()` 
+* Procedural style: `openeo_client_version()` 
 * Object-oriented style:
   ```java
   OpenEO obj = new OpenEO();
-  obj.version();
+  obj.clientVersion();
   ```
 
 If you can't store scope data in an object, you may need to pass these information as argument(s) to the method.
@@ -52,7 +52,7 @@ Each scope is assigned to a scope category, of which there are three:
 
 Method names across ALL the scopes that belong to the *root* or *API* categories MUST be unique. This is the case because the parameter in `hasFeature(method_name)` must be unambiguous.
 
-Method names of scopes in the *Content* category may collide with method names of scopes in the *root*/*API* categories, as is the case with `version()` (relates to (1) the client library version in `openEO` scope and (2) the API version in `Connection` scope).
+Method names of scopes in the *Content* category may collide with method names of scopes in the *root*/*API* categories and names should be prefixed if collisions of names between different scope categories are to be expected.
 
 ### Parameters
 
@@ -73,7 +73,7 @@ Parameters with a leading `?` are optional.
 | Description                                                  | Client method                             |
 | ------------------------------------------------------------ | ----------------------------------------- |
 | Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
-| Get client library version.                                  | `version()`                               |
+| Get client library version.                                  | `clientVersion()`                         |
 
 #### Parameters
 
@@ -111,13 +111,14 @@ Parameters with a leading `?` are optional.
 
 ### Scope `Capabilities` (Content category)
 
-Should be prefixed with `Capabilities` if required. In non-object-oriented paradigms it is likely required as `version()` in this scope and the scope `OpenEO` could collide. For example, `version()` in this scope could be named `openeo_capabilities_version()` in procedural style.
+Should be prefixed with `Capabilities` if collisions of names between different scope categories are to be expected.
 
 | Description                                      | Field                  | Client method             |
 | ------------------------------------------------ | ---------------------- | ------------------------- |
-| Get openEO version.                              | `version`              | `version()`               |
+| Get the implemented openEO version.              | `api_version`          | `apiVersion()`            |
+| Get the back-end version.                        | `backend_version`      | `backendVersion()`        |
 | List all supported features / endpoints.         | `endpoints`            | `listFeatures()`          |
-| Check whether a feature / endpoint is supported. | `endpoints` > ...      | `hasFeature(methodName)` |
+| Check whether a feature / endpoint is supported. | `endpoints` > ...      | `hasFeature(methodName)`  |
 | Get default billing currency.                    | `billing` > `currency` | `currency()`              |
 | List all billing plans.                          | `billing` > `plans`    | `listPlans()`             |
 
@@ -205,7 +206,7 @@ library(openeo)
 
 con = connect("https://openeo.org", "username", "password")
 cap = capabilities()
-cap %>% version()
+cap %>% apiVersion()
 con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
 
@@ -228,7 +229,7 @@ import openeo
 
 con = openeo.connect("https://openeo.org", "username", "password")
 cap = con.capabilities()
-print cap.version()
+print cap.api_version()
 print con.describe_collection("Sentinel-2A")
 print con.list_processes()
 
@@ -253,7 +254,7 @@ import org.openeo.*;
 OpenEO obj = new OpenEO();
 Connection con = obj.connect("https://openeo.org", "username", "password");
 Capabilities cap = con.capabilities();
-System.out.println(cap.version());
+System.out.println(cap.apiVersion());
 System.out.println(con.describeCollection("Sentinel-2A"));
 System.out.println(con.listProcesses());
 
@@ -274,7 +275,7 @@ require_once("/path/to/openeo.php");
 
 $connection = openeo_connect("http://openeo.org", "username", "password");
 $capabilities = openeo_capabilities($connection);
-echo openeo_capabilities_version($capabilites);
+echo openeo_api_version($capabilites);
 echo openeo_describe_collection($connection, "Sentinel-2A");
 echo openeo_list_processes($connection);
 

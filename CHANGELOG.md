@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - Unreleased
 ### Added
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
+- `GET /` requires to return the back-end version in `backend_version`. [#154](https://github.com/Open-EO/openeo-api/issues/154)
 
 ### Changed
 - More consistent client development guidelines (casing of parameter names). [#124](https://github.com/Open-EO/openeo-api/issues/124)
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `name` property of processes has changed its name to `id` for consistency. [#130](https://github.com/Open-EO/openeo-api/issues/130)
 - The `name` property of files has changed its name to `path` for consistency. [#133](https://github.com/Open-EO/openeo-api/issues/133)
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
+- `version` in response of `GET /` renamed to `api_version`.
 
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
