@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Separated `process_graph` schemas that allow and don't allow process graph variables. [#150](https://github.com/Open-EO/openeo-api/issues/150)
+- Added missing `Access-Control-Expose-Headers` header to required CORS headers.
 
 ## [0.3.1] - 2018-11-06
 
