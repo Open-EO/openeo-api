@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.0.6">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.1.0">
     
     
       
@@ -40,12 +40,12 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.11e41852.css">
       
       
     
     
-      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="../assets/javascripts/modernizr.20ef595d.js"></script>
     
     
       
@@ -55,6 +55,7 @@
       
     
     <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
     
     
   </head>
@@ -1009,12 +1010,12 @@
 <p>Clients can use <code>snake_case</code>, <code>camelCase</code> or any method used commonly in their environment. For example, the API request to get a list of collections can either be names <code>get_collections</code> or <code>getCollections</code>. This applies for all names, including scopes, method names and parameters.</p>
 <h3 id="scopes">Scopes<a class="headerlink" href="#scopes" title="Permanent link">&para;</a></h3>
 <p>Each method belongs to a scope. To achieve this in object-oriented (OO) programming languages, methods would be part of a class. If programming languages don't support scopes, you may need to simulate it somehow to prevent name collisions, e.g. by adding a prefix to the method names (like in the "procedural style" example below). Best practices for this will likely evolve over time.</p>
-<p>Example for the <code>version</code> method in <code>openEO</code>:</p>
+<p>Example for the <code>clientVersion</code> method in <code>openEO</code>:</p>
 <ul>
-<li>Procedural style: <code>openeo_version()</code> </li>
+<li>Procedural style: <code>openeo_client_version()</code> </li>
 <li>Object-oriented style:
   <div class="codehilite"><pre><span></span><span class="n">OpenEO</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OpenEO</span><span class="o">();</span>
-<span class="n">obj</span><span class="o">.</span><span class="na">version</span><span class="o">();</span>
+<span class="n">obj</span><span class="o">.</span><span class="na">clientVersion</span><span class="o">();</span>
 </pre></div></li>
 </ul>
 <p>If you can't store scope data in an object, you may need to pass these information as argument(s) to the method.</p>
@@ -1038,7 +1039,7 @@
 <li><em>Content</em>: Mostly methods hiding the complexity of response content. Methods are usually implemented synchronously. Currently contains only the scope <code>Capabilities</code>. Method names should be prefixed if name collisions are likely.</li>
 </ul>
 <p>Method names across ALL the scopes that belong to the <em>root</em> or <em>API</em> categories MUST be unique. This is the case because the parameter in <code>hasFeature(method_name)</code> must be unambiguous.</p>
-<p>Method names of scopes in the <em>Content</em> category may collide with method names of scopes in the <em>root</em>/<em>API</em> categories, as is the case with <code>version()</code> (relates to (1) the client library version in <code>openEO</code> scope and (2) the API version in <code>Connection</code> scope).</p>
+<p>Method names of scopes in the <em>Content</em> category may collide with method names of scopes in the <em>root</em>/<em>API</em> categories and names should be prefixed if collisions of names between different scope categories are to be expected.</p>
 <h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h3>
 <p>The parameters usually follow the request schemas in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.</p>
 <p>Some methods have a long list of (optional) parameters. This is easy to implement for languages that support named parameters such as R. Other languages may have problems implementing this natively as they need to fill many parameters with default values. For example creating a job in R with a budget would lead to such a method call: <code>createJob(process_graph = ..., null, budget = 123)</code>, but in PHP it would be: <code>createJob(..., null, null, null, null, null, 123)</code>. This is not an ideal behaviour, therefore client developers might want to consider passing parameters in coupled in a dictionary or class to emulate named parameters. The example in PHP could be improved to <code>createJob([process_graph =&gt; ..., null, budget =&gt; 123])</code>.</p>
@@ -1061,7 +1062,7 @@
 </tr>
 <tr>
 <td>Get client library version.</td>
-<td><code>version()</code></td>
+<td><code>clientVersion()</code></td>
 </tr>
 </tbody>
 </table>
@@ -1183,7 +1184,7 @@
 <li><strong>options</strong> in <code>authenticateOIDC</code>: May hold additional data required for OpenID connect authentication.</li>
 </ul>
 <h3 id="scope-capabilities-content-category">Scope <code>Capabilities</code> (Content category)<a class="headerlink" href="#scope-capabilities-content-category" title="Permanent link">&para;</a></h3>
-<p>Should be prefixed with <code>Capabilities</code> if required. In non-object-oriented paradigms it is likely required as <code>version()</code> in this scope and the scope <code>OpenEO</code> could collide. For example, <code>version()</code> in this scope could be named <code>openeo_capabilities_version()</code> in procedural style.</p>
+<p>Should be prefixed with <code>Capabilities</code> if collisions of names between different scope categories are to be expected.</p>
 <table>
 <thead>
 <tr>
@@ -1194,9 +1195,14 @@
 </thead>
 <tbody>
 <tr>
-<td>Get openEO version.</td>
-<td><code>version</code></td>
-<td><code>version()</code></td>
+<td>Get the implemented openEO version.</td>
+<td><code>api_version</code></td>
+<td><code>apiVersion()</code></td>
+</tr>
+<tr>
+<td>Get the back-end version.</td>
+<td><code>backend_version</code></td>
+<td><code>backendVersion()</code></td>
 </tr>
 <tr>
 <td>List all supported features / endpoints.</td>
@@ -1391,7 +1397,7 @@
 
 con <span class="o">=</span> connect<span class="p">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
 cap <span class="o">=</span> <span class="kp">capabilities</span><span class="p">()</span>
-cap <span class="o">%&gt;%</span> <span class="kp">version</span><span class="p">()</span>
+cap <span class="o">%&gt;%</span> apiVersion<span class="p">()</span>
 con <span class="o">%&gt;%</span> describeCollection<span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 con <span class="o">%&gt;%</span> listProcesses<span class="p">()</span>
 
@@ -1412,7 +1418,7 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 
 <span class="n">con</span> <span class="o">=</span> <span class="n">openeo</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span>
 <span class="n">cap</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">capabilities</span><span class="p">()</span>
-<span class="k">print</span> <span class="n">cap</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">cap</span><span class="o">.</span><span class="n">api_version</span><span class="p">()</span>
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">describe_collection</span><span class="p">(</span><span class="s2">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
 <span class="k">print</span> <span class="n">con</span><span class="o">.</span><span class="n">list_processes</span><span class="p">()</span>
 
@@ -1435,7 +1441,7 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 <span class="n">OpenEO</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OpenEO</span><span class="o">();</span>
 <span class="n">Connection</span> <span class="n">con</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
 <span class="n">Capabilities</span> <span class="n">cap</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="na">capabilities</span><span class="o">();</span>
-<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">cap</span><span class="o">.</span><span class="na">version</span><span class="o">());</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">cap</span><span class="o">.</span><span class="na">apiVersion</span><span class="o">());</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">describeCollection</span><span class="o">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="o">));</span>
 <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">con</span><span class="o">.</span><span class="na">listProcesses</span><span class="o">());</span>
 
@@ -1454,7 +1460,7 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
 
 <span class="x">$connection = openeo_connect(&quot;http://openeo.org&quot;, &quot;username&quot;, &quot;password&quot;);</span>
 <span class="x">$capabilities = openeo_capabilities($connection);</span>
-<span class="x">echo openeo_capabilities_version($capabilites);</span>
+<span class="x">echo openeo_api_version($capabilites);</span>
 <span class="x">echo openeo_describe_collection($connection, &quot;Sentinel-2A&quot;);</span>
 <span class="x">echo openeo_list_processes($connection);</span>
 
@@ -1540,7 +1546,7 @@ job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span c
       
     </div>
     
-      <script src="../assets/javascripts/application.5e60981f.js"></script>
+      <script src="../assets/javascripts/application.9e1f3b71.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
       
