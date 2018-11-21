@@ -58,9 +58,28 @@ Method names of scopes in the *Content* category may collide with method names o
 
 The parameters usually follow the request schemas in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.
 
-Some methods have a long list of (optional) parameters. This is easy to implement for languages that support named parameters such as R. Other languages may have problems implementing this natively as they need to fill many parameters with default values. For example creating a job in R with a budget would lead to such a method call: `createJob(process_graph = ..., null, budget = 123)`, but in PHP it would be: `createJob(..., null, null, null, null, null, 123)`. This is not an ideal behaviour, therefore client developers might want to consider passing parameters in coupled in a dictionary or class to emulate named parameters. The example in PHP could be improved to `createJob([process_graph => ..., null, budget => 123])`.
+Some methods have a long list of (optional) parameters. This is easy to implement in languages that support named parameters such as R. For example, creating a job in R with a budget would lead to this method call:
 
-**ToDo:** Allow sorting and other useful operations for lists?
+```R
+createJob(process_graph = {...}, budget = 123)
+```
+
+Other languages that only support non-named parameters (i.e. the order of parameters is fixed) need to fill many parameters with default values, which is not convenient for a user. The example above in PHP would be:
+
+```php
+createJob({...}, null, null, null, null, null, 123)
+```
+
+To avoid such method calls client developers should consider to pass either
+
+* an instance of a class, which contains all parameters as member variables or
+* the required parameters directly and the optional parameters as a dictionary (see example below).
+
+This basically emulates named parameters. The member variables / dictionary keys should use the same names as the parameters. The exemplary method call in PHP could be improved as follows:
+
+```php
+createJob({...}, [budget => 123])
+```
 
 ## Method mappings
 
