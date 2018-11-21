@@ -1042,8 +1042,23 @@
 <p>Method names of scopes in the <em>Content</em> category may collide with method names of scopes in the <em>root</em>/<em>API</em> categories and names should be prefixed if collisions of names between different scope categories are to be expected.</p>
 <h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h3>
 <p>The parameters usually follow the request schemas in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.</p>
-<p>Some methods have a long list of (optional) parameters. This is easy to implement for languages that support named parameters such as R. Other languages may have problems implementing this natively as they need to fill many parameters with default values. For example creating a job in R with a budget would lead to such a method call: <code>createJob(process_graph = ..., null, budget = 123)</code>, but in PHP it would be: <code>createJob(..., null, null, null, null, null, 123)</code>. This is not an ideal behaviour, therefore client developers might want to consider passing parameters in coupled in a dictionary or class to emulate named parameters. The example in PHP could be improved to <code>createJob([process_graph =&gt; ..., null, budget =&gt; 123])</code>.</p>
-<p><strong>ToDo:</strong> Allow sorting and other useful operations for lists?</p>
+<p>Some methods have a long list of (optional) parameters. This is easy to implement in languages that support named parameters such as R. For example, creating a job in R with a budget would lead to this method call:</p>
+<div class="codehilite"><pre><span></span>createJob<span class="p">(</span>process_graph <span class="o">=</span> <span class="p">{</span><span class="kc">...</span><span class="p">},</span> budget <span class="o">=</span> <span class="m">123</span><span class="p">)</span>
+</pre></div>
+
+<p>Other languages that only support non-named parameters (i.e. the order of parameters is fixed) need to fill many parameters with default values, which is not convenient for a user. The example above in PHP would be:</p>
+<div class="codehilite"><pre><span></span><span class="x">createJob({...}, null, null, null, null, null, 123)</span>
+</pre></div>
+
+<p>To avoid such method calls client developers should consider to pass either</p>
+<ul>
+<li>an instance of a class, which contains all parameters as member variables or</li>
+<li>the required parameters directly and the optional parameters as a dictionary (see example below).</li>
+</ul>
+<p>This basically emulates named parameters. The member variables / dictionary keys should use the same names as the parameters. The exemplary method call in PHP could be improved as follows:</p>
+<div class="codehilite"><pre><span></span><span class="x">createJob({...}, [budget =&gt; 123])</span>
+</pre></div>
+
 <h2 id="method-mappings">Method mappings<a class="headerlink" href="#method-mappings" title="Permanent link">&para;</a></h2>
 <p><strong>Note:</strong> Subscriptions and some scopes for response JSON objects are still missing. We are open for proposals.</p>
 <p>Parameters with a leading <code>?</code> are optional.</p>
