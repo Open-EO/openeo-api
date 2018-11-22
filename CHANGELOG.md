@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `name` property of files has changed its name to `path` for consistency. [#133](https://github.com/Open-EO/openeo-api/issues/133)
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
 - `version` in response of `GET /` renamed to `api_version`.
+- Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
 
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
