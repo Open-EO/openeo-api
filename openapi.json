@@ -6,7 +6,7 @@
       "description": "The URL of the API MAY freely be chosen by the back-end providers. The path, including API versioning, is a *recommendation* only. Nevertheless, all servers MUST support HTTPS as the authentication methods are not secure with HTTP only!",
       "variables": {
         "version": {
-          "default": "v0.3",
+          "default": "v0.4",
           "description": "API versioning is RECOMMENDED. As the openEO API is following [SemVer](https://semver.org/) only the MAJOR part of the stable version numbers (i.e. versions >= 1.0.0) SHOULD be used for API versioning in the URL. The reason is that backward-incompatible changes are usually introduced by major changes. Therefore, the version number in the URL MUST not be used by the clients to detect the version number of the API. Use the version number returned from `GET /` instead."
         }
       }
@@ -14,8 +14,8 @@
   ],
   "info": {
     "title": "openEO API",
-    "version": "0.3.1",
-    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.3.1/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.3.1/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
+    "version": "0.4.0",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.4.0/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.4.0/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -28,7 +28,7 @@
   },
   "externalDocs": {
     "description": "openEO Documentation",
-    "url": "https://open-eo.github.io/openeo-api/v/0.3.1/"
+    "url": "https://open-eo.github.io/openeo-api/v/0.4.0/"
   },
   "tags": [
     {
@@ -72,6 +72,9 @@
         "tags": [
           "Capabilities"
         ],
+        "security": [
+          {}
+        ],
         "responses": {
           "200": {
             "description": "Information about the API version and supported endpoints / features.",
@@ -80,14 +83,20 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "version",
+                    "api_version",
+                    "backend_version",
                     "endpoints"
                   ],
                   "properties": {
-                    "version": {
+                    "api_version": {
                       "type": "string",
-                      "description": "Version number of the openEO specification this server works with.",
-                      "example": "0.3.1"
+                      "description": "Version number of the openEO specification this back-end implements.",
+                      "example": "0.4.0"
+                    },
+                    "backend_version": {
+                      "type": "string",
+                      "description": "Version number of the back-end implementation.\nEvery change on back-end side MUST cause a change of the version number.",
+                      "example": "1.1.2"
                     },
                     "endpoints": {
                       "type": "array",
@@ -224,6 +233,12 @@
         "tags": [
           "Capabilities",
           "Job Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "responses": {
           "200": {
@@ -378,7 +393,7 @@
     "/collections": {
       "get": {
         "summary": "List available EO datasets/collections.",
-        "description": "Requests will ask the back-end for available collections and will return an array of available collections with very basic information such as their unique identifiers.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.3.1/collections/), including common relation types for links, are available in the documentation.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
+        "description": "Requests will ask the back-end for available collections and will return an array of available collections with very basic information such as their unique identifiers.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.0/collections/), including common relation types for links, are available in the documentation.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -540,7 +555,7 @@
       ],
       "get": {
         "summary": "Full information about a specific EO dataset/collection.",
-        "description": "The request will ask the back-end for further details about a collection specified by the identifier `collection_name`.\n\nThis endpoint aims to be compatible with STAC and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.3.1/collections/), including common relation types for links, are available in the documentation.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
+        "description": "The request will ask the back-end for further details about a collection specified by the identifier `collection_name`.\n\nThis endpoint aims to be compatible with STAC and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.0/collections/), including common relation types for links, are available in the documentation.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3.0](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -687,11 +702,6 @@
                               "type": "number"
                             }
                           },
-                          "resolution": {
-                            "description": "Spatial resolution of the band, in meters.",
-                            "type": "number",
-                            "deprecated": true
-                          },
                           "periodicity": {
                             "description": "Periodictity of the measurements, preferably specified using ISO 8601.",
                             "type": "number"
@@ -778,85 +788,85 @@
                       "B1": {
                         "common_name": "coastal",
                         "center_wavelength": 4.439,
-                        "resolution": 60,
+                        "gsd": 60,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B2": {
                         "common_name": "blue",
                         "center_wavelength": 4.966,
-                        "resolution": 10,
+                        "gsd": 10,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B3": {
                         "common_name": "green",
                         "center_wavelength": 5.6,
-                        "resolution": 10,
+                        "gsd": 10,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B4": {
                         "common_name": "red",
                         "center_wavelength": 6.645,
-                        "resolution": 10,
+                        "gsd": 10,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B5": {
                         "center_wavelength": 7.039,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B6": {
                         "center_wavelength": 7.402,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B7": {
                         "center_wavelength": 7.825,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B8": {
                         "common_name": "nir",
                         "center_wavelength": 8.351,
-                        "resolution": 10,
+                        "gsd": 10,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B8A": {
                         "center_wavelength": 8.648,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B9": {
                         "center_wavelength": 9.45,
-                        "resolution": 60,
+                        "gsd": 60,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B10": {
                         "center_wavelength": 1.3735,
-                        "resolution": 60,
+                        "gsd": 60,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B11": {
                         "common_name": "swir16",
                         "center_wavelength": 1.6137,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       },
                       "B12": {
                         "common_name": "swir22",
                         "center_wavelength": 2.2024,
-                        "resolution": 20,
+                        "gsd": 20,
                         "scale": 0.0001,
                         "offset": 0
                       }
@@ -911,9 +921,8 @@
                           "returns"
                         ],
                         "properties": {
-                          "name": {
-                            "type": "string",
-                            "description": "Name used to identify the process. The id MUST be unique. It is RECOMMENDED to follow common programming naming conventions."
+                          "id": {
+                            "$ref": "#/components/schemas/process_id"
                           },
                           "summary": {
                             "type": "string",
@@ -972,9 +981,9 @@
                                   "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
                                   "default": false
                                 },
-                                "mime_type": {
+                                "media_type": {
                                   "type": "string",
-                                  "description": "The mime type that the parameter is formatted with."
+                                  "description": "The media (MIME) type that the parameter is formatted with."
                                 },
                                 "schema": {
                                   "$ref": "#/components/schemas/json_schema"
@@ -997,9 +1006,9 @@
                               "description": {
                                 "$ref": "#/components/schemas/description"
                               },
-                              "mime_type": {
+                              "media_type": {
                                 "type": "string",
-                                "description": "The mime type that the returned data is formatted with."
+                                "description": "The media (MIME) type that the returned data is formatted with."
                               },
                               "schema": {
                                 "$ref": "#/components/schemas/json_schema"
@@ -1013,19 +1022,26 @@
                           },
                           "exceptions": {
                             "type": "object",
-                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys can be used as identifier.",
+                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys define the error code. This schema follows the schema of the  general openEO error list (see errors.json).",
                             "additionalProperties": {
                               "type": "object",
                               "required": [
-                                "description"
+                                "message"
                               ],
                               "properties": {
-                                "code": {
-                                  "type": "integer",
-                                  "description": "Code to identify the exception."
-                                },
                                 "description": {
-                                  "$ref": "#/components/schemas/description"
+                                  "type": "string",
+                                  "description": "Detailed description to fully explain the error to client users and back-end developers. This should not be shown in the clients directly, but may be linked to in the errors `url` property.  \n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation."
+                                },
+                                "message": {
+                                  "type": "string",
+                                  "description": "Explains the reason the server is rejecting the request. This message is intended to be displayed to the client user. For \"4xx\" error codes the message should explain shortly how the client needs to modify the request.\n\nThe message MAY contain variables, which are enclosed by curly brackets. Example: `{variable_name}`",
+                                  "example": "The value specified for the process argument '{argument}' in process '{process}' is invalid: {reason}"
+                                },
+                                "http": {
+                                  "type": "integer",
+                                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.0/errors/). Defaults to `400`.",
+                                  "default": 400
                                 }
                               }
                             }
@@ -1070,7 +1086,7 @@
                   "example": {
                     "processes": [
                       {
-                        "name": "get_collection_example",
+                        "id": "get_collection_example",
                         "summary": "Selects a collection.",
                         "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
                         "min_parameters": 1,
@@ -1117,7 +1133,7 @@
                         }
                       },
                       {
-                        "name": "filter_bands_example",
+                        "id": "filter_bands_example",
                         "summary": "Filter an image collection by bands.",
                         "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
                         "min_parameters": 2,
@@ -1178,7 +1194,7 @@
                         }
                       },
                       {
-                        "name": "filter_daterange_example",
+                        "id": "filter_daterange_example",
                         "summary": "Filter an image collection by temporal extent.",
                         "description": "Example - do not use, it's not an official process description!",
                         "min_parameters": 1,
@@ -1194,9 +1210,11 @@
                           "extent": {
                             "type": "array",
                             "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-                            "example": [
-                              "2016-01-01T00:00:00Z",
-                              "2017-10-01T00:00:00Z"
+                            "examples": [
+                              [
+                                "2016-01-01T00:00:00Z",
+                                "2017-10-01T00:00:00Z"
+                              ]
                             ],
                             "items": {
                               "type": [
@@ -1218,7 +1236,7 @@
                         }
                       },
                       {
-                        "name": "process_graph_example",
+                        "id": "process_graph_example",
                         "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
                         "parameters": {
                           "imagery": {
@@ -1250,8 +1268,7 @@
                         },
                         "exceptions": {
                           "NotFound": {
-                            "code": 404,
-                            "description": "Process graph doesn't exist."
+                            "message": "Process graph doesn't exist."
                           }
                         }
                       }
@@ -1286,7 +1303,10 @@
           "Account Management"
         ],
         "security": [
-          {}
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "responses": {
           "303": {
@@ -1313,7 +1333,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "Authentication with HTTP Basic.",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
+        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
         "tags": [
           "Account Management"
         ],
@@ -1359,18 +1379,38 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph.",
-        "description": "Validates a process graph without executing it. Checks whether the process graph is schematically correct and the processes are supported by the back-end. It also checks the parameter values against the schema, but MAY not check the values are adequate in the context of data. For example, a non-existing band name may not get rejected. Errors that occur during processing MAY not get reported, too. An example could be a division by zero.",
+        "description": "Validates a process graph without executing it. A process graph is considered valid unless \nthe `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported\nby the back-end. It MUST also checks the parameter values against the schema,\nbut checking whether the values are adequate in the context of data is OPTIONAL.\nFor example, a non-existing band name may may get rejected only by a few back-ends.\nErrors that usually occure during processing MAY NOT get reported, e.g. if a\nreferenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once\nthey found the first error. \n\nPlease note that a validation always returns with HTTP status code 200.\nError codes in the 4xx and 5xx ranges MUST be returned only when the generel\nvalidation request is invalid (e.g. server is busy or no process graph parameter specified),\nbut never if the process graph validation found an error (e.g. an unsupported process).",
         "tags": [
           "Process Graph Management"
         ],
         "security": [
+          {},
           {
             "Bearer": []
           }
         ],
         "responses": {
-          "204": {
-            "description": "Confirms that the process graph is valid"
+          "200": {
+            "description": "Returns the validation result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "description": "List of errors. An empty list indicates a successful validation.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/error"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -1389,7 +1429,7 @@
                 ],
                 "properties": {
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -1417,7 +1457,7 @@
             "description": "Result data in the specified output format",
             "headers": {
               "Content-Type": {
-                "description": "The appropriate mime type for the requested output format MUST be sent.",
+                "description": "The appropriate media (MIME) type for the requested output format MUST be sent.",
                 "schema": {
                   "type": "string"
                 }
@@ -1567,7 +1607,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -1594,11 +1634,6 @@
             "Bearer": []
           }
         ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/variables_query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "JSON object with process graph",
@@ -1622,7 +1657,7 @@
                       "$ref": "#/components/schemas/description"
                     },
                     "process_graph": {
-                      "$ref": "#/components/schemas/process_graph"
+                      "$ref": "#/components/schemas/process_graph_vars"
                     }
                   }
                 }
@@ -1672,7 +1707,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph"
+                    "$ref": "#/components/schemas/process_graph_vars"
                   }
                 }
               }
@@ -1711,6 +1746,12 @@
         "tags": [
           "Capabilities",
           "Secondary Services Management"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "responses": {
           "200": {
@@ -2433,7 +2474,7 @@
     "/jobs/{job_id}/estimate": {
       "get": {
         "summary": "Get an estimate for a job.",
-        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration or the costs or both. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate.  Starting to process data afterwards might be charged at a higher cost. Costs may not include downloading costs. This can be indicated with the respective flag.",
+        "description": "Clients can ask for an estimate for a batch job. Back-ends can decide to either calculate the duration, the costs, the size or a combination of them. This MUST be the upper limit of the incurring costs. Clients can be charged less than specified, but never more. Back-end providers MAY specify an expiry time for the estimate. Starting to process data afterwards MAY be charged at a higher cost. Costs MAY NOT include downloading costs. This can be indicated with the `downloads_included` flag.",
         "tags": [
           "Job Management"
         ],
@@ -2449,7 +2490,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The estimated costs. At least one of credits or time MUST be returned.",
+            "description": "The estimated costs with regard to money, processing time and storage capacity. At least one of `costs`, `duration` or `size` MUST be provided.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2460,8 +2501,13 @@
                     },
                     "duration": {
                       "type": "string",
-                      "description": "Estimated duration for the operation. Duration must be specified as a ISO 8601 duration.",
+                      "description": "Estimated duration for the operation. Duration MUST be specified as a ISO 8601 duration.",
                       "example": "P1Y2M10DT2H30M"
+                    },
+                    "size": {
+                      "type": "integer",
+                      "description": "Estimated required storage capacity, i.e. the size of the generated files. Size MUST be specified in bytes.",
+                      "example": 157286400
                     },
                     "downloads_included": {
                       "type": "integer",
@@ -2551,11 +2597,11 @@
                       },
                       "example": [
                         {
-                          "href": "https://openeo.org/api/v0.3/download/583fba8b2ce/1.tif",
+                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/1.tif",
                           "type": "image/tiff"
                         },
                         {
-                          "href": "https://openeo.org/api/v0.3/download/583fba8b2ce/2.tif",
+                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/2.tif",
                           "type": "image/tiff"
                         }
                       ]
@@ -2665,13 +2711,13 @@
                           "name"
                         ],
                         "properties": {
-                          "name": {
+                          "path": {
                             "type": "string",
-                            "description": "Path to the file"
+                            "description": "Path of the file, relative to the user's root directory. MUST NOT start with a slash and MUST NOT be url-encoded."
                           },
                           "size": {
                             "type": "integer",
-                            "description": "File size in bytes"
+                            "description": "File size in bytes."
                           },
                           "modified": {
                             "type": "string",
@@ -2689,17 +2735,17 @@
                   "example": {
                     "files": [
                       {
-                        "name": "test.txt",
+                        "path": "test.txt",
                         "size": 182,
                         "modified": "2015-10-20T17:22:10Z"
                       },
                       {
-                        "name": "test.tif",
+                        "path": "test.tif",
                         "size": 183142,
                         "modified": "2017-01-01T09:36:18Z"
                       },
                       {
-                        "name": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
+                        "path": "Sentinel2/S2A_MSIL1C_20170819T082011_N0205_R121_T34KGD_20170819T084427.zip",
                         "size": 4183353142,
                         "modified": "2018-01-03T10:55:29Z"
                       }
@@ -2930,7 +2976,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to updates.",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.3.1/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Job Management",
           "File Management",
@@ -2939,7 +2985,10 @@
           "EO Data Discovery"
         ],
         "security": [
-          {}
+          {},
+          {
+            "Bearer": []
+          }
         ],
         "parameters": [
           {
@@ -2974,7 +3023,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "openeo-v0.3"
+                "openeo-v0.4"
               ]
             }
           },
@@ -3040,7 +3089,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a mime-type.",
+            "description": "The value MUST be a string that hints at the format used to represent data at the provided URI, preferably a media (MIME) type.",
             "example": "text/html"
           },
           "title": {
@@ -3156,9 +3205,6 @@
             "$ref": "#/components/schemas/process_graph"
           },
           {
-            "$ref": "#/components/schemas/variable"
-          },
-          {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/process_graph_arg_value"
@@ -3166,16 +3212,45 @@
           }
         ]
       },
+      "process_graph_arg_value_vars": {
+        "description": "Arguments for a process. See the API documentation for more information.",
+        "nullable": true,
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "object"
+          },
+          {
+            "$ref": "#/components/schemas/process_graph"
+          },
+          {
+            "$ref": "#/components/schemas/variable"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/process_graph_arg_value_vars"
+            }
+          }
+        ]
+      },
       "process_graph": {
-        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes.",
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does NOT* allow process graph variables.",
         "type": "object",
         "required": [
           "process_id"
         ],
         "properties": {
           "process_id": {
-            "type": "string",
-            "description": "The unique identifier of the process."
+            "$ref": "#/components/schemas/process_id"
           },
           "process_description": {
             "$ref": "#/components/schemas/description"
@@ -3200,10 +3275,65 @@
                 "2017-01-31T23:59:59Z"
               ]
             },
-            "red": "4",
-            "nir": "8"
+            "red": "B4",
+            "nir": "B8"
           }
         }
+      },
+      "process_graph_vars": {
+        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does* allow process graph variables.",
+        "type": "object",
+        "required": [
+          "process_id"
+        ],
+        "properties": {
+          "process_id": {
+            "$ref": "#/components/schemas/process_id"
+          },
+          "process_description": {
+            "$ref": "#/components/schemas/description"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/process_graph_arg_value_vars"
+        },
+        "example": {
+          "process_id": "min_time",
+          "imagery": {
+            "process_id": "NDVI",
+            "imagery": {
+              "process_id": "filter_daterange",
+              "imagery": {
+                "process_id": "get_collection",
+                "name": {
+                  "variable_id": "collection",
+                  "type": "string",
+                  "default": "Sentinel2A-L1C"
+                }
+              },
+              "extent": [
+                "2017-01-01T00:00:00Z",
+                "2017-01-31T23:59:59Z"
+              ]
+            },
+            "red": {
+              "variable_id": "red_band",
+              "type": "string",
+              "default": "B4"
+            },
+            "nir": {
+              "variable_id": "nir_band",
+              "type": "string",
+              "default": "B8"
+            }
+          }
+        }
+      },
+      "process_id": {
+        "type": "string",
+        "description": "Unique identifier of the process.",
+        "pattern": "^[A-Za-z0-9_\\-]+$",
+        "example": "ndvi"
       },
       "process_graph_id": {
         "type": "string",
@@ -3381,7 +3511,7 @@
         ]
       },
       "error": {
-        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.3.1/errors/index.html) provides additional information regarding error handling and a list of error codes.",
+        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.0/errors/index.html) provides additional information regarding error handling and a list of error codes.",
         "type": "object",
         "required": [
           "code",
@@ -3394,13 +3524,13 @@
             "example": "550e8400-e29b-11d4-a716-446655440000"
           },
           "code": {
-            "type": "number",
-            "description": "The code is either one of the standardized error codes or a custom error code with a number greater than 10000.",
-            "example": 123
+            "type": "string",
+            "description": "The code is either one of the standardized error codes or a custom error code.",
+            "example": "SampleError"
           },
           "message": {
             "type": "string",
-            "description": "A message explaining what the client may need to change or what the server is struggling with. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+            "description": "A message explaining what the client may need to change or what difficulties the server is facing. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
             "example": "A sample error message."
           },
           "links": {
@@ -3411,7 +3541,7 @@
             },
             "example": [
               {
-                "href": "http://www.openeo.org/docs/errors/123",
+                "href": "http://www.openeo.org/docs/errors/SampleError",
                 "rel": "about"
               }
             ]
@@ -3455,7 +3585,7 @@
       },
       "json_schema": {
         "type": "object",
-        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.3.1/processes/index.html), e.g. bbox or crs."
+        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.4.0/processes/index.html), e.g. bbox or crs."
       }
     },
     "responses": {
@@ -3468,7 +3598,7 @@
               "description": "URL to the newly created resource.",
               "format": "url",
               "type": "string",
-              "example": "https://openeo.org/api/v0.3/resource/123"
+              "example": "https://openeo.org/api/v0.4/resource/123"
             }
           },
           "OpenEO-Identifier": {
@@ -3513,15 +3643,6 @@
       }
     },
     "parameters": {
-      "variables_query": {
-        "name": "*",
-        "in": "query",
-        "description": "Any variable that is defined by the referenced process graph can be used as query parameter. The key of the query parameter has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the query parameter serialized as JSON.",
-        "schema": {
-          "type": "string",
-          "description": "Serialized JSON"
-        }
-      },
       "user_id": {
         "name": "user_id",
         "in": "path",
@@ -3561,7 +3682,7 @@
       "file_path": {
         "name": "path",
         "in": "path",
-        "description": "Path of the file. Folder and file names in the path MUST be url-encoded. The path separator `/` MUST NOT be url-encoded.",
+        "description": "Path of the file, relative to the user's root directory. Folder and file names in the path MUST be url-encoded. The path separator `/` MUST NOT be url-encoded.",
         "required": true,
         "schema": {
           "type": "string",

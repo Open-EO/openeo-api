@@ -28,7 +28,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "version": "0.3.1",
+  "api_version": "0.4.0"
   "endpoints": [
     {
       "path": "/collections",
@@ -246,9 +246,11 @@ Content-Type: application/json; charset=utf-8
             "type": "array",
             "format": "temporal_extent",
             "required": true,
-            "example": [
-              "2016-01-01T00:00:00Z",
-              "2017-10-01T00:00:00Z"
+            "examples": [
+              [
+                "2016-01-01T00:00:00Z",
+                "2017-10-01T00:00:00Z"
+              ]
             ],
             "items": {
               "type": [
@@ -488,7 +490,7 @@ Content-Type: application/json; charset=utf-8
 
 ``` http
 HTTP/1.1 201 Created
-Location: https://openeo.org/api/v0.3/services/wms-a3cca9
+Location: https://openeo.org/api/v0.4/services/wms-a3cca9
 OpenEO-Identifier: wms-a3cca9
 ```
 
@@ -497,7 +499,7 @@ OpenEO-Identifier: wms-a3cca9
 **Request**
 
 ```http
-POST https://openeo.org/api/v0.3/services/wms-a3cca9 HTTP/1.1
+POST https://openeo.org/api/v0.4/services/wms-a3cca9 HTTP/1.1
 Content-Type: application/json; charset=utf-8
 ```
 
@@ -676,7 +678,7 @@ Content-Type: application/json; charset=utf-8
 
 ```http
 HTTP/1.1 201 Created
-Location: https://openeo.org/api/v0.3/jobs/132
+Location: https://openeo.org/api/v0.4/jobs/132
 OpenEO-Identifier: 132
 ```
 
@@ -720,7 +722,7 @@ Content-Type: application/json; charset=utf-8
 
 ```http
 HTTP/1.1 201 Created
-Location: https://openeo.org/api/v0.3/services/tms-75ff8c
+Location: https://openeo.org/api/v0.4/services/tms-75ff8c
 ```
 
 ### 6. Requesting the service information
@@ -728,7 +730,7 @@ Location: https://openeo.org/api/v0.3/services/tms-75ff8c
 **Request**
 
 ```http
-POST https://openeo.org/api/v0.3/services/tms-75ff8c HTTP/1.1
+POST https://openeo.org/api/v0.4/services/tms-75ff8c HTTP/1.1
 Content-Type: application/json; charset=utf-8
 ```
 
