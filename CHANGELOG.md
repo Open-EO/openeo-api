@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Billing plans in `GET /` have an additional required property `paid`. [#157](https://github.com/Open-EO/openeo-api/issues/157)
 - `GET /.well-known/openeo` allows clients to choose between versions. [#148](https://github.com/Open-EO/openeo-api/issues/148)
 - `GET /` should provide a link to the Well-Known URI in the new `links` property.
+- `GET /jobs/{job_id}` has a property `progress` to indicate the progress. [#82](https://github.com/Open-EO/openeo-api/issues/82)
 
 ### Changed
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
