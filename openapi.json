@@ -1062,6 +1062,14 @@
                           "description": {
                             "$ref": "#/components/schemas/description"
                           },
+                          "categories": {
+                            "type": "array",
+                            "description": "A list of categories.",
+                            "items": {
+                              "type": "string",
+                              "description": "Name of the category."
+                            }
+                          },
                           "parameters": {
                             "type": "object",
                             "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
@@ -1080,51 +1088,19 @@
                                   "description": "Determines whether this parameter is mandatory.",
                                   "default": false
                                 },
-                                "dependencies": {
-                                  "type": "array",
-                                  "description": "A list of parameters that influence this parameter or this parameter depends on.",
-                                  "items": {
-                                    "type": "object",
-                                    "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
-                                    "required": [
-                                      "parameter"
-                                    ],
-                                    "properties": {
-                                      "description": {
-                                        "$ref": "#/components/schemas/description"
-                                      },
-                                      "parameter": {
-                                        "type": "string",
-                                        "description": "The name of the referenced parameter."
-                                      },
-                                      "ref_values": {
-                                        "type": "array",
-                                        "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
-                                        "items": {
-                                          "description": "Any data type allowed for the referenced parameter."
-                                        }
-                                      }
-                                    }
-                                  }
-                                },
                                 "deprecated": {
                                   "type": "boolean",
                                   "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
                                   "default": false
                                 },
                                 "media_type": {
-                                  "type": "string",
-                                  "description": "The media (MIME) type that the parameter is formatted with."
+                                  "$ref": "#/components/schemas/process_media_type"
                                 },
                                 "schema": {
                                   "$ref": "#/components/schemas/json_schema"
                                 }
                               }
                             }
-                          },
-                          "min_parameters": {
-                            "type": "integer",
-                            "description": "Minimum number of parameters required for this process, including required parameters."
                           },
                           "returns": {
                             "type": "object",
@@ -1138,8 +1114,7 @@
                                 "$ref": "#/components/schemas/description"
                               },
                               "media_type": {
-                                "type": "string",
-                                "description": "The media (MIME) type that the returned data is formatted with."
+                                "$ref": "#/components/schemas/process_media_type"
                               },
                               "schema": {
                                 "$ref": "#/components/schemas/json_schema"
@@ -1220,7 +1195,9 @@
                         "id": "get_collection_example",
                         "summary": "Selects a collection.",
                         "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
-                        "min_parameters": 1,
+                        "categories": [
+                          "Import"
+                        ],
                         "parameters": {
                           "name": {
                             "description": "Filter by collection name",
@@ -1267,7 +1244,9 @@
                         "id": "filter_bands_example",
                         "summary": "Filter an image collection by bands.",
                         "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
-                        "min_parameters": 2,
+                        "categories": [
+                          "Filter"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -1328,7 +1307,9 @@
                         "id": "filter_daterange_example",
                         "summary": "Filter an image collection by temporal extent.",
                         "description": "Example - do not use, it's not an official process description!",
-                        "min_parameters": 1,
+                        "categories": [
+                          "Filter"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -1369,6 +1350,9 @@
                       {
                         "id": "process_graph_example",
                         "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
+                        "categories": [
+                          "Import"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -3688,6 +3672,11 @@
       "json_schema": {
         "type": "object",
         "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.4.0/processes/index.html), e.g. bbox or crs."
+      },
+      "process_media_type": {
+        "type": "string",
+        "description": "The media (MIME) type that the value is encoded in.",
+        "default": "application/json"
       }
     },
     "responses": {

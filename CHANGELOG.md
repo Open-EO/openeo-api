@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /.well-known/openeo` allows clients to choose between versions. [#148](https://github.com/Open-EO/openeo-api/issues/148)
 - `GET /` should provide a link to the Well-Known URI in the new `links` property.
 - `GET /jobs/{job_id}` has a property `progress` to indicate the progress. [#82](https://github.com/Open-EO/openeo-api/issues/82)
+- Processes can be categorizes with the `category` property.
 
 ### Changed
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
 - The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
 - The output format properties in `POST /preview`, `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests removed in favor of export processes. [#153](https://github.com/Open-EO/openeo-api/issues/153)
+- `min_parameters` and `dependencies` for parameters in process descriptions returned by `GET /processes`.
 
 ### Fixed
 - Separated `process_graph` schemas that allow and don't allow process graph variables. [#150](https://github.com/Open-EO/openeo-api/issues/150)
