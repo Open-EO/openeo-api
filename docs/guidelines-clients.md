@@ -248,15 +248,15 @@ import openeo
 
 con = openeo.connect("https://openeo.org", "username", "password")
 cap = con.capabilities()
-print cap.api_version()
-print con.describe_collection("Sentinel-2A")
-print con.list_processes()
+print(cap.api_version())
+print(con.describe_collection("Sentinel-2A"))
+print(con.list_processes())
 
-processes = con.get_processes();
-pg = processes.get_collection(name = "Sentinel-2A");
-pg = processes.filter_bbox(pg, west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632")
-pg = processes.filter_daterange(pg, extent = ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
-pg = processes.NDVI(pg, nir = "B4", red = "B8A")
+processes = con.get_processes()
+pg = processes.get_collection(name="Sentinel-2A")
+pg = processes.filter_bbox(pg, west=672000, south=5181000, east=652000, north=5161000, crs="EPSG:32632")
+pg = processes.filter_daterange(pg, extent=["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
+pg = processes.NDVI(pg, nir="B4", red="B8A")
 pg = processes.min_time(pg)
 
 job = con.create_job(pg.graph)
