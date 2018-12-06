@@ -16,8 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
 - The schema for `exceptions` defined in process descriptions (`GET /processes`) follows the general schema for openEO errors.
-- The `name` property of processes has changed its name to `id` for consistency. [#130](https://github.com/Open-EO/openeo-api/issues/130)
-- The `name` property of files has changed its name to `path` for consistency. [#133](https://github.com/Open-EO/openeo-api/issues/133)
+- The `name` property of processes has changed its name to `id`. [#130](https://github.com/Open-EO/openeo-api/issues/130)
+- The `process_graph_id` of process graphs, the `service_id` of services and the `job_id` of jobs has changed to `id` in responses. [#130](https://github.com/Open-EO/openeo-api/issues/130)
+- The `name` property of files has changed its name to `path`. [#133](https://github.com/Open-EO/openeo-api/issues/133)
+- The `status` property of jobs is now required. 
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
 - `version` in response of `GET /` renamed to `api_version`.
 - Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
