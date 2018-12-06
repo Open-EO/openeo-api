@@ -26,8 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
 
 ### Removed
-- Numeric openEO error codes removed. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
-- Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}` removed. [#147](https://github.com/Open-EO/openeo-api/issues/147)
+- Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
+- Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
+- The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
+- The output format properties in `POST /preview`, `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests removed in favor of export processes. [#153](https://github.com/Open-EO/openeo-api/issues/153)
 
 ### Fixed
 - Separated `process_graph` schemas that allow and don't allow process graph variables. [#150](https://github.com/Open-EO/openeo-api/issues/150)
