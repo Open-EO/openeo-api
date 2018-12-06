@@ -83,6 +83,8 @@
                 "schema": {
                   "type": "object",
                   "required": [
+                    "title",
+                    "description",
                     "api_version",
                     "backend_version",
                     "endpoints"
@@ -97,6 +99,16 @@
                       "type": "string",
                       "description": "Version number of the back-end implementation.\nEvery change on back-end side MUST cause a change of the version number.",
                       "example": "1.1.2"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "The name of the service.",
+                      "example": "Cool Cloud EOPS"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "A description of the service, which allows the service provider to introduce the user to its service.\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
+                      "example": "EOPS is procided to you by [Cool Cloud Corp](http://cool-cloud-corp.com) and the most advanced EO processing service. It implements the full openEO API and allows to process a range of 999 EO data sets, including \n* Sentinel 1/2/3 and 5\n* Landsat 7/8\n\nA free plan is available to test the service. For further information please contact our customer service at [support@cool-cloud-corp.com](mailto:support@cool-cloud-corp.com)."
                     },
                     "endpoints": {
                       "type": "array",
@@ -188,7 +200,8 @@
                             "type": "object",
                             "required": [
                               "name",
-                              "description"
+                              "description",
+                              "paid"
                             ],
                             "properties": {
                               "name": {
@@ -199,19 +212,150 @@
                               "description": {
                                 "type": "string",
                                 "description": "A description that gives a rough overview over the plan.",
-                                "example": "Free plan. Calculates one tile per second and a maximum amount of 100 tiles per hour."
+                                "example": "Free plan for testing."
+                              },
+                              "paid": {
+                                "type": "boolean",
+                                "description": "Indicates whether the plan is a paid plan (`true`) or a free plan (`false`)."
                               },
                               "url": {
                                 "type": "string",
                                 "description": "URL to a web page with more details about the plan.",
                                 "format": "url",
-                                "example": "http://openeo.org/plans/free-plan"
+                                "example": "http://cool-cloud-corp.com/plans/free-plan"
                               }
                             }
+                          },
+                          "example": [
+                            {
+                              "name": "free",
+                              "description": "Free plan. Calculates one tile per second and a maximum amount of 100 tiles per hour.",
+                              "url": "http://cool-cloud-corp.com/plans/free-plan",
+                              "paid": false
+                            },
+                            {
+                              "name": "premium",
+                              "description": "Premium plan. Calculates unlimited tiles and each calculated tile costs 0.003 USD.",
+                              "url": "http://cool-cloud-corp.com/plans/premium-plan",
+                              "paid": true
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "links": {
+                      "description": "Additional links related to this service, e.g. the homepage of the service provider or the terms of service.\nIt is highly RECOMMENDED to provide a link back to the Well-Known URI (see `/.well-known/openeo`) with relation type `version-history` to allow clients to work on the most recent version.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      },
+                      "example": [
+                        {
+                          "href": "http://www.cool-cloud-corp.com",
+                          "rel": "about",
+                          "type": "text/html",
+                          "title": "Homepage of the service provider"
+                        },
+                        {
+                          "href": "https://www.cool-cloud-corp.com/tos",
+                          "rel": "terms-of-service",
+                          "type": "text/html",
+                          "title": "Terms of service"
+                        },
+                        {
+                          "href": "http://www.cool-cloud-corp.com/.well-known/openeo",
+                          "rel": "version-history",
+                          "type": "application/json",
+                          "title": "List of supported openEO versions"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/.well-known/openeo": {
+      "get": {
+        "summary": "Supported openEO versions and their location.",
+        "description": "Well-Known URI for openEO, listing all implemented openEO versions supported by the service provider.\nThis allows clients to easily identify the best suited openEO implementation they can use. The Well-Known URI is the entry point for clients and users, so make sure it is permanent and easy to use and remember. Please note that this URL MUST NOT be versioned as the other endpoints.\nSee [RFC 5785](https://tools.ietf.org/html/rfc5785) for more information about Well-Known URIs.",
+        "tags": [
+          "Capabilities"
+        ],
+        "security": [
+          {}
+        ],
+        "servers": [
+          {
+            "url": "https://localhost",
+            "description": "The Well-Known URI SHOULD be available directly at `https://{{domain}}/.well-known/openeo` in contrast to the other endpoints, which may be versioned and can run on other hosts, ports, ... etc."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all API implementations by openEO API version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "versions"
+                  ],
+                  "properties": {
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "url",
+                          "api_version"
+                        ],
+                        "properties": {
+                          "url": {
+                            "type": "string",
+                            "format": "url",
+                            "description": "*Absolute* URLs to the service.",
+                            "example": "https://example.com/api/v0.4"
+                          },
+                          "production": {
+                            "type": "boolean",
+                            "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",
+                            "default": true
+                          },
+                          "api_version": {
+                            "type": "string",
+                            "description": "Version number of the openEO specification this back-end implements.",
+                            "example": "0.4.0"
                           }
                         }
                       }
                     }
+                  },
+                  "example": {
+                    "versions": [
+                      {
+                        "url": "https://www.openeo.org/api/v0.3",
+                        "api_version": "0.3.1"
+                      },
+                      {
+                        "url": "https://www.openeo.org/api/v0.4",
+                        "api_version": "0.4.0"
+                      },
+                      {
+                        "url": "https://www.openeo.org/api/v0.5",
+                        "production": false,
+                        "api_version": "0.5.0-alpha"
+                      }
+                    ]
                   }
                 }
               }

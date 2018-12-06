@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - Unreleased
 ### Added
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
-- `GET /` requires to return the back-end version in `backend_version`. [#154](https://github.com/Open-EO/openeo-api/issues/154)
+- `GET /` requires to return a title (`title`), a description (`description`) and the back-end version (`backend_version`). [#154](https://github.com/Open-EO/openeo-api/issues/154)
+- Billing plans in `GET /` have an additional required property `paid`. [#157](https://github.com/Open-EO/openeo-api/issues/157)
+- `GET /.well-known/openeo` allows clients to choose between versions. [#148](https://github.com/Open-EO/openeo-api/issues/148)
+- `GET /` should provide a link to the Well-Known URI in the new `links` property.
 
 ### Changed
-- More consistent client development guidelines (casing of parameter names). [#124](https://github.com/Open-EO/openeo-api/issues/124)
 - `mime_type` replaced with `media_type` in the process catalogue input parameters and return values.
 - The schema for `exceptions` defined in process descriptions (`GET /processes`) follows the general schema for openEO errors.
 - The `name` property of processes has changed its name to `id` for consistency. [#130](https://github.com/Open-EO/openeo-api/issues/130)
@@ -18,10 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
 - `version` in response of `GET /` renamed to `api_version`.
 - Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
+- Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
 
 ### Removed
-- Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
-- Removed the query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
+- Numeric openEO error codes removed. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
+- Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}` removed. [#147](https://github.com/Open-EO/openeo-api/issues/147)
 
 ### Fixed
 - Separated `process_graph` schemas that allow and don't allow process graph variables. [#150](https://github.com/Open-EO/openeo-api/issues/150)
