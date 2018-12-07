@@ -286,7 +286,7 @@
     },
     "/.well-known/openeo": {
       "get": {
-        "summary": "Supported openEO versions and their location.",
+        "summary": "Supported openEO versions and their locations.",
         "description": "Well-Known URI for openEO, listing all implemented openEO versions supported by the service provider.\nThis allows clients to easily identify the best suited openEO implementation they can use. The Well-Known URI is the entry point for clients and users, so make sure it is permanent and easy to use and remember. Please note that this URL MUST NOT be versioned as the other endpoints.\nSee [RFC 5785](https://tools.ietf.org/html/rfc5785) for more information about Well-Known URIs.",
         "tags": [
           "Capabilities"
@@ -373,7 +373,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON, and its default output format. The response is an object of the default and all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters SHOULD be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL could be defined centrally for openEO. Custom output formats or parameters MAY be defined, but it is recommended to stick to GDAL to increase interoperability.\n\nA `JSON` file format MAY be supported by back-ends to allow outputting data that doesn't fit into raster or vector file formats.\n\nFile formats that define multiple GIS spatial data types in `gis_data_types` (e.g. raster and vector) SHOULD define a parameter `gis_data_type` in the `parameters` for the output format to allow speciying which data type should be used for writing job or other results.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends are MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nFile formats that define multiple GIS spatial data types in `gis_data_types` (e.g. raster and vector) SHOULD define a parameter `gis_data_type` in the `parameters` for the output format to allow speciying which data type should be used for writing job or other results.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -386,139 +386,126 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with the default output format and a map containing all output format names as keys and an object that defines supported paramaters.",
+            "description": "An object with containing all output format names as keys and an object that defines supported paramaters.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "default",
-                    "formats"
-                  ],
-                  "properties": {
-                    "default": {
-                      "type": "string",
-                      "example": "GTiff"
-                    },
-                    "formats": {
-                      "type": "object",
-                      "description": "List of supported output formats.",
-                      "additionalProperties": {
-                        "type": "object",
-                        "description": "Describes a specific output format. The key of the entry is the output format name.",
-                        "required": [
-                          "gis_data_types"
-                        ],
-                        "properties": {
-                          "gis_data_types": {
-                            "type": "array",
-                            "description": "Specifies the supported GIS spatial data type for this format.",
-                            "items": {
-                              "$ref": "#/components/schemas/gis_data_type"
-                            }
-                          },
-                          "parameters": {
-                            "description": "Specifies the supported parameters for this output format.",
-                            "type": "object",
-                            "properties": {
-                              "gis_data_type": {
-                                "$ref": "#/components/schemas/gis_data_type"
-                              }
-                            },
-                            "additionalProperties": {
-                              "$ref": "#/components/schemas/argument"
-                            }
-                          }
+                  "description": "List of supported output formats.",
+                  "additionalProperties": {
+                    "type": "object",
+                    "description": "Describes a specific output format. The key of the entry is the output format name.",
+                    "required": [
+                      "gis_data_types"
+                    ],
+                    "properties": {
+                      "gis_data_types": {
+                        "type": "array",
+                        "description": "Specifies the supported GIS spatial data type for this format.",
+                        "items": {
+                          "$ref": "#/components/schemas/gis_data_type"
                         }
                       },
-                      "example": {
-                        "GTiff": {
-                          "gis_data_types": [
-                            "raster"
-                          ],
-                          "parameters": {
-                            "tiled": {
-                              "type": "boolean",
-                              "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
-                              "default": false
-                            },
-                            "compress": {
-                              "type": "string",
-                              "description": "Set the compression to use.",
-                              "default": "none",
-                              "enum": [
-                                "JPEG",
-                                "LZW",
-                                "DEFLATE",
-                                "NONE"
-                              ]
-                            },
-                            "photometric": {
-                              "type": "string",
-                              "description": "Set the photometric interpretation tag.",
-                              "enum": [
-                                "MINISBLACK",
-                                "MINISWHIT",
-                                "RGB",
-                                "CMYK",
-                                "YCBCR",
-                                "CIELAB",
-                                "ICCLAB",
-                                "ITULAB"
-                              ],
-                              "default": "RGB"
-                            },
-                            "jpeg_quality": {
-                              "type": "integer",
-                              "description": "Set the JPEG quality when using JPEG.",
-                              "minimum": 1,
-                              "maximum": 100,
-                              "default": 75
-                            }
+                      "parameters": {
+                        "description": "Specifies the supported parameters for this output format.",
+                        "type": "object",
+                        "properties": {
+                          "gis_data_type": {
+                            "$ref": "#/components/schemas/gis_data_type"
                           }
                         },
-                        "GeoPackage": {
-                          "gis_data_types": [
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/argument"
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "GTiff": {
+                      "gis_data_types": [
+                        "raster"
+                      ],
+                      "parameters": {
+                        "tiled": {
+                          "type": "boolean",
+                          "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
+                          "default": false
+                        },
+                        "compress": {
+                          "type": "string",
+                          "description": "Set the compression to use.",
+                          "default": "none",
+                          "enum": [
+                            "JPEG",
+                            "LZW",
+                            "DEFLATE",
+                            "NONE"
+                          ]
+                        },
+                        "photometric": {
+                          "type": "string",
+                          "description": "Set the photometric interpretation tag.",
+                          "enum": [
+                            "MINISBLACK",
+                            "MINISWHIT",
+                            "RGB",
+                            "CMYK",
+                            "YCBCR",
+                            "CIELAB",
+                            "ICCLAB",
+                            "ITULAB"
+                          ],
+                          "default": "RGB"
+                        },
+                        "jpeg_quality": {
+                          "type": "integer",
+                          "description": "Set the JPEG quality when using JPEG.",
+                          "minimum": 1,
+                          "maximum": 100,
+                          "default": 75
+                        }
+                      }
+                    },
+                    "GeoPackage": {
+                      "gis_data_types": [
+                        "raster",
+                        "vector"
+                      ],
+                      "parameters": {
+                        "gis_data_type": {
+                          "type": "string",
+                          "enum": [
                             "raster",
                             "vector"
                           ],
-                          "parameters": {
-                            "gis_data_type": {
-                              "type": "string",
-                              "enum": [
-                                "raster",
-                                "vector"
-                              ],
-                              "required": true
-                            },
-                            "version": {
-                              "type": "string",
-                              "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
-                              "enum": [
-                                "auto",
-                                1,
-                                1.1,
-                                1.2
-                              ],
-                              "default": "auto"
-                            },
-                            "geometry_name": {
-                              "type": "string",
-                              "description": "**VECTOR ONLY.** Column to use for the geometry column.",
-                              "default": "geom"
-                            },
-                            "table": {
-                              "type": "string",
-                              "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
-                            }
-                          }
+                          "required": true
                         },
-                        "JSON": {
-                          "gis_data_types": [
-                            "other"
-                          ]
+                        "version": {
+                          "type": "string",
+                          "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
+                          "enum": [
+                            "auto",
+                            1,
+                            1.1,
+                            1.2
+                          ],
+                          "default": "auto"
+                        },
+                        "geometry_name": {
+                          "type": "string",
+                          "description": "**VECTOR ONLY.** Column to use for the geometry column.",
+                          "default": "geom"
+                        },
+                        "table": {
+                          "type": "string",
+                          "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
                         }
                       }
+                    },
+                    "JSON": {
+                      "gis_data_types": [
+                        "other"
+                      ]
                     }
                   }
                 }
@@ -1075,6 +1062,14 @@
                           "description": {
                             "$ref": "#/components/schemas/description"
                           },
+                          "categories": {
+                            "type": "array",
+                            "description": "A list of categories.",
+                            "items": {
+                              "type": "string",
+                              "description": "Name of the category."
+                            }
+                          },
                           "parameters": {
                             "type": "object",
                             "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
@@ -1093,51 +1088,19 @@
                                   "description": "Determines whether this parameter is mandatory.",
                                   "default": false
                                 },
-                                "dependencies": {
-                                  "type": "array",
-                                  "description": "A list of parameters that influence this parameter or this parameter depends on.",
-                                  "items": {
-                                    "type": "object",
-                                    "description": "A dependency this parameter has with another parameter. It MAY be restricted to certain values using the ref_values field. Otherwise the specified parameter in the field parameter is always required for this parameter.",
-                                    "required": [
-                                      "parameter"
-                                    ],
-                                    "properties": {
-                                      "description": {
-                                        "$ref": "#/components/schemas/description"
-                                      },
-                                      "parameter": {
-                                        "type": "string",
-                                        "description": "The name of the referenced parameter."
-                                      },
-                                      "ref_values": {
-                                        "type": "array",
-                                        "description": "Embedded literal value that the referenced parameter MUST hold for this dependency to apply.",
-                                        "items": {
-                                          "description": "Any data type allowed for the referenced parameter."
-                                        }
-                                      }
-                                    }
-                                  }
-                                },
                                 "deprecated": {
                                   "type": "boolean",
                                   "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
                                   "default": false
                                 },
                                 "media_type": {
-                                  "type": "string",
-                                  "description": "The media (MIME) type that the parameter is formatted with."
+                                  "$ref": "#/components/schemas/process_media_type"
                                 },
                                 "schema": {
                                   "$ref": "#/components/schemas/json_schema"
                                 }
                               }
                             }
-                          },
-                          "min_parameters": {
-                            "type": "integer",
-                            "description": "Minimum number of parameters required for this process, including required parameters."
                           },
                           "returns": {
                             "type": "object",
@@ -1151,8 +1114,7 @@
                                 "$ref": "#/components/schemas/description"
                               },
                               "media_type": {
-                                "type": "string",
-                                "description": "The media (MIME) type that the returned data is formatted with."
+                                "$ref": "#/components/schemas/process_media_type"
                               },
                               "schema": {
                                 "$ref": "#/components/schemas/json_schema"
@@ -1233,7 +1195,9 @@
                         "id": "get_collection_example",
                         "summary": "Selects a collection.",
                         "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
-                        "min_parameters": 1,
+                        "categories": [
+                          "Import"
+                        ],
                         "parameters": {
                           "name": {
                             "description": "Filter by collection name",
@@ -1280,7 +1244,9 @@
                         "id": "filter_bands_example",
                         "summary": "Filter an image collection by bands.",
                         "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
-                        "min_parameters": 2,
+                        "categories": [
+                          "Filter"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -1341,7 +1307,9 @@
                         "id": "filter_daterange_example",
                         "summary": "Filter an image collection by temporal extent.",
                         "description": "Example - do not use, it's not an official process description!",
-                        "min_parameters": 1,
+                        "categories": [
+                          "Filter"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -1382,6 +1350,9 @@
                       {
                         "id": "process_graph_example",
                         "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
+                        "categories": [
+                          "Import"
+                        ],
                         "parameters": {
                           "imagery": {
                             "description": "EO data to process.",
@@ -1598,7 +1569,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Result data in the specified output format",
+            "description": "Result data in the requested output format",
             "headers": {
               "Content-Type": {
                 "description": "The appropriate media (MIME) type for the requested output format MUST be sent.",
@@ -1622,7 +1593,7 @@
           }
         },
         "requestBody": {
-          "description": "Specifies the job details, e.g. the process graph and the output format.",
+          "description": "Specifies the job details, e.g. the process graph and billing details.",
           "required": true,
           "content": {
             "application/json": {
@@ -1634,9 +1605,6 @@
                 "properties": {
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
-                  },
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
                   },
                   "budget": {
                     "$ref": "#/components/schemas/budget"
@@ -1682,10 +1650,10 @@
                         "description": "Defines limited metadata of stored process graphs that have been submitted by users.",
                         "type": "object",
                         "required": [
-                          "process_graph_id"
+                          "id"
                         ],
                         "properties": {
-                          "process_graph_id": {
+                          "id": {
                             "$ref": "#/components/schemas/process_graph_id"
                           },
                           "title": {
@@ -1787,11 +1755,11 @@
                   "description": "Defines full metadata of stored process graphs that have been submitted by users.",
                   "type": "object",
                   "required": [
-                    "process_graph_id",
+                    "id",
                     "process_graph"
                   ],
                   "properties": {
-                    "process_graph_id": {
+                    "id": {
                       "$ref": "#/components/schemas/process_graph_id"
                     },
                     "title": {
@@ -2024,13 +1992,13 @@
                         "description": "Defines metadata of services.",
                         "type": "object",
                         "required": [
-                          "service_id",
+                          "id",
                           "enabled",
                           "type",
                           "url"
                         ],
                         "properties": {
-                          "service_id": {
+                          "id": {
                             "$ref": "#/components/schemas/service_id"
                           },
                           "title": {
@@ -2107,7 +2075,6 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "job_id",
                   "type",
                   "process_graph"
                 ],
@@ -2226,7 +2193,7 @@
                   "description": "Metadata of a service.",
                   "type": "object",
                   "required": [
-                    "service_id",
+                    "id",
                     "process_graph",
                     "enabled",
                     "type",
@@ -2235,7 +2202,7 @@
                     "attributes"
                   ],
                   "properties": {
-                    "service_id": {
+                    "id": {
                       "$ref": "#/components/schemas/service_id"
                     },
                     "title": {
@@ -2350,12 +2317,12 @@
                         "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
                         "type": "object",
                         "required": [
-                          "job_id",
-                          "submitted",
-                          "locked"
+                          "id",
+                          "status",
+                          "submitted"
                         ],
                         "properties": {
-                          "job_id": {
+                          "id": {
                             "$ref": "#/components/schemas/job_id"
                           },
                           "title": {
@@ -2441,9 +2408,6 @@
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
-                  },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
@@ -2455,7 +2419,7 @@
               }
             }
           },
-          "description": "Specifies the job details, e.g. the process graph and _optionally_ the output format."
+          "description": "Specifies the job details, e.g. the process graph and billing details."
         }
       }
     },
@@ -2502,9 +2466,6 @@
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
                   },
-                  "output": {
-                    "$ref": "#/components/schemas/output_format"
-                  },
                   "plan": {
                     "$ref": "#/components/schemas/billing_plan_defaultable"
                   },
@@ -2539,12 +2500,13 @@
                   "description": "Defines full metadata of batch jobs that have been submitted by users.",
                   "type": "object",
                   "required": [
-                    "job_id",
+                    "id",
                     "process_graph",
+                    "status",
                     "submitted"
                   ],
                   "properties": {
-                    "job_id": {
+                    "id": {
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
@@ -2555,9 +2517,6 @@
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
-                    },
-                    "output": {
-                      "$ref": "#/components/schemas/output_format"
                     },
                     "status": {
                       "$ref": "#/components/schemas/status"
@@ -2729,7 +2688,7 @@
                     "links"
                   ],
                   "properties": {
-                    "job_id": {
+                    "id": {
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
@@ -3557,7 +3516,7 @@
       },
       "service_parameters": {
         "type": "object",
-        "description": "List of arguments, i.e. the parameter names supported by the secondary web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the service, visualization details or any other service dependant configuration. ",
+        "description": "List of arguments, i.e. the parameter names supported by the secondary web service combined with actual values. See `GET /service_types` for supported parameters and valid arguments. For example, this could specify the required version of the service, visualization details or any other service dependant configuration.",
         "additionalProperties": true,
         "example": {
           "version": "1.3.0"
@@ -3616,30 +3575,6 @@
           },
           "example": {
             "description": "A free-form property to include an example for this argument. To represent examples that cannot be naturally represented in JSON, a string value can be used to contain the example with escaping where necessary."
-          }
-        }
-      },
-      "output_format": {
-        "description": "Output format to be used. Supported formats and options can be retrieved using the endpoint `GET /output_formats`.",
-        "type": "object",
-        "nullable": true,
-        "required": [
-          "format"
-        ],
-        "properties": {
-          "format": {
-            "type": "string",
-            "description": "One of the supported output formats. MUST be accepted *case insensitive*."
-          },
-          "parameters": {
-            "type": "object",
-            "description": "List of arguments, i.e. the parameter names supported by the output format combined with actual values. \n\n`gis_data_type` is a special parameter only for output formats supporting multiple GIS spatial data types (e.g. raster and vector).\n\nSee `GET /output_formats` for more information, including supported parameters and valid arguments.",
-            "properties": {
-              "gis_data_type": {
-                "$ref": "#/components/schemas/gis_data_type"
-              }
-            },
-            "additionalProperties": true
           }
         },
         "example": {
@@ -3737,6 +3672,11 @@
       "json_schema": {
         "type": "object",
         "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.4.0/processes/index.html), e.g. bbox or crs."
+      },
+      "process_media_type": {
+        "type": "string",
+        "description": "The media (MIME) type that the value is encoded in.",
+        "default": "application/json"
       }
     },
     "responses": {
