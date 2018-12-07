@@ -9,8 +9,16 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
     <link rel="stylesheet" href="../assets/fonts/material-icons.css">
     <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/@openeo/processes-docgen/dist/DocGen.umd.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@openeo/processes-docgen/dist/DocGen.css">
+    <script src="https://unpkg.com/@openeo/processes-docgen@0.3/dist/DocGen.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@openeo/processes-docgen@0.3/dist/DocGen.css">
+    <style>
+      html, body { margin: 0; }
+      #container {
+        font-size: 1.45rem;
+        padding-top: 4.8rem;
+        height: 100%;
+      }
+    </style>
   </head>
   <body dir="ltr" data-md-state="">
     <svg class="md-svg">
@@ -62,17 +70,19 @@
         </div>
       </nav>
     </header>
-    <div class="md-container">
-      <main class="md-main" id="content">
-        <div id="app"></div>
-      </main>
+    <div id="container">
+      <div id="app"></div>
     </div>
     <script>
-      new Vue({
-        el: '#app',
-        render: h => h(DocGen),
-	      document: '../processes.json',
-      });
+    new Vue({
+      el: '#app',
+      render: h => h(DocGen, {
+        props: {
+          document: '../processes.json',
+          categorize: true
+        }
+      })
+    });
     </script>
     <noscript>Sorry, the documentation generator requires JavaScript to be enabled!</noscript>
   </body>
