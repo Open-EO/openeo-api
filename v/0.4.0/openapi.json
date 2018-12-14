@@ -1544,7 +1544,7 @@
                 ],
                 "properties": {
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph_vars"
+                    "$ref": "#/components/schemas/process_graph"
                   }
                 }
               }
@@ -1719,7 +1719,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph_vars"
+                    "$ref": "#/components/schemas/process_graph"
                   }
                 }
               }
@@ -1769,7 +1769,7 @@
                       "$ref": "#/components/schemas/description"
                     },
                     "process_graph": {
-                      "$ref": "#/components/schemas/process_graph_vars"
+                      "$ref": "#/components/schemas/process_graph"
                     }
                   }
                 }
@@ -1819,7 +1819,7 @@
                     "$ref": "#/components/schemas/description"
                   },
                   "process_graph": {
-                    "$ref": "#/components/schemas/process_graph_vars"
+                    "$ref": "#/components/schemas/process_graph"
                   }
                 }
               }
@@ -3295,7 +3295,35 @@
           }
         }
       },
-      "process_graph_arg_value": {
+      "process_node": {
+        "type": "object",
+        "required": [
+          "process_id",
+          "arguments"
+        ],
+        "properties": {
+          "process_id": {
+            "$ref": "#/components/schemas/process_id"
+          },
+          "result": {
+            "type": "boolean",
+            "default": false
+          },
+          "description": {
+            "$ref": "#/components/schemas/description"
+          },
+          "arguments": {
+            "$ref": "#/components/schemas/process_arguments"
+          }
+        }
+      },
+      "process_arguments": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/process_argument_value"
+        }
+      },
+      "process_argument_value": {
         "description": "Arguments for a process. See the API documentation for more information.",
         "nullable": true,
         "oneOf": [
@@ -3310,131 +3338,203 @@
           },
           {
             "type": "object"
-          },
-          {
-            "$ref": "#/components/schemas/process_graph"
           },
           {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/process_graph_arg_value"
+              "$ref": "#/components/schemas/process_argument_value"
             }
-          }
-        ]
-      },
-      "process_graph_arg_value_vars": {
-        "description": "Arguments for a process. See the API documentation for more information.",
-        "nullable": true,
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "object"
-          },
-          {
-            "$ref": "#/components/schemas/process_graph"
           },
           {
             "$ref": "#/components/schemas/variable"
           },
           {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/process_graph_arg_value_vars"
+            "type": "object",
+            "description": "Data that is expected to be passed from another process.",
+            "required": [
+              "from_node"
+            ],
+            "properties": {
+              "from_node": {
+                "description": "The ID of the node that data is expected to come from.",
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Data that is expected to be passed to a callback from a calling process.",
+            "required": [
+              "from_argument"
+            ],
+            "properties": {
+              "from_argument": {
+                "description": "The name of the parameter that is made available to a callback by a calling process.",
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Process graph to be executed as callback from withing the process.",
+            "required": [
+              "callback"
+            ],
+            "properties": {
+              "callback": {
+                "$ref": "#/components/schemas/process_graph"
+              }
             }
           }
         ]
       },
       "process_graph": {
-        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does NOT* allow process graph variables.",
+        "description": "A process graph defines a graph-like structure in a set of executable process that are connected with each other. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
         "type": "object",
-        "required": [
-          "process_id"
-        ],
-        "properties": {
-          "process_id": {
-            "$ref": "#/components/schemas/process_id"
-          },
-          "process_description": {
-            "$ref": "#/components/schemas/description"
-          }
-        },
         "additionalProperties": {
-          "$ref": "#/components/schemas/process_graph_arg_value"
+          "$ref": "#/components/schemas/process_node"
         },
         "example": {
-          "process_id": "min_time",
-          "process_description": "Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.",
-          "imagery": {
-            "process_id": "NDVI",
-            "imagery": {
-              "process_id": "filter_daterange",
-              "imagery": {
-                "process_id": "get_collection",
-                "name": "Sentinel2A-L1C"
+          "export1": {
+            "process_id": "export",
+            "arguments": {
+              "data": {
+                "from_node": "mergec1"
               },
-              "extent": [
-                "2017-01-01T00:00:00Z",
-                "2017-01-31T23:59:59Z"
-              ]
-            },
-            "red": "B4",
-            "nir": "B8"
-          }
-        }
-      },
-      "process_graph_vars": {
-        "description": "A process graph defines an executable process, i.e. one process or a combination of chained processes. *Does* allow process graph variables.",
-        "type": "object",
-        "required": [
-          "process_id"
-        ],
-        "properties": {
-          "process_id": {
-            "$ref": "#/components/schemas/process_id"
+              "format": "png"
+            }
           },
-          "process_description": {
-            "$ref": "#/components/schemas/description"
-          }
-        },
-        "additionalProperties": {
-          "$ref": "#/components/schemas/process_graph_arg_value_vars"
-        },
-        "example": {
-          "process_id": "min_time",
-          "imagery": {
-            "process_id": "NDVI",
-            "imagery": {
-              "process_id": "filter_daterange",
-              "imagery": {
-                "process_id": "get_collection",
-                "name": {
-                  "variable_id": "collection",
-                  "type": "string",
-                  "default": "Sentinel2A-L1C"
+          "export2": {
+            "process_id": "export",
+            "arguments": {
+              "data": {
+                "from_node": "reduce2"
+              },
+              "format": "png"
+            },
+            "result": true
+          },
+          "filter1": {
+            "process_id": "filter_temporal",
+            "arguments": {
+              "data": {
+                "from_node": "getcol1"
+              },
+              "from": "2017-01-01",
+              "to": "2017-01-31"
+            }
+          },
+          "filter2": {
+            "process_id": "filter_temporal",
+            "arguments": {
+              "data": {
+                "from_node": "getcol1"
+              },
+              "from": "2018-01-01",
+              "to": "2018-01-31"
+            }
+          },
+          "filter3": {
+            "process_id": "filter_bands",
+            "arguments": {
+              "bands": [
+                "nir",
+                "red"
+              ],
+              "data": {
+                "from_node": "reduce1"
+              }
+            }
+          },
+          "getcol1": {
+            "process_id": "get_collection",
+            "arguments": {
+              "name": "Sentinel-1"
+            }
+          },
+          "mergec1": {
+            "process_id": "merge_collections",
+            "arguments": {
+              "data1": {
+                "from_node": "filter1"
+              },
+              "data2": {
+                "from_node": "filter2"
+              }
+            }
+          },
+          "reduce1": {
+            "process_id": "reduce",
+            "arguments": {
+              "data": {
+                "from_node": "mergec1"
+              },
+              "dimension": "temporal",
+              "reducer": {
+                "callback": {
+                  "min1": {
+                    "process_id": "min",
+                    "arguments": {
+                      "data": {
+                        "from_argument": "dimension_data"
+                      },
+                      "dimension": {
+                        "from_argument": "dimension"
+                      }
+                    },
+                    "result": true
+                  }
                 }
+              }
+            }
+          },
+          "reduce2": {
+            "process_id": "reduce",
+            "arguments": {
+              "data": {
+                "from_node": "filter3"
               },
-              "extent": [
-                "2017-01-01T00:00:00Z",
-                "2017-01-31T23:59:59Z"
-              ]
-            },
-            "red": {
-              "variable_id": "red_band",
-              "type": "string",
-              "default": "B4"
-            },
-            "nir": {
-              "variable_id": "nir_band",
-              "type": "string",
-              "default": "B8"
+              "dimension": "spectral",
+              "reducer": {
+                "callback": {
+                  "divide1": {
+                    "process_id": "divide",
+                    "arguments": {
+                      "x": {
+                        "from_node": "substr1"
+                      },
+                      "y": {
+                        "from_node": "sum1"
+                      }
+                    },
+                    "result": true
+                  },
+                  "output1": {
+                    "process_id": "output",
+                    "arguments": {
+                      "data": {
+                        "from_node": "divide1"
+                      }
+                    }
+                  },
+                  "substr1": {
+                    "process_id": "substract",
+                    "arguments": {
+                      "data": {
+                        "from_argument": "dimension_data"
+                      }
+                    }
+                  },
+                  "sum1": {
+                    "process_id": "sum",
+                    "arguments": {
+                      "data": {
+                        "from_argument": "dimension_data"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
