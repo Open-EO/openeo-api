@@ -1153,25 +1153,24 @@
                             }
                           },
                           "examples": {
-                            "type": "object",
-                            "description": "If parameters or return values are referencing a schema which contains an example, the examples value SHALL override the example provided by the schema.",
-                            "additionalProperties": {
+                            "type": "array",
+                            "description": "Examples, may be used for tests. Either process_graph or arguments must be set, never both.",
+                            "items": {
                               "type": "object",
-                              "description": "The sourceCode field is mutually exclusive of the paramaters and returns fields, i.e. you can only specify either sourceCode or parameters/returns.",
-                              "required": [
-                                "description"
-                              ],
                               "properties": {
-                                "summary": {
-                                  "type": "string",
-                                  "description": "Short summary for the example."
+                                "title": {
+                                  "$ref": "#/components/schemas/title"
                                 },
                                 "description": {
                                   "$ref": "#/components/schemas/description"
                                 },
                                 "process_graph": {
                                   "$ref": "#/components/schemas/process_graph"
-                                }
+                                },
+                                "arguments": {
+                                  "$ref": "#/components/schemas/process_arguments"
+                                },
+                                "returns": {}
                               }
                             }
                           },
@@ -1192,206 +1191,53 @@
                   "example": {
                     "processes": [
                       {
-                        "id": "get_collection_example",
-                        "summary": "Selects a collection.",
-                        "description": "Filters and selects a single collection provided by the back-end. The back-end provider decides which of the potential collections is the most relevant one to be selected.\n\nExample - do not use, it's not an official process description!",
+                        "id": "e",
+                        "summary": "Euler's number (e)",
+                        "description": "The real number *e* is a mathematical constant that is the base of the natural logarithm such that *ln(e) = 1*. The numerical value is approximately *2.71828*.",
                         "categories": [
-                          "Import"
+                          "math > constants"
                         ],
-                        "parameters": {
-                          "name": {
-                            "description": "Filter by collection name",
-                            "schema": {
-                              "type": "string",
-                              "examples": [
-                                "Sentinel2A-L1C"
-                              ]
-                            }
-                          },
-                          "spatial_extent": {
-                            "description": "Filter by spatial extent, may include a vertical axis (height or depth).",
-                            "schema": {
-                              "type": "object",
-                              "format": "spatial_extent"
-                            }
-                          },
-                          "temporal_extent": {
-                            "description": "Filter by time",
-                            "schema": {
-                              "type": "array",
-                              "format": "temporal_extent"
-                            }
-                          },
-                          "bands": {
-                            "description": "Filter by band IDs",
-                            "schema": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
-                            }
+                        "parameters": {},
+                        "returns": {
+                          "description": "Returns the numerical value of Euler's number. Precision may be limited by the processing software.",
+                          "schema": {
+                            "type": "number"
                           }
                         },
-                        "returns": {
-                          "description": "Processed EO data.",
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
+                        "examples": [
+                          {
+                            "title": "Test for ln(e) = 1",
+                            "process_graph": {
+                              "e1": {
+                                "process_id": "e",
+                                "arguments": {}
+                              },
+                              "ln1": {
+                                "process_id": "ln",
+                                "arguments": {
+                                  "data": {
+                                    "from_node": "e1"
+                                  }
+                                },
+                                "result": true
+                              }
+                            },
+                            "returns": 1
                           }
-                        }
-                      },
-                      {
-                        "id": "filter_bands_example",
-                        "summary": "Filter an image collection by bands.",
-                        "description": "Allows to extract one or multiple bands of multi-band raster image collection.\nBands can be chosen either by band id, band name or by wavelength.\n\nimagery and at least one of the other arguments is required to be specified.\n\nExample - do not use, it's not an official process description!",
-                        "categories": [
-                          "Filter"
                         ],
-                        "parameters": {
-                          "imagery": {
-                            "description": "EO data to process.",
-                            "required": true,
-                            "schema": {
-                              "type": "object",
-                              "format": "eodata"
-                            }
-                          },
-                          "bands": {
-                            "description": "string or array of strings containing band ids.",
-                            "schema": {
-                              "type": [
-                                "string",
-                                "array"
-                              ],
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "names": {
-                            "description": "string or array of strings containing band names.",
-                            "schema": {
-                              "type": [
-                                "string",
-                                "array"
-                              ],
-                              "items": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "wavelengths": {
-                            "description": "number or two-element array of numbers containing a wavelength or a minimum and maximum wavelength respectively.",
-                            "schema": {
-                              "type": [
-                                "number",
-                                "array"
-                              ],
-                              "minItems": 2,
-                              "maxItems": 2,
-                              "items": {
-                                "type": "number"
-                              }
-                            }
+                        "links": [
+                          {
+                            "rel": "about",
+                            "href": "http://mathworld.wolfram.com/e.html",
+                            "title": "Mathematical constant e on Wolfram MathWorld"
                           }
-                        },
-                        "returns": {
-                          "description": "Processed EO data.",
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
-                          }
-                        }
-                      },
-                      {
-                        "id": "filter_daterange_example",
-                        "summary": "Filter an image collection by temporal extent.",
-                        "description": "Example - do not use, it's not an official process description!",
-                        "categories": [
-                          "Filter"
-                        ],
-                        "parameters": {
-                          "imagery": {
-                            "description": "EO data to process.",
-                            "required": true,
-                            "schema": {
-                              "type": "object",
-                              "format": "eodata"
-                            }
-                          },
-                          "extent": {
-                            "type": "array",
-                            "description": "Temporal extent specified by a start and an end time, each formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. Open date ranges are supported and can be specified by setting one of the times to null. Setting both entries to null is not allowed.",
-                            "examples": [
-                              [
-                                "2016-01-01T00:00:00Z",
-                                "2017-10-01T00:00:00Z"
-                              ]
-                            ],
-                            "items": {
-                              "type": [
-                                "string",
-                                "null"
-                              ],
-                              "format": "date-time",
-                              "minItems": 2,
-                              "maxItems": 2
-                            }
-                          }
-                        },
-                        "returns": {
-                          "description": "Processed EO data.",
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
-                          }
-                        }
-                      },
-                      {
-                        "id": "process_graph_example",
-                        "description": "Loads another process graph and applies it to the specified imagery. This can be an externally hosted process graph.\n\nExample - do not use, it's not an official process description!",
-                        "categories": [
-                          "Import"
-                        ],
-                        "parameters": {
-                          "imagery": {
-                            "description": "EO data to process.",
-                            "required": true,
-                            "schema": {
-                              "type": "object",
-                              "format": "eodata"
-                            }
-                          },
-                          "url": {
-                            "description": "An URL to a process graph.",
-                            "required": true,
-                            "schema": {
-                              "type": "string",
-                              "format": "url",
-                              "examples": [
-                                "http://otherhost.org/api/v1/users/12345/process_graphs/abcdef"
-                              ]
-                            }
-                          }
-                        },
-                        "returns": {
-                          "description": "Processed EO data.",
-                          "schema": {
-                            "type": "object",
-                            "format": "eodata"
-                          }
-                        },
-                        "exceptions": {
-                          "NotFound": {
-                            "message": "Process graph doesn't exist."
-                          }
-                        }
+                        ]
                       }
                     ],
                     "links": [
                       {
                         "rel": "alternate",
-                        "href": "https://openeo.org/processes",
+                        "href": "https://provider.com/processes",
                         "type": "text/html",
                         "title": "HTML version of the processes"
                       }
@@ -3542,7 +3388,7 @@
       "process_id": {
         "type": "string",
         "description": "Unique identifier of the process.",
-        "pattern": "^[A-Za-z0-9_\\-]+$",
+        "pattern": "^[A-Za-z0-9_]+$",
         "example": "ndvi"
       },
       "process_graph_id": {

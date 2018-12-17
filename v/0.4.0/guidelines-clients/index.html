@@ -1043,7 +1043,7 @@
 <h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h3>
 <p>The parameters usually follow the request schemas in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.</p>
 <p>Some methods have a long list of (optional) parameters. This is easy to implement in languages that support named parameters such as R. For example, creating a job in R with a budget would lead to this method call:</p>
-<div class="codehilite"><pre><span></span>createJob<span class="p">(</span>process_graph <span class="o">=</span> <span class="p">{</span><span class="kc">...</span><span class="p">},</span> budget <span class="o">=</span> <span class="m">123</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><span class="nf">createJob</span><span class="p">(</span><span class="n">process_graph</span> <span class="o">=</span> <span class="p">{</span><span class="kc">...</span><span class="p">},</span> <span class="n">budget</span> <span class="o">=</span> <span class="m">123</span><span class="p">)</span>
 </pre></div>
 
 <p>Other languages that only support non-named parameters (i.e. the order of parameters is fixed) need to fill many parameters with default values, which is not convenient for a user. The example above in PHP would be:</p>
@@ -1408,24 +1408,24 @@
 <li>Once processing is finished, downloading the job results to the local directory <code>/tmp/job_results/</code>.</li>
 </ol>
 <h3 id="r-functional-style">R (functional style)<a class="headerlink" href="#r-functional-style" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><span class="kn">library</span><span class="p">(</span>openeo<span class="p">)</span>
+<div class="codehilite"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">openeo</span><span class="p">)</span>
 
-con <span class="o">=</span> connect<span class="p">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
-cap <span class="o">=</span> <span class="kp">capabilities</span><span class="p">()</span>
-cap <span class="o">%&gt;%</span> apiVersion<span class="p">()</span>
-con <span class="o">%&gt;%</span> describeCollection<span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
-con <span class="o">%&gt;%</span> listProcesses<span class="p">()</span>
+<span class="n">con</span> <span class="o">=</span> <span class="nf">connect</span><span class="p">(</span><span class="s">&quot;https://openeo.org&quot;</span><span class="p">,</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
+<span class="n">cap</span> <span class="o">=</span> <span class="nf">capabilities</span><span class="p">()</span>
+<span class="n">cap</span> <span class="o">%&gt;%</span> <span class="nf">apiVersion</span><span class="p">()</span>
+<span class="n">con</span> <span class="o">%&gt;%</span> <span class="nf">describeCollection</span><span class="p">(</span><span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span>
+<span class="n">con</span> <span class="o">%&gt;%</span> <span class="nf">listProcesses</span><span class="p">()</span>
 
-processgraph <span class="o">=</span> process<span class="p">(</span><span class="s">&quot;get_collection&quot;</span><span class="p">,</span> name <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
-  process<span class="p">(</span><span class="s">&quot;filterBbox&quot;</span><span class="p">,</span> west <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> south <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> east <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> north <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> crs <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  process<span class="p">(</span><span class="s">&quot;filterDaterange&quot;</span><span class="p">,</span> extent <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
-  process<span class="p">(</span><span class="s">&quot;NDVI&quot;</span><span class="p">,</span> nir <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> red <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
-  process<span class="p">(</span><span class="s">&quot;minTime&quot;</span><span class="p">)</span>
+<span class="n">processgraph</span> <span class="o">=</span> <span class="nf">process</span><span class="p">(</span><span class="s">&quot;get_collection&quot;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Sentinel-2A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span> 
+  <span class="nf">process</span><span class="p">(</span><span class="s">&quot;filterBbox&quot;</span><span class="p">,</span> <span class="n">west</span> <span class="o">=</span> <span class="m">672000</span><span class="p">,</span> <span class="n">south</span> <span class="o">=</span> <span class="m">5181000</span><span class="p">,</span> <span class="n">east</span> <span class="o">=</span> <span class="m">652000</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="m">5161000</span><span class="p">,</span> <span class="n">crs</span> <span class="o">=</span> <span class="s">&quot;EPSG:32632&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="nf">process</span><span class="p">(</span><span class="s">&quot;filterDaterange&quot;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="nf">c</span><span class="p">(</span><span class="s">&quot;2017-01-01T00:00:00Z&quot;</span><span class="p">,</span> <span class="s">&quot;2017-01-31T23:59:59Z&quot;</span><span class="p">))</span> <span class="o">%&gt;%</span>
+  <span class="nf">process</span><span class="p">(</span><span class="s">&quot;NDVI&quot;</span><span class="p">,</span> <span class="n">nir</span> <span class="o">=</span> <span class="s">&quot;B4&quot;</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="s">&quot;B8A&quot;</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="nf">process</span><span class="p">(</span><span class="s">&quot;minTime&quot;</span><span class="p">)</span>
 
-job <span class="o">=</span> con <span class="o">%&gt;%</span> createJob<span class="p">(</span>processgraph<span class="p">)</span>
-job <span class="o">%&gt;%</span> startJob<span class="p">()</span>
-job <span class="o">%&gt;%</span> describeJob<span class="p">()</span>
-job <span class="o">%&gt;%</span> downloadResults<span class="p">(</span><span class="s">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
+<span class="n">job</span> <span class="o">=</span> <span class="n">con</span> <span class="o">%&gt;%</span> <span class="nf">createJob</span><span class="p">(</span><span class="n">processgraph</span><span class="p">)</span>
+<span class="n">job</span> <span class="o">%&gt;%</span> <span class="nf">startJob</span><span class="p">()</span>
+<span class="n">job</span> <span class="o">%&gt;%</span> <span class="nf">describeJob</span><span class="p">()</span>
+<span class="n">job</span> <span class="o">%&gt;%</span> <span class="nf">downloadResults</span><span class="p">(</span><span class="s">&quot;/tmp/job_results/&quot;</span><span class="p">)</span>
 </pre></div>
 
 <h3 id="python-mixed-style">Python (mixed style)<a class="headerlink" href="#python-mixed-style" title="Permanent link">&para;</a></h3>
