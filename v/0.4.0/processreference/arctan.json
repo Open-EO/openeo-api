@@ -1,13 +1,13 @@
 {
     "id": "arctan",
-    "summary": "Arc tangent",
-    "description": "Arc tangent of `data`. Works on radians only.",
+    "summary": "Inverse tangent",
+    "description": "Computes the arcus tangent of `x`. The arcus tangent is the inverse function of the tangent so that *arctan(tan(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
     "categories": [
         "math > trigonometric"
     ],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "A number.",
             "schema": {
                 "type": [
                     "number",
@@ -18,12 +18,47 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The computed angle in radians.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 0
+            },
+            "returns": 0
+        },
+        {
+            "process_graph": {
+                "tan1": {
+                    "process_id": "tan",
+                    "arguments": {
+                        "x": 0.5
+                    }
+                },
+                "arctan1": {
+                    "process_id": "arctan",
+                    "arguments": {
+                        "x": {
+                            "from_node": "tan1"
+                        }
+                    },
+                    "result": true
+                }
+            },
+            "returns": 0.5
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/InverseTangent.html",
+            "title": "Inverse tangent explained by Wolfram MathWorld"
+        }
+    ]
 }

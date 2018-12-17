@@ -1,13 +1,13 @@
 {
     "id": "arcosh",
     "summary": "Inverse hyperbolic cosine",
-    "description": "Inverse hyperbolic cosine of `data`. Works on radians only.",
+    "description": "Computes the inverse hyperbolic cosine of `x`. It is the inverse function of the hyperbolic cosine so that *arcosh(cosh(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
     "categories": [
         "math > trigonometric"
     ],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "A number.",
             "schema": {
                 "type": [
                     "number",
@@ -18,12 +18,47 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The computed angle in radians.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 0
+            },
+            "returns": 1
+        },
+        {
+            "process_graph": {
+                "cosh1": {
+                    "process_id": "cosh",
+                    "arguments": {
+                        "x": 0.5
+                    }
+                },
+                "arccosh1": {
+                    "process_id": "arcosh",
+                    "arguments": {
+                        "x": {
+                            "from_node": "cosh1"
+                        }
+                    },
+                    "result": true
+                }
+            },
+            "returns": 0.5
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/InverseHyperbolicCosine.html",
+            "title": "Inverse hyperbolic cosine explained by Wolfram MathWorld"
+        }
+    ]
 }

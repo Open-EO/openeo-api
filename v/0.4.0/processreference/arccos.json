@@ -1,13 +1,13 @@
 {
     "id": "arccos",
-    "summary": "Arc cosine",
-    "description": "Arc cosine of `data`. Works on radians only.",
+    "summary": "Inverse cosine",
+    "description": "Computes the arcus cosine of `x`. The arcus cosine is the inverse function of the cosine so that *arccos(cos(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
     "categories": [
         "math > trigonometric"
     ],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "A number.",
             "schema": {
                 "type": [
                     "number",
@@ -18,12 +18,47 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The computed angle in radians.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 0
+            },
+            "returns": 1
+        },
+        {
+            "process_graph": {
+                "cos1": {
+                    "process_id": "cos",
+                    "arguments": {
+                        "x": 0.5
+                    }
+                },
+                "arccos1": {
+                    "process_id": "arccos",
+                    "arguments": {
+                        "x": {
+                            "from_node": "cos1"
+                        }
+                    },
+                    "result": true
+                }
+            },
+            "returns": 0.5
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/InverseCosine.html",
+            "title": "Inverse cosine explained by Wolfram MathWorld"
+        }
+    ]
 }
