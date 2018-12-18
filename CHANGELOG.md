@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
 - `GET /jobs/{job_id}` has a property `progress` to indicate the progress. [#82](https://github.com/Open-EO/openeo-api/issues/82)
-- Processes can be categorizes with the `category` property.
 - `GET /.well-known/openeo` allows clients to choose between versions. [#148](https://github.com/Open-EO/openeo-api/issues/148)
 - `GET /` (Capabilities):
     - Requires to return a title (`title`), a description (`description`) and the back-end version (`backend_version`). [#154](https://github.com/Open-EO/openeo-api/issues/154)
     - Billing plans have an additional required property `paid`. [#157](https://github.com/Open-EO/openeo-api/issues/157)
     - Should provide a link to the Well-Known URI in the new `links` property.
+- `GET /processes` (Process discovery):
+    - Processes can be categorizes with the `category` property.
+    - Parameters can be ordered with the `parameter_order` property instead of having a random order.
 
 ### Changed
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
