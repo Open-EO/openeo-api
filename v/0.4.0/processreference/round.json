@@ -1,13 +1,14 @@
 {
     "id": "round",
-    "summary": "Rounds `data` to specified precision `p`.\nThe nodata value `null` is passed through and therefore gets propagated.",
-    "description": "Rounds `data` to specified precision `p`.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "summary": "Rounds to a specified precision",
+    "description": "Rounds a real number `x` to specified precision `p`.\n\nIf the fractional part of `x` is halfway between two integers, one of which is even and the other odd, then the even number is returned.\nThis behavior follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). This kind of rounding is also called \"rounding to nearest\" or \"banker's rounding\". It minimizes rounding errors that result from consistently rounding a midpoint value in a single direction.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
     "categories": [
-        "math"
+        "math > rounding"
     ],
+    "parameter_order": ["x", "p"],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "A number to round.",
             "schema": {
                 "type": [
                     "number",
@@ -17,20 +18,73 @@
             "required": true
         },
         "p": {
-            "description": "",
+            "description": "A positive number specifies the number of digits after the decimal point to round to. A negative number means rounding to a power of ten, so for example *-2* rounds to the nearest hundred. Defaults to *0*.",
             "schema": {
-                "type": "integer"
-            },
-            "required": true
+                "type": "integer",
+                "default": 0
+            }
         }
     },
     "returns": {
-        "description": "",
+        "description": "The rounded number.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 0
+            },
+            "returns": 0
+        },
+        {
+            "arguments": {
+                "x": 3.56,
+                "p": 1
+            },
+            "returns": 3.6
+        },
+        {
+            "arguments": {
+                "x": -0.4444444,
+                "p": 2
+            },
+            "returns": -0.44
+        },
+        {
+            "arguments": {
+                "x": -2.5
+            },
+            "returns": -2
+        },
+        {
+            "arguments": {
+                "x": -3.5
+            },
+            "returns": -4
+        },
+        {
+            "arguments": {
+                "x": 1234.5,
+                "p": -2
+            },
+            "returns": 1200
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/AbsoluteValue.html",
+            "title": "Absolute value explained by Wolfram MathWorld"
+        },
+        {
+            "rel": "about",
+            "href": "https://ieeexplore.ieee.org/document/4610935",
+            "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        }
+    ]
 }
