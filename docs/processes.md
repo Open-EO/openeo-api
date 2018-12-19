@@ -25,8 +25,8 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 
 | Format Name         | Description                                                  |
 | ------------------- | ------------------------------------------------------------ |
-| `date`              | Date only representation, as defined as `full-date` by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
-| `date-time`         | Date and time representation, as defined as `date-time` by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
+| `date`              | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
+| `date-time`         | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
 | `image-collection`  | Raster collection, a proprietary way to describe a raster data cube. |
-| `time`              | Time only representation, as defined as `full-time` by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
+| `time`              | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
 | `vector-collection` | Vector collection, a proprietary way to describe a vector data cube. |
