@@ -1,13 +1,14 @@
 {
     "id": "lt",
-    "summary": "data is less than other data.",
-    "description": "data is less than other data.",
+    "summary": "Less than comparison",
+    "description": "Compares whether `x` is strictly less than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n*The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n*Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
         "filter"
     ],
+    "parameter_order": ["x", "y"],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "First operand.",
             "schema": {
                 "oneOf": [
                     {
@@ -32,8 +33,8 @@
             },
             "required": true
         },
-        "other": {
-            "description": "",
+        "y": {
+            "description": "Second operand.",
             "schema": {
                 "oneOf": [
                     {
@@ -60,9 +61,70 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if `x` is strictly less than `y`, `null` if any of the operands is `null`, otherwise `false`.",
         "schema": {
-            "type": "boolean"
+            "type": [
+                "boolean",
+                "null"
+            ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 1,
+                "y": null
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "x": 0,
+                "y": 0
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": 1,
+                "y": 2
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": -0.5,
+                "y": -0.6
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "00:00:00+01:00",
+                "y": "00:00:00Z"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "1950-01-01T00:00:00Z",
+                "y": "2018-01-01T12:00:00Z"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "2018-01-01T12:00:00+00:00",
+                "y": "2018-01-01T12:00:00Z"
+            },
+            "returns": false
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        }
+    ]
 }

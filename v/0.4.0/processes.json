@@ -2,7 +2,7 @@
   {
     "id": "absolute",
     "summary": "Absolute value",
-    "description": "Computes the absolute value of a real number `x`, which is the \"unsigned\" portion of x and often denoted as *|x|*.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the absolute value of a real number `x`, which is the \"unsigned\" portion of x and often denoted as *|x|*.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
@@ -213,29 +213,94 @@
   },
   {
     "id": "and",
-    "summary": "Checks if all of the expressions are true",
-    "description": "Given a set of logical expressions, are **all** of the values true?",
+    "summary": "Are all of the values true?",
+    "description": "Checks if **all** of the values are true.",
     "categories": [
       "logic"
     ],
     "parameters": {
       "expressions": {
-        "description": "",
+        "description": "A set of boolean values.",
         "schema": {
           "type": "array",
           "items": {
-            "type": "boolean"
+            "type": [
+              "boolean",
+              "null"
+            ]
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            true
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            false
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expression": [
+            false,
+            false
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            true
+          ]
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "apply_dimension",
@@ -269,8 +334,7 @@
             "type": "string"
           },
           "default": []
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -329,8 +393,7 @@
             }
           ],
           "default": 1
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -344,7 +407,7 @@
   {
     "id": "arccos",
     "summary": "Inverse cosine",
-    "description": "Computes the arcus cosine of `x`. The arcus cosine is the inverse function of the cosine so that *arccos(cos(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the arcus cosine of `x`. The arcus cosine is the inverse function of the cosine so that *arccos(cos(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -408,7 +471,7 @@
   {
     "id": "arcosh",
     "summary": "Inverse hyperbolic cosine",
-    "description": "Computes the inverse hyperbolic cosine of `x`. It is the inverse function of the hyperbolic cosine so that *arcosh(cosh(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the inverse hyperbolic cosine of `x`. It is the inverse function of the hyperbolic cosine so that *arcosh(cosh(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -472,7 +535,7 @@
   {
     "id": "arcsin",
     "summary": "Inverse sine",
-    "description": "Computes the arcus sine of `x`. The arcus sine is the inverse function of the sine so that *arcsin(sin(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the arcus sine of `x`. The arcus sine is the inverse function of the sine so that *arcsin(sin(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -536,7 +599,7 @@
   {
     "id": "arctan",
     "summary": "Inverse tangent",
-    "description": "Computes the arcus tangent of `x`. The arcus tangent is the inverse function of the tangent so that *arctan(tan(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the arcus tangent of `x`. The arcus tangent is the inverse function of the tangent so that *arctan(tan(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -600,7 +663,7 @@
   {
     "id": "arctan2",
     "summary": "Inverse tangent of two numbers.",
-    "description": "Computes the arcus tangent of two numbers `x` and `y`. It is similar to calculating the arcus tangent of *y / x*, except that the signs of both arguments are used to determine the quadrant of the result.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the arcus tangent of two numbers `x` and `y`. It is similar to calculating the arcus tangent of *y / x*, except that the signs of both arguments are used to determine the quadrant of the result.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -666,7 +729,7 @@
   {
     "id": "arsinh",
     "summary": "Inverse hyperbolic sine",
-    "description": "Computes the inverse hyperbolic sine of `x`. It is the inverse function of the hyperbolic sine so that *arsinh(sinh(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the inverse hyperbolic sine of `x`. It is the inverse function of the hyperbolic sine so that *arsinh(sinh(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -730,7 +793,7 @@
   {
     "id": "artanh",
     "summary": "Inverse hyperbolic tangent",
-    "description": "Computes the inverse hyperbolic tangent of `x`. It is the inverse function of the hyperbolic tangent so that *artanh(tanh(x)) = x*.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the inverse hyperbolic tangent of `x`. It is the inverse function of the hyperbolic tangent so that *artanh(tanh(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -882,7 +945,7 @@
   {
     "id": "ceil",
     "summary": "Round fractions up",
-    "description": "The least integer greater than or equal to the number `x`.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "The least integer greater than or equal to the number `x`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > rounding"
     ],
@@ -984,7 +1047,7 @@
   {
     "id": "cos",
     "summary": "Cosine",
-    "description": "Computes the cosine of `x`.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the cosine of `x`.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -1028,7 +1091,7 @@
   {
     "id": "cosh",
     "summary": "Hyperbolic cosine",
-    "description": "Computes the hyperbolic cosine of `x`.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the hyperbolic cosine of `x`.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -1091,18 +1154,20 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
       "description": "",
       "schema": {
-        "type": "number"
+        "type": [
+          "number",
+          "null"
+        ]
       }
     }
   },
@@ -1322,12 +1387,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -1386,14 +1450,20 @@
   },
   {
     "id": "eq",
-    "summary": "data is equal to other data",
-    "description": "Numbers: If `delta` is non-zero the equality of two numbers with a given delta is checked. For strings case_sensitivity can be toggled.",
+    "summary": "Equal to comparison",
+    "description": "Compares whether `x` is strictly equal to `y`.\n\n**Remarks:**\n*Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\nStrings are expected to be encoded in UTF-8 by default.\n*The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y",
+      "delta",
+      "case_sensitive"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -1403,17 +1473,29 @@
               "type": "boolean"
             },
             {
+              "type": "null"
+            },
+            {
               "type": "string"
             },
             {
-              "type": "null"
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
             }
           ]
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -1423,43 +1505,157 @@
               "type": "boolean"
             },
             {
+              "type": "null"
+            },
+            {
               "type": "string"
             },
             {
-              "type": "null"
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
             }
           ]
         },
         "required": true
       },
       "delta": {
-        "description": "",
+        "description": "Only applicable for comparing two numbers. If this optional parameter is set to a positive non-zero number the equality of two numbers is checked against a delta value. This is especially useful to circumvent problems with floating point inaccuracy in machine-based computation.\n\nThis option is basically an alias for the following computation: `lte(abs(minus([x, y]), delta)`",
         "schema": {
-          "type": "number",
-          "default": 0
-        },
-        "required": false
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        }
       },
       "case_sensitive": {
-        "description": "",
+        "description": "Only applicable for comparing two strings. Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": 1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": "1"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": 1.02,
+          "y": 1,
+          "delta": 0.01
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": -1,
+          "y": -1.001,
+          "delta": 0.01
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 115,
+          "y": 110,
+          "delta": 10
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "Test",
+          "y": "test"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "Test",
+          "y": "test",
+          "case_sensitive": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "Ä",
+          "y": "ä",
+          "case_sensitive": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "00:00:00+00:00",
+          "y": "00:00:00Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00Z",
+          "y": "2018-01-01T12:00:00"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T00:00:00Z",
+          "y": "2018-01-01Z01:00:00+01:00"
+        },
+        "returns": true
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "exp",
     "summary": "Exponentiation to the base e",
-    "description": "Exponential function to the base *e* raised to the power of `p`. This process is an alias for *e^p^* / `power(e(), p)`.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Exponential function to the base *e* raised to the power of `p`. This process is an alias for *e^p^* / `power(e(), p)`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -1537,8 +1733,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -1571,12 +1766,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -1941,12 +2135,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -1962,7 +2155,7 @@
   {
     "id": "floor",
     "summary": "Round fractions down",
-    "description": "The greatest integer less than or equal to the number `x`.\n\nThis process is *not* an alias for the `int` process as defined by some mathematicians, see the examples for negative numbers in both processes for differences.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "The greatest integer less than or equal to the number `x`.\n\nThis process is *not* an alias for the `int` process as defined by some mathematicians, see the examples for negative numbers in both processes for differences.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > rounding"
     ],
@@ -2075,8 +2268,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2146,8 +2338,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2160,14 +2351,18 @@
   },
   {
     "id": "gt",
-    "summary": "data is greater than other data",
-    "description": "data is greater than other data",
+    "summary": "Greater than comparison",
+    "description": "Compares whether `x` is strictly greater than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n*The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n*Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -2192,8 +2387,8 @@
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -2220,22 +2415,87 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is strictly greater than `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 0,
+          "y": 0
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": 2,
+          "y": 1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": -0.5,
+          "y": -0.6
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "00:00:00Z",
+          "y": "00:00:00+01:00"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "1950-01-01T00:00:00Z",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00+00:00",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": false
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "gte",
-    "summary": "data is greater than or equal to other data",
-    "description": "data is greater than or equal to other data",
+    "summary": "Greater than or equal to comparison",
+    "description": "Compares whether `x` is greater than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n*The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n*Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -2260,8 +2520,8 @@
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -2288,11 +2548,72 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is greater than or equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 0,
+          "y": 0
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": 2
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": -0.5,
+          "y": -0.6
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "00:00:00Z",
+          "y": "00:00:00+01:00"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "1950-01-01T00:00:00Z",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00+00:00",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": true
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "if",
@@ -2322,16 +2643,14 @@
         "schema": {
           "description": "Mixed values, any data type allowed.",
           "default": true
-        },
-        "required": false
+        }
       },
       "reject": {
         "description": "",
         "schema": {
           "description": "Mixed values, any data type allowed.",
           "default": false
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2362,8 +2681,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2432,8 +2750,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2447,7 +2764,7 @@
   {
     "id": "int",
     "summary": "Integer part of a number",
-    "description": "The integer part of the real number `x`.\n\nThis process is *not* an alias for the `floor` process as defined by some mathematicians, see the examples for negative numbers in both processes for differences.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "The integer part of the real number `x`.\n\nThis process is *not* an alias for the `floor` process as defined by some mathematicians, see the examples for negative numbers in both processes for differences.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math",
       "math > rounding"
@@ -2533,7 +2850,7 @@
   {
     "id": "is_nodata",
     "summary": "Checks for missing data",
-    "description": "Checks whether the specified data is missing data, i.e. equals to one of the nodata values or null.",
+    "description": "Checks whether the specified data is missing data, i.e. equals to one of the no-data values or null.",
     "categories": [
       "filter"
     ],
@@ -2598,12 +2915,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2653,16 +2969,14 @@
         "schema": {
           "type": "number",
           "default": 0
-        },
-        "required": false
+        }
       },
       "outputMax": {
         "description": "",
         "schema": {
           "type": "number",
           "default": 1
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -2751,7 +3065,7 @@
   {
     "id": "ln",
     "summary": "Natural logarithm",
-    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -2814,7 +3128,7 @@
   {
     "id": "log",
     "summary": "Logarithm to a base",
-    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -2893,14 +3207,18 @@
   },
   {
     "id": "lt",
-    "summary": "data is less than other data.",
-    "description": "data is less than other data.",
+    "summary": "Less than comparison",
+    "description": "Compares whether `x` is strictly less than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n*The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n*Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -2925,8 +3243,8 @@
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -2953,22 +3271,87 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is strictly less than `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 0,
+          "y": 0
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": 2
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": -0.5,
+          "y": -0.6
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "00:00:00+01:00",
+          "y": "00:00:00Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "1950-01-01T00:00:00Z",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00+00:00",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": false
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "lte",
-    "summary": "data is less than or equal to other data",
-    "description": "data is less than or equal to other data",
+    "summary": "Less than or equal to comparison",
+    "description": "Compares whether `x` is less than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n*The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n*Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -2993,8 +3376,8 @@
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -3021,16 +3404,77 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is less than or equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 0,
+          "y": 0
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": 2
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": -0.5,
+          "y": -0.6
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "00:00:00+01:00",
+          "y": "00:00:00Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "1950-01-01T00:00:00Z",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00+00:00",
+          "y": "2018-01-01T12:00:00Z"
+        },
+        "returns": true
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "mask",
     "summary": "Apply a mask.",
-    "description": "Compares the parallel elements and replaces all non-zero or true elements with `replacement`. Defaults to null/nodata.",
+    "description": "Compares the parallel elements and replaces all non-zero or true elements with `replacement`. Defaults to null/no-data.",
     "categories": [
       "masks"
     ],
@@ -3069,8 +3513,7 @@
             }
           ],
           "default": null
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3104,12 +3547,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3145,12 +3587,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3186,12 +3627,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3267,12 +3707,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3308,12 +3747,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3329,7 +3767,7 @@
   {
     "id": "mod",
     "summary": "Modulo",
-    "description": "Remainder after division of x by y.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Remainder after division of x by y.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
@@ -3393,14 +3831,20 @@
   },
   {
     "id": "neq",
-    "summary": "data is not equal to other data",
-    "description": "Alias for: `not(eq(val1, val2))`. Numbers: If `delta` is non-zero the equality of two numbers with a given delta is checked. For strings case_sensitivity can be toggled.",
+    "summary": "Not equal to comparison",
+    "description": "Compares whether `x` is *not* strictly equal to `y`. This process is an alias for: `not(eq(val1, val2))`.\n\n**Remarks:**\n*Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\nStrings are expected to be encoded in UTF-8 by default.\n*The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "x",
+      "y",
+      "delta",
+      "case_sensitive"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "First operand.",
         "schema": {
           "oneOf": [
             {
@@ -3410,17 +3854,29 @@
               "type": "boolean"
             },
             {
+              "type": "null"
+            },
+            {
               "type": "string"
             },
             {
-              "type": "null"
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
             }
           ]
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "y": {
+        "description": "Second operand.",
         "schema": {
           "oneOf": [
             {
@@ -3430,38 +3886,152 @@
               "type": "boolean"
             },
             {
+              "type": "null"
+            },
+            {
               "type": "string"
             },
             {
-              "type": "null"
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
             }
           ]
         },
         "required": true
       },
       "delta": {
-        "description": "",
+        "description": "Only applicable for comparing two numbers. If this optional parameter is set to a positive non-zero number the non-equality of two numbers is checked against a delta value. This is especially useful to circumvent problems with floating point inaccuracy in machine-based computation.\n\nThis option is basically an alias for the following computation: `gt(abs(minus([x, y]), delta)`",
         "schema": {
-          "type": "number",
-          "default": 0
-        },
-        "required": false
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        }
       },
       "case_sensitive": {
-        "description": "",
+        "description": "Only applicable for comparing two strings. Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is *not* equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": 1
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": "1"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 1.02,
+          "y": 1,
+          "delta": 0.01
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": -1,
+          "y": -1.001,
+          "delta": 0.01
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": 115,
+          "y": 110,
+          "delta": 10
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "Test",
+          "y": "test"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "Test",
+          "y": "test",
+          "case_sensitive": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "Ä",
+          "y": "ä",
+          "case_sensitive": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "00:00:00+00:00",
+          "y": "00:00:00Z"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T12:00:00Z",
+          "y": "2018-01-01T12:00:00"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-01-01T00:00:00Z",
+          "y": "2018-01-01Z01:00:00+01:00"
+        },
+        "returns": false
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "normalized_difference",
@@ -3499,52 +4069,143 @@
   },
   {
     "id": "not",
-    "summary": "Invert a boolean expression",
-    "description": "Invert a boolean expression",
+    "summary": "Inverting a boolean",
+    "description": "Inverts a single boolean so that `true` gets `false` and `false` gets `true`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "logic"
     ],
     "parameters": {
       "expression": {
-        "description": "",
+        "description": "Boolean value to invert.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "Inverted boolean value.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expression": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expression": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expression": true
+        },
+        "returns": false
+      }
+    ]
   },
   {
     "id": "or",
-    "summary": "Checks if at least one of the expressions is true",
-    "description": "Given a set of logical expressions, is **at least one** of the values true?",
+    "summary": "Is at least one value true?",
+    "description": "Checks if **at least one** of the values is true.",
     "categories": [
       "logic"
     ],
     "parameters": {
       "expressions": {
-        "description": "",
+        "description": "A set of boolean values.",
         "schema": {
           "type": "array",
           "items": {
-            "type": "boolean"
+            "type": [
+              "boolean",
+              "null"
+            ]
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            false
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expression": [
+            false,
+            false
+          ]
+        },
+        "returns": false
+      }
+    ]
   },
   {
     "id": "order",
@@ -3584,8 +4245,7 @@
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3674,7 +4334,7 @@
   {
     "id": "power",
     "summary": "Exponentiation",
-    "description": "Computes the exponentiation for the base `base` raised to the power of `p`.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the exponentiation for the base `base` raised to the power of `p`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math",
       "math > exponential & logarithmic"
@@ -3782,12 +4442,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3863,12 +4522,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -3986,8 +4644,7 @@
         "schema": {
           "type": "string",
           "default": null
-        },
-        "required": false
+        }
       },
       "target": {
         "description": "",
@@ -4028,8 +4685,7 @@
         "schema": {
           "type": "string",
           "default": null
-        },
-        "required": false
+        }
       },
       "target": {
         "description": "",
@@ -4057,7 +4713,7 @@
   {
     "id": "round",
     "summary": "Rounds to a specified precision",
-    "description": "Rounds a real number `x` to specified precision `p`.\n\nIf the fractional part of `x` is halfway between two integers, one of which is even and the other odd, then the even number is returned.\nThis behavior follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). This kind of rounding is also called \"rounding to nearest\" or \"banker's rounding\". It minimizes rounding errors that result from consistently rounding a midpoint value in a single direction.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Rounds a real number `x` to specified precision `p`.\n\nIf the fractional part of `x` is halfway between two integers, one of which is even and the other odd, then the even number is returned.\nThis behavior follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). This kind of rounding is also called \"rounding to nearest\" or \"banker's rounding\". It minimizes rounding errors that result from consistently rounding a midpoint value in a single direction.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > rounding"
     ],
@@ -4168,8 +4824,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4207,8 +4862,7 @@
         "schema": {
           "type": "object",
           "default": {}
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4242,12 +4896,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4263,7 +4916,7 @@
   {
     "id": "sgn",
     "summary": "Signum",
-    "description": "Signum of `data`: 1 if num > 0, 0 if num = 0, -1 if num < 0.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Signum of `data`: 1 if num > 0, 0 if num = 0, -1 if num < 0.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
@@ -4292,7 +4945,7 @@
   {
     "id": "sin",
     "summary": "Sine",
-    "description": "Computes the sine of `x`.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the sine of `x`.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -4336,7 +4989,7 @@
   {
     "id": "sinh",
     "summary": "Hyperbolic sine",
-    "description": "Computes the hyperbolic sine of `x`.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the hyperbolic sine of `x`.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -4380,7 +5033,7 @@
   {
     "id": "sort",
     "summary": "Sort data",
-    "description": "Sorts `data` into ascending (default) or descending order. Removes nodata values. Basically an alias to rearrange()",
+    "description": "Sorts `data` into ascending (default) or descending order. Removes no-data values. Basically an alias to rearrange()",
     "categories": [
       "sorting"
     ],
@@ -4403,8 +5056,7 @@
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4423,7 +5075,7 @@
   {
     "id": "sqrt",
     "summary": "Square root",
-    "description": "Computes the square root of a real number `x`. This process is an alias for `x` to the power of *0.5*: `power(x, 0.5)`.\n\nA square root of x is a number a such that *a^2^ = x*. Therefore, the square root is the inverse function of a to the power of 2, but only for *a >= 0*.\n\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the square root of a real number `x`. This process is an alias for `x` to the power of *0.5*: `power(x, 0.5)`.\n\nA square root of x is a number a such that *a^2^ = x*. Therefore, the square root is the inverse function of a to the power of 2, but only for *a >= 0*.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math",
       "math > exponential & logarithmic"
@@ -4506,12 +5158,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4527,7 +5178,7 @@
   {
     "id": "tan",
     "summary": "Tangent",
-    "description": "Computes the tangent of `x`. The tangent is defined to be the sine of x divided by the cosine of x.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the tangent of `x`. The tangent is defined to be the sine of x divided by the cosine of x.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -4571,7 +5222,7 @@
   {
     "id": "tanh",
     "summary": "Hyperbolic tangent",
-    "description": "Computes the hyperbolic tangent of `x`. The tangent is defined to be the hyperbolic sine of x divided by the hyperbolic cosine of x.\n\nWorks on radians only.\nThe nodata value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the hyperbolic tangent of `x`. The tangent is defined to be the hyperbolic sine of x divided by the hyperbolic cosine of x.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > trigonometric"
     ],
@@ -4639,8 +5290,7 @@
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4677,8 +5327,7 @@
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4715,8 +5364,7 @@
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4728,7 +5376,7 @@
   },
   {
     "id": "trim",
-    "summary": "Removes slices with nodata.",
+    "summary": "Removes slices with no-data.",
     "description": "Alias. If the dimension is irregular categorical then slices in the middle can be removed.",
     "categories": [
       "core"
@@ -4774,12 +5422,11 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
-        },
-        "required": false
+        }
       }
     },
     "returns": {
@@ -4794,28 +5441,93 @@
   },
   {
     "id": "xor",
-    "summary": "Checks if exactly one of the expressions is true",
-    "description": "Given a set of logical expressions, is **exactly one** of the values true?",
+    "summary": "Is exactly one value true?",
+    "description": "Checks if **exactly one** of the values is true.",
     "categories": [
       "logic"
     ],
     "parameters": {
       "expressions": {
-        "description": "",
+        "description": "A set of boolean values.",
         "schema": {
           "type": "array",
           "items": {
-            "type": "boolean"
+            "type": [
+              "boolean",
+              "null"
+            ]
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
       "schema": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null,
+            false
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expression": [
+            true,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expression": [
+            false,
+            false
+          ]
+        },
+        "returns": false
+      }
+    ]
   }
 ]

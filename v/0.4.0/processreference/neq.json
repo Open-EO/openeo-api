@@ -1,13 +1,14 @@
 {
     "id": "neq",
-    "summary": "data is not equal to other data",
-    "description": "Alias for: `not(eq(val1, val2))`. Numbers: If `delta` is non-zero the equality of two numbers with a given delta is checked. For strings case_sensitivity can be toggled.",
+    "summary": "Not equal to comparison",
+    "description": "Compares whether `x` is *not* strictly equal to `y`. This process is an alias for: `not(eq(val1, val2))`.\n\n**Remarks:**\n*Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\nStrings are expected to be encoded in UTF-8 by default.\n*The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
         "filter"
     ],
+    "parameter_order": ["x", "y", "delta", "case_sensitive"],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "First operand.",
             "schema": {
                 "oneOf": [
                     {
@@ -17,17 +18,29 @@
                         "type": "boolean"
                     },
                     {
+                        "type": "null"
+                    },
+                    {
                         "type": "string"
                     },
                     {
-                        "type": "null"
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    {
+                        "type": "string",
+                        "format": "time"
                     }
                 ]
             },
             "required": true
         },
-        "other": {
-            "description": "",
+        "y": {
+            "description": "Second operand.",
             "schema": {
                 "oneOf": [
                     {
@@ -37,36 +50,147 @@
                         "type": "boolean"
                     },
                     {
+                        "type": "null"
+                    },
+                    {
                         "type": "string"
                     },
                     {
-                        "type": "null"
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    {
+                        "type": "string",
+                        "format": "time"
                     }
                 ]
             },
             "required": true
         },
         "delta": {
-            "description": "",
+            "description": "Only applicable for comparing two numbers. If this optional parameter is set to a positive non-zero number the non-equality of two numbers is checked against a delta value. This is especially useful to circumvent problems with floating point inaccuracy in machine-based computation.\n\nThis option is basically an alias for the following computation: `gt(abs(minus([x, y]), delta)`",
             "schema": {
-                "type": "number",
-                "default": 0
-            },
-            "required": false
+                "type": ["number", "null"],
+                "default": null
+            }
         },
         "case_sensitive": {
-            "description": "",
+            "description": "Only applicable for comparing two strings. Case sensitive comparison can be disabled by setting this parameter to `false`.",
             "schema": {
                 "type": "boolean",
                 "default": true
-            },
-            "required": false
+            }
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if `x` is *not* equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
         "schema": {
-            "type": "boolean"
+            "type": [
+                "boolean",
+                "null"
+            ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 1,
+                "y": null
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "x": 1.0,
+                "y": 1
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": 1,
+                "y": "1"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": 1.02,
+                "y": 1.0,
+                "delta": 0.01
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": -1,
+                "y": -1.001,
+                "delta": 0.01
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": 115,
+                "y": 110,
+                "delta": 10
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "Test",
+                "y": "test"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "Test",
+                "y": "test",
+                "case_sensitive": false
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "Ä",
+                "y": "ä",
+                "case_sensitive": false
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "00:00:00+00:00",
+                "y": "00:00:00Z"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "2018-01-01T12:00:00Z",
+                "y": "2018-01-01T12:00:00"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "2018-01-01T00:00:00Z",
+                "y": "2018-01-01Z01:00:00+01:00"
+            },
+            "returns": false
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        }
+    ]
 }

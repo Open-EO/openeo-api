@@ -1,26 +1,72 @@
 {
     "id": "or",
-    "summary": "Checks if at least one of the expressions is true",
-    "description": "Given a set of logical expressions, is **at least one** of the values true?",
+    "summary": "Is at least one value true?",
+    "description": "Checks if **at least one** of the values is true.",
     "categories": [
         "logic"
     ],
     "parameters": {
         "expressions": {
-            "description": "",
+            "description": "A set of boolean values.",
             "schema": {
                 "type": "array",
                 "items": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
                 }
             },
             "required": true
+        },
+        "ignore_nodata": {
+            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+            "schema": {
+                "type": "boolean",
+                "default": true
+            }
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
         "schema": {
-            "type": "boolean"
+            "type": [
+                "boolean",
+                "null"
+            ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "expressions": [true, null, false]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expressions": [true, null, false],
+                "ignore_nodata": false
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "expression": [true, false, true, false]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expression": [true, false]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expression": [false, false]
+            },
+            "returns": false
+        }
+    ]
 }
