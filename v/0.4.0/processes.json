@@ -67,14 +67,14 @@
     "summary": "Adds a new dimension with the name in `dimension`.",
     "description": "Adds a new dimension with the name in `dimension`.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -97,16 +97,16 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
   {
     "id": "aggregate_temporal",
     "summary": "Temporal aggregations",
-    "description": "Computes a temporal aggregation based on a list of date/datetime ranges. Will be projected to the labels. Length of labels and groups needs to be the same. All data along the dimensions will be passed through the reducer. Calendar hierarchies such as year, month, week etc. will be transformed from the clients into groups.",
+    "description": "Computes a temporal aggregation based on an array of date/datetime ranges. Will be projected to the labels. Length of labels and groups needs to be the same. All data along the dimensions will be passed through the reducer. Calendar hierarchies such as year, month, week etc. will be transformed from the clients into groups.",
     "categories": [
-      "core",
+      "cubes",
       "aggregate"
     ],
     "parameters": {
@@ -114,7 +114,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -161,7 +161,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -170,7 +170,7 @@
     "summary": "Zonal statistics for polygons",
     "description": "Aggregates zonal data/statistics for one or multiple GeoJSON polygons. For focal aggregation see `apply`. Number of valid/invalid pixels get returned together with the calculated values.",
     "categories": [
-      "core",
+      "cubes",
       "aggregate"
     ],
     "parameters": {
@@ -178,7 +178,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -214,9 +214,10 @@
   {
     "id": "and",
     "summary": "Are all of the values true?",
-    "description": "Checks if **all** of the values are true.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *and* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `false` | `null` |\n| **`false`** | `false` | `false` | `false` |\n| **`true`** | `null` | `false` | `true` |",
+    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
     "categories": [
-      "logic"
+      "logic",
+      "reducer"
     ],
     "parameters": {
       "expressions": {
@@ -322,16 +323,16 @@
   {
     "id": "apply_dimension",
     "summary": "Applies an n-ary process.",
-    "description": "Applies an n-ary process to a raster image. `dimensions` are the dimensions over which to iterate, if not set all dimensions are iterated over.",
+    "description": "Applies an n-ary process to a raster data cube. `dimensions` are the dimensions over which to iterate, if not set all dimensions are iterated over.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -358,23 +359,23 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
   {
     "id": "apply",
-    "summary": "Applies a local/unary process to a raster image.",
-    "description": "Applies a local non-reducer to an image collection. Focal calculations can be made by setting the kernel. For zonal apply see `aggregate_zonal`. Returns a new image collection. The kernel has to be as many dimensions as the datacube has dimensions.",
+    "summary": "Applies a local/unary process to a raster data cube.",
+    "description": "Applies a local non-reducer to a raster data cube. Focal calculations can be made by setting the kernel. For zonal apply see `aggregate_zonal`. Returns a new raster data cube. The kernel has to be as many dimensions as the datacube has dimensions.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -417,7 +418,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -744,6 +745,124 @@
     ]
   },
   {
+    "id": "array_contains",
+    "summary": "Array contains the specified element",
+    "description": "Array contains the specified element",
+    "categories": [
+      "arrays",
+      "comparison"
+    ],
+    "parameters": {
+      "data": {
+        "description": "",
+        "schema": {
+          "type": "array",
+          "items": {
+            "description": "Any data type is allowed."
+          }
+        },
+        "required": true
+      },
+      "element": {
+        "description": "",
+        "schema": {
+          "description": "Any data type is allowed."
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "",
+      "schema": {
+        "type": "boolean"
+      }
+    }
+  },
+  {
+    "id": "array_element",
+    "summary": "Get an element from an array",
+    "description": "Returns the element at the specified index from the array.",
+    "categories": [
+      "arrays"
+    ],
+    "parameter_order": [
+      "data",
+      "index",
+      "return_nodata"
+    ],
+    "parameters": {
+      "data": {
+        "description": "An array.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "description": "Any data type is allowed."
+          }
+        },
+        "required": true
+      },
+      "index": {
+        "description": "The zero-based index of the element to retrieve.",
+        "schema": {
+          "type": "integer"
+        },
+        "required": true
+      },
+      "return_nodata": {
+        "description": "By default this process throws an `IndexOutOfBounds` exception if the index is invalid. If you want to return `null` instead, set this flag to `true`.",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "returns": {
+      "description": "The value of the requested element.",
+      "schema": {
+        "description": "Any data type is allowed."
+      }
+    },
+    "exceptions": {
+      "IndexOutOfBounds": {
+        "message": "The array has no element with the specified index."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            9,
+            8,
+            7,
+            6,
+            5
+          ],
+          "index": 2
+        },
+        "returns": 7
+      },
+      {
+        "arguments": {
+          "data": [
+            "A",
+            "B",
+            "C"
+          ],
+          "index": 0
+        },
+        "returns": "A"
+      },
+      {
+        "arguments": {
+          "data": [],
+          "index": 0,
+          "return_nodata": true
+        },
+        "returns": null
+      }
+    ]
+  },
+  {
     "id": "arsinh",
     "summary": "Inverse hyperbolic sine",
     "description": "Computes the inverse hyperbolic sine of `x`. It is the inverse function of the hyperbolic sine so that *arsinh(sinh(x)) = x*.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
@@ -876,7 +995,7 @@
     "summary": "data is between min and max",
     "description": "Alias for: `and([ gte( data, min ), lte( data, max ) ])`",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -1024,7 +1143,7 @@
   {
     "id": "clip",
     "summary": "Clips values between minimum and maximum values.",
-    "description": "Clips the image values between specified min and max values. All values larger than maximal value will have the maximal value, all values lower than minimal value will have the minimal value, alias for `replace(replace(image, gt(data, max), max), lt(data, min), min)`",
+    "description": "Clips the raster data cube values between specified min and max values. All values larger than maximal value will have the maximal value, all values lower than minimal value will have the minimal value, alias for `replace(replace(cube, gt(data, max), max), lt(data, min), min)`",
     "categories": [
       "math",
       "masks"
@@ -1034,7 +1153,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -1057,7 +1176,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -1154,6 +1273,7 @@
     "summary": "Number of valid elements (see is_valid).",
     "description": "Number of valid elements (see is_valid).",
     "categories": [
+      "arrays",
       "reducer"
     ],
     "parameters": {
@@ -1189,26 +1309,18 @@
     }
   },
   {
-    "id": "create_collection",
-    "summary": "Creates a new collection without dimensions.",
-    "description": "Creates a new collection without dimensions.",
+    "id": "create_raster_cube",
+    "summary": "Create an empty raster data cube",
+    "description": "Creates a new raster data cube without dimensions.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {},
     "returns": {
       "description": "",
       "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "image-collection"
-          },
-          {
-            "type": "object",
-            "format": "vector-collection"
-          }
-        ]
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
@@ -1470,7 +1582,7 @@
     "summary": "Equal to comparison",
     "description": "Compares whether `x` is strictly equal to `y`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -1716,9 +1828,9 @@
   {
     "id": "export",
     "summary": "Data export, compatible to GDAL/OGR.",
-    "description": "Export process that is compatible to GDAL/OGR formats and options. Passes through the collection, so that further intermediate results can be exported and further calculations can be processes.",
+    "description": "Export process that is compatible to GDAL/OGR formats and options. Passes through the data cube, so that further intermediate results can be exported and further calculations can be processes.",
     "categories": [
-      "core",
+      "cubes",
       "export"
     ],
     "parameters": {
@@ -1728,11 +1840,11 @@
           "oneOf": [
             {
               "type": "object",
-              "format": "image-collection"
+              "format": "raster-cube"
             },
             {
               "type": "object",
-              "format": "vector-collection"
+              "format": "vector-cube"
             }
           ]
         },
@@ -1805,10 +1917,9 @@
   },
   {
     "id": "filter_bands",
-    "summary": "Filters the bands in the image collection",
+    "summary": "Filters the bands in the raster data cube.",
     "description": "The order of the bands matters!",
     "categories": [
-      "core",
       "filter"
     ],
     "parameters": {
@@ -1816,7 +1927,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -1842,7 +1953,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -1851,7 +1962,6 @@
     "summary": "Limits the data to the specified bbox.",
     "description": "Limits the data to the specified bbox.",
     "categories": [
-      "core",
       "filter"
     ],
     "parameters": {
@@ -1861,11 +1971,11 @@
           "oneOf": [
             {
               "type": "object",
-              "format": "image-collection"
+              "format": "raster-cube"
             },
             {
               "type": "object",
-              "format": "vector-collection"
+              "format": "vector-cube"
             }
           ]
         },
@@ -1924,11 +2034,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -1939,7 +2049,6 @@
     "summary": "Limits the data to the specified geometry",
     "description": "Limits the data to the specified geometry",
     "categories": [
-      "core",
       "filter"
     ],
     "parameters": {
@@ -1949,11 +2058,11 @@
           "oneOf": [
             {
               "type": "object",
-              "format": "image-collection"
+              "format": "raster-cube"
             },
             {
               "type": "object",
-              "format": "vector-collection"
+              "format": "vector-cube"
             }
           ]
         },
@@ -1974,13 +2083,53 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
+      }
+    }
+  },
+  {
+    "id": "filter_property",
+    "summary": "Filter based on properties",
+    "description": "Filters the data based on the specified property. Example: Filter by `instrument_mode` from STAC properties.",
+    "categories": [
+      "filter"
+    ],
+    "parameters": {
+      "data": {
+        "description": "",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "name": {
+        "description": "",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "expression": {
+        "description": "",
+        "schema": {
+          "type": "object",
+          "format": "callback"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
@@ -1989,7 +2138,6 @@
     "summary": "Limits the data to the specified date range.",
     "description": "Alias for filter() with callbacks to between_datetime(), between_date(), between_month() and between_year().",
     "categories": [
-      "core",
       "filter"
     ],
     "parameters": {
@@ -1999,11 +2147,11 @@
           "oneOf": [
             {
               "type": "object",
-              "format": "image-collection"
+              "format": "raster-cube"
             },
             {
               "type": "object",
-              "format": "vector-collection"
+              "format": "vector-cube"
             }
           ]
         },
@@ -2029,11 +2177,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2041,10 +2189,10 @@
   },
   {
     "id": "filter",
-    "summary": "Filtering / Selecting data based on a logical expression",
-    "description": "Example: Filter by `instrument_mode` from STAC properties.",
+    "summary": "Filtering data based on a logical expression.",
+    "description": "",
     "categories": [
-      "core",
+      "cubes",
       "filter"
     ],
     "parameters": {
@@ -2054,11 +2202,11 @@
           "oneOf": [
             {
               "type": "object",
-              "format": "image-collection"
+              "format": "raster-cube"
             },
             {
               "type": "object",
-              "format": "vector-collection"
+              "format": "vector-cube"
             }
           ]
         },
@@ -2086,11 +2234,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2098,10 +2246,10 @@
   },
   {
     "id": "find_collection",
-    "summary": "Select and load an internal collection by properties.",
-    "description": "Select and load an internal collection by properties.",
+    "summary": "Load a collection selected by properties",
+    "description": "Select and load an internal collection by properties. Returns a data cube.",
     "categories": [
-      "core",
+      "cubes",
       "import"
     ],
     "parameters": {
@@ -2120,11 +2268,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2135,6 +2283,7 @@
     "summary": "First element of nums.",
     "description": "First element of nums.",
     "categories": [
+      "arrays",
       "reducer"
     ],
     "parameters": {
@@ -2233,10 +2382,10 @@
   },
   {
     "id": "get_collection",
-    "summary": "Load an internal collection by id",
-    "description": "Load a collection from the current back-end by collection id",
+    "summary": "Load a collection by ID.",
+    "description": "Load a collection from the current back-end by collection ID and return it as data cube.",
     "categories": [
-      "core",
+      "cubes",
       "import"
     ],
     "parameters": {
@@ -2254,11 +2403,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2269,7 +2418,6 @@
     "summary": "Load an internal process graph by id",
     "description": "Load a process graph from the current back-end by process graph id",
     "categories": [
-      "core",
       "import"
     ],
     "parameters": {
@@ -2300,7 +2448,7 @@
     "summary": "Load batch job results by id",
     "description": "Load internal batch job results by job id.",
     "categories": [
-      "core",
+      "cubes",
       "import"
     ],
     "parameters": {
@@ -2318,11 +2466,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2371,7 +2519,7 @@
     "summary": "Greater than comparison",
     "description": "Compares whether `x` is strictly greater than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -2504,7 +2652,7 @@
     "summary": "Greater than or equal to comparison",
     "description": "Compares whether `x` is greater than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -2637,7 +2785,9 @@
     "summary": "If-Then-Else conditional",
     "description": "Returns the value of the `accept` parameter if the expression is `true` or the value of the `reject` parameter if the expression is `false`. This works similar to an if-then-else construct.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
-      "filter"
+      "logic",
+      "comparison",
+      "masks"
     ],
     "parameters": {
       "expression": {
@@ -2754,6 +2904,7 @@
     "summary": "Load external batch job results by url",
     "description": "Load an external batch job results by url",
     "categories": [
+      "cubes",
       "import"
     ],
     "parameters": {
@@ -2771,11 +2922,11 @@
         "oneOf": [
           {
             "type": "object",
-            "format": "image-collection"
+            "format": "raster-cube"
           },
           {
             "type": "object",
-            "format": "vector-collection"
+            "format": "vector-cube"
           }
         ]
       }
@@ -2887,7 +3038,7 @@
     "summary": "Checks whether data is not a number.",
     "description": "Checks whether data is not a number.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -2910,7 +3061,7 @@
     "summary": "Checks for missing data",
     "description": "Checks whether the specified data is missing data, i.e. equals to one of the no-data values or null.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -2933,7 +3084,7 @@
     "summary": "Checks for valid data",
     "description": "Checks whether the data is a non-missing and finite number.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -2956,6 +3107,7 @@
     "summary": "Last element of nums.",
     "description": "Last element of nums.",
     "categories": [
+      "arrays",
       "reducer"
     ],
     "parameters": {
@@ -3044,79 +3196,6 @@
           "number",
           "null"
         ]
-      }
-    }
-  },
-  {
-    "id": "list_contains",
-    "summary": "Array contains the specified element",
-    "description": "Array contains the specified element",
-    "categories": [
-      "filter"
-    ],
-    "parameters": {
-      "data": {
-        "description": "",
-        "schema": {
-          "type": "array",
-          "items": {
-            "description": "Any data type is allowed."
-          }
-        },
-        "required": true
-      },
-      "element": {
-        "description": "",
-        "schema": {
-          "description": "Any data type is allowed."
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "type": "boolean"
-      }
-    }
-  },
-  {
-    "id": "list_value",
-    "summary": "Value of the element at the specified index.",
-    "description": "Value of the element at the specified index.",
-    "categories": [
-      "filter"
-    ],
-    "parameters": {
-      "data": {
-        "description": "",
-        "schema": {
-          "type": "array",
-          "items": {
-            "description": "Any data type is allowed."
-          }
-        },
-        "required": true
-      },
-      "index": {
-        "description": "",
-        "schema": {
-          "oneOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "description": "Any data type is allowed."
       }
     }
   },
@@ -3268,7 +3347,7 @@
     "summary": "Less than comparison",
     "description": "Compares whether `x` is strictly less than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -3401,7 +3480,7 @@
     "summary": "Less than or equal to comparison",
     "description": "Compares whether `x` is less than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -3541,7 +3620,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -3549,7 +3628,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -3578,7 +3657,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -3587,6 +3666,7 @@
     "summary": "Maximum value",
     "description": "Maximum value",
     "categories": [
+      "arrays",
       "math",
       "reducer"
     ],
@@ -3703,18 +3783,18 @@
     }
   },
   {
-    "id": "merge_collections",
-    "summary": "Merging two collections",
-    "description": "The collections have to be compatible. Is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. Doesn’t add dimensions.",
+    "id": "merge_cubes",
+    "summary": "Merging two data cubes",
+    "description": "The data cubes have to be compatible. Is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. Doesn’t add dimensions.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -3722,7 +3802,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -3738,7 +3818,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -3747,6 +3827,7 @@
     "summary": "Minimum value",
     "description": "Minimum value",
     "categories": [
+      "arrays",
       "math",
       "reducer"
     ],
@@ -3874,7 +3955,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       }
@@ -3883,7 +3964,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -3892,7 +3973,7 @@
     "summary": "Not equal to comparison",
     "description": "Compares whether `x` is *not* strictly equal to `y`. This process is an alias for: `not(eq(val1, val2))`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
-      "filter"
+      "comparison"
     ],
     "parameter_order": [
       "x",
@@ -4104,7 +4185,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -4112,7 +4193,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       }
@@ -4121,7 +4202,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -4177,9 +4258,10 @@
   {
     "id": "or",
     "summary": "Is at least one value true?",
-    "description": "Checks if **at least one** of the values is true.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *or* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `null` | `true` |\n| **`false`** | `null` | `false` | `true` |\n| **`true`** | `true` | `true` | `true` |",
+    "description": "Checks if **at least one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
     "categories": [
-      "logic"
+      "logic",
+      "reducer"
     ],
     "parameters": {
       "expressions": {
@@ -4287,6 +4369,7 @@
     "summary": "Returns a permutation for sorting.",
     "description": "Computes a permutation which allows rearranging the data into ascending or descending order. Ties will be left in their original ordering.",
     "categories": [
+      "arrays",
       "sorting"
     ],
     "parameters": {
@@ -4536,10 +4619,10 @@
   },
   {
     "id": "property",
-    "summary": "Retrieve metadata",
-    "description": "Get information about a collection of attributes for data in a collection. Useful for filtering collections and data in collections.",
+    "summary": "Retrieve data attributes",
+    "description": "Get information about data attributes in a data cube. Useful to filter data in data cubes.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
@@ -4569,6 +4652,7 @@
     "summary": "Calculates quantiles",
     "description": "Calculates quantiles for each specified `quantiles` between 0 and 1.",
     "categories": [
+      "arrays",
       "math",
       "reducer"
     ],
@@ -4619,8 +4703,8 @@
   },
   {
     "id": "rearrange",
-    "summary": "Rearranges a list based on a permutation.",
-    "description": "Rearranges a list based on a permutation.",
+    "summary": "Rearranges an array based on a permutation.",
+    "description": "Rearranges an array based on a permutation.",
     "categories": [
       "sorting"
     ],
@@ -4661,7 +4745,7 @@
     "summary": "reduce dimensions - lower dimensionality, same resolution.",
     "description": "reduce dimensions - lower dimensionality, same resolution.",
     "categories": [
-      "core",
+      "cubes",
       "reducer"
     ],
     "parameters": {
@@ -4669,7 +4753,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -4693,7 +4777,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -4702,7 +4786,7 @@
     "summary": "Resample spatial dimension",
     "description": "Resample spatial dimension",
     "categories": [
-      "core",
+      "cubes",
       "aggregate"
     ],
     "parameters": {
@@ -4710,7 +4794,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -4725,7 +4809,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       }
@@ -4734,16 +4818,16 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
   {
     "id": "resample_temporal",
-    "summary": "resample temporal dimension",
-    "description": "if dimension is not set, the collection is expected to have only one temporal simension.",
+    "summary": "Resample the temporal dimension",
+    "description": "If dimension is not set, the data cube is expected to have only one temporal dimension.",
     "categories": [
-      "core",
+      "cubes",
       "aggregate"
     ],
     "parameters": {
@@ -4751,7 +4835,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -4766,7 +4850,7 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -4781,7 +4865,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -5110,6 +5194,7 @@
     "summary": "Sort data",
     "description": "Sorts `data` into ascending (default) or descending order. Removes no-data values. Basically an alias to rearrange()",
     "categories": [
+      "arrays",
       "sorting"
     ],
     "parameters": {
@@ -5343,7 +5428,8 @@
     "summary": "Text begins with another text",
     "description": "Text begins with another text",
     "categories": [
-      "filter"
+      "texts",
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -5380,7 +5466,8 @@
     "summary": "Text contains another text",
     "description": "Text contains another text",
     "categories": [
-      "filter"
+      "texts",
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -5417,7 +5504,8 @@
     "summary": "Text ends with another text",
     "description": "Text ends with another text",
     "categories": [
-      "filter"
+      "texts",
+      "comparison"
     ],
     "parameters": {
       "data": {
@@ -5454,14 +5542,14 @@
     "summary": "Removes slices with no-data.",
     "description": "Alias. If the dimension is irregular categorical then slices in the middle can be removed.",
     "categories": [
-      "core"
+      "cubes"
     ],
     "parameters": {
       "data": {
         "description": "",
         "schema": {
           "type": "object",
-          "format": "image-collection"
+          "format": "raster-cube"
         },
         "required": true
       }
@@ -5470,7 +5558,7 @@
       "description": "",
       "schema": {
         "type": "object",
-        "format": "image-collection"
+        "format": "raster-cube"
       }
     }
   },
@@ -5517,9 +5605,10 @@
   {
     "id": "xor",
     "summary": "Is exactly one value true?",
-    "description": "Checks if **exactly one** of the values is true.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *xor* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `null` | `null` |\n| **`false`** | `null` | `false` | `true` |\n| **`true`** | `null` | `true` | `false` |",
+    "description": "Checks if **exactly one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | -----\nnull  || null | null  | null\nfalse || null | false | true\ntrue  || null | true  | false\n```",
     "categories": [
-      "logic"
+      "logic",
+      "reducer"
     ],
     "parameters": {
       "expressions": {
