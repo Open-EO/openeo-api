@@ -88,7 +88,7 @@
       "dimension_value": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       }
@@ -214,7 +214,7 @@
   {
     "id": "and",
     "summary": "Are all of the values true?",
-    "description": "Checks if **all** of the values are true.",
+    "description": "Checks if **all** of the values are true.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *and* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `false` | `null` |\n| **`false`** | `false` | `false` | `false` |\n| **`true`** | `null` | `false` | `true` |",
     "categories": [
       "logic"
     ],
@@ -233,7 +233,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -241,7 +241,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
+      "description": "Boolean result of the logical expressions.",
       "schema": {
         "type": [
           "boolean",
@@ -253,9 +253,17 @@
       {
         "arguments": {
           "expressions": [
+            false,
+            null
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
             true,
-            null,
-            true
+            null
           ]
         },
         "returns": true
@@ -263,9 +271,18 @@
       {
         "arguments": {
           "expressions": [
+            false,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
             true,
-            null,
-            false
+            null
           ],
           "ignore_nodata": false
         },
@@ -285,7 +302,7 @@
       {
         "arguments": {
           "expression": [
-            false,
+            true,
             false
           ]
         },
@@ -1346,7 +1363,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       },
@@ -2617,49 +2634,90 @@
   },
   {
     "id": "if",
-    "summary": "Similar to an if-then-else construct.",
-    "description": "Similar to an if-then-else construct.",
+    "summary": "If-Then-Else conditional",
+    "description": "Returns the value of the `accept` parameter if the expression is `true` or the value of the `reject` parameter if the expression is `false`. This works similar to an if-then-else construct.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "filter"
     ],
     "parameters": {
       "expression": {
-        "description": "",
+        "description": "A boolean value.",
         "schema": {
-          "type": "object",
-          "format": "callback"
-        },
-        "required": true
-      },
-      "param1": {
-        "description": "",
-        "schema": {
-          "description": "Mixed values, any data type allowed."
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "required": true
       },
       "accept": {
-        "description": "",
+        "description": "A value that is returned if the boolean expression is `true`. Defaults to `true`.",
         "schema": {
-          "description": "Mixed values, any data type allowed.",
+          "description": "Any data type is allowed.",
           "default": true
         }
       },
       "reject": {
-        "description": "",
+        "description": "A value that is returned if the boolean expression is `false`. Defaults to `false`.",
         "schema": {
-          "description": "Mixed values, any data type allowed.",
+          "description": "Any data type is allowed.",
           "default": false
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns either the `accept` argument or `reject` argument depending on the given boolean expression.",
       "schema": {
-        "type": "object",
-        "format": "image-collection"
+        "description": "Any data type is allowed."
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expression": true
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expression": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expressions": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expression": true,
+          "accept": "A"
+        },
+        "returns": "A"
+      },
+      {
+        "arguments": {
+          "expression": false,
+          "accept": [
+            1,
+            2,
+            3
+          ],
+          "reject": [
+            4,
+            5,
+            6
+          ]
+        },
+        "returns": [
+          4,
+          5,
+          6
+        ]
+      }
+    ]
   },
   {
     "id": "import_process_graph",
@@ -2835,7 +2893,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       }
@@ -2858,7 +2916,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       }
@@ -2881,7 +2939,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       }
@@ -3002,7 +3060,7 @@
         "schema": {
           "type": "array",
           "items": {
-            "description": "Mixed values, any data type allowed."
+            "description": "Any data type is allowed."
           }
         },
         "required": true
@@ -3010,7 +3068,7 @@
       "element": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       }
@@ -3035,7 +3093,7 @@
         "schema": {
           "type": "array",
           "items": {
-            "description": "Mixed values, any data type allowed."
+            "description": "Any data type is allowed."
           }
         },
         "required": true
@@ -3058,7 +3116,7 @@
     "returns": {
       "description": "",
       "schema": {
-        "description": "Mixed values, any data type allowed."
+        "description": "Any data type is allowed."
       }
     }
   },
@@ -4119,7 +4177,7 @@
   {
     "id": "or",
     "summary": "Is at least one value true?",
-    "description": "Checks if **at least one** of the values is true.",
+    "description": "Checks if **at least one** of the values is true.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *or* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `null` | `true` |\n| **`false`** | `null` | `false` | `true` |\n| **`true`** | `true` | `true` | `true` |",
     "categories": [
       "logic"
     ],
@@ -4138,7 +4196,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -4146,7 +4204,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
+      "description": "Boolean result of the logical expressions.",
       "schema": {
         "type": [
           "boolean",
@@ -4158,9 +4216,17 @@
       {
         "arguments": {
           "expressions": [
+            false,
+            null
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
             true,
-            null,
-            false
+            null
           ]
         },
         "returns": true
@@ -4168,13 +4234,22 @@
       {
         "arguments": {
           "expressions": [
-            true,
-            null,
-            false
+            false,
+            null
           ],
           "ignore_nodata": false
         },
         "returns": null
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": true
       },
       {
         "arguments": {
@@ -4269,7 +4344,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       },
@@ -4470,7 +4545,7 @@
       "data": {
         "description": "",
         "schema": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         },
         "required": true
       },
@@ -4485,7 +4560,7 @@
     "returns": {
       "description": "",
       "schema": {
-        "description": "Mixed values, any data type allowed."
+        "description": "Any data type is allowed."
       }
     }
   },
@@ -4555,7 +4630,7 @@
         "schema": {
           "type": "array",
           "items": {
-            "description": "Mixed values, any data type allowed."
+            "description": "Any data type is allowed."
           }
         },
         "required": true
@@ -4576,7 +4651,7 @@
       "schema": {
         "type": "array",
         "items": {
-          "description": "Mixed values, any data type allowed."
+          "description": "Any data type is allowed."
         }
       }
     }
@@ -5442,7 +5517,7 @@
   {
     "id": "xor",
     "summary": "Is exactly one value true?",
-    "description": "Checks if **exactly one** of the values is true.",
+    "description": "Checks if **exactly one** of the values is true.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *xor* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `null` | `null` |\n| **`false`** | `null` | `false` | `true` |\n| **`true`** | `null` | `true` | `false` |",
     "categories": [
       "logic"
     ],
@@ -5461,7 +5536,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -5469,7 +5544,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
+      "description": "Boolean result of the logical expressions.",
       "schema": {
         "type": [
           "boolean",
@@ -5481,9 +5556,17 @@
       {
         "arguments": {
           "expressions": [
+            false,
+            null
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
             true,
-            null,
-            false
+            null
           ]
         },
         "returns": true
@@ -5491,9 +5574,18 @@
       {
         "arguments": {
           "expressions": [
+            false,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expressions": [
             true,
-            null,
-            false
+            null
           ],
           "ignore_nodata": false
         },

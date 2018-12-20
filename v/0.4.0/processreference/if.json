@@ -1,46 +1,75 @@
 {
     "id": "if",
-    "summary": "Similar to an if-then-else construct.",
-    "description": "Similar to an if-then-else construct.",
+    "summary": "If-Then-Else conditional",
+    "description": "Returns the value of the `accept` parameter if the expression is `true` or the value of the `reject` parameter if the expression is `false`. This works similar to an if-then-else construct.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
         "filter"
     ],
     "parameters": {
         "expression": {
-            "description": "",
+            "description": "A boolean value.",
             "schema": {
-                "type": "object",
-                "format": "callback"
-            },
-            "required": true
-        },
-        "param1": {
-            "description": "",
-            "schema": {
-                "description": "Mixed values, any data type allowed."
+                "type": [
+                    "boolean",
+                    "null"
+                ]
             },
             "required": true
         },
         "accept": {
-            "description": "",
+            "description": "A value that is returned if the boolean expression is `true`. Defaults to `true`.",
             "schema": {
-                "description": "Mixed values, any data type allowed.",
+                "description": "Any data type is allowed.",
                 "default": true
             }
         },
         "reject": {
-            "description": "",
+            "description": "A value that is returned if the boolean expression is `false`. Defaults to `false`.",
             "schema": {
-                "description": "Mixed values, any data type allowed.",
+                "description": "Any data type is allowed.",
                 "default": false
             }
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns either the `accept` argument or `reject` argument depending on the given boolean expression.",
         "schema": {
-            "type": "object",
-            "format": "image-collection"
+            "description": "Any data type is allowed."
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "expression": true
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expression": null
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "expressions": false
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expression": true,
+                "accept": "A"
+            },
+            "returns": "A"
+        },
+        {
+            "arguments": {
+                "expression": false,
+                "accept": [1,2,3],
+                "reject": [4,5,6]
+            },
+            "returns": [4,5,6]
+        }
+    ]
 }

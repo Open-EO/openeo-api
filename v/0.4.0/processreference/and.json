@@ -1,7 +1,7 @@
 {
     "id": "and",
     "summary": "Are all of the values true?",
-    "description": "Checks if **all** of the values are true.",
+    "description": "Checks if **all** of the values are true.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n| *and* | **`null`** | **`false`** | **`true`** |\n| ----------- | ---------- | ----------- | ---------- |\n| **`null`** | `null` | `false` | `null` |\n| **`false`** | `false` | `false` | `false` |\n| **`true`** | `null` | `false` | `true` |",
     "categories": [
         "logic"
     ],
@@ -20,7 +20,7 @@
             "required": true
         },
         "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+            "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
             "schema": {
                 "type": "boolean",
                 "default": true
@@ -28,7 +28,7 @@
         }
     },
     "returns": {
-        "description": "Returns `true` if at least one value is true, `null` if any of the values is `null` and `ignore_nodata` is set to `false`, otherwise `false`.",
+        "description": "Boolean result of the logical expressions.",
         "schema": {
             "type": [
                 "boolean",
@@ -39,13 +39,26 @@
     "examples": [
         {
             "arguments": {
-                "expressions": [true, null, true]
+                "expressions": [false, null]
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [true, null]
             },
             "returns": true
         },
         {
             "arguments": {
-                "expressions": [true, null, false],
+                "expressions": [false, null],
+                "ignore_nodata": false
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [true, null],
                 "ignore_nodata": false
             },
             "returns": null
@@ -58,7 +71,7 @@
         },
         {
             "arguments": {
-                "expression": [false, false]
+                "expression": [true, false]
             },
             "returns": false
         },
