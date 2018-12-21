@@ -1,14 +1,15 @@
 {
     "id": "array_contains",
-    "summary": "Array contains the specified element",
-    "description": "Array contains the specified element",
+    "summary": "List contains an element",
+    "description": "Checks whether the list (also known as *array*) specified for `data` contains the value specified in `element`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
     "categories": [
         "arrays",
         "comparison"
     ],
+    "parameter_order": ["data", "element"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "List in which to find a value in.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -18,7 +19,7 @@
             "required": true
         },
         "element": {
-            "description": "",
+            "description": "Value to find in `data`.",
             "schema": {
                 "description": "Any data type is allowed."
             },
@@ -26,9 +27,67 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if the list contains the value, false` otherwise.",
         "schema": {
             "type": "boolean"
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": [1,2,3],
+                "element": 2
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": ["A", "B", "C"],
+                "element": "b"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "data": [1,2,3],
+                "element": "2"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "data": [1.0,2.0,3.0],
+                "element": 2
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": [1,2,null],
+                "element": null
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": [[1,2],[3,4]],
+                "element": [1,2]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": [[1,2],[3,4]],
+                "element": 2
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "data": [{"a":"b"}, {"c": "d"}],
+                "element": {"a":"b"}
+            },
+            "returns": true
+        }
+    ]
 }

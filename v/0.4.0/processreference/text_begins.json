@@ -1,28 +1,29 @@
 {
     "id": "text_begins",
     "summary": "Text begins with another text",
-    "description": "Text begins with another text",
+    "description": "Checks whether the text (also known as *string*) specified for `data` contains the text specified for `pattern` at the very beginning. Both are expected to be encoded in UTF-8 by default. Regular expressions are not supported.",
     "categories": [
         "texts",
         "comparison"
     ],
+    "parameter_order": ["data", "pattern", "case_sensitive"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "Text in which to find something at the beginning.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "pattern": {
-            "description": "",
+            "description": "Text to find at the beginning of `data`.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "case_sensitive": {
-            "description": "",
+            "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
             "schema": {
                 "type": "boolean",
                 "default": true
@@ -30,9 +31,48 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if `data` begins with `pattern`, false` otherwise.",
         "schema": {
             "type": "boolean"
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": "Lorem ipsum dolor sit amet",
+                "pattern": "amet"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "data": "Lorem ipsum dolor sit amet",
+                "pattern": "Lorem"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": "Lorem ipsum dolor sit amet",
+                "pattern": "lorem"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "data": "Lorem ipsum dolor sit amet",
+                "pattern": "lorem",
+                "case_sensitive": false
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "data": "Ä",
+                "pattern": "ä",
+                "case_sensitive": false
+            },
+            "returns": true
+        }
+    ]
 }

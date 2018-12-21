@@ -1,13 +1,14 @@
 {
     "id": "linear_scale_range",
-    "summary": "Performs a linear transformation between the input and output range.",
-    "description": "Performs a linear transformation between the input and output range.",
+    "summary": "Linear transformation between two ranges",
+    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: `((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin`.\n\nPotential use case include\n* scaling values to the range of the RGB color model (0 - 255) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
         "math"
     ],
+    "parameter_order": ["x", "inputMin", "inputMax", "outputMin", "outputMax"],
     "parameters": {
-        "data": {
-            "description": "",
+        "x": {
+            "description": "A number to transform.",
             "schema": {
                 "type": [
                     "number",
@@ -17,28 +18,28 @@
             "required": true
         },
         "inputMin": {
-            "description": "",
+            "description": "Minimum value the input can obtain.",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "inputMax": {
-            "description": "",
+            "description": "Maximum value the input can obtain.",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "outputMin": {
-            "description": "",
+            "description": "Minimum value of the desired output range.",
             "schema": {
                 "type": "number",
                 "default": 0
             }
         },
         "outputMax": {
-            "description": "",
+            "description": "Maximum value of the desired output range.",
             "schema": {
                 "type": "number",
                 "default": 1
@@ -46,12 +47,47 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The transformed number.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": 0.3,
+                "inputMin": -1,
+                "inputMax": 1,
+                "outputMin": 0,
+                "outputMax": 255
+            },
+            "returns": 165.75
+        },
+        {
+            "arguments": {
+                "x": 25.5,
+                "inputMin": 0,
+                "inputMax": 255
+            },
+            "returns": 0.1
+        },
+        {
+            "arguments": {
+                "x": null,
+                "inputMin": 0,
+                "inputMax": 100
+            },
+            "returns": null
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        }
+    ]
 }

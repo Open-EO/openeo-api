@@ -1,12 +1,13 @@
 {
     "id": "between",
-    "summary": "data is between min and max",
-    "description": "Alias for: `and([ gte( data, min ), lte( data, max ) ])`",
+    "summary": "Between comparison",
+    "description": "Checks whether `x` is greater than or equal to `min` and lower than or equal to `max` or to put it in simpler words checks whether `x` is between the lower bound `min` and the upper bound `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
     "categories": [
         "comparison"
     ],
+    "parameter_order": ["x", "min", "max"],
     "parameters": {
-        "data": {
+        "x": {
             "description": "",
             "schema": {
                 "oneOf": [
@@ -33,7 +34,7 @@
             "required": true
         },
         "min": {
-            "description": "",
+            "description": "Lower boundary (inclusive) to check against.",
             "schema": {
                 "oneOf": [
                     {
@@ -56,7 +57,7 @@
             "required": true
         },
         "max": {
-            "description": "",
+            "description": "Upper boundary (inclusive) to check against.",
             "schema": {
                 "oneOf": [
                     {
@@ -80,9 +81,68 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns `true` if `x` is between the specified bounds, otherwise `false`.",
         "schema": {
             "type": "boolean"
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "x": null,
+                "min": 0,
+                "max": 1
+            },
+            "returns": null
+        },
+        {
+            "description": "Swapped bounds (min is greather than max) MUST always return `false`.",
+            "arguments": {
+                "x": 0.5,
+                "min": 1,
+                "max": 0
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": -0.5,
+                "min": -0,
+                "max": -1
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "00:00:01+01:00", 
+                "min": "00:00:00Z",
+                "max": "00:00:00+01:00"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "2018-07-23T17:22:45Z", 
+                "min": "2018-01-01T00:00:00Z",
+                "max": "2018-12-31T23:59:59Z"
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": "2000-01-01", 
+                "min": "2018-01-01",
+                "max": "2020-01-01"
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "x": "2018-12-31T17:22:45Z",
+                "min": "2018-01-01",
+                "max": "2018-12-31"
+            },
+            "returns": true
+        }
+    ]
 }

@@ -681,7 +681,7 @@
   {
     "id": "arctan2",
     "summary": "Inverse tangent of two numbers.",
-    "description": "Computes the arcus tangent of two numbers `x` and `y`. It is similar to calculating the arcus tangent of *y / x*, except that the signs of both arguments are used to determine the quadrant of the result.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the arcus tangent of two numbers `x` and `y`. It is similar to calculating the arcus tangent of *y / x*, except that the signs of both arguments are used to determine the quadrant of the result.\n\nWorks on radians only.\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
     "categories": [
       "math > trigonometric"
     ],
@@ -746,15 +746,19 @@
   },
   {
     "id": "array_contains",
-    "summary": "Array contains the specified element",
-    "description": "Array contains the specified element",
+    "summary": "List contains an element",
+    "description": "Checks whether the list (also known as *array*) specified for `data` contains the value specified in `element`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
     "categories": [
       "arrays",
       "comparison"
     ],
+    "parameter_order": [
+      "data",
+      "element"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "List in which to find a value in.",
         "schema": {
           "type": "array",
           "items": {
@@ -764,7 +768,7 @@
         "required": true
       },
       "element": {
-        "description": "",
+        "description": "Value to find in `data`.",
         "schema": {
           "description": "Any data type is allowed."
         },
@@ -772,11 +776,119 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if the list contains the value, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3
+          ],
+          "element": 2
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": [
+            "A",
+            "B",
+            "C"
+          ],
+          "element": "b"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3
+          ],
+          "element": "2"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3
+          ],
+          "element": 2
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            null
+          ],
+          "element": null
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "element": [
+            1,
+            2
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "element": 2
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": [
+            {
+              "a": "b"
+            },
+            {
+              "c": "d"
+            }
+          ],
+          "element": {
+            "a": "b"
+          }
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "array_element",
@@ -992,13 +1104,18 @@
   },
   {
     "id": "between",
-    "summary": "data is between min and max",
-    "description": "Alias for: `and([ gte( data, min ), lte( data, max ) ])`",
+    "summary": "Between comparison",
+    "description": "Checks whether `x` is greater than or equal to `min` and lower than or equal to `max` or to put it in simpler words checks whether `x` is between the lower bound `min` and the upper bound `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
     "categories": [
       "comparison"
     ],
+    "parameter_order": [
+      "x",
+      "min",
+      "max"
+    ],
     "parameters": {
-      "data": {
+      "x": {
         "description": "",
         "schema": {
           "oneOf": [
@@ -1025,7 +1142,7 @@
         "required": true
       },
       "min": {
-        "description": "",
+        "description": "Lower boundary (inclusive) to check against.",
         "schema": {
           "oneOf": [
             {
@@ -1048,7 +1165,7 @@
         "required": true
       },
       "max": {
-        "description": "",
+        "description": "Upper boundary (inclusive) to check against.",
         "schema": {
           "oneOf": [
             {
@@ -1072,11 +1189,70 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `x` is between the specified bounds, otherwise `false`.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": null,
+          "min": 0,
+          "max": 1
+        },
+        "returns": null
+      },
+      {
+        "description": "Swapped bounds (min is greather than max) MUST always return `false`.",
+        "arguments": {
+          "x": 0.5,
+          "min": 1,
+          "max": 0
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": -0.5,
+          "min": 0,
+          "max": -1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "00:00:01+01:00",
+          "min": "00:00:00Z",
+          "max": "00:00:00+01:00"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-07-23T17:22:45Z",
+          "min": "2018-01-01T00:00:00Z",
+          "max": "2018-12-31T23:59:59Z"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2000-01-01",
+          "min": "2018-01-01",
+          "max": "2020-01-01"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "2018-12-31T17:22:45Z",
+          "min": "2018-01-01",
+          "max": "2018-12-31"
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "ceil",
@@ -1327,13 +1503,17 @@
   {
     "id": "cummax",
     "summary": "Cumulative maxima",
-    "description": "The length of data stays the same.",
+    "description": "Finds cumulative maxima of an array of numbers. Every computed element is equal to the bigger one between current element and previous element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -1344,10 +1524,17 @@
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the computed cumulative maxima.",
       "schema": {
         "type": "array",
         "items": {
@@ -1357,18 +1544,79 @@
           ]
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            5,
+            3,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          3,
+          5,
+          5,
+          5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            null,
+            5,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          3,
+          null,
+          5,
+          5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            null,
+            5,
+            1
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          1,
+          3,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "cummin",
-    "summary": "Cumulative mimuma",
-    "description": "The length of data stays the same.",
+    "summary": "Cumulative minima",
+    "description": "Finds cumulative minima of an array of numbers. Every computed element is equal to the smaller one between current element and previous element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -1379,10 +1627,17 @@
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the computed cumulative minima.",
       "schema": {
         "type": "array",
         "items": {
@@ -1392,18 +1647,79 @@
           ]
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            5,
+            3,
+            1,
+            3,
+            5
+          ]
+        },
+        "returns": [
+          5,
+          3,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            5,
+            3,
+            null,
+            1,
+            5
+          ]
+        },
+        "returns": [
+          5,
+          3,
+          null,
+          1,
+          1
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            5,
+            3,
+            null,
+            1,
+            5
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          5,
+          3,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "cumproduct",
     "summary": "Cumulative products",
-    "description": "The length of data stays the same.",
+    "description": "Computes cumulative products of an array of numbers. Every computed element is equal to the product of current and all previous values. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -1414,10 +1730,17 @@
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the computed cumulative products.",
       "schema": {
         "type": "array",
         "items": {
@@ -1427,18 +1750,83 @@
           ]
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            5,
+            3,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          3,
+          15,
+          45,
+          45
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3,
+            null,
+            3,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          2,
+          6,
+          null,
+          18,
+          18
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3,
+            null,
+            3,
+            1
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          1,
+          2,
+          6,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "cumsum",
-    "summary": "Cumulative sums.",
-    "description": "The length of data stays the same.",
+    "summary": "Cumulative sums",
+    "description": "Computes cumulative sums of an array of numbers. Every computed element is equal to the sum of current and all previous values. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -1449,10 +1837,17 @@
           }
         },
         "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the computed cumulative sums.",
       "schema": {
         "type": "array",
         "items": {
@@ -1462,7 +1857,64 @@
           ]
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            5,
+            3,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          4,
+          9,
+          12,
+          13
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            null,
+            3,
+            1
+          ]
+        },
+        "returns": [
+          1,
+          4,
+          null,
+          7,
+          8
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            null,
+            3,
+            1
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          1,
+          4,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "debug",
@@ -1580,8 +2032,9 @@
   {
     "id": "eq",
     "summary": "Equal to comparison",
-    "description": "Compares whether `x` is strictly equal to `y`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
+    "description": "Compares whether `x` is strictly equal to `y`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* Temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
+      "texts",
       "comparison"
     ],
     "parameter_order": [
@@ -2517,7 +2970,7 @@
   {
     "id": "gt",
     "summary": "Greater than comparison",
-    "description": "Compares whether `x` is strictly greater than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
+    "description": "Compares whether `x` is strictly greater than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "comparison"
     ],
@@ -2650,7 +3103,7 @@
   {
     "id": "gte",
     "summary": "Greater than or equal to comparison",
-    "description": "Compares whether `x` is greater than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
+    "description": "Compares whether `x` is greater than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "comparison"
     ],
@@ -3035,14 +3488,14 @@
   },
   {
     "id": "is_nan",
-    "summary": "Checks whether data is not a number.",
-    "description": "Checks whether data is not a number.",
+    "summary": "Value is not a number",
+    "description": "Checks whether the specified value `x` is not a number (often abbreviated as `NaN`). The definition of `NaN` follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). All non-numeric data types MUST also return `false`.",
     "categories": [
       "comparison"
     ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "The data to check.",
         "schema": {
           "description": "Any data type is allowed."
         },
@@ -3050,22 +3503,43 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if the data is not a number, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "Test"
+        },
+        "returns": false
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+      }
+    ]
   },
   {
     "id": "is_nodata",
-    "summary": "Checks for missing data",
-    "description": "Checks whether the specified data is missing data, i.e. equals to one of the no-data values or null.",
+    "summary": "Value is not a no-data value",
+    "description": "Checks whether the specified data is a missing data, i.e. equals to one of the no-data values / `null`.",
     "categories": [
       "comparison"
     ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "The data to check.",
         "schema": {
           "description": "Any data type is allowed."
         },
@@ -3073,22 +3547,42 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if the data is a no-data value, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": "Test"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": null
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "is_valid",
-    "summary": "Checks for valid data",
-    "description": "Checks whether the data is a non-missing and finite number.",
+    "summary": "Value is valid data",
+    "description": "Checks whether the specified value `x` is valid. A value is considered valid if it is \n1. not a no-data value (`null`) and \n2. a finite number (only if `x` is a number). The definition of finite and infinite numbers follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935).",
     "categories": [
       "comparison"
     ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "The data to check.",
         "schema": {
           "description": "Any data type is allowed."
         },
@@ -3096,11 +3590,38 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if the data is valid, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": "Test"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": null
+        },
+        "returns": false
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+      }
+    ]
   },
   {
     "id": "last",
@@ -3144,14 +3665,21 @@
   },
   {
     "id": "linear_scale_range",
-    "summary": "Performs a linear transformation between the input and output range.",
-    "description": "Performs a linear transformation between the input and output range.",
+    "summary": "Linear transformation between two ranges",
+    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: `((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin`.\n\nPotential use case include\n* scaling values to the range of the RGB color model (0 - 255) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
+    "parameter_order": [
+      "x",
+      "inputMin",
+      "inputMax",
+      "outputMin",
+      "outputMax"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "A number to transform.",
         "schema": {
           "type": [
             "number",
@@ -3161,28 +3689,28 @@
         "required": true
       },
       "inputMin": {
-        "description": "",
+        "description": "Minimum value the input can obtain.",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "inputMax": {
-        "description": "",
+        "description": "Maximum value the input can obtain.",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "outputMin": {
-        "description": "",
+        "description": "Minimum value of the desired output range.",
         "schema": {
           "type": "number",
           "default": 0
         }
       },
       "outputMax": {
-        "description": "",
+        "description": "Maximum value of the desired output range.",
         "schema": {
           "type": "number",
           "default": 1
@@ -3190,14 +3718,49 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The transformed number.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 0.3,
+          "inputMin": -1,
+          "inputMax": 1,
+          "outputMin": 0,
+          "outputMax": 255
+        },
+        "returns": 165.75
+      },
+      {
+        "arguments": {
+          "x": 25.5,
+          "inputMin": 0,
+          "inputMax": 255
+        },
+        "returns": 0.1
+      },
+      {
+        "arguments": {
+          "x": null,
+          "inputMin": 0,
+          "inputMax": 100
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "ln",
@@ -3265,7 +3828,7 @@
   {
     "id": "log",
     "summary": "Logarithm to a base",
-    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -3345,7 +3908,7 @@
   {
     "id": "lt",
     "summary": "Less than comparison",
-    "description": "Compares whether `x` is strictly less than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
+    "description": "Compares whether `x` is strictly less than `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "comparison"
     ],
@@ -3478,7 +4041,7 @@
   {
     "id": "lte",
     "summary": "Less than or equal to comparison",
-    "description": "Compares whether `x` is less than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* The temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
+    "description": "Compares whether `x` is less than or equal to `y`.\n\n**Remarks:**\n* If any of the operands is `null`, the return value is `null`.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.\n* Comparing strings is currently not supported, but is planned to be added in the future.",
     "categories": [
       "comparison"
     ],
@@ -3906,13 +4469,17 @@
   {
     "id": "mod",
     "summary": "Modulo",
-    "description": "Remainder after division of x by y.\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Remainder after division of `x` by `y`.\n\nThe result of a modulo operation has the sign of the divisor. The handling regarding the sign of the result [differs between programming languages](https://en.wikipedia.org/wiki/Modulo_operation) and needs careful consideration while implementing this process.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
     "categories": [
       "math"
     ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
     "parameters": {
       "x": {
-        "description": "",
+        "description": "A number to be used as dividend.",
         "schema": {
           "type": [
             "number",
@@ -3922,7 +4489,7 @@
         "required": true
       },
       "y": {
-        "description": "",
+        "description": "A number to be used as divisor.",
         "schema": {
           "type": [
             "number",
@@ -3933,26 +4500,84 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The remainder after division.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 27,
+          "y": 5
+        },
+        "returns": 2
+      },
+      {
+        "arguments": {
+          "x": -27,
+          "y": 5
+        },
+        "returns": 3
+      },
+      {
+        "arguments": {
+          "x": 27,
+          "y": -5
+        },
+        "returns": -3
+      },
+      {
+        "arguments": {
+          "x": -27,
+          "y": -5
+        },
+        "returns": -2
+      },
+      {
+        "arguments": {
+          "x": 27,
+          "y": 5
+        },
+        "returns": 2
+      },
+      {
+        "arguments": {
+          "x": 27,
+          "y": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "x": null,
+          "y": 5
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Modulo_operation",
+        "title": "Modulo explained by Wikipedia"
+      }
+    ]
   },
   {
     "id": "NDVI",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Alias for `normalized_difference`, which determines the bands automatically based on common_names (“red”/”nir”). Bands are replaced.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. For ease of use the newly created band should be named `ndvi`.\n\nThis process is very similar to the `normalized_difference` process, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
     "categories": [
       "math > indices",
-      "vegetation_indices"
+      "vegetation indices"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A raster data cube with two bands that have the common names `red` and `nir` assigned.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -3961,18 +4586,31 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "A raster data cube with two bands being replaced with a new band (preferably named `ndvi`) that holds the computed values.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index",
+        "title": "NDVI explained by Wikipedia"
+      },
+      {
+        "rel": "about",
+        "href": "https://earthobservatory.nasa.gov/features/MeasuringVegetation/measuring_vegetation_2.php",
+        "title": "NDVI explained by NASA"
+      }
+    ]
   },
   {
     "id": "neq",
     "summary": "Not equal to comparison",
-    "description": "Compares whether `x` is *not* strictly equal to `y`. This process is an alias for: `not(eq(val1, val2))`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* The temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
+    "description": "Compares whether `x` is *not* strictly equal to `y`. This process is an alias for: `not(eq(val1, val2))`.\n\n**Remarks:**\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*. Nevertheless, an integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`.\n* If any of the operands is `null`, the return value is `null`.\n* Strings are expected to be encoded in UTF-8 by default.\n* Temporal strings MUST be compared differently than other strings and MUST NOT be compared based on their string representation due to different possible representations. For example, the UTC time zone representation `Z` has the same meaning as `+00:00`.",
     "categories": [
+      "texts",
       "comparison"
     ],
     "parameter_order": [
@@ -4174,15 +4812,19 @@
   },
   {
     "id": "normalized_difference",
-    "summary": "Normalized difference between between two bands.",
-    "description": "Computes the normalized difference between two bands. The normalized difference is computed as (band1 − band2) / (band1 + band2). Bands are replaced.",
+    "summary": "Normalized difference for two bands",
+    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. For ease of use the newly created band should be named `normalized_difference`.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes such as the `NDVI` process available for convenience.",
     "categories": [
       "math > indices",
-      "vegetation_indices"
+      "vegetation indices"
+    ],
+    "parameter_order": [
+      "band1",
+      "band2"
     ],
     "parameters": {
       "band1": {
-        "description": "",
+        "description": "A raster data cube with exactly one band to be used as first band.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -4190,7 +4832,7 @@
         "required": true
       },
       "band2": {
-        "description": "",
+        "description": "A raster data cube with exactly one band to be used as second band.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -4199,12 +4841,29 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "A raster data cube with exactly one band (preferably named `normalized_difference`) that holds the computed values.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "related",
+        "href": "https://eos.com/ndvi/",
+        "title": "NDVI explained by EOS"
+      },
+      {
+        "rel": "related",
+        "href": "https://eos.com/ndwi/",
+        "title": "NDWI explained by EOS"
+      },
+      {
+        "rel": "related",
+        "href": "https://eos.com/ndsi/",
+        "title": "NDSI explained by EOS"
+      }
+    ]
   },
   {
     "id": "not",
@@ -4492,7 +5151,7 @@
   {
     "id": "power",
     "summary": "Exponentiation",
-    "description": "Computes the exponentiation for the base `base` raised to the power of `p`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Computes the exponentiation for the base `base` raised to the power of `p`.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
     "categories": [
       "math",
       "math > exponential & logarithmic"
@@ -4567,6 +5226,20 @@
           "p": 0.5
         },
         "returns": 1
+      },
+      {
+        "arguments": {
+          "base": 1,
+          "p": null
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "base": null,
+          "p": 2
+        },
+        "returns": null
       }
     ],
     "links": [
@@ -4652,7 +5325,6 @@
     "summary": "Calculates quantiles",
     "description": "Calculates quantiles for each specified `quantiles` between 0 and 1.",
     "categories": [
-      "arrays",
       "math",
       "reducer"
     ],
@@ -4706,6 +5378,7 @@
     "summary": "Rearranges an array based on a permutation.",
     "description": "Rearranges an array based on a permutation.",
     "categories": [
+      "arrays",
       "sorting"
     ],
     "parameters": {
@@ -5075,13 +5748,13 @@
   {
     "id": "sgn",
     "summary": "Signum",
-    "description": "Signum of `data`: 1 if num > 0, 0 if num = 0, -1 if num < 0.\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "The signum (also known as *sign*) of `x` is defined as:\n* *1* if *x > 0*\n* *0* if *x = 0*\n* *-1* if *x < 0*\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
     "parameters": {
-      "data": {
-        "description": "",
+      "x": {
+        "description": "A number.",
         "schema": {
           "type": [
             "number",
@@ -5092,14 +5765,47 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed signum value of `x`.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": -2
+        },
+        "returns": -1
+      },
+      {
+        "arguments": {
+          "x": 3.5
+        },
+        "returns": 1
+      },
+      {
+        "arguments": {
+          "x": 0
+        },
+        "returns": 0
+      },
+      {
+        "arguments": {
+          "x": null
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Sign.html",
+        "title": "Sign explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "sin",
@@ -5426,28 +6132,33 @@
   {
     "id": "text_begins",
     "summary": "Text begins with another text",
-    "description": "Text begins with another text",
+    "description": "Checks whether the text (also known as *string*) specified for `data` contains the text specified for `pattern` at the very beginning. Both are expected to be encoded in UTF-8 by default. Regular expressions are not supported.",
     "categories": [
       "texts",
       "comparison"
     ],
+    "parameter_order": [
+      "data",
+      "pattern",
+      "case_sensitive"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "Text in which to find something at the beginning.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "pattern": {
-        "description": "",
+        "description": "Text to find at the beginning of `data`.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "case_sensitive": {
-        "description": "",
+        "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -5455,37 +6166,81 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `data` begins with `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "amet"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "Lorem"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "lorem"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "lorem",
+          "case_sensitive": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "Ä",
+          "pattern": "ä",
+          "case_sensitive": false
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "text_contains",
     "summary": "Text contains another text",
-    "description": "Text contains another text",
+    "description": "Checks whether the text (also known as *string*) specified for `data` contains the text specified for `pattern`. Both are expected to be encoded in UTF-8 by default. Regular expressions are not supported.",
     "categories": [
       "texts",
       "comparison"
     ],
+    "parameter_order": [
+      "data",
+      "pattern",
+      "case_sensitive"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "Text in which to find something in.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "pattern": {
-        "description": "",
+        "description": "Text to find in `data`.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "case_sensitive": {
-        "description": "",
+        "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -5493,37 +6248,81 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `data` contains the `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "openEO"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "ipsum dolor"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "Ipsum Dolor"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "SIT",
+          "case_sensitive": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "ÄÖÜ",
+          "pattern": "ö",
+          "case_sensitive": false
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "text_ends",
     "summary": "Text ends with another text",
-    "description": "Text ends with another text",
+    "description": "Checks whether the text (also known as *string*) specified for `data` contains the text specified for `pattern` at the very end. Both are expected to be encoded in UTF-8 by default. Regular expressions are not supported.",
     "categories": [
       "texts",
       "comparison"
     ],
+    "parameter_order": [
+      "data",
+      "pattern",
+      "case_sensitive"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "Text in which to find something at the end.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "pattern": {
-        "description": "",
+        "description": "Text to find at the end of `data`.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "case_sensitive": {
-        "description": "",
+        "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -5531,11 +6330,50 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns `true` if `data` ends with `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "amet"
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "AMET"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "Lorem"
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "data": "Lorem ipsum dolor sit amet",
+          "pattern": "AMET",
+          "case_sensitive": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "data": "Ä",
+          "pattern": "ä",
+          "case_sensitive": false
+        },
+        "returns": true
+      }
+    ]
   },
   {
     "id": "trim",
@@ -5599,6 +6437,57 @@
           "number",
           "null"
         ]
+      }
+    }
+  },
+  {
+    "id": "weighted_filter",
+    "summary": "Weighted filter for imagery",
+    "description": "Weighted raster filter",
+    "categories": [
+      "math > image filter"
+    ],
+    "parameters": {
+      "data": {
+        "description": "",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "weights": {
+        "description": "",
+        "schema": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          ]
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
