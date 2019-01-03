@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /processes` (Process discovery):
     - Processes can be categorizes with the `category` property.
     - Parameters can be ordered with the `parameter_order` property instead of having a random order.
-    - References to other processes in descriptions can be done with `@process_id`.
+    - Support for references to other processes in descriptions.
 
 ### Changed
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
