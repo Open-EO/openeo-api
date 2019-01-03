@@ -1,14 +1,15 @@
 {
     "id": "extrema",
     "summary": "Minimum and maximum values",
-    "description": "Two element array containing the minimum and the maximum values of `data`. Basically an alias for `min` and `max`, but potentially faster than calling both separately.",
+    "description": "Two element array containing the minimum and the maximum values of `data`.\n\nThis process is basically an alias for calling both ``min()`` and ``max()``, but may be implemented more performant by back-ends as it only needs to iterate over the data once instead of twice.",
     "categories": [
         "math",
         "reducer"
     ],
+    "parameter_order": ["data", "ignore_nodata"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "An array of numbers.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -21,7 +22,7 @@
             "required": true
         },
         "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with two `null` values is returned if any value is such a value.",
             "schema": {
                 "type": "boolean",
                 "default": true
@@ -29,15 +30,58 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "Returns the minimum and maximum values for the specified numbers. The first value is the minimum, the second value is the maximum. If the input array is empty the return value is an array with two `null` values.",
         "schema": {
-            "type": "array",
-            "items": {
-                "type": [
-                    "number",
-                    "null"
-                ]
-            }
+            "oneOf": [
+                {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                        "type": [
+                            "number"
+                        ]
+                    }
+                },
+                {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                        "type": [
+                            "null"
+                        ]
+                    }
+                }
+            ]
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": [1,0,3,2]
+            },
+            "returns": [0,3]
+        },
+        {
+            "arguments": {
+                "data": [5,2.5,null,-0.7]
+            },
+            "returns": [-0.7,5]
+        },
+        {
+            "arguments": {
+                "data": [1,0,3,null,2],
+                "ignore_nodata": false
+            },
+            "returns": [null,null]
+        },
+        {
+            "description": "The input array is empty: return two `null` values.",
+            "arguments": {
+                "data": []
+            },
+            "returns": [null,null]
+        }
+    ]
 }

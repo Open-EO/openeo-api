@@ -1,14 +1,15 @@
 {
     "id": "divide",
-    "summary": "x divided all other elements",
-    "description": "x divided all other elements",
+    "summary": "Division of a sequence of numbers",
+    "description": "Divides the first element in a sequential array of numbers by all other elements.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example a division by zero should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
     "categories": [
         "math",
         "reducer"
     ],
+    "parameter_order": ["data", "ignore_nodata"],
     "parameters": {
-        "x": {
-            "description": "",
+        "data": {
+            "description": "An array of numbers with at least two elements.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -16,7 +17,8 @@
                         "number",
                         "null"
                     ]
-                }
+                },
+                "minItems": 2
             },
             "required": true
         },
@@ -29,12 +31,50 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The computed result of the sequence of numbers.",
         "schema": {
             "type": [
                 "number",
                 "null"
             ]
         }
-    }
+    },
+    "exceptions": {
+        "DivisorMissing": {
+            "message": "Division requires at least two numbers (a dividend and one or more divisors)."
+        }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": [15,5]
+            },
+            "returns": 3
+        },
+        {
+            "arguments": {
+                "data": [-2,4,2.5]
+            },
+            "returns": -0.2
+        },
+        {
+            "arguments": {
+                "data": [1,null],
+                "ignore_nodata": false
+            },
+            "returns": null
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/Division.html",
+            "title": "Division explained by Wolfram MathWorld"
+        },
+        {
+            "rel": "about",
+            "href": "https://ieeexplore.ieee.org/document/4610935",
+            "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        }
+    ]
 }

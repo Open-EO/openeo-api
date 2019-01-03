@@ -1,40 +1,95 @@
 {
     "id": "count",
-    "summary": "Number of valid elements (see is_valid).",
-    "description": "Number of valid elements (see is_valid).",
+    "summary": "Count the number of elements",
+    "description": "Gives the number of elements in an array that matches a certain criterion / expression.\n\n**Remarks:**\n* By default counts the number of valid elements. A valid element is every element for which ``is_valid()`` returns `true`.\n* To count all elements in a list set the `expression` parameter to boolean `true`.",
     "categories": [
         "arrays",
         "reducer"
     ],
+    "parameter_order": ["data", "expression"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "An array with elements of any type.",
             "schema": {
                 "type": "array",
                 "items": {
-                    "type": [
-                        "number",
-                        "null"
-                    ]
+                    "description": "Any data type is allowed."
                 }
             },
             "required": true
         },
-        "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "expression": {
+            "description": "An expression that is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to ``is_valid()`` so that valid elements in a list are counted. Setting this parameter to boolean `true` counts all elements in the list.",
             "schema": {
-                "type": "boolean",
-                "default": true
+                "oneOf": [
+                    {
+                        "description": "An expression that is evaluated against each element in the array.",
+                        "type": "object",
+                        "format": "callback",
+                        "properties": {
+                            "element": {
+                                "description": "A single element from the array. Any data type could be passed."
+                            }
+                        }
+                    },
+                    {
+                        "description": "Boolean `true` counts all elements in the list.",
+                        "type": "boolean",
+                        "const": true
+                    }
+                ]
             }
         }
     },
     "returns": {
-        "description": "",
+        "description": "The counted number of elements.",
         "schema": {
-            "type": [
-                "number",
-                "null"
-            ]
+            "type": "number"
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": []
+            },
+            "returns": 0
+        },
+        {
+            "arguments": {
+                "data": [1,0,3,2]
+            },
+            "returns": 4
+        },
+        {
+            "arguments": {
+                "data": ["ABC",null]
+            },
+            "returns": 1
+        },
+        {
+            "arguments": {
+                "data": [false,null],
+                "expression": true
+            },
+            "returns": 2
+        },
+        {
+            "arguments": {
+                "data": [0,1,2,3,4,5,null],
+                "expression": {
+                    "gt": {
+                        "process_id": "gt",
+                        "arguments": {
+                            "x": {
+                                "from_argument": "element"
+                            },
+                            "y": 2
+                        },
+                        "result": true
+                    }
+                }
+            },
+            "returns": 3
+        }
+    ]
 }

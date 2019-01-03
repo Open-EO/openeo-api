@@ -168,7 +168,7 @@
   {
     "id": "aggregate_zonal",
     "summary": "Zonal statistics for polygons",
-    "description": "Aggregates zonal data/statistics for one or multiple GeoJSON polygons. For focal aggregation see `apply`. Number of valid/invalid pixels get returned together with the calculated values.",
+    "description": "Aggregates zonal data/statistics for one or multiple GeoJSON polygons. For focal aggregation see ``apply()``. Number of valid/invalid pixels get returned together with the calculated values.",
     "categories": [
       "cubes",
       "aggregate"
@@ -214,7 +214,7 @@
   {
     "id": "and",
     "summary": "Are all of the values true?",
-    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
+    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
     "categories": [
       "logic",
       "reducer"
@@ -317,6 +317,20 @@
           ]
         },
         "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": []
+        },
+        "returns": null
       }
     ]
   },
@@ -366,7 +380,7 @@
   {
     "id": "apply",
     "summary": "Applies a local/unary process to a raster data cube.",
-    "description": "Applies a local non-reducer to a raster data cube. Focal calculations can be made by setting the kernel. For zonal apply see `aggregate_zonal`. Returns a new raster data cube. The kernel has to be as many dimensions as the datacube has dimensions.",
+    "description": "Applies a local non-reducer to a raster data cube. Focal calculations can be made by setting the kernel. For zonal apply see ``aggregate_zonal()``. Returns a new raster data cube. The kernel has to be as many dimensions as the datacube has dimensions.",
     "categories": [
       "cubes"
     ],
@@ -1319,29 +1333,38 @@
   {
     "id": "clip",
     "summary": "Clips values between minimum and maximum values.",
-    "description": "Clips the raster data cube values between specified min and max values. All values larger than maximal value will have the maximal value, all values lower than minimal value will have the minimal value, alias for `replace(replace(cube, gt(data, max), max), lt(data, min), min)`",
+    "description": "Clips an array of numbers between specified minimum and maximum values. All values larger than the maximal value will have the maximal value, all values lower than minimal value will have the minimal value.",
     "categories": [
-      "math",
-      "masks"
+      "math"
+    ],
+    "parameter_order": [
+      "data",
+      "min",
+      "max"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
-          "type": "object",
-          "format": "raster-cube"
+          "type": "array",
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
         },
         "required": true
       },
       "min": {
-        "description": "",
+        "description": "Minimum value. All values lower than this value will be set to the value of this parameter.",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "max": {
-        "description": "",
+        "description": "Maxmimum value. All values greater than this value will be set to the value of this parameter.",
         "schema": {
           "type": "number"
         },
@@ -1349,12 +1372,65 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the values clipped to the specified range.",
       "schema": {
-        "type": "object",
-        "format": "raster-cube"
+        "type": "array",
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            -2,
+            -1,
+            0,
+            1,
+            2
+          ],
+          "min": -1,
+          "max": 1
+        },
+        "returns": [
+          -1,
+          -1,
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            -0.1,
+            -0.001,
+            null,
+            0,
+            0.25,
+            0.75,
+            1.001,
+            null
+          ],
+          "min": 0,
+          "max": 1
+        },
+        "returns": [
+          0,
+          0,
+          null,
+          0,
+          0.25,
+          0.75,
+          1,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "cos",
@@ -1446,43 +1522,120 @@
   },
   {
     "id": "count",
-    "summary": "Number of valid elements (see is_valid).",
-    "description": "Number of valid elements (see is_valid).",
+    "summary": "Count the number of elements",
+    "description": "Gives the number of elements in an array that matches a certain criterion / expression.\n\n**Remarks:**\n* By default counts the number of valid elements. A valid element is every element for which ``is_valid()`` returns `true`.\n* To count all elements in a list set the `expression` parameter to boolean `true`.",
     "categories": [
       "arrays",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "expression"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array with elements of any type.",
         "schema": {
           "type": "array",
           "items": {
-            "type": [
-              "number",
-              "null"
-            ]
+            "description": "Any data type is allowed."
           }
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+      "expression": {
+        "description": "An expression that is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to ``is_valid()`` so that valid elements in a list are counted. Setting this parameter to boolean `true` counts all elements in the list.",
         "schema": {
-          "type": "boolean",
-          "default": true
+          "oneOf": [
+            {
+              "description": "An expression that is evaluated against each element in the array.",
+              "type": "object",
+              "format": "callback",
+              "properties": {
+                "element": {
+                  "description": "A single element from the array. Any data type could be passed."
+                }
+              }
+            },
+            {
+              "description": "Boolean `true` counts all elements in the list.",
+              "type": "boolean",
+              "const": true
+            }
+          ]
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "The counted number of elements.",
       "schema": {
-        "type": [
-          "number",
-          "null"
-        ]
+        "type": "number"
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": []
+        },
+        "returns": 0
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": 4
+      },
+      {
+        "arguments": {
+          "data": [
+            "ABC",
+            null
+          ]
+        },
+        "returns": 1
+      },
+      {
+        "arguments": {
+          "data": [
+            false,
+            null
+          ],
+          "expression": true
+        },
+        "returns": 2
+      },
+      {
+        "arguments": {
+          "data": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            null
+          ],
+          "expression": {
+            "gt": {
+              "process_id": "gt",
+              "arguments": {
+                "x": {
+                  "from_argument": "element"
+                },
+                "y": 2
+              },
+              "result": true
+            }
+          }
+        },
+        "returns": 3
+      }
+    ]
   },
   {
     "id": "create_raster_cube",
@@ -1947,15 +2100,19 @@
   },
   {
     "id": "divide",
-    "summary": "x divided all other elements",
-    "description": "x divided all other elements",
+    "summary": "Division of a sequence of numbers",
+    "description": "Divides the first element in a sequential array of numbers by all other elements.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example a division by zero should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
-      "x": {
-        "description": "",
+      "data": {
+        "description": "An array of numbers with at least two elements.",
         "schema": {
           "type": "array",
           "items": {
@@ -1963,7 +2120,8 @@
               "number",
               "null"
             ]
-          }
+          },
+          "minItems": 2
         },
         "required": true
       },
@@ -1976,14 +2134,62 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed result of the sequence of numbers.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "exceptions": {
+      "DivisorMissing": {
+        "message": "Division requires at least two numbers (a dividend and one or more divisors)."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            15,
+            5
+          ]
+        },
+        "returns": 3
+      },
+      {
+        "arguments": {
+          "data": [
+            -2,
+            4,
+            2.5
+          ]
+        },
+        "returns": -0.2
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Division.html",
+        "title": "Division explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+      }
+    ]
   },
   {
     "id": "e",
@@ -2328,14 +2534,18 @@
   {
     "id": "extrema",
     "summary": "Minimum and maximum values",
-    "description": "Two element array containing the minimum and the maximum values of `data`. Basically an alias for `min` and `max`, but potentially faster than calling both separately.",
+    "description": "Two element array containing the minimum and the maximum values of `data`.\n\nThis process is basically an alias for calling both ``min()`` and ``max()``, but may be implemented more performant by back-ends as it only needs to iterate over the data once instead of twice.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -2348,7 +2558,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with two `null` values is returned if any value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -2356,17 +2566,88 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "Returns the minimum and maximum values for the specified numbers. The first value is the minimum, the second value is the maximum. If the input array is empty the return value is an array with two `null` values.",
       "schema": {
-        "type": "array",
-        "items": {
-          "type": [
-            "number",
-            "null"
-          ]
-        }
+        "oneOf": [
+          {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": [
+                "number"
+              ]
+            }
+          },
+          {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": [
+                "null"
+              ]
+            }
+          }
+        ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": [
+          0,
+          3
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            5,
+            2.5,
+            null,
+            -0.7
+          ]
+        },
+        "returns": [
+          -0.7,
+          5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            null,
+            2
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          null,
+          null
+        ]
+      },
+      {
+        "description": "The input array is empty: return two `null` values.",
+        "arguments": {
+          "data": []
+        },
+        "returns": [
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "filter_bands",
@@ -2733,28 +3014,29 @@
   },
   {
     "id": "first",
-    "summary": "First element of nums.",
-    "description": "First element of nums.",
+    "summary": "First element",
+    "description": "Gives the first element of an array. For an empty array `null` is returned.",
     "categories": [
       "arrays",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array with elements of any type. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
-            "type": [
-              "number",
-              "null"
-            ]
+            "description": "Any data type is allowed."
           }
         },
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if the first value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -2762,14 +3044,52 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The first element of the input array.",
       "schema": {
-        "type": [
-          "number",
-          "null"
-        ]
+        "description": "Any data type is allowed."
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": 1
+      },
+      {
+        "arguments": {
+          "data": [
+            null,
+            "A",
+            "B"
+          ]
+        },
+        "returns": "A"
+      },
+      {
+        "arguments": {
+          "data": [
+            null,
+            2,
+            3
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ]
   },
   {
     "id": "floor",
@@ -3625,15 +3945,19 @@
   },
   {
     "id": "last",
-    "summary": "Last element of nums.",
-    "description": "Last element of nums.",
+    "summary": "Last element",
+    "description": "Gives the last element of an array. For an empty array `null` is returned.",
     "categories": [
       "arrays",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array with elements of any type. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -3646,7 +3970,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if the last value is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -3654,19 +3978,57 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The last element of the input array.",
       "schema": {
-        "type": [
-          "number",
-          "null"
-        ]
+        "description": "Any data type is allowed."
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": 2
+      },
+      {
+        "arguments": {
+          "data": [
+            "A",
+            "B",
+            null
+          ]
+        },
+        "returns": "B"
+      },
+      {
+        "arguments": {
+          "data": [
+            0,
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ]
   },
   {
     "id": "linear_scale_range",
     "summary": "Linear transformation between two ranges",
-    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: `((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin`.\n\nPotential use case include\n* scaling values to the range of the RGB color model (0 - 255) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: `((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin`.\n\nPotential use case include\n* scaling values to the 8-bit range (0 - 255) often used for numeric represention of values in one of the channels of the [RGB color model](https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
@@ -3753,19 +4115,12 @@
         },
         "returns": null
       }
-    ],
-    "links": [
-      {
-        "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
-        "title": "Information about the supported temporal formats."
-      }
     ]
   },
   {
     "id": "ln",
     "summary": "Natural logarithm",
-    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example `ln(0)` should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -3822,13 +4177,18 @@
         "rel": "about",
         "href": "http://mathworld.wolfram.com/NaturalLogarithm.html",
         "title": "Natural logarithm explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
       }
     ]
   },
   {
     "id": "log",
     "summary": "Logarithm to a base",
-    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
+    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example `log(0, 2)` should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -3902,6 +4262,11 @@
         "rel": "about",
         "href": "http://mathworld.wolfram.com/Logarithm.html",
         "title": "Logarithm explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -4227,15 +4592,19 @@
   {
     "id": "max",
     "summary": "Maximum value",
-    "description": "Maximum value",
+    "description": "Computes the largest value of an array of numbers, which is is equal to the first element of a sorted (i.e., ordered) version the array.",
     "categories": [
       "arrays",
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4256,26 +4625,81 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The maximum value.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": 3
+      },
+      {
+        "arguments": {
+          "data": [
+            5,
+            2.5,
+            null,
+            -0.7
+          ]
+        },
+        "returns": 5
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            null,
+            2
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Maximum.html",
+        "title": "Maximum explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "mean",
     "summary": "Arithmetic mean (average)",
-    "description": "Arithmetic mean (average)",
+    "description": "The arithmetic mean of an array of numbers is the quantity commonly called the average. It is defined as the sum of all elements divided by the number of elements.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4296,26 +4720,78 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed arithmetic mean.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": 1.5
+      },
+      {
+        "arguments": {
+          "data": [
+            9,
+            2.5,
+            null,
+            -2.5
+          ]
+        },
+        "returns": 3
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/ArithmeticMean.html",
+        "title": "Arithmetic mean explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "median",
-    "summary": "Median",
-    "description": "alias for: `quantiles(data, 0.5)`",
+    "summary": "Statistical median",
+    "description": "The statistical median of an array of numbers is the value separating the higher half from the lower half of the data.\n\n**Remarks:**\n* For a symmetric arrays, the result is equal to the ``mean()``.\n* The median can also be calculated by computing the quantile (see process ``quantiles()``) with the probability of *0.5*: `quantiles(data, [0.5])`.\n* An empty input array returns `null`.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4336,14 +4812,82 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed statistical median.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            3,
+            3,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        "returns": 6
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            8,
+            9
+          ]
+        },
+        "returns": 4.5
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            -0.5,
+            null,
+            1
+          ]
+        },
+        "returns": -0.5
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            0,
+            null,
+            1
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/StatisticalMedian.html",
+        "title": "Statistical Median explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "merge_cubes",
@@ -4388,55 +4932,19 @@
   {
     "id": "min",
     "summary": "Minimum value",
-    "description": "Minimum value",
+    "description": "Computes the smallest value of an array of numbers, which is is equal to the last element of a sorted (i.e., ordered) version the array.",
     "categories": [
       "arrays",
       "math",
       "reducer"
     ],
-    "parameters": {
-      "data": {
-        "description": "",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "number",
-              "null"
-            ]
-          }
-        },
-        "required": true
-      },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
-        "schema": {
-          "type": "boolean",
-          "default": true
-        }
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "type": [
-          "number",
-          "null"
-        ]
-      }
-    }
-  },
-  {
-    "id": "minus",
-    "summary": "x minus all other elements",
-    "description": "x minus all other elements",
-    "categories": [
-      "math",
-      "reducer"
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
     ],
     "parameters": {
-      "x": {
-        "description": "",
+      "data": {
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4457,14 +4965,77 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The minimum value.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            2
+          ]
+        },
+        "returns": [
+          0,
+          3
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            5,
+            2.5,
+            null,
+            -0.7
+          ]
+        },
+        "returns": [
+          -0.7,
+          5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            0,
+            3,
+            null,
+            2
+          ],
+          "ignore_nodata": false
+        },
+        "returns": [
+          null,
+          null
+        ]
+      },
+      {
+        "description": "The input array is empty: return two `null` values.",
+        "arguments": {
+          "data": []
+        },
+        "returns": [
+          null,
+          null
+        ]
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Minimum.html",
+        "title": "Minimum explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "mod",
@@ -4564,6 +5135,99 @@
         "rel": "about",
         "href": "https://en.wikipedia.org/wiki/Modulo_operation",
         "title": "Modulo explained by Wikipedia"
+      }
+    ]
+  },
+  {
+    "id": "multiply",
+    "summary": "Multiplication of a sequence of numbers",
+    "description": "Multiplies all elements in a sequential array of numbers and returns the computed product.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "categories": [
+      "math",
+      "reducer"
+    ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
+    "parameters": {
+      "data": {
+        "description": "An array of numbers with at least two elements.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "minItems": 2
+        },
+        "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "returns": {
+      "description": "The computed product of the sequence of numbers.",
+      "schema": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "exceptions": {
+      "MultiplicandMissing": {
+        "message": "Multiplication requires at least two numbers."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            5,
+            0
+          ]
+        },
+        "returns": 0
+      },
+      {
+        "arguments": {
+          "data": [
+            -2,
+            4,
+            2.5
+          ]
+        },
+        "returns": -20
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Product.html",
+        "title": "Product explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -4917,7 +5581,7 @@
   {
     "id": "or",
     "summary": "Is at least one value true?",
-    "description": "Checks if **at least one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
+    "description": "Checks if **at least one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
     "categories": [
       "logic",
       "reducer"
@@ -5020,6 +5684,20 @@
           ]
         },
         "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": []
+        },
+        "returns": null
       }
     ]
   },
@@ -5252,15 +5930,19 @@
   },
   {
     "id": "product",
-    "summary": "product of all elements",
-    "description": "product of all elements",
+    "summary": "Multiplication of a sequence of numbers",
+    "description": "This process is an exact alias for the `multiply` process. See ``multiply()`` for more information.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "See ``multiply()`` for more information.",
         "schema": {
           "type": "array",
           "items": {
@@ -5273,7 +5955,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "See ``multiply()`` for more information.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -5281,7 +5963,7 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "See ``multiply()`` for more information.",
       "schema": {
         "type": [
           "number",
@@ -5328,9 +6010,14 @@
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "quantiles",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -5713,9 +6400,13 @@
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -6002,16 +6693,20 @@
     ]
   },
   {
-    "id": "sum",
-    "summary": "sum of all elements",
-    "description": "sum of all elements",
+    "id": "substract",
+    "summary": "Substraction of a sequence of numbers",
+    "description": "Takes the first element of a sequential array of numbers and substracts all other elements from it.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
     "categories": [
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers with at least two elements.",
         "schema": {
           "type": "array",
           "items": {
@@ -6019,7 +6714,8 @@
               "number",
               "null"
             ]
-          }
+          },
+          "minItems": 2
         },
         "required": true
       },
@@ -6032,14 +6728,155 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed result of the sequence of numbers.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "exceptions": {
+      "SubtrahendMissing": {
+        "message": "Substraction requires at least two numbers (a minuend and one or more subtrahends)."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            5,
+            10
+          ]
+        },
+        "returns": -5
+      },
+      {
+        "arguments": {
+          "data": [
+            -2,
+            4,
+            -2
+          ]
+        },
+        "returns": -4
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Subtraction.html",
+        "title": "Substraction explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+      }
+    ]
+  },
+  {
+    "id": "sum",
+    "summary": "Addition of a sequence of numbers",
+    "description": "Sums up all elements in a sequential array of numbers and returns the computed sum.\n\nThe computations should follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "categories": [
+      "math",
+      "reducer"
+    ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
+    "parameters": {
+      "data": {
+        "description": "An array of numbers with at least two elements.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "minItems": 2
+        },
+        "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "schema": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "returns": {
+      "description": "The computed sum of the sequence of numbers.",
+      "schema": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "exceptions": {
+      "SummandMissing": {
+        "message": "Addition requires at least two numbers."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            5,
+            1
+          ]
+        },
+        "returns": 6
+      },
+      {
+        "arguments": {
+          "data": [
+            -2,
+            4,
+            2.5
+          ]
+        },
+        "returns": 4.5
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Sum.html",
+        "title": "Sum explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/4610935",
+        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+      }
+    ]
   },
   {
     "id": "tan",
@@ -6408,9 +7245,13 @@
       "math",
       "reducer"
     ],
+    "parameter_order": [
+      "data",
+      "ignore_nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -6494,7 +7335,7 @@
   {
     "id": "xor",
     "summary": "Is exactly one value true?",
-    "description": "Checks if **exactly one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\n\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | -----\nnull  || null | null  | null\nfalse || null | false | true\ntrue  || null | true  | false\n```",
+    "description": "Checks if **exactly one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n```\n      || null | false | true\n----- || ---- | ----- | -----\nnull  || null | null  | null\nfalse || null | false | true\ntrue  || null | true  | false\n```",
     "categories": [
       "logic",
       "reducer"
@@ -6597,6 +7438,20 @@
           ]
         },
         "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": []
+        },
+        "returns": null
       }
     ]
   }
