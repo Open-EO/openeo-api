@@ -1,7 +1,7 @@
 {
     "id": "NDVI",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. For ease of use the newly created band should be named `ndvi`.\n\nThis process is very similar to the `normalized_difference` process, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. The newly created band is named `ndvi` by default. This name can be changed with thd `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
     "categories": [
         "math > indices",
         "vegetation indices"
@@ -14,10 +14,18 @@
                 "format": "raster-cube"
             },
             "required": true
+        },
+        "name": {
+            "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
+            "schema": {
+                "type": "string",
+                "default": "normalized_difference",
+                "pattern": "^[A-Za-z0-9_]+$"
+            }
         }
     },
     "returns": {
-        "description": "A raster data cube with two bands being replaced with a new band (preferably named `ndvi`) that holds the computed values.",
+        "description": "A raster data cube with the two bands being replaced with a new band that holds the computed values.",
         "schema": {
             "type": "object",
             "format": "raster-cube"

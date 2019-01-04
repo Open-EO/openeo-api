@@ -64,29 +64,34 @@
   },
   {
     "id": "add_dimension",
-    "summary": "Adds a new dimension with the name in `dimension`.",
-    "description": "Adds a new dimension with the name in `dimension`.",
+    "summary": "Add a new dimension",
+    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The values of the dimension are set to the specified `value`.",
     "categories": [
       "cubes"
     ],
+    "parameter_order": [
+      "data",
+      "name",
+      "value"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube to add the dimension to.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
         },
         "required": true
       },
-      "dimension": {
-        "description": "",
+      "name": {
+        "description": "Name for the dimension.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
-      "dimension_value": {
-        "description": "",
+      "value": {
+        "description": "Value for the dimension.",
         "schema": {
           "description": "Any data type is allowed."
         },
@@ -94,10 +99,15 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The data cube with a newly added dimension.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "DimensionExists": {
+        "message": "A dimension with the specified name already exists."
       }
     }
   },
@@ -168,7 +178,7 @@
   {
     "id": "aggregate_zonal",
     "summary": "Zonal statistics for polygons",
-    "description": "Aggregates zonal data/statistics for one or multiple GeoJSON polygons. For focal aggregation see ``apply()``. Number of valid/invalid pixels get returned together with the calculated values.",
+    "description": "Aggregates zonal data/statistics for one or multiple GeoJSON features. For focal aggregation see ``apply()``. Number of valid/invalid pixels get returned together with the calculated values.",
     "categories": [
       "cubes",
       "aggregate"
@@ -185,11 +195,16 @@
       "polygons": {
         "description": "",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "format": "geojson"
-          }
+          "oneOf": [
+            {
+              "type": "object",
+              "format": "geojson"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            }
+          ]
         },
         "required": true
       },
@@ -1203,7 +1218,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `x` is between the specified bounds, otherwise `false`.",
+      "description": "`true` if `x` is between the specified bounds, otherwise `false`.",
       "schema": {
         "type": "boolean"
       }
@@ -1646,7 +1661,7 @@
     ],
     "parameters": {},
     "returns": {
-      "description": "",
+      "description": "An empty raster data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -2071,32 +2086,43 @@
   },
   {
     "id": "debug",
-    "summary": "Send debugging information to the client",
-    "description": "Sends debugging information about the data to the client, who needs to be subscribed to the topic `openeo.jobs.debug`.",
+    "summary": "Send debugging information to subscribed clients",
+    "description": "Sends debugging information about the data to clients, which are subscribed to the topic `openeo.jobs.debug`.",
     "categories": [
       "development"
     ],
+    "parameter_order": [
+      "data",
+      "id"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "Data to send.",
         "schema": {
           "description": "Any data type is allowed."
         },
         "required": true
       },
-      "identifier": {
-        "description": "",
+      "id": {
+        "description": "An identifier to help identify the message in a bunch of other messages.",
         "schema": {
           "type": "string"
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "`false` if the information could not be sent, `true` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/#publish-openeojobsdebug",
+        "title": "Information about the openEO API for Subscriptions"
+      }
+    ]
   },
   {
     "id": "divide",
@@ -2201,7 +2227,7 @@
     ],
     "parameters": {},
     "returns": {
-      "description": "Returns the numerical value of Euler's number.",
+      "description": "The numerical value of Euler's number.",
       "schema": {
         "type": "number"
       }
@@ -2486,15 +2512,20 @@
   },
   {
     "id": "export",
-    "summary": "Data export, compatible to GDAL/OGR.",
-    "description": "Export process that is compatible to GDAL/OGR formats and options. Passes through the data cube, so that further intermediate results can be exported and further calculations can be processes.",
+    "summary": "Export processed data to storage",
+    "description": "Exports processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. This process may not be supported by back-ends in the context of secondary web services.",
     "categories": [
       "cubes",
       "export"
     ],
+    "parameter_order": [
+      "data",
+      "format",
+      "options"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "The data to export.",
         "schema": {
           "oneOf": [
             {
@@ -2510,14 +2541,14 @@
         "required": true
       },
       "format": {
-        "description": "",
+        "description": "The file format to export to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "options": {
-        "description": "",
+        "description": "The file format options to be used for exporting. Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
         "schema": {
           "type": "object",
           "default": {}
@@ -2525,11 +2556,23 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "`false` if the export failed, `true` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://www.gdal.org/formats_list.html",
+        "title": "GDAL Raster Formats"
+      },
+      {
+        "rel": "about",
+        "href": "https://www.gdal.org/ogr_formats.html",
+        "title": "OGR Vector Formats"
+      }
+    ]
   },
   {
     "id": "extrema",
@@ -2566,7 +2609,7 @@
       }
     },
     "returns": {
-      "description": "Returns the minimum and maximum values for the specified numbers. The first value is the minimum, the second value is the maximum. If the input array is empty the return value is an array with two `null` values.",
+      "description": "An array containing the minimum and maximum values for the specified numbers. The first element is the minimum, the second element is the maximum. If the input array is empty both elements are set to `null`.",
       "schema": {
         "oneOf": [
           {
@@ -2805,8 +2848,16 @@
       "geometry": {
         "description": "",
         "schema": {
-          "type": "object",
-          "format": "geojson"
+          "oneOf": [
+            {
+              "type": "object",
+              "format": "geojson"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            }
+          ]
         },
         "required": true
       }
@@ -3353,7 +3404,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `x` is strictly greater than `y`, `null` if any of the operands is `null`, otherwise `false`.",
+      "description": "`true` if `x` is strictly greater than `y` or `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
         "type": [
           "boolean",
@@ -3486,7 +3537,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `x` is greater than or equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
+      "description": "`true` if `x` is greater than or equal to `y` or `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
         "type": [
           "boolean",
@@ -3589,7 +3640,7 @@
       }
     },
     "returns": {
-      "description": "Returns either the `accept` argument or `reject` argument depending on the given boolean expression.",
+      "description": "Either the `accept` or `reject` argument depending on the given boolean expression.",
       "schema": {
         "description": "Any data type is allowed."
       }
@@ -3823,7 +3874,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if the data is not a number, otherwise `false`",
+      "description": "`true` if the data is not a number, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
@@ -3867,7 +3918,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if the data is a no-data value, otherwise `false`",
+      "description": "`true` if the data is a no-data value, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
@@ -3910,7 +3961,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if the data is valid, otherwise `false`",
+      "description": "`true` if the data is valid, otherwise `false`",
       "schema": {
         "type": "boolean"
       }
@@ -4336,7 +4387,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `x` is strictly less than `y`, `null` if any of the operands is `null`, otherwise `false`.",
+      "description": "`true` if `x` is strictly less than `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
         "type": [
           "boolean",
@@ -4469,7 +4520,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `x` is less than or equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
+      "description": "`true` if `x` is less than or equal to `y`, `null` if any of the operands is `null`, otherwise `false`.",
       "schema": {
         "type": [
           "boolean",
@@ -4538,14 +4589,19 @@
   },
   {
     "id": "mask",
-    "summary": "Apply a mask.",
-    "description": "Compares the parallel elements and replaces all non-zero or true elements with `replacement`. Defaults to null/no-data.",
+    "summary": "Apply a mask",
+    "description": "Applies a mask to a raster data cube. Therefore, compares the parallel elements of the raster data cubes specified for `data` and `mask` and replaces all elements in `data` that are non-zero (for numbers) or `true` (for booleans) in `mask`. These elements are replaced with the value specified for `replacement`, which defaults to `null` (no data). No data values will be left untouched.",
     "categories": [
       "masks"
     ],
+    "parameter_order": [
+      "data",
+      "mask",
+      "replacement"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A raster data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -4553,7 +4609,7 @@
         "required": true
       },
       "mask": {
-        "description": "",
+        "description": "A compatible raster data cube so that every element in `data` has a parallel element in the data cube specified here.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -4561,7 +4617,7 @@
         "required": true
       },
       "replacement": {
-        "description": "",
+        "description": "The value used to replace non-zero and `true` values with.",
         "schema": {
           "oneOf": [
             {
@@ -4582,7 +4638,7 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The masked raster data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -4892,21 +4948,26 @@
   {
     "id": "merge_cubes",
     "summary": "Merging two data cubes",
-    "description": "The data cubes have to be compatible. Is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. Doesn’t add dimensions.",
+    "description": "The data cubes have to be compatible. A merge is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. It doesn't add dimensions.",
     "categories": [
       "cubes"
     ],
+    "parameter_order": [
+      "cube1",
+      "cube2",
+      "overlap_resolver"
+    ],
     "parameters": {
-      "data": {
-        "description": "",
+      "cube1": {
+        "description": "The first data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
         },
         "required": true
       },
-      "other": {
-        "description": "",
+      "cube2": {
+        "description": "The second data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -4914,18 +4975,32 @@
         "required": true
       },
       "overlap_resolver": {
-        "description": "",
+        "description": "An overlap resolver if the data overlaps. It must be process that is able to reduce the values available in the data cubes to a single value. So the specified process must be a reducer that accepts an array and computes a single return value of the same type as the input values for it, for example ``median()``.",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "overlap": {
+              "description": "An array with elements of any type.",
+              "type": "array",
+              "items": {
+                "description": "Any data type."
+              }
+            }
+          }
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "The merged data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "OverlapResolverMissing": {
+        "message": "Two data cubes with overlap but without an overlap resolver have been specified."
       }
     }
   },
@@ -5234,7 +5309,7 @@
   {
     "id": "NDVI",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. For ease of use the newly created band should be named `ndvi`.\n\nThis process is very similar to the `normalized_difference` process, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. The newly created band is named `ndvi` by default. This name can be changed with thd `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
     "categories": [
       "math > indices",
       "vegetation indices"
@@ -5247,10 +5322,18 @@
           "format": "raster-cube"
         },
         "required": true
+      },
+      "name": {
+        "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
+        "schema": {
+          "type": "string",
+          "default": "normalized_difference",
+          "pattern": "^[A-Za-z0-9_]+$"
+        }
       }
     },
     "returns": {
-      "description": "A raster data cube with two bands being replaced with a new band (preferably named `ndvi`) that holds the computed values.",
+      "description": "A raster data cube with the two bands being replaced with a new band that holds the computed values.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -5477,7 +5560,7 @@
   {
     "id": "normalized_difference",
     "summary": "Normalized difference for two bands",
-    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. For ease of use the newly created band should be named `normalized_difference`.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes such as the `NDVI` process available for convenience.",
+    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. The newly created band is named `normalized_difference` by default. This name can be changed with thd `name` parameter.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes available for convenience such as the ``NDVI()``.",
     "categories": [
       "math > indices",
       "vegetation indices"
@@ -5502,10 +5585,18 @@
           "format": "raster-cube"
         },
         "required": true
+      },
+      "name": {
+        "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
+        "schema": {
+          "type": "string",
+          "default": "normalized_difference",
+          "pattern": "^[A-Za-z0-9_]+$"
+        }
       }
     },
     "returns": {
-      "description": "A raster data cube with exactly one band (preferably named `normalized_difference`) that holds the computed values.",
+      "description": "A raster data cube with exactly one band that holds the computed values.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -5703,21 +5794,29 @@
   },
   {
     "id": "order",
-    "summary": "Returns a permutation for sorting.",
-    "description": "Computes a permutation which allows rearranging the data into ascending or descending order. Ties will be left in their original ordering.",
+    "summary": "Create a permutation",
+    "description": "Computes a permutation which allows rearranging the data into ascending or descending order. In other words, this process computes the ranked (sorted) element positions in the original list.\n\n**Remarks:**\n* The positions in the result are zero-based.\n* Ties will be left in their original ordering.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.",
     "categories": [
       "arrays",
       "sorting"
     ],
+    "parameter_order": [
+      "data",
+      "asc",
+      "nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array to compute the order for.",
         "schema": {
           "type": "array",
           "items": {
             "oneOf": [
               {
                 "type": "number"
+              },
+              {
+                "type": "null"
               },
               {
                 "type": "string",
@@ -5728,7 +5827,8 @@
                 "format": "date"
               },
               {
-                "type": "null"
+                "type": "string",
+                "format": "time"
               }
             ]
           }
@@ -5736,51 +5836,210 @@
         "required": true
       },
       "asc": {
-        "description": "",
+        "description": "The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, set this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
         }
+      },
+      "nodata": {
+        "description": "Controls the handling of no-data values (`null`). By default they are removed. If `true`, missing values in the data are put last; if `false`, they are put first.",
+        "schema": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed permutation.",
       "schema": {
         "type": "array",
         "items": {
-          "type": "integer"
+          "type": "integer",
+          "minimum": 0
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ]
+        },
+        "returns": [
+          1,
+          2,
+          8,
+          5,
+          0,
+          4,
+          7,
+          9,
+          10
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ],
+          "nodata": true
+        },
+        "returns": [
+          1,
+          2,
+          8,
+          5,
+          0,
+          4,
+          7,
+          9,
+          10,
+          3,
+          6
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ],
+          "asc": false,
+          "nodata": true
+        },
+        "returns": [
+          9,
+          10,
+          7,
+          4,
+          0,
+          5,
+          8,
+          2,
+          1,
+          3,
+          6
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ],
+          "asc": false,
+          "nodata": false
+        },
+        "returns": [
+          3,
+          6,
+          9,
+          10,
+          7,
+          4,
+          0,
+          5,
+          8,
+          2,
+          1
+        ]
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      },
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Permutation.html",
+        "title": "Permutation explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "output",
-    "summary": "Output information to the client",
-    "description": "Outputs the data to the client, who needs to be subscribed to the topic `openeo.jobs.output`.",
+    "summary": "Send data to subscribed clients",
+    "description": "Outputs the data to clients, which are subscribed to the topic `openeo.jobs.output`.",
     "categories": [
       "development"
     ],
+    "parameter_order": [
+      "data",
+      "id"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "Data to send.",
         "schema": {
           "description": "Any data type is allowed."
         },
         "required": true
       },
-      "identifier": {
-        "description": "",
+      "id": {
+        "description": "An identifier to help identify the message in a bunch of other messages.",
         "schema": {
           "type": "string"
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "`false` if the information could not be sent, `true` otherwise.",
       "schema": {
         "type": "boolean"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/#publish-openeojobsoutput",
+        "title": "Information about the openEO API for Subscriptions"
+      }
+    ]
   },
   {
     "id": "pi",
@@ -5792,7 +6051,7 @@
     ],
     "parameters": {},
     "returns": {
-      "description": "Returns the numerical value of Pi.",
+      "description": "The numerical value of Pi.",
       "schema": {
         "type": "number"
       }
@@ -6004,15 +6263,16 @@
   },
   {
     "id": "quantiles",
-    "summary": "Calculates quantiles",
-    "description": "Calculates quantiles for each specified `quantiles` between 0 and 1.",
+    "summary": "Quantiles",
+    "description": "Calculates quantiles, which are cut points dividing the range of a probability distribution into either\n* intervals corresponding to the given `probabilities` or\n* (nearly) equal-sized intervals (q-quantiles based on the parameter `q`).\n\nEither the parameter `probabilites` or `q` must be specified, otherwise the `QuantilesParameterMissing` exception must be thrown. If both parameters are set the `QuantilesParameterConflict` exception must be thrown.",
     "categories": [
       "math",
       "reducer"
     ],
     "parameter_order": [
       "data",
-      "quantiles",
+      "probabilities",
+      "q",
       "ignore_nodata"
     ],
     "parameters": {
@@ -6029,18 +6289,26 @@
         },
         "required": true
       },
-      "quantiles": {
-        "description": "",
+      "probabilities": {
+        "description": "A list of probabilities to calculate quantiles for. The probabilities must be between 0 and 1.",
         "schema": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
           }
-        },
-        "required": true
+        }
+      },
+      "q": {
+        "description": "A number of intervals to calculate quantiles for. Calculates q-quantiles with (nearly) equal-sized intervals.",
+        "schema": {
+          "type": "integer",
+          "minimum": 2
+        }
       },
       "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with `null` values is returned if any element is such a value.",
         "schema": {
           "type": "boolean",
           "default": true
@@ -6048,7 +6316,7 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array with the computed quantiles. The list has either\n* as many elements as the given list of `probabilities` had or\n* *`q`-1* elements.\n\nIf the input array is empty the resulting array is filled with as many `null` values as required according to the list above. For an example, see the 'Empty array example'.",
       "schema": {
         "type": "array",
         "items": {
@@ -6058,19 +6326,135 @@
           ]
         }
       }
-    }
+    },
+    "exceptions": {
+      "QuantilesParameterMissing": {
+        "message": "The process 'quantiles' requires either the 'probabilities' or 'q' parameter to be set."
+      },
+      "QuantilesParameterConflict": {
+        "message": "The process 'quantiles' only allows that either the 'probabilities' or the 'q' parameter is set."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            2,
+            4,
+            4,
+            4,
+            5,
+            5,
+            7,
+            9
+          ],
+          "probabilities": [
+            0.005,
+            0.01,
+            0.02,
+            0.05,
+            0.1,
+            0.5
+          ]
+        },
+        "returns": [
+          2.07,
+          2.14,
+          2.28,
+          2.7,
+          3.4,
+          4.5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            2,
+            4,
+            4,
+            4,
+            5,
+            5,
+            7,
+            9
+          ],
+          "q": 4
+        },
+        "returns": [
+          4,
+          4.5,
+          5.5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            -0.5,
+            null,
+            1
+          ],
+          "q": 2
+        },
+        "returns": [
+          -0.5
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            -0.5,
+            null,
+            1
+          ],
+          "q": 4,
+          "ignore_nodata": false
+        },
+        "returns": [
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "title": "Empty array example",
+        "arguments": {
+          "data": [],
+          "probabilities": [
+            0.1,
+            0.5
+          ]
+        },
+        "returns": [
+          null,
+          null
+        ]
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Quantile",
+        "title": "Quantiles explained by Wikipedia"
+      }
+    ]
   },
   {
     "id": "rearrange",
-    "summary": "Rearranges an array based on a permutation.",
+    "summary": "Rearranges an array based on a permutation",
     "description": "Rearranges an array based on a permutation.",
     "categories": [
       "arrays",
       "sorting"
     ],
+    "parameter_order": [
+      "data",
+      "order"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array to rearrange.",
         "schema": {
           "type": "array",
           "items": {
@@ -6080,25 +6464,97 @@
         "required": true
       },
       "order": {
-        "description": "",
+        "description": "A permutation used for rearranging, i.e. a ranked list of element positions in the original list. The positions must be zero-based.",
         "schema": {
           "type": "array",
           "items": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "The rearranged array.",
       "schema": {
         "type": "array",
         "items": {
           "description": "Any data type is allowed."
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "title": "Reverse a list",
+        "arguments": {
+          "data": [
+            5,
+            4,
+            3
+          ],
+          "order": [
+            2,
+            1,
+            0
+          ]
+        },
+        "returns": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "title": "Remove two elements",
+        "arguments": {
+          "data": [
+            5,
+            4,
+            3,
+            2
+          ],
+          "order": [
+            1,
+            3
+          ]
+        },
+        "returns": [
+          4,
+          2
+        ]
+      },
+      {
+        "title": "Swap two elements",
+        "arguments": {
+          "data": [
+            5,
+            4,
+            3,
+            2
+          ],
+          "order": [
+            0,
+            2,
+            1,
+            3
+          ]
+        },
+        "returns": [
+          5,
+          3,
+          4,
+          2
+        ]
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Permutation.html",
+        "title": "Permutation explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "reduce",
@@ -6394,8 +6850,8 @@
   },
   {
     "id": "sd",
-    "summary": "Calculate sample standard deviation",
-    "description": "Calculate sample standard deviation",
+    "summary": "Standard deviation",
+    "description": "Computes the sample standard deviation, which quantifies the amount of variation of an array of numbers. It is defined to be the square root of the corresponding variance (see ``variance()``).\n\nA low standard deviation indicates that the values tend to be close to the expected value, while a high standard deviation indicates that the values are spread out over a wider range.",
     "categories": [
       "math",
       "reducer"
@@ -6406,7 +6862,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array of numbers.",
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -6427,14 +6883,53 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed sample standard deviation.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            -1,
+            1,
+            3,
+            null
+          ]
+        },
+        "returns": 2
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            1,
+            3,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/StandardDeviation.html",
+        "title": "Standard deviation explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "sgn",
@@ -6589,45 +7084,154 @@
   {
     "id": "sort",
     "summary": "Sort data",
-    "description": "Sorts `data` into ascending (default) or descending order. Removes no-data values. Basically an alias to rearrange()",
+    "description": "Sorts an array into ascending (default) or descending order.\n\nThis process is an alias to call ``order()`` and ``rearrange()`` consecutively: `rearrange(data, order(data, nodata))`. This process could be faster though. See ``order()`` for more information on sorting behaviour.",
     "categories": [
       "arrays",
       "sorting"
     ],
+    "parameter_order": [
+      "data",
+      "asc",
+      "nodata"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "An array with data to sort.",
         "schema": {
           "type": "array",
           "items": {
-            "type": [
-              "number",
-              "null"
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "string",
+                "format": "time"
+              }
             ]
           }
         },
         "required": true
       },
       "asc": {
-        "description": "",
+        "description": "The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, set this parameter to `false`.",
         "schema": {
           "type": "boolean",
           "default": true
         }
+      },
+      "nodata": {
+        "description": "Controls the handling of no-data values (`null`). By default they are removed. If `true`, missing values in the data are put last; if `false`, they are put first.",
+        "schema": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
       }
     },
     "returns": {
-      "description": "",
+      "description": "The sorted array.",
       "schema": {
         "type": "array",
         "items": {
-          "type": [
-            "number",
-            "null"
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
+            }
           ]
         }
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ]
+        },
+        "returns": [
+          -1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          9
+        ]
+      },
+      {
+        "arguments": {
+          "data": [
+            6,
+            -1,
+            2,
+            null,
+            7,
+            4,
+            null,
+            8,
+            3,
+            9,
+            9
+          ],
+          "asc": false,
+          "nodata": true
+        },
+        "returns": [
+          9,
+          9,
+          8,
+          7,
+          6,
+          4,
+          3,
+          2,
+          -1,
+          null,
+          null
+        ]
+      }
+    ]
   },
   {
     "id": "sqrt",
@@ -7003,7 +7607,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `data` begins with `pattern`, false` otherwise.",
+      "description": "`true` if `data` begins with `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
@@ -7085,7 +7689,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `data` contains the `pattern`, false` otherwise.",
+      "description": "`true` if `data` contains the `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
@@ -7167,7 +7771,7 @@
       }
     },
     "returns": {
-      "description": "Returns `true` if `data` ends with `pattern`, false` otherwise.",
+      "description": "`true` if `data` ends with `pattern`, false` otherwise.",
       "schema": {
         "type": "boolean"
       }
@@ -7215,7 +7819,7 @@
   {
     "id": "trim",
     "summary": "Removes slices with no-data.",
-    "description": "Alias. If the dimension is irregular categorical then slices in the middle can be removed.",
+    "description": "If the dimension is irregular categorical then slices in the middle can be removed.",
     "categories": [
       "cubes"
     ],
@@ -7238,9 +7842,9 @@
     }
   },
   {
-    "id": "var",
-    "summary": "Calculate sample variance",
-    "description": "Calculate sample variance",
+    "id": "variance",
+    "summary": "Variance",
+    "description": "Computes the sample variance of an array of numbers by calculating the square of the standard deviation (see ``sd()``). It is defined to be the expectation of the squared deviation of a random variable from its expected value. Basically, it measures how far the numbers in the array are spread out from their average value.",
     "categories": [
       "math",
       "reducer"
@@ -7251,7 +7855,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array of numbers.",
+        "description": "An array of numbers. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -7272,14 +7876,66 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The computed sample variance.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            -1,
+            1,
+            3
+          ]
+        },
+        "returns": 4
+      },
+      {
+        "arguments": {
+          "data": [
+            2,
+            3,
+            3,
+            null,
+            4,
+            4,
+            5
+          ]
+        },
+        "returns": 1.1
+      },
+      {
+        "arguments": {
+          "data": [
+            -1,
+            1,
+            null,
+            3
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "description": "The input array is empty: return `null`.",
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Variance.html",
+        "title": "Variance explained by Wolfram MathWorld"
+      }
+    ]
   },
   {
     "id": "weighted_filter",

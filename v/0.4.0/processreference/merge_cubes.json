@@ -1,21 +1,22 @@
 {
     "id": "merge_cubes",
     "summary": "Merging two data cubes",
-    "description": "The data cubes have to be compatible. Is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. Doesn\u2019t add dimensions.",
+    "description": "The data cubes have to be compatible. A merge is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. It doesn't add dimensions.",
     "categories": [
         "cubes"
     ],
+    "parameter_order": ["cube1", "cube2", "overlap_resolver"],
     "parameters": {
-        "data": {
-            "description": "",
+        "cube1": {
+            "description": "The first data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
             },
             "required": true
         },
-        "other": {
-            "description": "",
+        "cube2": {
+            "description": "The second data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -23,18 +24,32 @@
             "required": true
         },
         "overlap_resolver": {
-            "description": "",
+            "description": "An overlap resolver if the data overlaps. It must be process that is able to reduce the values available in the data cubes to a single value. So the specified process must be a reducer that accepts an array and computes a single return value of the same type as the input values for it, for example ``median()``.",
             "schema": {
                 "type": "object",
-                "format": "callback"
+                "format": "callback",
+                "properties": {
+                    "overlap": {
+                        "description": "An array with elements of any type.",
+                        "type": "array",
+                        "items": {
+                            "description": "Any data type."
+                        }
+                    }
+                }
             }
         }
     },
     "returns": {
-        "description": "",
+        "description": "The merged data cube.",
         "schema": {
             "type": "object",
             "format": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "OverlapResolverMissing": {
+            "message": "Two data cubes with overlap but without an overlap resolver have been specified."
         }
     }
 }

@@ -1,20 +1,24 @@
 {
     "id": "order",
-    "summary": "Returns a permutation for sorting.",
-    "description": "Computes a permutation which allows rearranging the data into ascending or descending order. Ties will be left in their original ordering.",
+    "summary": "Create a permutation",
+    "description": "Computes a permutation which allows rearranging the data into ascending or descending order. In other words, this process computes the ranked (sorted) element positions in the original list.\n\n**Remarks:**\n* The positions in the result are zero-based.\n* Ties will be left in their original ordering.\n* Temporal strings can *not* be compared based on their string representation due to the timezone / time-offset representations.",
     "categories": [
         "arrays",
         "sorting"
     ],
+    "parameter_order": ["data", "asc", "nodata"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "An array to compute the order for.",
             "schema": {
                 "type": "array",
                 "items": {
                     "oneOf": [
                         {
                             "type": "number"
+                        },
+                        {
+                            "type": "null"
                         },
                         {
                             "type": "string",
@@ -25,7 +29,8 @@
                             "format": "date"
                         },
                         {
-                            "type": "null"
+                            "type": "string",
+                            "format": "time"
                         }
                     ]
                 }
@@ -33,20 +38,74 @@
             "required": true
         },
         "asc": {
-            "description": "",
+            "description": "The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, set this parameter to `false`.",
             "schema": {
                 "type": "boolean",
                 "default": true
             }
+        },
+        "nodata": {
+            "description": "Controls the handling of no-data values (`null`). By default they are removed. If `true`, missing values in the data are put last; if `false`, they are put first.",
+            "schema": {
+                "type": [
+                    "boolean",
+                    "null"
+                ],
+                "default": null
+            }
         }
     },
     "returns": {
-        "description": "",
+        "description": "The computed permutation.",
         "schema": {
             "type": "array",
             "items": {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
             }
         }
-    }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": [6,-1,2,null,7,4,null,8,3,9,9]
+            },
+            "returns": [1,2,8,5,0,4,7,9,10]
+        },
+        {
+            "arguments": {
+                "data": [6,-1,2,null,7,4,null,8,3,9,9],
+                "nodata": true
+            },
+            "returns": [1,2,8,5,0,4,7,9,10,3,6]
+        },
+        {
+            "arguments": {
+                "data": [6,-1,2,null,7,4,null,8,3,9,9],
+                "asc": false,
+                "nodata": true
+            },
+            "returns": [9,10,7,4,0,5,8,2,1,3,6]
+        },
+        {
+            "arguments": {
+                "data": [6,-1,2,null,7,4,null,8,3,9,9],
+                "asc": false,
+                "nodata": false
+            },
+            "returns": [3,6,9,10,7,4,0,5,8,2,1]
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        },
+        {
+            "rel": "about",
+            "href": "http://mathworld.wolfram.com/Permutation.html",
+            "title": "Permutation explained by Wolfram MathWorld"
+        }
+    ]
 }

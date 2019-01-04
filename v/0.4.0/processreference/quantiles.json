@@ -1,12 +1,12 @@
 {
     "id": "quantiles",
-    "summary": "Calculates quantiles",
-    "description": "Calculates quantiles for each specified `quantiles` between 0 and 1.",
+    "summary": "Quantiles",
+    "description": "Calculates quantiles, which are cut points dividing the range of a probability distribution into either\n* intervals corresponding to the given `probabilities` or\n* (nearly) equal-sized intervals (q-quantiles based on the parameter `q`).\n\nEither the parameter `probabilites` or `q` must be specified, otherwise the `QuantilesParameterMissing` exception must be thrown. If both parameters are set the `QuantilesParameterConflict` exception must be thrown.",
     "categories": [
         "math",
         "reducer"
     ],
-    "parameter_order": ["data", "quantiles", "ignore_nodata"],
+    "parameter_order": ["data", "probabilities", "q", "ignore_nodata"],
     "parameters": {
         "data": {
             "description": "An array of numbers.",
@@ -21,18 +21,26 @@
             },
             "required": true
         },
-        "quantiles": {
-            "description": "",
+        "probabilities": {
+            "description": "A list of probabilities to calculate quantiles for. The probabilities must be between 0 and 1.",
             "schema": {
                 "type": "array",
                 "items": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
                 }
-            },
-            "required": true
+            }
+        },
+        "q": {
+            "description": "A number of intervals to calculate quantiles for. Calculates q-quantiles with (nearly) equal-sized intervals.",
+            "schema": {
+                "type": "integer",
+                "minimum": 2
+            }
         },
         "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with `null` values is returned if any element is such a value.",
             "schema": {
                 "type": "boolean",
                 "default": true
@@ -40,7 +48,7 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "An array with the computed quantiles. The list has either\n* as many elements as the given list of `probabilities` had or\n* *`q`-1* elements.\n\nIf the input array is empty the resulting array is filled with as many `null` values as required according to the list above. For an example, see the 'Empty array example'.",
         "schema": {
             "type": "array",
             "items": {
@@ -50,5 +58,59 @@
                 ]
             }
         }
-    }
+    },
+    "exceptions": {
+        "QuantilesParameterMissing": {
+            "message": "The process 'quantiles' requires either the 'probabilities' or 'q' parameter to be set."
+        },
+        "QuantilesParameterConflict": {
+            "message": "The process 'quantiles' only allows that either the 'probabilities' or the 'q' parameter is set."
+        }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": [2,4,4,4,5,5,7,9],
+                "probabilities": [0.005,0.01,0.02,0.05,0.1,0.5]
+            },
+            "returns": [2.07,2.14,2.28,2.7,3.4,4.5]
+        },
+        {
+            "arguments": {
+                "data": [2,4,4,4,5,5,7,9],
+                "q": 4
+            },
+            "returns": [4.0,4.5,5.5]
+        },
+        {
+            "arguments": {
+                "data": [-1,-0.5,null,1],
+                "q": 2
+            },
+            "returns": [-0.5]
+        },
+        {
+            "arguments": {
+                "data": [-1,-0.5,null,1],
+                "q": 4,
+                "ignore_nodata": false
+            },
+            "returns": [null, null, null]
+        },
+        {
+            "title": "Empty array example",
+            "arguments": {
+                "data": [],
+                "probabilities": [0.1,0.5]
+            },
+            "returns": [null, null]
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://en.wikipedia.org/wiki/Quantile",
+            "title": "Quantiles explained by Wikipedia"
+        }
+    ]
 }

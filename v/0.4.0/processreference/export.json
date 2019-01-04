@@ -1,14 +1,15 @@
 {
     "id": "export",
-    "summary": "Data export, compatible to GDAL\/OGR.",
-    "description": "Export process that is compatible to GDAL\/OGR formats and options. Passes through the data cube, so that further intermediate results can be exported and further calculations can be processes.",
+    "summary": "Export processed data to storage",
+    "description": "Exports processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. This process may not be supported by back-ends in the context of secondary web services.",
     "categories": [
         "cubes",
         "export"
     ],
+    "parameter_order": ["data", "format", "options"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "The data to export.",
             "schema": {
                 "oneOf": [
                     {
@@ -24,14 +25,14 @@
             "required": true
         },
         "format": {
-            "description": "",
+            "description": "The file format to export to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "options": {
-            "description": "",
+            "description": "The file format options to be used for exporting. Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
             "schema": {
                 "type": "object",
                 "default": {}
@@ -39,9 +40,21 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "`false` if the export failed, `true` otherwise.",
         "schema": {
             "type": "boolean"
         }
-    }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://www.gdal.org/formats_list.html",
+            "title": "GDAL Raster Formats"
+        },
+        {
+            "rel": "about",
+            "href": "https://www.gdal.org/ogr_formats.html",
+            "title": "OGR Vector Formats"
+        }
+    ]
 }

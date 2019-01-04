@@ -1,28 +1,29 @@
 {
     "id": "add_dimension",
-    "summary": "Adds a new dimension with the name in `dimension`.",
-    "description": "Adds a new dimension with the name in `dimension`.",
+    "summary": "Add a new dimension",
+    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The values of the dimension are set to the specified `value`.",
     "categories": [
         "cubes"
     ],
+    "parameter_order": ["data", "name", "value"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube to add the dimension to.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
             },
             "required": true
         },
-        "dimension": {
-            "description": "",
+        "name": {
+            "description": "Name for the dimension.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
-        "dimension_value": {
-            "description": "",
+        "value": {
+            "description": "Value for the dimension.",
             "schema": {
                 "description": "Any data type is allowed."
             },
@@ -30,10 +31,15 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The data cube with a newly added dimension.",
         "schema": {
             "type": "object",
             "format": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "DimensionExists": {
+            "message": "A dimension with the specified name already exists."
         }
     }
 }
