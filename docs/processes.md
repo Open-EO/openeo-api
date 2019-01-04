@@ -25,8 +25,10 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 
 | Format Name   | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
+| `callback`    | An openEO process graph that is passed as an argument and is expected to be execute by the process. |
 | `date`        | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
 | `date-time`   | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
+| `geojson`     | GeoJSON as defined by [RFC 7946](https://tools.ietf.org/html/rfc7946). [JSON Schemas for validation are available.](https://github.com/geojson/schema) |
 | `raster-cube` | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
 | `time`        | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
 | `vector-cube` | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
