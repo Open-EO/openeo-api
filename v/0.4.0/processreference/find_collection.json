@@ -1,14 +1,14 @@
 {
     "id": "find_collection",
-    "summary": "Load a collection selected by properties",
-    "description": "Select and load an internal collection by properties. Returns a data cube.",
+    "summary": "Load a collection by properties",
+    "description": "**EXPERIMENTAL.** Select and load an collection from the current back-end by metadata properties and returns matching collection ids.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``get_collection()``.",
     "categories": [
         "cubes",
         "import"
     ],
     "parameters": {
         "expression": {
-            "description": "",
+            "description": "An expression that is evaluated against each collection the back-end offers.",
             "schema": {
                 "type": "object",
                 "format": "callback"
@@ -17,18 +17,14 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "An array of matching collection ids.",
         "schema": {
-            "oneOf": [
-                {
-                    "type": "object",
-                    "format": "raster-cube"
-                },
-                {
-                    "type": "object",
-                    "format": "vector-cube"
-                }
-            ]
+            "type": "array",
+            "items": {
+                "description": "Each element is a job id.",
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
+            }
         }
     }
 }

@@ -3031,15 +3031,15 @@
   },
   {
     "id": "find_collection",
-    "summary": "Load a collection selected by properties",
-    "description": "Select and load an internal collection by properties. Returns a data cube.",
+    "summary": "Load a collection by properties",
+    "description": "**EXPERIMENTAL.** Select and load an collection from the current back-end by metadata properties and returns matching collection ids.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``get_collection()``.",
     "categories": [
       "cubes",
       "import"
     ],
     "parameters": {
       "expression": {
-        "description": "",
+        "description": "An expression that is evaluated against each collection the back-end offers.",
         "schema": {
           "type": "object",
           "format": "callback"
@@ -3048,18 +3048,14 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "An array of matching collection ids.",
       "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
+        "type": "array",
+        "items": {
+          "description": "Each element is a job id.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+        }
       }
     }
   },
@@ -3206,23 +3202,24 @@
   },
   {
     "id": "get_collection",
-    "summary": "Load a collection by ID.",
-    "description": "Load a collection from the current back-end by collection ID and return it as data cube.",
+    "summary": "Load a collection by id",
+    "description": "Loads a collection from the current back-end by its id and returns it as data cube.",
     "categories": [
       "cubes",
       "import"
     ],
     "parameters": {
       "id": {
-        "description": "",
+        "description": "The collection id.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube for further processing.",
       "schema": {
         "oneOf": [
           {
@@ -3239,21 +3236,26 @@
   },
   {
     "id": "get_process_graph",
-    "summary": "Load an internal process graph by id",
-    "description": "Load a process graph from the current back-end by process graph id",
+    "summary": "Load an internally stored process graph",
+    "description": "Loads and executes a process graph stored by the authenticated user from the current back-end by its id.",
     "categories": [
       "import"
     ],
+    "parameter_order": [
+      "id",
+      "variables"
+    ],
     "parameters": {
       "id": {
-        "description": "",
+        "description": "The process graph id.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
         },
         "required": true
       },
       "variables": {
-        "description": "",
+        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
         "schema": {
           "type": "object",
           "default": {}
@@ -3261,31 +3263,32 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The result after processing the process graph.",
       "schema": {
-        "type": "object"
+        "description": "Any data type."
       }
     }
   },
   {
     "id": "get_result",
     "summary": "Load batch job results by id",
-    "description": "Load internal batch job results by job id.",
+    "description": "Load internal batch job results stored by the authenticated user from the current back-end by job id.",
     "categories": [
       "cubes",
       "import"
     ],
     "parameters": {
       "id": {
-        "description": "",
+        "description": "The job id.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube for further processing.",
       "schema": {
         "oneOf": [
           {
@@ -3695,21 +3698,26 @@
   },
   {
     "id": "import_process_graph",
-    "summary": "Load an external process graph by url",
-    "description": "Load an external process graph by url",
+    "summary": "Load an externally stored process graph",
+    "description": "Loads and executes a publicly available process graph by URI from [openEO Hub](https://hub.openeo.org), the current back-end or another back-end.",
     "categories": [
       "import"
     ],
+    "parameter_order": [
+      "url",
+      "variables"
+    ],
     "parameters": {
       "url": {
-        "description": "",
+        "description": "An URI to a publicly available process graph.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "format": "uri"
         },
         "required": true
       },
       "variables": {
-        "description": "",
+        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
         "schema": {
           "type": "object",
           "default": {}
@@ -3717,31 +3725,32 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The result after processing the process graph.",
       "schema": {
-        "type": "object"
+        "description": "Any data type."
       }
     }
   },
   {
     "id": "import_result",
-    "summary": "Load external batch job results by url",
-    "description": "Load an external batch job results by url",
+    "summary": "Load an externally stored batch job result",
+    "description": "Loads and executes a publicly available batch job result by URI from the current back-end or another back-end. The response from the remote server needs to be compatible with the corresponsing API response to *download information for a completed job*.\n\nPlease be aware that this process may transfer a lot of data between servers.",
     "categories": [
       "cubes",
       "import"
     ],
     "parameters": {
       "url": {
-        "description": "",
+        "description": "An URI to a publicly available batch job result.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "format": "uri"
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube for further processing.",
       "schema": {
         "oneOf": [
           {
@@ -3754,7 +3763,14 @@
           }
         ]
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference/#tag/Job-Management/paths/~1jobs~1{job_id}~1results/get",
+        "title": "API specification to download information for a completed job"
+      }
+    ]
   },
   {
     "id": "import_udf",
