@@ -373,7 +373,7 @@
     "/output_formats": {
       "get": {
         "summary": "List supported output formats.",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends are MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nFile formats that define multiple GIS spatial data types in `gis_data_types` (e.g. raster and vector) SHOULD define a parameter `gis_data_type` in the `parameters` for the output format to allow speciying which data type should be used for writing job or other results.\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends are MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Job Management"
@@ -403,19 +403,27 @@
                         "type": "array",
                         "description": "Specifies the supported GIS spatial data type for this format.",
                         "items": {
-                          "$ref": "#/components/schemas/gis_data_type"
+                          "type": "string",
+                          "enum": [
+                            "raster",
+                            "vector",
+                            "table",
+                            "other"
+                          ]
                         }
                       },
                       "parameters": {
                         "description": "Specifies the supported parameters for this output format.",
                         "type": "object",
-                        "properties": {
-                          "gis_data_type": {
-                            "$ref": "#/components/schemas/gis_data_type"
-                          }
-                        },
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
+                        }
+                      },
+                      "links": {
+                        "description": "Additional links related to this output format, e.g. more information about the parameters.",
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/link"
                         }
                       }
                     }
@@ -464,7 +472,14 @@
                           "maximum": 100,
                           "default": 75
                         }
-                      }
+                      },
+                      "links": [
+                        {
+                          "href": "https://www.gdal.org/frmt_gtiff.html",
+                          "rel": "about",
+                          "title": "GDAL on the GeoTiff file format andstorage options"
+                        }
+                      ]
                     },
                     "GeoPackage": {
                       "gis_data_types": [
@@ -472,14 +487,6 @@
                         "vector"
                       ],
                       "parameters": {
-                        "gis_data_type": {
-                          "type": "string",
-                          "enum": [
-                            "raster",
-                            "vector"
-                          ],
-                          "required": true
-                        },
                         "version": {
                           "type": "string",
                           "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
@@ -500,11 +507,18 @@
                           "type": "string",
                           "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
                         }
-                      }
-                    },
-                    "JSON": {
-                      "gis_data_types": [
-                        "other"
+                      },
+                      "links": [
+                        {
+                          "href": "https://www.gdal.org/drv_geopackage_raster.html",
+                          "rel": "about",
+                          "title": "GDAL on GeoPackage for raster data"
+                        },
+                        {
+                          "href": "https://www.gdal.org/drv_geopackage.html",
+                          "rel": "about",
+                          "title": "GDAL on GeoPackage for vector data"
+                        }
                       ]
                     }
                   }
@@ -1441,7 +1455,7 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph.",
-        "description": "Validates a process graph without executing it. A process graph is considered valid unless \nthe `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported\nby the back-end. It MUST also checks the parameter values against the schema,\nbut checking whether the values are adequate in the context of data is OPTIONAL.\nFor example, a non-existing band name may may get rejected only by a few back-ends.\nErrors that usually occure during processing MAY NOT get reported, e.g. if a\nreferenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once\nthey found the first error. \n\nPlease note that a validation always returns with HTTP status code 200.\nError codes in the 4xx and 5xx ranges MUST be returned only when the generel\nvalidation request is invalid (e.g. server is busy or no process graph parameter specified),\nbut never if the process graph validation found an error (e.g. an unsupported process).",
+        "description": "Validates a process graph without executing it. A process graph is considered valid unless the `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported by the back-end. It MUST also checks the parameter values against the schema, but checking whether the values are adequate in the context of data is OPTIONAL. For example, a non-existing band name may may get rejected only by a few back-ends.\n\nErrors that usually occure during processing MAY NOT get reported, e.g. if a referenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once they found the first error. \n\nPlease note that a validation always returns with HTTP status code 200. Error codes in the 4xx and 5xx ranges MUST be returned only when the general validation request is invalid (e.g. server is busy or no process graph parameter specified), but never if the process graph validation found an error (e.g. an unsupported process).",
         "tags": [
           "Process Graph Management"
         ],
@@ -1836,6 +1850,13 @@
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
                         }
+                      },
+                      "links": {
+                        "description": "Additional links related to this service type, e.g. more information about the parameters, attributes or options to access the created services.",
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/link"
+                        }
                       }
                     }
                   },
@@ -1862,7 +1883,14 @@
                             "water_bodies"
                           ]
                         }
-                      }
+                      },
+                      "links": [
+                        {
+                          "href": "https://www.opengeospatial.org/standards/wms",
+                          "rel": "about",
+                          "title": "OGC Web Map Service Standard"
+                        }
+                      ]
                     },
                     "WFS": {
                       "parameters": {
@@ -1893,7 +1921,14 @@
                             "topp:cities"
                           ]
                         }
-                      }
+                      },
+                      "links": [
+                        {
+                          "href": "https://www.opengeospatial.org/standards/wfs",
+                          "rel": "about",
+                          "title": "OGC Web Feature Service Standard"
+                        }
+                      ]
                     }
                   }
                 }
@@ -3637,15 +3672,6 @@
             "jpeg_quality": 80
           }
         }
-      },
-      "gis_data_type": {
-        "type": "string",
-        "enum": [
-          "raster",
-          "vector",
-          "table",
-          "other"
-        ]
       },
       "error": {
         "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.0/errors/index.html) provides additional information regarding error handling and a list of error codes.",

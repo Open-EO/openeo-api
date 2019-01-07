@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Processes can be categorizes with the `category` property.
     - Parameters can be ordered with the `parameter_order` property instead of having a random order.
     - Support for references to other processes in descriptions.
+- `GET /output_formats` and `GET /service_types` can now provide links per entry.
 
 ### Changed
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
@@ -36,9 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
 - Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
-- The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
-- The output format properties in `POST /preview`, `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests removed in favor of export processes. [#153](https://github.com/Open-EO/openeo-api/issues/153)
 - `min_parameters` and `dependencies` for parameters in process descriptions returned by `GET /processes`.
+- Replaced output format properties in favor of an export process, which has resulted in in the removal of:
+  - The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
+  - The output format properties in `POST /preview`, `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests. [#153](https://github.com/Open-EO/openeo-api/issues/153)
+  - `gis_data_type` (not to be confused with `gis_data_types`) in the parameters of output formats in `GET /output_formats`
 
 ### Fixed
 - Added missing `Access-Control-Expose-Headers` header to required CORS headers.
