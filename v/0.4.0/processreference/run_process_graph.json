@@ -1,0 +1,42 @@
+{
+    "id": "run_process_graph",
+    "summary": "Load and run a stored process graph",
+    "description": "Loads and executes a stored process graph.\n\nThe process can either load\n* a locally stored process graph by id, which is stored by the authenticated user on the back-end currently connected to or\n* a remotely stored and published process graph by absolute URI, for example from [openEO Hub](https://hub.openeo.org).",
+    "categories": [
+        "import"
+    ],
+    "parameter_order": ["id", "variables"],
+    "parameters": {
+        "id": {
+            "description": "A process graph id or an absolute URI to an externally hosted process graph.",
+            "schema": {
+                "oneOf": [
+                    {
+                        "description": "URI",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    {
+                        "description": "Process graph id",
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "variables": {
+            "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
+            "schema": {
+                "type": "object",
+                "default": {}
+            }
+        }
+    },
+    "returns": {
+        "description": "The result of processing the process graph.",
+        "schema": {
+            "description": "Any data type."
+        }
+    }
+}

@@ -1,27 +1,39 @@
 {
     "id": "run_udf",
-    "summary": "Runs user submitted code as UDF",
-    "description": "Runs user submitted code as UDF",
+    "summary": "Run an UDF",
+    "description": "**EXPERIMENTAL.** Runs an internally stored UDF.\n\nThe process can either:\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
     "categories": [
         "import",
         "udf"
     ],
+    "parameter_order": ["udf", "runtime", "options"],
     "parameters": {
-        "code": {
-            "description": "",
+        "udf": {
+            "description": "Either source code, an absolute URL or a path to an UDF script. ",
+            "schema": {
+                "oneOf": [
+                    {
+                        "description": "URI to an UDF",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    {
+                        "description": "Source code as string",
+                        "type": "string"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "runtime": {
+            "description": "An UDF runtime identifier available at the back-end.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
-        "runtime_identifier": {
-            "description": "",
-            "schema": {
-                "type": "string"
-            }
-        },
         "options": {
-            "description": "",
+            "description": "Options that should be passed to the UDF.",
             "schema": {
                 "type": "object",
                 "default": {}
@@ -29,10 +41,9 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "The data processed by the UDF.",
         "schema": {
-            "type": "object",
-            "format": "callback"
+            "description": "Any data type."
         }
     }
 }

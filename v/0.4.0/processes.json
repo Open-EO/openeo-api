@@ -2511,70 +2511,6 @@
     ]
   },
   {
-    "id": "export",
-    "summary": "Export processed data to storage",
-    "description": "Exports processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. This process may not be supported by back-ends in the context of secondary web services.",
-    "categories": [
-      "cubes",
-      "export"
-    ],
-    "parameter_order": [
-      "data",
-      "format",
-      "options"
-    ],
-    "parameters": {
-      "data": {
-        "description": "The data to export.",
-        "schema": {
-          "oneOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
-        },
-        "required": true
-      },
-      "format": {
-        "description": "The file format to export to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
-      "options": {
-        "description": "The file format options to be used for exporting. Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
-        "schema": {
-          "type": "object",
-          "default": {}
-        }
-      }
-    },
-    "returns": {
-      "description": "`false` if the export failed, `true` otherwise.",
-      "schema": {
-        "type": "boolean"
-      }
-    },
-    "links": [
-      {
-        "rel": "about",
-        "href": "https://www.gdal.org/formats_list.html",
-        "title": "GDAL Raster Formats"
-      },
-      {
-        "rel": "about",
-        "href": "https://www.gdal.org/ogr_formats.html",
-        "title": "OGR Vector Formats"
-      }
-    ]
-  },
-  {
     "id": "extrema",
     "summary": "Minimum and maximum values",
     "description": "Two element array containing the minimum and the maximum values of `data`.\n\nThis process is basically an alias for calling both ``min()`` and ``max()``, but may be implemented more performant by back-ends as it only needs to iterate over the data once instead of twice.",
@@ -3030,9 +2966,9 @@
     }
   },
   {
-    "id": "find_collection",
-    "summary": "Load a collection by properties",
-    "description": "**EXPERIMENTAL.** Select and load an collection from the current back-end by metadata properties and returns matching collection ids.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``get_collection()``.",
+    "id": "find_collections",
+    "summary": "Search for collections by metadata properties",
+    "description": "**EXPERIMENTAL.** Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
     "categories": [
       "cubes",
       "import"
@@ -3199,147 +3135,6 @@
         "title": "Floor explained by Wolfram MathWorld"
       }
     ]
-  },
-  {
-    "id": "get_collection",
-    "summary": "Load a collection by id",
-    "description": "Loads a collection from the current back-end by its id and returns it as data cube.",
-    "categories": [
-      "cubes",
-      "import"
-    ],
-    "parameters": {
-      "id": {
-        "description": "The collection id.",
-        "schema": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "A data cube for further processing.",
-      "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "get_process_graph",
-    "summary": "Load an internally stored process graph",
-    "description": "Loads and executes a process graph stored by the authenticated user from the current back-end by its id.",
-    "categories": [
-      "import"
-    ],
-    "parameter_order": [
-      "id",
-      "variables"
-    ],
-    "parameters": {
-      "id": {
-        "description": "The process graph id.",
-        "schema": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
-        },
-        "required": true
-      },
-      "variables": {
-        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
-        "schema": {
-          "type": "object",
-          "default": {}
-        }
-      }
-    },
-    "returns": {
-      "description": "The result after processing the process graph.",
-      "schema": {
-        "description": "Any data type."
-      }
-    }
-  },
-  {
-    "id": "get_result",
-    "summary": "Load batch job results by id",
-    "description": "Load internal batch job results stored by the authenticated user from the current back-end by job id.",
-    "categories": [
-      "cubes",
-      "import"
-    ],
-    "parameters": {
-      "id": {
-        "description": "The job id.",
-        "schema": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "A data cube for further processing.",
-      "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "id": "get_udf",
-    "summary": "Load and run an internal UDF",
-    "description": "Load and run an internal UDF to be executed in the context of reduce, aggregate, apply, ...",
-    "categories": [
-      "import",
-      "udf"
-    ],
-    "parameters": {
-      "path": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
-      "runtime_identifier": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        }
-      },
-      "options": {
-        "description": "",
-        "schema": {
-          "type": "object",
-          "default": {}
-        }
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "type": "object",
-        "format": "callback"
-      }
-    }
   },
   {
     "id": "gt",
@@ -3695,120 +3490,6 @@
         ]
       }
     ]
-  },
-  {
-    "id": "import_process_graph",
-    "summary": "Load an externally stored process graph",
-    "description": "Loads and executes a publicly available process graph by URI from [openEO Hub](https://hub.openeo.org), the current back-end or another back-end.",
-    "categories": [
-      "import"
-    ],
-    "parameter_order": [
-      "url",
-      "variables"
-    ],
-    "parameters": {
-      "url": {
-        "description": "An URI to a publicly available process graph.",
-        "schema": {
-          "type": "string",
-          "format": "uri"
-        },
-        "required": true
-      },
-      "variables": {
-        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
-        "schema": {
-          "type": "object",
-          "default": {}
-        }
-      }
-    },
-    "returns": {
-      "description": "The result after processing the process graph.",
-      "schema": {
-        "description": "Any data type."
-      }
-    }
-  },
-  {
-    "id": "import_result",
-    "summary": "Load an externally stored batch job result",
-    "description": "Loads and executes a publicly available batch job result by URI from the current back-end or another back-end. The response from the remote server needs to be compatible with the corresponsing API response to *download information for a completed job*.\n\nPlease be aware that this process may transfer a lot of data between servers.",
-    "categories": [
-      "cubes",
-      "import"
-    ],
-    "parameters": {
-      "url": {
-        "description": "An URI to a publicly available batch job result.",
-        "schema": {
-          "type": "string",
-          "format": "uri"
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "A data cube for further processing.",
-      "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
-      }
-    },
-    "links": [
-      {
-        "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference/#tag/Job-Management/paths/~1jobs~1{job_id}~1results/get",
-        "title": "API specification to download information for a completed job"
-      }
-    ]
-  },
-  {
-    "id": "import_udf",
-    "summary": "Load and run an external UDF",
-    "description": "Load and run an external UDF to be executed in the context of reduce, aggregate, apply, …Examples: import_udf(‘https://hub.openeo.org/udf/wur/bfast’); Maybe also just import_udf(‘hub://bfast’)",
-    "categories": [
-      "import",
-      "udf"
-    ],
-    "parameters": {
-      "url": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
-      "runtime_identifier": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        }
-      },
-      "options": {
-        "description": "",
-        "schema": {
-          "type": "object",
-          "default": {}
-        }
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "type": "object",
-        "format": "callback"
-      }
-    }
   },
   {
     "id": "int",
@@ -4251,6 +3932,74 @@
         "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
       }
     ]
+  },
+  {
+    "id": "load_collection",
+    "summary": "Load a collection",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube.",
+    "categories": [
+      "cubes",
+      "import"
+    ],
+    "parameters": {
+      "id": {
+        "description": "The collection id.",
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "A data cube for further processing.",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "format": "raster-cube"
+          },
+          {
+            "type": "object",
+            "format": "vector-cube"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "load_result",
+    "summary": "Load batch job results",
+    "description": "Loads locally stored batch job results by job id. The job must have been stored by the authenticated user on the back-end currently connected to.",
+    "categories": [
+      "cubes",
+      "import"
+    ],
+    "parameters": {
+      "id": {
+        "description": "The id of a batch job with results.",
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "A data cube for further processing.",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "format": "raster-cube"
+          },
+          {
+            "type": "object",
+            "format": "vector-cube"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "log",
@@ -6795,23 +6544,69 @@
     ]
   },
   {
-    "id": "run_udf_container",
-    "summary": "Runs an externally hosted UDF container that follows the openEO UDF specification.",
-    "description": "Runs an externally hosted UDF container that follows the openEO UDF specification.",
+    "id": "run_process_graph",
+    "summary": "Load and run a stored process graph",
+    "description": "Loads and executes a stored process graph.\n\nThe process can either load\n* a locally stored process graph by id, which is stored by the authenticated user on the back-end currently connected to or\n* a remotely stored and published process graph by absolute URI, for example from [openEO Hub](https://hub.openeo.org).",
+    "categories": [
+      "import"
+    ],
+    "parameter_order": [
+      "id",
+      "variables"
+    ],
+    "parameters": {
+      "id": {
+        "description": "A process graph id or an absolute URI to an externally hosted process graph.",
+        "schema": {
+          "oneOf": [
+            {
+              "description": "URI",
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "description": "Process graph id",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
+            }
+          ]
+        },
+        "required": true
+      },
+      "variables": {
+        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
+        "schema": {
+          "type": "object",
+          "default": {}
+        }
+      }
+    },
+    "returns": {
+      "description": "The result of processing the process graph.",
+      "schema": {
+        "description": "Any data type."
+      }
+    }
+  },
+  {
+    "id": "run_udf_service",
+    "summary": "Run a remotely hosted UDF container",
+    "description": "**EXPERIMENTAL.** Runs a remotely hosted UDF container that follows the openEO UDF specification. See ``run_udf()`` for more information on usage and options.",
     "categories": [
       "import",
       "udf"
     ],
     "parameters": {
       "url": {
-        "description": "",
+        "description": "URL to a remote UDF service.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "format": "uri"
         },
         "required": true
       },
       "options": {
-        "description": "",
+        "description": "Options that should be passed to the UDF.",
         "schema": {
           "type": "object",
           "default": {}
@@ -6819,37 +6614,52 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The data processed by the UDF service.",
       "schema": {
-        "type": "object",
-        "format": "callback"
+        "description": "Any data type."
       }
     }
   },
   {
     "id": "run_udf",
-    "summary": "Runs user submitted code as UDF",
-    "description": "Runs user submitted code as UDF",
+    "summary": "Run an UDF",
+    "description": "**EXPERIMENTAL.** Runs an internally stored UDF.\n\nThe process can either:\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
     "categories": [
       "import",
       "udf"
     ],
+    "parameter_order": [
+      "udf",
+      "runtime",
+      "options"
+    ],
     "parameters": {
-      "code": {
-        "description": "",
+      "udf": {
+        "description": "Either source code, an absolute URL or a path to an UDF script. ",
+        "schema": {
+          "oneOf": [
+            {
+              "description": "URI to an UDF",
+              "type": "string",
+              "format": "uri"
+            },
+            {
+              "description": "Source code as string",
+              "type": "string"
+            }
+          ]
+        },
+        "required": true
+      },
+      "runtime": {
+        "description": "An UDF runtime identifier available at the back-end.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
-      "runtime_identifier": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        }
-      },
       "options": {
-        "description": "",
+        "description": "Options that should be passed to the UDF.",
         "schema": {
           "type": "object",
           "default": {}
@@ -6857,12 +6667,75 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "The data processed by the UDF.",
       "schema": {
-        "type": "object",
-        "format": "callback"
+        "description": "Any data type."
       }
     }
+  },
+  {
+    "id": "save_result",
+    "summary": "Save processed data to storage",
+    "description": "Saves processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. STAC-compatible metadata should be stored with the processed data.\n\nCalling this process may be rejected by back-ends in the context of secondary web services.",
+    "categories": [
+      "cubes",
+      "export"
+    ],
+    "parameter_order": [
+      "data",
+      "format",
+      "options"
+    ],
+    "parameters": {
+      "data": {
+        "description": "The data to save.",
+        "schema": {
+          "oneOf": [
+            {
+              "type": "object",
+              "format": "raster-cube"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            }
+          ]
+        },
+        "required": true
+      },
+      "format": {
+        "description": "The file format to save to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "options": {
+        "description": "The file format options to be used to creatie the file(s). Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
+        "schema": {
+          "type": "object",
+          "default": {}
+        }
+      }
+    },
+    "returns": {
+      "description": "`false` if saving failed, `true` otherwise.",
+      "schema": {
+        "type": "boolean"
+      }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://www.gdal.org/formats_list.html",
+        "title": "GDAL Raster Formats"
+      },
+      {
+        "rel": "about",
+        "href": "https://www.gdal.org/ogr_formats.html",
+        "title": "OGR Vector Formats"
+      }
+    ]
   },
   {
     "id": "sd",

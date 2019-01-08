@@ -1,7 +1,7 @@
 {
-    "id": "export",
-    "summary": "Export processed data to storage",
-    "description": "Exports processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. This process may not be supported by back-ends in the context of secondary web services.",
+    "id": "save_result",
+    "summary": "Save processed data to storage",
+    "description": "Saves processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. STAC-compatible metadata should be stored with the processed data.\n\nCalling this process may be rejected by back-ends in the context of secondary web services.",
     "categories": [
         "cubes",
         "export"
@@ -9,7 +9,7 @@
     "parameter_order": ["data", "format", "options"],
     "parameters": {
         "data": {
-            "description": "The data to export.",
+            "description": "The data to save.",
             "schema": {
                 "oneOf": [
                     {
@@ -25,14 +25,14 @@
             "required": true
         },
         "format": {
-            "description": "The file format to export to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
+            "description": "The file format to save to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "options": {
-            "description": "The file format options to be used for exporting. Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
+            "description": "The file format options to be used to creatie the file(s). Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
             "schema": {
                 "type": "object",
                 "default": {}
@@ -40,7 +40,7 @@
         }
     },
     "returns": {
-        "description": "`false` if the export failed, `true` otherwise.",
+        "description": "`false` if saving failed, `true` otherwise.",
         "schema": {
             "type": "boolean"
         }
