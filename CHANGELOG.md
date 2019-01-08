@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Parameters can be ordered with the `parameter_order` property instead of having a random order.
     - Support for references to other processes in descriptions.
 - `GET /output_formats` and `GET /service_types` can now provide links per entry.
+- `GET /udf_runtimes` provide a list of UDF runtime environments. [#87](https://github.com/Open-EO/openeo-api/issues/87)
 
 ### Changed
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)

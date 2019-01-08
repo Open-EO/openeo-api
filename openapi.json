@@ -108,7 +108,7 @@
                     "description": {
                       "type": "string",
                       "description": "A description of the service, which allows the service provider to introduce the user to its service.\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
-                      "example": "EOPS is procided to you by [Cool Cloud Corp](http://cool-cloud-corp.com) and the most advanced EO processing service. It implements the full openEO API and allows to process a range of 999 EO data sets, including \n* Sentinel 1/2/3 and 5\n* Landsat 7/8\n\nA free plan is available to test the service. For further information please contact our customer service at [support@cool-cloud-corp.com](mailto:support@cool-cloud-corp.com)."
+                      "example": "EOPS - the most advanced EO processing service - is provided to you by [Cool Cloud Corp.](http://cool-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including \n* Sentinel 1/2/3 and 5\n* Landsat 7/8\n\nA free plan is available to test the service. For further information please contact our customer service at [support@cool-cloud-corp.com](mailto:support@cool-cloud-corp.com)."
                     },
                     "endpoints": {
                       "type": "array",
@@ -1357,6 +1357,171 @@
                         "title": "HTML version of the processes"
                       }
                     ]
+                  }
+                }
+              }
+            }
+          },
+          "4XX": {
+            "$ref": "#/components/responses/client_error_auth"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/server_error"
+          }
+        }
+      }
+    },
+    "/udf_runtimes": {
+      "get": {
+        "summary": "List supported runtimes for UDFs.",
+        "description": "Returns a list of supported runtimes for user-defined functions (UDFs), which includes either the programming languages including version numbers and available libraries including versions or docker containers.",
+        "tags": [
+          "Capabilities"
+        ],
+        "security": [
+          {},
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Description of UDF runtime support",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "List of available runtime environments. Each runtime environment has a unique name, which is used as the property key. The name is used in processes to select the runtime environment for UDFs, so the names should be stable and meaningful (see example). Runtime environments can be either a programming language environment or Docker-based.",
+                  "additionalProperties": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "language",
+                          "version",
+                          "libraries"
+                        ],
+                        "properties": {
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "language": {
+                            "type": "string",
+                            "description": "Name of the programming language."
+                          },
+                          "version": {
+                            "type": "string",
+                            "description": "Version number of the programming language."
+                          },
+                          "libraries": {
+                            "description": "List of installed libraries/modules/packages/extensions for the programming language. The names of the extension are used as the property keys.",
+                            "additionalProperties": {
+                              "type": "object",
+                              "required": [
+                                "version"
+                              ],
+                              "properties": {
+                                "version": {
+                                  "type": "string",
+                                  "description": "Version number of the library."
+                                },
+                                "links": {
+                                  "type": "array",
+                                  "description": "Related links, e.g. additional external documentation for this library.",
+                                  "items": {
+                                    "$ref": "#/components/schemas/link"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "links": {
+                            "$ref": "#/components/schemas/udf_links"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "docker",
+                          "tag"
+                        ],
+                        "properties": {
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "docker": {
+                            "type": "string",
+                            "description": "Identifier of a Docker image on Docker Hub or a private repository, i.e. the docker image name."
+                          },
+                          "tag": {
+                            "type": "string",
+                            "description": "The docker tag that is used."
+                          },
+                          "links": {
+                            "$ref": "#/components/schemas/udf_links"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "example": {
+                  "PHP7-latest": {
+                    "description": "Just an example how to reference a docker image.",
+                    "docker": "openeo/udf-php7",
+                    "tag": "latest",
+                    "links": [
+                      {
+                        "href": "https://hub.docker.com/openeo/udf-php7/"
+                      }
+                    ]
+                  },
+                  "R-3.1-legacy": {
+                    "description": "Legacy version of R for old UDFs.",
+                    "language": "R",
+                    "version": "3.1.0",
+                    "libraries": {
+                      "Rcpp": {
+                        "version": "1.0.0",
+                        "links": [
+                          {
+                            "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                          }
+                        ]
+                      },
+                      "rmarkdown": {
+                        "version": 1.7,
+                        "links": [
+                          {
+                            "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "R-3.x-latest": {
+                    "description": "Alwayst the newest version of R and its libraries.",
+                    "language": "R",
+                    "version": "3.5.2",
+                    "libraries": {
+                      "Rcpp": {
+                        "version": "1.0.0",
+                        "links": [
+                          {
+                            "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                          }
+                        ]
+                      },
+                      "rmarkdown": {
+                        "version": 1.11,
+                        "links": [
+                          {
+                            "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                          }
+                        ]
+                      }
+                    }
                   }
                 }
               }
@@ -3158,6 +3323,13 @@
       "list_links": {
         "description": "Additional links related to this list of resources. Could reference to alternative formats such as a rendered HTML version.\n\nThe links could also be used for pagination using the [rel types](https://www.iana.org/assignments/link-relations/link-relations.xhtml) `first`, `prev`, `next` and `last`. Pagination is currently OPTIONAL and clients may not support it. Therefore it MUST be implemented in a way that clients not supporting pagination get all resources regardless.",
         "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/link"
+        }
+      },
+      "udf_links": {
+        "type": "array",
+        "description": "Related links, e.g. additional external documentation for this runtime.",
         "items": {
           "$ref": "#/components/schemas/link"
         }
