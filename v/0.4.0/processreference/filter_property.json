@@ -1,13 +1,13 @@
 {
     "id": "filter_property",
-    "summary": "Filter based on properties",
-    "description": "Filters the data based on the specified property. Example: Filter by `instrument_mode` from STAC properties.",
+    "summary": "Filter based on metadata attributes",
+    "description": "Limits the data cube to contain only data that matches against the specified expression. The attribute to match against is specified with the parameter `name`. See the Collection Discovery for potential atttibute names. The dimensionality and resolution don't change.",
     "categories": [
         "filter"
     ],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -15,23 +15,28 @@
             "required": true
         },
         "name": {
-            "description": "",
+            "description": "Name of the attribute to filter on.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "expression": {
-            "description": "",
+            "description": "Expression to evaluate against the attribute values.",
             "schema": {
                 "type": "object",
-                "format": "callback"
+                "format": "callback",
+                "properties": {
+                    "x": {
+                        "description": "A value of any data type could be passed."
+                    }
+                }
             },
             "required": true
         }
     },
     "returns": {
-        "description": "",
+        "description": "A data cube with only data that matches the expression.",
         "schema": {
             "type": "object",
             "format": "raster-cube"

@@ -1,87 +1,75 @@
 {
     "id": "filter_bbox",
-    "summary": "Limits the data to the specified bbox.",
-    "description": "Limits the data to the specified bbox.",
+    "summary": "Filter spatially by bounding box",
+    "description": "Limits the data cube to the specified bounding box. The dimensionality and resolution don't change.\n\nThe bounding box may include a vertical axis (see `base` and `height`).",
     "categories": [
         "filter"
     ],
+    "parameter_order": ["data", "west", "south", "east", "north", "base", "height", "crs"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
-                "oneOf": [
-                    {
-                        "type": "object",
-                        "format": "raster-cube"
-                    },
-                    {
-                        "type": "object",
-                        "format": "vector-cube"
-                    }
-                ]
+                "type": "object",
+                "format": "raster-cube"
             },
             "required": true
         },
         "west": {
-            "description": "",
+            "description": "West (lower left corner, coordinate axis 1).",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "south": {
-            "description": "",
+            "description": "South (lower left corner, coordinate axis 2).",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "east": {
-            "description": "",
+            "description": "East (upper right corner, coordinate axis 1).",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "north": {
-            "description": "",
+            "description": "North (upper right corner, coordinate axis 2).",
             "schema": {
                 "type": "number"
             },
             "required": true
         },
         "base": {
-            "description": "",
+            "description": "Base (optional, lower left corner, coordinate axis 3).",
             "schema": {
-                "type": "number"
+                "type": ["number", "null"],
+                "default": null
             }
         },
         "height": {
-            "description": "",
+            "description": "Height (optional, upper right corner, coordinate axis 3).",
             "schema": {
-                "type": "number"
+                "type": ["number", "null"],
+                "default": null
             }
         },
         "crs": {
-            "description": "",
+            "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings. Defaults to EPSG:4326 unless the client explicitly requests a different coordinate reference system.",
             "schema": {
-                "type": "string"
+                "type": "string",
+                "default": "EPSG:4326"
             }
         }
     },
     "returns": {
-        "description": "",
+        "description": "A data cube with only data located in the bounding box.",
         "schema": {
-            "oneOf": [
-                {
-                    "type": "object",
-                    "format": "raster-cube"
-                },
-                {
-                    "type": "object",
-                    "format": "vector-cube"
-                }
-            ]
+            "type": "object",
+            "format": "raster-cube"
         }
     }
 }

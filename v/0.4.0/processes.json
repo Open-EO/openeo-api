@@ -351,14 +351,19 @@
   },
   {
     "id": "apply_dimension",
-    "summary": "Applies an n-ary process.",
-    "description": "Applies an n-ary process to a raster data cube. `dimensions` are the dimensions over which to iterate, if not set all dimensions are iterated over.",
+    "summary": "Applies a process to one or more dimensions",
+    "description": "Applies an n-ary process (i.e. takes an array of values instead of a single value) to a raster data cube. The n-ary process must return as many elements in the returned array as there are in the input array.\n\nThe dimensions over which to iterate with the parameter `dimensions` can be specified. The specified callback is applied to each of them individually. If the `dimensions` parameter is not set or an empty array, the process applies the callback to all dimensions.",
     "categories": [
       "cubes"
     ],
+    "parameter_order": [
+      "data",
+      "process",
+      "dimensions"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A raster data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -366,15 +371,24 @@
         "required": true
       },
       "process": {
-        "description": "",
+        "description": "A process (callback) to be applied on each dimension. The specified process needs to accept an array as parameter and must return as many elements in the returned array as there are in the input array.",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "data": {
+              "description": "An array with elements of any type.",
+              "type": "array",
+              "items": {
+                "description": "Any data type."
+              }
+            }
+          }
         },
         "required": true
       },
       "dimensions": {
-        "description": "",
+        "description": "The names of the dimensions to use the callback on. Defaults to an empty array so that all dimensions are used.",
         "schema": {
           "type": "array",
           "items": {
@@ -385,7 +399,7 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "A raster data cube with the newly computed values in the specified dimensions.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -412,7 +426,12 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "x": {
+              "description": "A value of any data type could be passed."
+            }
+          }
         },
         "required": true
       },
@@ -1567,8 +1586,8 @@
               "type": "object",
               "format": "callback",
               "properties": {
-                "element": {
-                  "description": "A single element from the array. Any data type could be passed."
+                "value": {
+                  "description": "A single value from the array. Any data type could be passed."
                 }
               }
             },
@@ -1665,6 +1684,60 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    }
+  },
+  {
+    "id": "cube_property",
+    "summary": "Retrieve cube or dimension metadata",
+    "description": "Gets metadata for a data cube or a dimension in the cube. To get metadata for a dimension specify the `dimension` parameter, otherwise set it to `null`.",
+    "categories": [
+      "cubes"
+    ],
+    "parameter_order": [
+      "data",
+      "name",
+      "dimension"
+    ],
+    "parameters": {
+      "data": {
+        "description": "A data cube.",
+        "schema": {
+          "oneOf": [
+            {
+              "type": "object",
+              "format": "raster-cube"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            }
+          ]
+        },
+        "required": true
+      },
+      "name": {
+        "description": "Name of the metadata property.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "dimension": {
+        "description": "If required, a dimension name of the data cube.",
+        "schema": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    },
+    "returns": {
+      "description": "The value for the metadata property or `null` if no information are available.",
+      "schema": {
+        "description": "Any data type is allowed."
       }
     }
   },
@@ -2631,7 +2704,7 @@
   {
     "id": "filter_bands",
     "summary": "Filters the bands in the raster data cube.",
-    "description": "The order of the bands matters!",
+    "description": "",
     "categories": [
       "filter"
     ],
@@ -2672,117 +2745,116 @@
   },
   {
     "id": "filter_bbox",
-    "summary": "Limits the data to the specified bbox.",
-    "description": "Limits the data to the specified bbox.",
+    "summary": "Filter spatially by bounding box",
+    "description": "Limits the data cube to the specified bounding box. The dimensionality and resolution don't change.\n\nThe bounding box may include a vertical axis (see `base` and `height`).",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "data",
+      "west",
+      "south",
+      "east",
+      "north",
+      "base",
+      "height",
+      "crs"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube.",
         "schema": {
-          "oneOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
+          "type": "object",
+          "format": "raster-cube"
         },
         "required": true
       },
       "west": {
-        "description": "",
+        "description": "West (lower left corner, coordinate axis 1).",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "south": {
-        "description": "",
+        "description": "South (lower left corner, coordinate axis 2).",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "east": {
-        "description": "",
+        "description": "East (upper right corner, coordinate axis 1).",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "north": {
-        "description": "",
+        "description": "North (upper right corner, coordinate axis 2).",
         "schema": {
           "type": "number"
         },
         "required": true
       },
       "base": {
-        "description": "",
+        "description": "Base (optional, lower left corner, coordinate axis 3).",
         "schema": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
         }
       },
       "height": {
-        "description": "",
+        "description": "Height (optional, upper right corner, coordinate axis 3).",
         "schema": {
-          "type": "number"
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
         }
       },
       "crs": {
-        "description": "",
+        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings. Defaults to EPSG:4326 unless the client explicitly requests a different coordinate reference system.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "default": "EPSG:4326"
         }
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube with only data located in the bounding box.",
       "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
   {
     "id": "filter_geometry",
-    "summary": "Limits the data to the specified geometry",
-    "description": "Limits the data to the specified geometry",
+    "summary": "Filter spatially by geometry",
+    "description": "Limits the data cube to the specified geometry. The dimensionality and resolution don't change.",
     "categories": [
       "filter"
     ],
+    "parameter_order": [
+      "data",
+      "geometry"
+    ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube.",
         "schema": {
-          "oneOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
+          "type": "object",
+          "format": "raster-cube"
         },
         "required": true
       },
       "geometry": {
-        "description": "",
+        "description": "A geometry, either a GeoJSON or a vector data cube.\n\nIf multiple geometries are passed, the intersection of all geometries is used as geometry.",
         "schema": {
           "oneOf": [
             {
@@ -2799,31 +2871,23 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube with only data located in the geometry.",
       "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
   {
     "id": "filter_property",
-    "summary": "Filter based on properties",
-    "description": "Filters the data based on the specified property. Example: Filter by `instrument_mode` from STAC properties.",
+    "summary": "Filter based on metadata attributes",
+    "description": "Limits the data cube to contain only data that matches against the specified expression. The attribute to match against is specified with the parameter `name`. See the Collection Discovery for potential atttibute names. The dimensionality and resolution don't change.",
     "categories": [
       "filter"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -2831,23 +2895,28 @@
         "required": true
       },
       "name": {
-        "description": "",
+        "description": "Name of the attribute to filter on.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "expression": {
-        "description": "",
+        "description": "Expression to evaluate against the attribute values.",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "x": {
+              "description": "A value of any data type could be passed."
+            }
+          }
         },
         "required": true
       }
     },
     "returns": {
-      "description": "",
+      "description": "A data cube with only data that matches the expression.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -2865,16 +2934,8 @@
       "data": {
         "description": "",
         "schema": {
-          "oneOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
+          "type": "object",
+          "format": "raster-cube"
         },
         "required": true
       },
@@ -2895,16 +2956,8 @@
     "returns": {
       "description": "",
       "schema": {
-        "oneOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
@@ -2968,7 +3021,7 @@
   {
     "id": "find_collections",
     "summary": "Search for collections by metadata properties",
-    "description": "**EXPERIMENTAL.** Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
+    "description": "**EXPERIMENTAL.** Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``cube_property()`` can be used to get property values.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
     "categories": [
       "cubes",
       "import"
@@ -2978,7 +3031,22 @@
         "description": "An expression that is evaluated against each collection the back-end offers.",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "data": {
+              "description": "A data cube.",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "format": "raster-cube"
+                },
+                {
+                  "type": "object",
+                  "format": "vector-cube"
+                }
+              ]
+            }
+          }
         },
         "required": true
       }
@@ -5997,36 +6065,6 @@
     }
   },
   {
-    "id": "property",
-    "summary": "Retrieve data attributes",
-    "description": "Get information about data attributes in a data cube. Useful to filter data in data cubes.",
-    "categories": [
-      "cubes"
-    ],
-    "parameters": {
-      "data": {
-        "description": "",
-        "schema": {
-          "description": "Any data type is allowed."
-        },
-        "required": true
-      },
-      "name": {
-        "description": "",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "",
-      "schema": {
-        "description": "Any data type is allowed."
-      }
-    }
-  },
-  {
     "id": "quantiles",
     "summary": "Quantiles",
     "description": "Calculates quantiles, which are cut points dividing the range of a probability distribution into either\n* intervals corresponding to the given `probabilities` or\n* (nearly) equal-sized intervals (q-quantiles based on the parameter `q`).\n\nEither the parameter `probabilites` or `q` must be specified, otherwise the `QuantilesParameterMissing` exception must be thrown. If both parameters are set the `QuantilesParameterConflict` exception must be thrown.",
@@ -6324,7 +6362,7 @@
   {
     "id": "reduce",
     "summary": "reduce dimensions - lower dimensionality, same resolution.",
-    "description": "reduce dimensions - lower dimensionality, same resolution.",
+    "description": "Lower dimensionality, same resolution. Dimensions are specified in the `cube:dimensions` property of the STAC collection, e.g. `temporal` or `x`. Note that spatial dimensions could be x, y or z. Spectral is a separate dimension for MSI. Nominal values are possible and need to be mapped, e.g. band names to wavelengths, date strings to numeric timestamps since 1970 etc.",
     "categories": [
       "cubes",
       "reducer"
@@ -6342,7 +6380,16 @@
         "description": "",
         "schema": {
           "type": "object",
-          "format": "callback"
+          "format": "callback",
+          "properties": {
+            "data": {
+              "description": "An array with elements of any type.",
+              "type": "array",
+              "items": {
+                "description": "Any data type."
+              }
+            }
+          }
         },
         "required": true
       },
@@ -6589,7 +6636,7 @@
     }
   },
   {
-    "id": "run_udf_service",
+    "id": "run_udf_remotely",
     "summary": "Run a remotely hosted UDF container",
     "description": "**EXPERIMENTAL.** Runs a remotely hosted UDF container that follows the openEO UDF specification. See ``run_udf()`` for more information on usage and options.",
     "categories": [
@@ -6623,7 +6670,7 @@
   {
     "id": "run_udf",
     "summary": "Run an UDF",
-    "description": "**EXPERIMENTAL.** Runs an internally stored UDF.\n\nThe process can either:\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
+    "description": "**EXPERIMENTAL.** Runs an UDF in one of the supported runtimes.\n\nThe process can either:\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
     "categories": [
       "import",
       "udf"
@@ -7707,14 +7754,14 @@
   },
   {
     "id": "trim",
-    "summary": "Removes slices with no-data.",
-    "description": "If the dimension is irregular categorical then slices in the middle can be removed.",
+    "summary": "Remove slices with no-data values",
+    "description": "Removes slices solely containing no-data values. If the dimension is irregular categorical then slices in the middle can be removed.",
     "categories": [
       "cubes"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A raster data cube to trim.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -7723,7 +7770,7 @@
       }
     },
     "returns": {
-      "description": "",
+      "description": "A trimmed raster data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -7884,6 +7931,10 @@
     "categories": [
       "logic",
       "reducer"
+    ],
+    "parameter_order": [
+      "expressions",
+      "ignore_nodata"
     ],
     "parameters": {
       "expressions": {

@@ -121,7 +121,7 @@
                         ],
                         "properties": {
                           "path": {
-                            "description": "Path to the endpoint, starting from the base url of the API. MUST contain a leading slash, *must not* contain a trailing slash. Variables in the paths must be placed in curly braces, e.g. `{process_id}`, and have a self-speaking name. It is RECOMMENDED that the path variable names fully follow the API specification.",
+                            "description": "Path to the endpoint, relative to the URL of this endpoint. In general the paths MUST follow the paths specified in the openAPI specification as closely as possible. Therefore, paths MUST be prepended with a leading slash, but MUST NOT contain a trailing slash. Variables in the paths MUST be placed in curly braces and follow the parameter names in the openAPI specification, e.g. `{process_id}`.",
                             "type": "string"
                           },
                           "methods": {
@@ -1094,7 +1094,7 @@
                           },
                           "parameters": {
                             "type": "object",
-                            "description": "A list of parameters that are applicable for this process. The key of the map is the name of the parameter.",
+                            "description": "A list of parameters that are applicable for this process. The keys of the object are the names of the parameters. They keys MUST match the following pattern: `^[A-Za-z0-9_]+$`",
                             "additionalProperties": {
                               "type": "object",
                               "required": [
@@ -1150,7 +1150,7 @@
                           },
                           "exceptions": {
                             "type": "object",
-                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages. The keys define the error code. This schema follows the schema of the  general openEO error list (see errors.json).",
+                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages.\n\nThe keys define the error code and MUST match the following pattern: `^[A-Za-z0-9_]+$`\n\nThis schema follows the schema of the general openEO error list (see errors.json).",
                             "additionalProperties": {
                               "type": "object",
                               "required": [
@@ -1181,7 +1181,8 @@
                               "type": "object",
                               "properties": {
                                 "title": {
-                                  "$ref": "#/components/schemas/title"
+                                  "type": "string",
+                                  "description": "A title for the example."
                                 },
                                 "description": {
                                   "$ref": "#/components/schemas/process_description"
@@ -1395,6 +1396,7 @@
                   "additionalProperties": {
                     "oneOf": [
                       {
+                        "title": "Programming language",
                         "type": "object",
                         "required": [
                           "language",
@@ -1441,6 +1443,7 @@
                         }
                       },
                       {
+                        "title": "Docker container",
                         "type": "object",
                         "required": [
                           "docker",

@@ -1,13 +1,14 @@
 {
     "id": "apply_dimension",
-    "summary": "Applies an n-ary process.",
-    "description": "Applies an n-ary process to a raster data cube. `dimensions` are the dimensions over which to iterate, if not set all dimensions are iterated over.",
+    "summary": "Applies a process to one or more dimensions",
+    "description": "Applies an n-ary process (i.e. takes an array of values instead of a single value) to a raster data cube. The n-ary process must return as many elements in the returned array as there are in the input array.\n\nThe dimensions over which to iterate with the parameter `dimensions` can be specified. The specified callback is applied to each of them individually. If the `dimensions` parameter is not set or an empty array, the process applies the callback to all dimensions.",
     "categories": [
         "cubes"
     ],
+    "parameter_order": ["data", "process", "dimensions"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A raster data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -15,15 +16,24 @@
             "required": true
         },
         "process": {
-            "description": "",
+            "description": "A process (callback) to be applied on each dimension. The specified process needs to accept an array as parameter and must return as many elements in the returned array as there are in the input array.",
             "schema": {
                 "type": "object",
-                "format": "callback"
+                "format": "callback",
+                "properties": {
+                    "data": {
+                        "description": "An array with elements of any type.",
+                        "type": "array",
+                        "items": {
+                            "description": "Any data type."
+                        }
+                    }
+                }
             },
             "required": true
         },
         "dimensions": {
-            "description": "",
+            "description": "The names of the dimensions to use the callback on. Defaults to an empty array so that all dimensions are used.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -34,7 +44,7 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "A raster data cube with the newly computed values in the specified dimensions.",
         "schema": {
             "type": "object",
             "format": "raster-cube"

@@ -1,29 +1,22 @@
 {
     "id": "filter_geometry",
-    "summary": "Limits the data to the specified geometry",
-    "description": "Limits the data to the specified geometry",
+    "summary": "Filter spatially by geometry",
+    "description": "Limits the data cube to the specified geometry. The dimensionality and resolution don't change.",
     "categories": [
         "filter"
     ],
+    "parameter_order": ["data", "geometry"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
-                "oneOf": [
-                    {
-                        "type": "object",
-                        "format": "raster-cube"
-                    },
-                    {
-                        "type": "object",
-                        "format": "vector-cube"
-                    }
-                ]
+                "type": "object",
+                "format": "raster-cube"
             },
             "required": true
         },
         "geometry": {
-            "description": "",
+            "description": "A geometry, either a GeoJSON or a vector data cube.\n\nIf multiple geometries are passed, the intersection of all geometries is used as geometry.",
             "schema": {
                 "oneOf": [
                     {
@@ -40,18 +33,10 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "A data cube with only data located in the geometry.",
         "schema": {
-            "oneOf": [
-                {
-                    "type": "object",
-                    "format": "raster-cube"
-                },
-                {
-                    "type": "object",
-                    "format": "vector-cube"
-                }
-            ]
+            "type": "object",
+            "format": "raster-cube"
         }
     }
 }
