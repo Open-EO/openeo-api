@@ -27,13 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `status` property of jobs is now required. 
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
 - `version` in response of `GET /` renamed to `api_version`.
+- Endpoint paths in `GET /` must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
 - Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
 - Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
 - `GET /processes` (Process discovery):
     - The `name` property of processes has changed to `id`. [#130](https://github.com/Open-EO/openeo-api/issues/130)
     - `mime_type` replaced with `media_type` in the input parameters and return values.
     - The schema for `exceptions` follows the general schema for openEO errors. [#139](https://github.com/Open-EO/openeo-api/issues/139)
-	- Changed the structure of `examples`.
+    - Changed the structure of `examples`.
 
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
