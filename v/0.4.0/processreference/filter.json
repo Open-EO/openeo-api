@@ -1,16 +1,17 @@
 {
     "id": "filter",
-    "summary": "Filtering data based on a logical expression.",
-    "description": "",
+    "summary": "Filter based on a logical expression.",
+    "description": "Filtering data based on a logical expression.",
     "categories": [
         "cubes",
         "filter"
     ],
+    "parameter_order": ["data", "expression", "dimension"],
     "parameters": {
         "data": {
             "description": "",
             "schema": {
-                "oneOf": [
+                "anyOf": [
                     {
                         "type": "object",
                         "format": "raster-cube"
@@ -27,7 +28,12 @@
             "description": "",
             "schema": {
                 "type": "object",
-                "format": "callback"
+                "format": "callback",
+                "properties": {
+                    "value": {
+                        "description": "A value of any data type could be passed."
+                    }
+                }
             },
             "required": true
         },
@@ -40,9 +46,9 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "A data cube restricted by the specified expression. Therefore, the cardinality is potentially lower, but the resolution and the number of dimensions are the same as for the original data cube.",
         "schema": {
-            "oneOf": [
+            "anyOf": [
                 {
                     "type": "object",
                     "format": "raster-cube"

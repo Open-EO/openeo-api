@@ -6,6 +6,7 @@
         "cubes",
         "aggregate"
     ],
+    "parameter_order": ["data", "polygons", "dimension"],
     "parameters": {
         "data": {
             "description": "",
@@ -18,7 +19,7 @@
         "polygons": {
             "description": "",
             "schema": {
-                "oneOf": [
+                "anyOf": [
                     {
                         "type": "object",
                         "format": "geojson"
@@ -40,12 +41,18 @@
         }
     },
     "returns": {
-        "description": "",
+        "description": "A vector data cube or a GeoJSON object, depending on the input for `polygons` parameter.",
         "schema": {
-            "type": "array",
-            "items": {
-                "type": "object"
-            }
+            "anyOf": [
+                {
+                    "type": "object",
+                    "format": "geojson"
+                },
+                {
+                    "type": "object",
+                    "format": "vector-cube"
+                }
+            ]
         }
     }
 }
