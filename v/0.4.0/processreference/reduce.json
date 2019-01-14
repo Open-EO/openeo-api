@@ -1,7 +1,7 @@
 {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Dimensions are specified in the `cube:dimensions` property of the STAC collection, e.g. `temporal` or `x`. Note that spatial dimensions could be x, y or z. Spectral is a separate dimension for MSI. Nominal values are possible and need to be mapped, e.g. band names to wavelengths, date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into a single output value computed by the reducer.\n\nThe reducer must accept an array and return a single value (see parameter `reducer`). Nominal values are possible, but need to be mapped, e.g. band names to wavelengths, date strings to numeric timestamps since 1970 etc.",
     "categories": [
         "cubes",
         "reducer"
@@ -9,7 +9,7 @@
     "parameter_order": ["data", "reducer", "dimension"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -17,7 +17,7 @@
             "required": true
         },
         "reducer": {
-            "description": "",
+            "description": "A reducer to be applied on the specified dimension. The reducer must be a callable process that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
             "schema": {
                 "type": "object",
                 "format": "callback",
@@ -34,7 +34,7 @@
             "required": true
         },
         "dimension": {
-            "description": "",
+            "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
             "schema": {
                 "type": "string"
             },
