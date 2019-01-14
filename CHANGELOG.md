@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Processes can be categorizes with the `category` property.
     - Parameters can be ordered with the `parameter_order` property instead of having a random order.
     - Support for references to other processes in descriptions.
+    - Processes and parameters can be declared to be `experimental`.
 - `GET /output_formats` and `GET /service_types` can now provide links per entry.
 - `GET /udf_runtimes` provide a list of UDF runtime environments. [#87](https://github.com/Open-EO/openeo-api/issues/87)
 
@@ -27,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `status` property of jobs is now required. 
 - `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
 - `version` in response of `GET /` renamed to `api_version`.
-- Endpoint paths in `GET /` must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
+- Endpoint paths in `GET /` must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
 - Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
 - Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
 - `GET /processes` (Process discovery):
