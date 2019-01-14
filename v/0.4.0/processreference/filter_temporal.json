@@ -1,36 +1,62 @@
 {
     "id": "filter_temporal",
-    "summary": "Limits the data to the specified date range.",
-    "description": "",
+    "summary": "Temporal filter for a date and/or time range",
+    "description": "Limits the data cube to the specified range of dates and/or times.\n\nAlso supports open ranges by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the end of the exposure time is greater than or equal to the value of `start` and the start of the exposure time is less than the value of `end`.",
     "categories": [
         "filter"
     ],
-    "parameter_order": ["data", "from", "to"],
+    "parameter_order": ["data", "start", "end"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
             },
             "required": true
         },
-        "from": {
-            "description": "",
+        "start": {
+            "description": "The start of the date and/or time range.",
             "schema": {
-                "type": [
-                    "string",
-                    "null"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    {
+                        "type": "string",
+                        "format": "time"
+                    },
+                    {
+                        "type": "null"
+                    }
                 ]
             },
             "required": true
         },
-        "to": {
-            "description": "",
+        "end": {
+            "description": "The end of the date and/or time range.",
             "schema": {
-                "type": [
-                    "string",
-                    "null"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    {
+                        "type": "string",
+                        "format": "time"
+                    },
+                    {
+                        "type": "null"
+                    }
                 ],
                 "default": null
             }
@@ -42,5 +68,12 @@
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        }
+    ]
 }

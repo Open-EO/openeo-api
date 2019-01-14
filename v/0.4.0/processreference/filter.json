@@ -1,46 +1,37 @@
 {
     "id": "filter",
     "summary": "Filter based on a logical expression.",
-    "description": "Filtering data based on a logical expression.",
+    "description": "Filters the data based on a logical expression so that afterwards each value in the data cube conforms to the expression.",
     "categories": [
         "cubes",
         "filter"
     ],
-    "parameter_order": ["data", "expression", "dimension"],
+    "parameter_order": ["data", "expression", "dimensions"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube.",
             "schema": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "format": "raster-cube"
-                    },
-                    {
-                        "type": "object",
-                        "format": "vector-cube"
-                    }
-                ]
+                "type": "object",
+                "format": "raster-cube"
             },
             "required": true
         },
         "expression": {
-            "description": "",
+            "description": "An expression that is evaluated against each value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the values stored in the dimension.",
             "schema": {
                 "type": "object",
                 "format": "callback",
-                "properties": {
-                    "value": {
-                        "description": "A value of any data type could be passed."
-                    }
-                }
+                "additionalProperties": true
             },
             "required": true
         },
-        "dimension": {
-            "description": "",
+        "dimensions": {
+            "description": "The names of the dimensions to filter on. The values for each of these dimensions will be passed to the expression with the parameter name being the dimension name.",
             "schema": {
-                "type": "string"
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
             },
             "required": true
         }
@@ -48,16 +39,8 @@
     "returns": {
         "description": "A data cube restricted by the specified expression. Therefore, the cardinality is potentially lower, but the resolution and the number of dimensions are the same as for the original data cube.",
         "schema": {
-            "anyOf": [
-                {
-                    "type": "object",
-                    "format": "raster-cube"
-                },
-                {
-                    "type": "object",
-                    "format": "vector-cube"
-                }
-            ]
+            "type": "object",
+            "format": "raster-cube"
         }
     }
 }

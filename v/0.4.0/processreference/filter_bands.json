@@ -1,14 +1,14 @@
 {
     "id": "filter_bands",
-    "summary": "Filters the bands in the raster data cube.",
-    "description": "",
+    "summary": "Filter the bands by name",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.",
     "categories": [
         "filter"
     ],
-    "parameter_order": ["data", "bands"],
+    "parameter_order": ["data", "bands", "common_names", "wavelengths"],
     "parameters": {
         "data": {
-            "description": "",
+            "description": "A data cube with bands.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -16,21 +16,39 @@
             "required": true
         },
         "bands": {
-            "description": "",
+            "description": "A list of band names.",
             "schema": {
-                "anyOf": [
-                    {
-                        "type": "string"
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "common_names": {
+            "description": "A list of common band names.",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "wavelengths": {
+            "description": "A list of sub-lists with each sub-list consiting of two elements. The first element is the minimum wavelength and the second element is the maximum wavelength. Wavelengths are specified in micrometres (μm).",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                        "type": "number"
                     },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            },
-            "required": true
+                    "examples": [
+                        [[0.45, 0.5], [0.6, 0.7]]
+                    ]
+                }
+            }
         }
     },
     "returns": {
@@ -39,5 +57,18 @@
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "exceptions": {
+        "BandFilterParameterMissing": {
+            "message": "The process 'filter_bands' requires any of the parameters 'bands', 'common_names' or 'wavelengths' to be set."
+        }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://github.com/radiantearth/stac-spec/tree/master/extensions/eo#common-band-names",
+            "title": "List of common band names as specified by the STAC specification"
+        }
+    ]
+    
 }

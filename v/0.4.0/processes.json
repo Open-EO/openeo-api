@@ -440,13 +440,14 @@
   {
     "id": "apply_kernel",
     "summary": "Applies a kernel to compute pixel-wise values",
-    "description": "Applies a a focal operation based on a weighted kernel to each value of the specified dimensions in the data cube.",
+    "description": "Applies a focal operation based on a weighted kernel to each value of the specified dimensions in the data cube.",
     "categories": [
       "math > image filter"
     ],
     "parameter_order": [
       "data",
-      "kernel"
+      "kernel",
+      "factor"
     ],
     "parameters": {
       "data": {
@@ -468,7 +469,7 @@
         "required": true
       },
       "factor": {
-        "description": "A factor multiplied to the computed value.\n\nThis is a shortcut for explicitly multiplying each value by a factor afterwards, which is often required for some kernel-based algorithms such as the Gaussian blur.",
+        "description": "A factor that is multiplied to each value computed by the focal operation.\n\nThis is a shortcut for explicitly multiplying each value by a factor afterwards, which is often required for some kernel-based algorithms such as the Gaussian blur.",
         "schema": {
           "type": "number",
           "default": 1
@@ -1652,7 +1653,7 @@
               "type": "object",
               "format": "callback",
               "properties": {
-                "value": {
+                "x": {
                   "description": "A single value from the array. Any data type could be passed."
                 }
               }
@@ -2781,18 +2782,20 @@
   },
   {
     "id": "filter_bands",
-    "summary": "Filters the bands in the raster data cube.",
-    "description": "",
+    "summary": "Filter the bands by name",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.",
     "categories": [
       "filter"
     ],
     "parameter_order": [
       "data",
-      "bands"
+      "bands",
+      "common_names",
+      "wavelengths"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube with bands.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -2800,21 +2803,48 @@
         "required": true
       },
       "bands": {
-        "description": "",
+        "description": "A list of band names.",
         "schema": {
-          "anyOf": [
-            {
-              "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "common_names": {
+        "description": "A list of common band names.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "wavelengths": {
+        "description": "A list of sub-lists with each sub-list consiting of two elements. The first element is the minimum wavelength and the second element is the maximum wavelength. Wavelengths are specified in micrometres (μm).",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
             },
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          ]
-        },
-        "required": true
+            "examples": [
+              [
+                [
+                  0.45,
+                  0.5
+                ],
+                [
+                  0.6,
+                  0.7
+                ]
+              ]
+            ]
+          }
+        }
       }
     },
     "returns": {
@@ -2823,11 +2853,23 @@
         "type": "object",
         "format": "raster-cube"
       }
-    }
+    },
+    "exceptions": {
+      "BandFilterParameterMissing": {
+        "message": "The process 'filter_bands' requires any of the parameters 'bands', 'common_names' or 'wavelengths' to be set."
+      }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://github.com/radiantearth/stac-spec/tree/master/extensions/eo#common-band-names",
+        "title": "List of common band names as specified by the STAC specification"
+      }
+    ]
   },
   {
     "id": "filter_bbox",
-    "summary": "Filter spatially by bounding box",
+    "summary": "Spatial filter using a bounding box",
     "description": "Limits the data cube to the specified bounding box.\n\nThe bounding box may include a vertical axis (see `base` and `height`).",
     "categories": [
       "filter"
@@ -2917,7 +2959,7 @@
   },
   {
     "id": "filter_geometry",
-    "summary": "Filter spatially by geometry",
+    "summary": "Spatial filter using a geometry",
     "description": "Limits the data cube to the specified geometry..",
     "categories": [
       "filter"
@@ -2962,8 +3004,8 @@
   },
   {
     "id": "filter_property",
-    "summary": "Filter based on metadata attributes",
-    "description": "Limits the data cube to contain only data that matches against the specified expression. The attribute to match against is specified with the parameter `name`. See the Collection Discovery for potential attribute names.",
+    "summary": "Filter by metadata attributes",
+    "description": "Limits the data cube to contain only data whose attributes match against the specified expression. The attribute to match against is specified with the parameter `name`. See the *Collection Discovery* for available attributes.",
     "categories": [
       "filter"
     ],
@@ -3012,41 +3054,67 @@
   },
   {
     "id": "filter_temporal",
-    "summary": "Limits the data to the specified date range.",
-    "description": "",
+    "summary": "Temporal filter for a date and/or time range",
+    "description": "Limits the data cube to the specified range of dates and/or times.\n\nAlso supports open ranges by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the end of the exposure time is greater than or equal to the value of `start` and the start of the exposure time is less than the value of `end`.",
     "categories": [
       "filter"
     ],
     "parameter_order": [
       "data",
-      "from",
-      "to"
+      "start",
+      "end"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
         },
         "required": true
       },
-      "from": {
-        "description": "",
+      "start": {
+        "description": "The start of the date and/or time range.",
         "schema": {
-          "type": [
-            "string",
-            "null"
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "required": true
       },
-      "to": {
-        "description": "",
+      "end": {
+        "description": "The end of the date and/or time range.",
         "schema": {
-          "type": [
-            "string",
-            "null"
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
+            },
+            {
+              "type": "null"
+            }
           ],
           "default": null
         }
@@ -3058,12 +3126,19 @@
         "type": "object",
         "format": "raster-cube"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "filter",
     "summary": "Filter based on a logical expression.",
-    "description": "Filtering data based on a logical expression.",
+    "description": "Filters the data based on a logical expression so that afterwards each value in the data cube conforms to the expression.",
     "categories": [
       "cubes",
       "filter"
@@ -3071,42 +3146,33 @@
     "parameter_order": [
       "data",
       "expression",
-      "dimension"
+      "dimensions"
     ],
     "parameters": {
       "data": {
-        "description": "",
+        "description": "A data cube.",
         "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
+          "type": "object",
+          "format": "raster-cube"
         },
         "required": true
       },
       "expression": {
-        "description": "",
+        "description": "An expression that is evaluated against each value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the values stored in the dimension.",
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
-            "value": {
-              "description": "A value of any data type could be passed."
-            }
-          }
+          "additionalProperties": true
         },
         "required": true
       },
-      "dimension": {
-        "description": "",
+      "dimensions": {
+        "description": "The names of the dimensions to filter on. The values for each of these dimensions will be passed to the expression with the parameter name being the dimension name.",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "required": true
       }
@@ -3114,16 +3180,8 @@
     "returns": {
       "description": "A data cube restricted by the specified expression. Therefore, the cardinality is potentially lower, but the resolution and the number of dimensions are the same as for the original data cube.",
       "schema": {
-        "anyOf": [
-          {
-            "type": "object",
-            "format": "raster-cube"
-          },
-          {
-            "type": "object",
-            "format": "vector-cube"
-          }
-        ]
+        "type": "object",
+        "format": "raster-cube"
       }
     }
   },
@@ -3783,7 +3841,7 @@
   {
     "id": "is_nodata",
     "summary": "Value is not a no-data value",
-    "description": "Checks whether the specified data is a missing data, i.e. equals to one of the no-data values / `null`.",
+    "description": "Checks whether the specified data is a missing data, i.e. equals to any of the no-data values / `null`.",
     "categories": [
       "comparison"
     ],
@@ -6773,9 +6831,9 @@
     }
   },
   {
-    "id": "run_udf_remotely",
-    "summary": "Run a remotely hosted UDF container",
-    "description": "**EXPERIMENTAL.** Runs a remotely hosted UDF container that follows the openEO UDF specification. See ``run_udf()`` for more information on usage and options.",
+    "id": "run_udf_externally",
+    "summary": "Run an externally hosted UDF container",
+    "description": "**EXPERIMENTAL.** Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/). See ``run_udf()`` for more information on usage and options.",
     "categories": [
       "import",
       "udf"
@@ -6806,7 +6864,19 @@
       "schema": {
         "description": "Any data type."
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-udf/",
+        "title": "openEO UDF specification"
+      },
+      {
+        "rel": "about",
+        "href": "https://github.com/Open-EO/openeo-udf",
+        "title": "openEO UDF repository"
+      }
+    ]
   },
   {
     "id": "run_udf",
@@ -6819,6 +6889,7 @@
     "parameter_order": [
       "udf",
       "runtime",
+      "version",
       "options"
     ],
     "parameters": {
@@ -6845,6 +6916,12 @@
           "type": "string"
         },
         "required": true
+      },
+      "version": {
+        "description": "An UDF runtime version. Defaults to the default runtime version specified for each runtime.",
+        "schema": {
+          "type": "string"
+        }
       },
       "options": {
         "description": "Options that should be passed to the UDF.",
