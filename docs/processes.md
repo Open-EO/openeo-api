@@ -30,5 +30,5 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 | `date-time`   | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
 | `geojson`     | GeoJSON as defined by [RFC 7946](https://tools.ietf.org/html/rfc7946). [JSON Schemas for validation are available.](https://github.com/geojson/schema) |
 | `raster-cube` | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
-| `time`        | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
+| `time`        | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), this definition allows the value '24' for the hour as end time in an interval in order to make it possible that left-closed time intervals can fully cover the day. |
 | `vector-cube` | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
