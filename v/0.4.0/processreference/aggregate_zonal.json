@@ -1,13 +1,13 @@
 {
     "id": "aggregate_zonal",
     "summary": "Zonal statistics for polygons",
-    "description": "Aggregates zonal data/statistics for one or multiple GeoJSON features. For focal aggregation see ``apply()``. Number of valid/invalid pixels get returned together with the calculated values.",
+    "description": "Aggregates zonal statistics for one or multiple polygons over a dimension.\n\nThe number of total and valid pixels is returned together with the calculated values.",
     "categories": [
         "cubes",
         "aggregate"
     ],
     "experimental": true,
-    "parameter_order": ["data", "polygons", "dimension"],
+    "parameter_order": ["data", "polygons", "reducer", "dimension", "name"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -18,7 +18,7 @@
             "required": true
         },
         "polygons": {
-            "description": "",
+            "description": "One or multiple polygons to calculate zonal statistics for.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
             "schema": {
                 "anyOf": [
                     {
@@ -33,16 +33,40 @@
             },
             "required": true
         },
+        "reducer": {
+            "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
+            "schema": {
+                "type": "object",
+                "format": "callback",
+                "properties": {
+                    "data": {
+                        "description": "An array with elements of any type.",
+                        "type": "array",
+                        "items": {
+                            "description": "Any data type."
+                        }
+                    }
+                }
+            },
+            "required": true
+        },
         "dimension": {
-            "description": "The dimension name.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+            "description": "The dimension over which to aggregate.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`. The bands must be filtered to contain only a single band otherwise the aggregation will fail.",
             "schema": {
                 "type": "string"
             },
             "required": true
+        },
+        "name": {
+            "description": "The property name (for GeoJSON) or the new dimension name (for vector cubes) to be used for storing the results. Defaults to `result`.",
+            "schema": {
+                "type": "string",
+                "default": "result"
+            }
         }
     },
     "returns": {
-        "description": "A vector data cube or a GeoJSON object, depending on the input for `polygons` parameter.",
+        "description": "A vector data cube or a GeoJSON object, depending on the input of the `polygons` parameter.\n\nThe computed value is stored in a property (GeoJSON) or dimension (vector cube) with the name that was specified in the parameter `name`.\n\nThe computation also stores information about the total count of pixels (valid + invalid pixels) and the number of valid pixels (see ``is_valid()``) in each geometry. In GeoJSON these are stored as properties with the names `{name}_total_count` and `{name}_valid_count` (replace `{name}` with the value of the `name` parameter). In a vector data cube, these values are stored as attributes of the result value with the attribute names `total_count` and `valid_count`.\n\nIf the input was GeoJSON and the therefore the return value is also a GeoJSON object, the geometries (`Polygon` or `GeometryCollection`) get wrapped in a `Feature` or `FeatureCollection` respectively. The results of the computations are stored in the `properties` of each GeoJSON `Feature`.",
         "schema": {
             "anyOf": [
                 {
@@ -61,6 +85,11 @@
             "href": "https://github.com/Open-EO/openeo-processes/issues/2",
             "rel": "experimental",
             "title": "More information about the experimental status of the process"
+        },
+        {
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+            "rel": "about",
+            "title": "Aggregation explained in the openEO glossary"
         }
     ]
 }

@@ -1,11 +1,11 @@
 {
     "id": "filter_temporal",
-    "summary": "Temporal filter for a date and/or time range",
-    "description": "Limits the data cube to the specified range (or interval) of dates and/or times.\n\nAlso supports open intervals by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the end of the exposure time is greater than or equal to the value of `start` and the start of the exposure time is less than the value of `end`. This corresponds to a left-closed interval, which contains the `start` but not the `end`.",
+    "summary": "Temporal filter for a date and/or time intervals",
+    "description": "Limits the data cube to the specified interval of dates and/or times.\n\nAlso supports open intervals by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the end of the exposure time is greater than or equal to the value of `start` and the start of the exposure time is less than the value of `end`. This corresponds to a left-closed interval, which contains the `start` but not the `end`.\n\nIf the dimension is not set, the data cube is expected to only have one temporal dimension.",
     "categories": [
         "filter"
     ],
-    "parameter_order": ["data", "start", "end"],
+    "parameter_order": ["data", "start", "end", "dimension"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -16,7 +16,7 @@
             "required": true
         },
         "start": {
-            "description": "The start of the date and/or time range. The specified instance in time is included in the interval.",
+            "description": "The start of the date and/or time interval. The specified instance in time is included in the interval.",
             "schema": {
                 "anyOf": [
                     {
@@ -39,7 +39,7 @@
             "required": true
         },
         "end": {
-            "description": "The end of the date and/or time range. The specified instance in time is excluded from the interval.",
+            "description": "The end of the date and/or time interval. The specified instance in time is excluded from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
             "schema": {
                 "anyOf": [
                     {
@@ -59,6 +59,12 @@
                     }
                 ],
                 "default": null
+            }
+        },
+        "dimension": {
+            "description": "The temporal dimension to filter on. If the dimension is not set, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+            "schema": {
+                "type": "string"
             }
         }
     },

@@ -1,11 +1,12 @@
 {
     "id": "resample_temporal",
-    "summary": "Resample the temporal dimension",
-    "description": "Resamples the temporal dimension. If dimension is not set, the data cube is expected to have only one temporal dimension.",
+    "summary": "Resample a temporal dimension",
+    "description": "Resamples a temporal dimension. If the dimension is not set, the data cube is expected to only have one temporal dimension.",
     "categories": [
         "cubes",
         "aggregate"
     ],
+    "experimental": true,
     "parameter_order": ["data", "method", "target", "dimension"],
     "parameters": {
         "data": {
@@ -17,14 +18,24 @@
             "required": true
         },
         "method": {
-            "description": "",
+            "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The method must be a callable process (or a set processes) such as ``first()``, ``last()``, ``min()``, ``max()``, ``mean()`` or ``median()``.",
             "schema": {
-                "type": "string",
-                "default": null
-            }
+                "type": "object",
+                "format": "callback",
+                "properties": {
+                    "data": {
+                        "description": "An array with elements of any type.",
+                        "type": "array",
+                        "items": {
+                            "description": "Any data type."
+                        }
+                    }
+                }
+            },
+            "required": true
         },
         "target": {
-            "description": "",
+            "description": "A data cube that describes the target resolution.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -32,7 +43,7 @@
             "required": true
         },
         "dimension": {
-            "description": "The temporal dimension to resample.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+            "description": "The temporal dimension to resample. If the dimension is not set, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
             "schema": {
                 "type": "string"
             }
@@ -44,5 +55,17 @@
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        },
+        {
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+            "rel": "about",
+            "title": "Resampling explained in the openEO glossary"
+        }
+    ]
 }

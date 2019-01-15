@@ -1,12 +1,13 @@
 {
     "id": "aggregate_temporal",
     "summary": "Temporal aggregations",
-    "description": "Computes a temporal aggregation based on an array of date or date and time ranges. Will be projected to the labels. Length of labels and groups needs to be the same. All data along the dimensions will be passed through the reducer. Calendar hierarchies such as year, month, week etc. will be transformed from the clients into groups.",
+    "description": "Computes a temporal aggregation based on an array of date and/or time intervals.\n\nCalendar hierarchies such as year, month, week etc. must be transformed into specific intervals by the clients. For each interval, all data along the dimension will be passed through the reducer. The computed values will be projected to the labels, so the number of labels and the number of intervals need to be equal.\n\nIf the dimension is not set, the data cube is expected to only have one temporal dimension.",
     "categories": [
         "cubes",
         "aggregate"
     ],
-    "parameter_order": ["data", "groups", "labels", "reducer", "dimension"],
+    "experimental": true,
+    "parameter_order": ["data", "intervals", "labels", "reducer", "dimension"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -16,21 +17,43 @@
             },
             "required": true
         },
-        "groups": {
-            "description": "",
+        "intervals": {
+            "description": "Temporal left-closed intervals so that the start time is contained, but not the end time.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
             "schema": {
                 "type": "array",
                 "items": {
                     "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
                     "items": {
-                        "type": "string"
-                    }
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "examples": [
+                        [["2015-01-01", "2016-01-01"], ["2016-01-01", "2017-01-01"], ["2017-01-01", "2018-01-01"]],
+                        [["00:00:00Z", "12:00:00Z"], ["12:00:00Z", "24:00:00Z"]]
+                    ]
                 }
             },
             "required": true
         },
         "labels": {
-            "description": "",
+            "description": "Labels for the intervals. The number of labels and the number of groups need to be equal.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -40,7 +63,7 @@
             "required": true
         },
         "reducer": {
-            "description": "",
+            "description": "A reducer to be applied on all values along the specified dimension. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
             "schema": {
                 "type": "object",
                 "format": "callback",
@@ -57,11 +80,10 @@
             "required": true
         },
         "dimension": {
-            "description": "The temporal dimension for aggregation.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
             "schema": {
                 "type": "string"
-            },
-            "required": true
+            }
         }
     },
     "returns": {
@@ -70,5 +92,17 @@
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        },
+        {
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+            "rel": "about",
+            "title": "Aggregation explained in the openEO glossary"
+        }
+    ]
 }

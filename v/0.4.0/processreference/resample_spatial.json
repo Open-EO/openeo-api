@@ -1,11 +1,12 @@
 {
     "id": "resample_spatial",
-    "summary": "Resample spatial dimension",
-    "description": "Resamples the spatial dimension.",
+    "summary": "Resample the spatial dimensions",
+    "description": "Resamples the spatial dimensions.",
     "categories": [
         "cubes",
         "aggregate"
     ],
+    "experimental": true,
     "parameter_order": ["data", "method", "target"],
     "parameters": {
         "data": {
@@ -17,14 +18,28 @@
             "required": true
         },
         "method": {
-            "description": "",
+            "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
             "schema": {
                 "type": "string",
-                "default": null
+                "default": "near",
+                "enum": [
+                    "near",
+                    "bilinear",
+                    "cubic",
+                    "cubicspline",
+                    "lanczos",
+                    "average",
+                    "mode",
+                    "max",
+                    "min",
+                    "med",
+                    "q1",
+                    "q3"
+                ]
             }
         },
         "target": {
-            "description": "",
+            "description": "A data cube that describes the target resolution.",
             "schema": {
                 "type": "object",
                 "format": "raster-cube"
@@ -38,5 +53,12 @@
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "links": [
+        {
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+            "rel": "about",
+            "title": "Resampling explained in the openEO glossary"
+        }
+    ]
 }
