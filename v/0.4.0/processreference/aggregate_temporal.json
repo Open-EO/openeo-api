@@ -18,9 +18,10 @@
             "required": true
         },
         "intervals": {
-            "description": "Temporal left-closed intervals so that the start time is contained, but not the end time.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
+            "description": "Temporal left-closed intervals so that the start time is contained, but not the end time. Intervals can overlap.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
             "schema": {
                 "type": "array",
+                "format": "temporal-intervals",
                 "items": {
                     "type": "array",
                     "minItems": 2,
@@ -53,11 +54,27 @@
             "required": true
         },
         "labels": {
-            "description": "Labels for the intervals. The number of labels and the number of groups need to be equal.",
+            "description": "Labels for the intervals, which can contain dates and/or times. The number of labels and the number of groups need to be equal.",
             "schema": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        {
+                            "type": "string",
+                            "format": "time"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 }
             },
             "required": true
@@ -93,6 +110,52 @@
             "format": "raster-cube"
         }
     },
+    "examples": [
+        {
+            "process_graph": {
+                "loadco1": {
+                    "process_id": "load_collection",
+                    "arguments": {
+                        "id": "S2B"
+                    }
+                },
+                "aggreg1": {
+                    "process_id": "aggregate_temporal",
+                    "arguments": {
+                        "data": {
+                            "from_node": "loadco1"
+                        },
+                        "intervals": [
+                            ["2015-01-01","2016-01-01"],
+                            ["2016-01-01","2017-01-01"],
+                            ["2017-01-01","2018-01-01"],
+                            ["2018-01-01","2019-01-01"]
+                        ],
+                        "labels": [
+                            ["2015-01-01"],
+                            ["2016-01-01"],
+                            ["2017-01-01"],
+                            ["2018-01-01"]
+                        ],
+                        "reducer": {
+                            "callback": {
+                                "median1": {
+                                    "process_id": "median",
+                                    "arguments": {
+                                        "data": {
+                                            "from_argument": "data"
+                                        }
+                                    },
+                                    "result": true
+                                }
+                            }
+                        }
+                    },
+                    "result": true
+                }
+            }
+        }
+    ],
     "links": [
         {
             "rel": "about",
