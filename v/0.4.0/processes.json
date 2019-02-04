@@ -1983,7 +1983,7 @@
   {
     "id": "cummax",
     "summary": "Cumulative maxima",
-    "description": "Finds cumulative maxima of an array of numbers. Every computed element is equal to the bigger one between current element and previous element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
+    "description": "Finds cumulative maxima of an array of numbers. Every computed element is equal to the bigger one between current element and the previously computed element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
@@ -2086,7 +2086,7 @@
   {
     "id": "cummin",
     "summary": "Cumulative minima",
-    "description": "Finds cumulative minima of an array of numbers. Every computed element is equal to the smaller one between current element and previous element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
+    "description": "Finds cumulative minima of an array of numbers. Every computed element is equal to the smaller one between current element and the previously computed element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
     "categories": [
       "math > cumulative"
     ],
@@ -4385,7 +4385,7 @@
   {
     "id": "load_result",
     "summary": "Load batch job results",
-    "description": "Loads locally stored batch job results by job id. The job must have been stored by the authenticated user on the back-end currently connected to.",
+    "description": "Loads batch job results by job id from the local user workspace / data store. The job must have been stored by the authenticated user on the back-end currently connected to.",
     "categories": [
       "cubes",
       "import"
@@ -6785,12 +6785,20 @@
     "experimental": true,
     "parameter_order": [
       "data",
-      "method",
-      "target"
+      "target",
+      "method"
     ],
     "parameters": {
       "data": {
         "description": "A data cube.",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "target": {
+        "description": "A data cube that describes the target resolution.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -6817,14 +6825,6 @@
             "q3"
           ]
         }
-      },
-      "target": {
-        "description": "A data cube that describes the target resolution.",
-        "schema": {
-          "type": "object",
-          "format": "raster-cube"
-        },
-        "required": true
       }
     },
     "returns": {
@@ -6858,13 +6858,21 @@
     "experimental": true,
     "parameter_order": [
       "data",
-      "method",
       "target",
+      "method",
       "dimension"
     ],
     "parameters": {
       "data": {
         "description": "A data cube.",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "target": {
+        "description": "A data cube that describes the target resolution.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -6885,14 +6893,6 @@
               }
             }
           }
-        },
-        "required": true
-      },
-      "target": {
-        "description": "A data cube that describes the target resolution.",
-        "schema": {
-          "type": "object",
-          "format": "raster-cube"
         },
         "required": true
       },
@@ -7188,7 +7188,7 @@
   {
     "id": "save_result",
     "summary": "Save processed data to storage",
-    "description": "Saves processed data to the data storage. This process aims to be compatible to GDAL/OGR formats and options. STAC-compatible metadata should be stored with the processed data.\n\nCalling this process may be rejected by back-ends in the context of secondary web services.",
+    "description": "Saves processed data to the local user workspace / data store of the authenticated user. This process aims to be compatible to GDAL/OGR formats and options. STAC-compatible metadata should be stored with the processed data.\n\nCalling this process may be rejected by back-ends in the context of secondary web services.",
     "categories": [
       "cubes",
       "export"
