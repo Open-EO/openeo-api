@@ -17,7 +17,7 @@ All endpoints must respond to the `OPTIONS` HTTP method. This is a response for 
 | Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value MUST be `true`. | `true`                                   |
 | Access-Control-Allow-Headers     | Comma-separated list of HTTP headers allowed to be send. MUST contain at least `Authorization` if authorization is implemented by the back-end. | ` Authorization, Content-Type`           |
 | Access-Control-Allow-Methods     | Comma-separated list of HTTP methods allowed to be requested. Back-ends MUST list all implemented HTTP methods for the endpoint here. | `OPTIONS, GET, POST, PATCH, PUT, DELETE` |
-| Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `OpenEO-Identifier, OpenEO-Costs`. | `OpenEO-Identifier, OpenEO-Costs` |
+| Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `Location, OpenEO-Identifier, OpenEO-Costs`. | `Location, OpenEO-Identifier, OpenEO-Costs` |
 | Content-Type                     | SHOULD return the content type delivered by the request that the permission is requested for. | `application/json`                       |
 
 ### Example request and response
@@ -51,7 +51,7 @@ The following headers MUST be included with every response:
 | -------------------------------- | ------------------------------------------------------------ | -------------------------- |
 | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is RECOMMENDED to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers SHOULD NOT be sent at all. | `http://client.isp.com:80` |
 | Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value MUST be `true`. | `true`                     |
-| Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `OpenEO-Identifier, OpenEO-Costs`. | `OpenEO-Identifier, OpenEO-Costs` |
+| Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `Location, OpenEO-Identifier, OpenEO-Costs`. | `Location, OpenEO-Identifier, OpenEO-Costs` |
 
 
 !!! tip
