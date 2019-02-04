@@ -12,8 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /` (Capabilities):
     - Requires to return a title (`title`), a description (`description`) and the back-end version (`backend_version`). [#154](https://github.com/Open-EO/openeo-api/issues/154)
     - Billing plans have an additional required property `paid`. [#157](https://github.com/Open-EO/openeo-api/issues/157)
-    - Billing plan descriptions allow CommonMark. [#164](https://github.com/Open-EO/openeo-api/issues/164)
-    - Should provide a link to the Well-Known URI in the new `links` property.
+    - Should provide a link to the Well-Known URI (`/.well-known/openeo`) in the new `links` property.
 - `GET /processes` (Process discovery):
     - Processes can be categorizes with the `category` property.
     - Parameters can be ordered with the `parameter_order` property instead of having a random order.
@@ -25,18 +24,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
 - The `process_graph_id` of stored process graphs, the `service_id` of services and the `job_id` of jobs has changed to `id` in responses. [#130](https://github.com/Open-EO/openeo-api/issues/130)
-- The `name` property of files has changed its name to `path`. [#133](https://github.com/Open-EO/openeo-api/issues/133)
-- The `status` property of jobs is now required. 
-- `POST /validation` returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
-- `version` in response of `GET /` renamed to `api_version`.
-- Endpoint paths in `GET /` must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
-- Added authentication information where missing and allowed to call `POST /validation` without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
-- Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
+- The `status` property for jobs is now required. 
+- `GET /` (Capabilities):
+    - `version` in the response was renamed to `api_version`.
+    - Endpoint paths must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
+    - Billing plan descriptions allow CommonMark. [#164](https://github.com/Open-EO/openeo-api/issues/164)
+- `/files/{user_id}/{path}` File management: 
+    - `GET` method: The `name` property was renamed to `path`. [#133](https://github.com/Open-EO/openeo-api/issues/133)
+    - `PUT` method: Returns file meta data with a different response code. [#163](https://github.com/Open-EO/openeo-api/issues/163)
 - `GET /processes` (Process discovery):
     - The `name` property of processes has changed to `id`. [#130](https://github.com/Open-EO/openeo-api/issues/130)
     - `mime_type` replaced with `media_type` in the input parameters and return values.
     - The schema for `exceptions` follows the general schema for openEO errors. [#139](https://github.com/Open-EO/openeo-api/issues/139)
     - Changed the structure of `examples`.
+- `POST /validation` (Process graph validation):
+    - Returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144]
+    - Allowed to call the endpoint without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
+- Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124)
 
 ### Removed
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
@@ -49,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Added missing `Access-Control-Expose-Headers` header to required CORS headers.
+- Some endpoints didn't include authentication information.
 
 ## [0.3.1] - 2018-11-06
 
