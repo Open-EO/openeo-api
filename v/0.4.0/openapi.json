@@ -2969,25 +2969,7 @@
                     "files": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "required": [
-                          "name"
-                        ],
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "description": "Path of the file, relative to the user's root directory. MUST NOT start with a slash and MUST NOT be url-encoded."
-                          },
-                          "size": {
-                            "type": "integer",
-                            "description": "File size in bytes."
-                          },
-                          "modified": {
-                            "type": "string",
-                            "format": "date-time",
-                            "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
-                          }
-                        }
+                        "$ref": "#/components/schemas/file"
                       }
                     },
                     "links": {
@@ -3049,7 +3031,7 @@
         ],
         "responses": {
           "200": {
-            "description": "file from user storage",
+            "description": "A file from the user workspace.",
             "content": {
               "application/octet-stream": {
                 "schema": {
@@ -3087,8 +3069,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "The file upload has been successful."
+          "200": {
+            "description": "The file has been uploaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/file"
+                }
+              }
+            }
           },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
@@ -3929,11 +3918,35 @@
         "type": "string",
         "description": "The media (MIME) type that the value is encoded in.",
         "default": "application/json"
+      },
+      "file": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path of the file, relative to the user's root directory. MUST NOT start with a slash and MUST NOT be url-encoded.",
+            "example": "folder/file.txt"
+          },
+          "size": {
+            "type": "integer",
+            "description": "File size in bytes.",
+            "example": 1024
+          },
+          "modified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+            "example": "2018-01-03T10:55:29Z"
+          }
+        }
       }
     },
     "responses": {
       "created": {
-        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\nExamples: * `POST /services` redirects to `GET /services/{service_id}` * `POST /jobs` redirects to `GET /jobs/{job_id}`",
+        "description": "The resource has been created successfully and the location of the newly created resource is advertized by the back-end.\n\nExamples:\n* `POST /services` redirects to `GET /services/{service_id}`\n* `POST /jobs` redirects to `GET /jobs/{job_id}`",
         "headers": {
           "Location": {
             "required": true,
