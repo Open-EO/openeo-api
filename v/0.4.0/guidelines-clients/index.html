@@ -1150,9 +1150,9 @@
 <td><code>listFiles(?userId)</code></td>
 </tr>
 <tr>
-<td>Creates a (virtual) file. Returns a <code>File</code>.</td>
+<td>Opens a (existing or non-existing) file without reading any information. Returns a <code>File</code>.</td>
 <td><em>None</em></td>
-<td><code>createFile(path, ?userId)</code></td>
+<td><code>openFile(path, ?userId)</code></td>
 </tr>
 <tr>
 <td>Validates a process graph.</td>
@@ -1170,9 +1170,14 @@
 <td><code>createProcessGraph(processGraph, ?title, ?description)</code></td>
 </tr>
 <tr>
+<td>Get all information about a stored process graph. Returns a <code>ProcessGraph</code>.</td>
+<td><code>GET /process_graphs/{process_graph_id}</code></td>
+<td><code>getJobById(id)</code></td>
+</tr>
+<tr>
 <td>Executes a process graph synchronously.</td>
 <td><code>POST /preview</code></td>
-<td><code>execute(processGraph, ?outputFormat, ?outputParameters, ?budget)</code></td>
+<td><code>computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)</code></td>
 </tr>
 <tr>
 <td>Lists all jobs of the authenticated user. Returns a list of <code>Job</code>.</td>
@@ -1185,6 +1190,11 @@
 <td><code>createJob(processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)</code></td>
 </tr>
 <tr>
+<td>Get all information about a job. Returns a <code>Job</code>.</td>
+<td><code>GET /jobs/{job_id}</code></td>
+<td><code>getJobById(id)</code></td>
+</tr>
+<tr>
 <td>Lists all secondary services of the authenticated user. Returns a list of <code>Service</code>.</td>
 <td><code>GET /services</code></td>
 <td><code>listServices()</code></td>
@@ -1193,6 +1203,11 @@
 <td>Creates a new secondary service. Returns  a <code>Service</code>.</td>
 <td><code>POST /services</code></td>
 <td><code>createService(processGraph, type, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)</code></td>
+</tr>
+<tr>
+<td>Get all information about a service. Returns a <code>Service</code>.</td>
+<td><code>GET /services/{service_id}</code></td>
+<td><code>getServiceById(id)</code></td>
 </tr>
 </tbody>
 </table>
@@ -1221,6 +1236,16 @@
 <td>Get the back-end version.</td>
 <td><code>backend_version</code></td>
 <td><code>backendVersion()</code></td>
+</tr>
+<tr>
+<td>Get the name of the back-end.</td>
+<td><code>title</code></td>
+<td><code>title()</code></td>
+</tr>
+<tr>
+<td>Get the description of the back-end.</td>
+<td><code>description</code></td>
+<td><code>description()</code></td>
 </tr>
 <tr>
 <td>List all supported features / endpoints.</td>
@@ -1292,12 +1317,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Get all job information.</td>
+<td>Get (and update on client-side) all job information.</td>
 <td><code>GET /jobs/{job_id}</code></td>
 <td><code>describeJob()</code></td>
 </tr>
 <tr>
-<td>Update a job.</td>
+<td>Modify a job at the back-end.</td>
 <td><code>PATCH /jobs/{job_id}</code></td>
 <td><code>updateJob(?processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)</code></td>
 </tr>
@@ -1339,7 +1364,7 @@
 <li><strong>target</strong> in <code>downloadResults</code>: Path to a local folder.</li>
 </ul>
 <h3 id="scope-processgraph-api-category">Scope: <code>ProcessGraph</code> (API category)<a class="headerlink" href="#scope-processgraph-api-category" title="Permanent link">&para;</a></h3>
-<p>The <code>ProcessGraph</code> scope internally knows the <code>pg_id</code> (<code>process_graph_id</code>).</p>
+<p>The <code>ProcessGraph</code> scope internally knows the <code>process_graph_id</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1350,18 +1375,18 @@
 </thead>
 <tbody>
 <tr>
-<td>Get all information about a stored process graph.</td>
-<td><code>GET /process_graphs/{pg_id}</code></td>
+<td>Get (and update on client-side) all information about a stored process graph.</td>
+<td><code>GET /process_graphs/{process_graph_id}</code></td>
 <td><code>describeProcessGraph()</code></td>
 </tr>
 <tr>
-<td>Update a stored process graph.</td>
-<td><code>PATCH /process_graphs/{pg_id}</code></td>
+<td>Modify a stored process graph at the back-end.</td>
+<td><code>PATCH /process_graphs/{process_graph_id}</code></td>
 <td><code>updateProcessGraph(?processGraph, ?title, ?description)</code></td>
 </tr>
 <tr>
 <td>Delete a stored process graph.</td>
-<td><code>DELETE /process_graphs/{pg_id}</code></td>
+<td><code>DELETE /process_graphs/{process_graph_id}</code></td>
 <td><code>deleteProcessGraph()</code></td>
 </tr>
 </tbody>
@@ -1378,12 +1403,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Get all information about a secondary web service.</td>
+<td>Get (and update on client-side) all information about a secondary web service.</td>
 <td><code>GET /services/{service_id}</code></td>
 <td><code>describeService()</code></td>
 </tr>
 <tr>
-<td>Update a secondary web service.</td>
+<td>Modify a secondary web service at the back-end.</td>
 <td><code>PATCH /services/{service_id}</code></td>
 <td><code>updateService(?processGraph, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)</code></td>
 </tr>
