@@ -29,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `version` in the response was renamed to `api_version`.
     - Endpoint paths must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
     - Billing plan descriptions allow CommonMark. [#164](https://github.com/Open-EO/openeo-api/issues/164)
-- `/files/{user_id}/{path}` File management: 
+- `/files/{user_id}/{path}` File management:
+    - Clarified handling of folders. [#146](https://github.com/Open-EO/openeo-api/issues/146)
     - `GET` method: The `name` property was renamed to `path`. [#133](https://github.com/Open-EO/openeo-api/issues/133)
     - `PUT` method: Returns file meta data with a different response code. [#163](https://github.com/Open-EO/openeo-api/issues/163)
 - `GET /processes` (Process discovery):
