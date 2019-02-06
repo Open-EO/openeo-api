@@ -2956,7 +2956,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as the file size and the timestamp of the last modification. All properties except the name are optional.",
+            "description": "Flattened file tree with path relative to the user's root directory and some basic properties such as the file size and the timestamp of the last modification. All properties except the name are optional. Folders MUST NOT be listed separately so each element in the list MUST be a downloadable file.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3020,7 +3020,7 @@
       ],
       "get": {
         "summary": "Download a file.",
-        "description": "This service downloads a user files identified by its path relative to the user's root directory.",
+        "description": "This service downloads a user files identified by its path relative to the user's root directory.\nIf a folder is specified as path a `FileOperationUnsupported` error MUST be sent as response.",
         "tags": [
           "File Management"
         ],
@@ -3051,7 +3051,7 @@
       },
       "put": {
         "summary": "Upload a file.",
-        "description": "This service uploads a new or updates an existing file at a given path.",
+        "description": "This service uploads a new or updates an existing file at a given path.\n\nFolders are created once required by a file upload. Empty folders can't be created.",
         "tags": [
           "File Management"
         ],
@@ -3099,7 +3099,7 @@
       },
       "delete": {
         "summary": "Delete a file.",
-        "description": "This service deletes an existing user-uploaded file specified by its path.",
+        "description": "This service deletes an existing user-uploaded file specified by its path. Resulting empty folders MUST be deleted automatically.\n\nBack-ends MAY support deleting folders including its files and subfolders.  If not supported by the back-end a `FileOperationUnsupported` error MUST be sent as response.",
         "tags": [
           "File Management"
         ],
