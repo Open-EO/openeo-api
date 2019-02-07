@@ -118,7 +118,7 @@ Parameters with a leading `?` are optional.
 | Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs`                    | `listProcessGraphs()` |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`                  | `createProcessGraph(processGraph, ?title, ?description)` |
 | Get all information about a stored process graph. Returns a `ProcessGraph`. | `GET /process_graphs/{process_graph_id}` | `getJobById(id)` |
-| Executes a process graph synchronously.                      | `POST /preview`                          | `computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)` |
+| Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)` |
 | Lists all jobs of the authenticated user. Returns a list of `Job`. | `GET /jobs`                        | `listJobs()` |
 | Creates a new job. Returns a `Job`.                          | `POST /jobs`                             | `createJob(processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Get all information about a job. Returns a `Job`.            | `GET /jobs/{job_id}`                     | `getJobById(id)` |

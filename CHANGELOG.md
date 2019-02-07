@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
 - The `process_graph_id` of stored process graphs, the `service_id` of services and the `job_id` of jobs has changed to `id` in responses. [#130](https://github.com/Open-EO/openeo-api/issues/130)
 - The `status` property for jobs is now required. 
+- `POST /preview` renamed to `POST /result`. [#162](https://github.com/Open-EO/openeo-api/issues/162)
 - `GET /` (Capabilities):
     - `version` in the response was renamed to `api_version`.
     - Endpoint paths must follow the openAPI specification. [#128](https://github.com/Open-EO/openeo-api/issues/128)
@@ -49,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `min_parameters` and `dependencies` for parameters in process descriptions returned by `GET /processes`.
 - Replaced output format properties in favor of an export process, which has resulted in in the removal of:
   - The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
-  - The output format properties in `POST /preview`, `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests. [#153](https://github.com/Open-EO/openeo-api/issues/153)
+  - The output format properties in `POST /result` (fka `POST /preview`), `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests. [#153](https://github.com/Open-EO/openeo-api/issues/153)
   - `gis_data_type` (not to be confused with `gis_data_types`) in the parameters of output formats in `GET /output_formats`
 
 ### Fixed

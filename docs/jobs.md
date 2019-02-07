@@ -6,7 +6,7 @@ Results can be pre-computed by creating a ***batch job*** using  `POST /jobs`.  
 
 Another way of processing and accessing data are **secondary web services**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations may run ***on demand***, i.e. the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and waiting times for the user.
 
-Process graphs can also be ***executed  synchronously*** (`POST /jobs/previews`). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+Process graphs can also be ***executed  synchronously*** (`POST /result`). Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
 ## Data processing details
 Heterogeneous datasets are unified by the back-ends based on the processes in the process graphs. For instance, the difference between a PROBA-V image and a Sentinel image, which have e a different projection and resolution, are automatically resampled and projected by the back-ends as soon as it is required to do so. Clients are not responsible to ensure that the data matches by first applying resampling or projections processes.
@@ -22,7 +22,7 @@ Temporal references are always specified on the basis of the [Gregorian calendar
 **Request**
 
 ``` http
-POST /preview HTTP/1.1
+POST /result HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 {
@@ -81,7 +81,7 @@ omitted (the GeoTiff file contents)
 **Request**
 
 ``` http
-POST /preview HTTP/1.1
+POST /result HTTP/1.1
 Content-Type: application/json; charset=utf-8
 
 {
