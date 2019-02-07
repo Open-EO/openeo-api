@@ -10,10 +10,10 @@ The openEO (core) API is currently released in version **0.3.1**. This branch sp
 
 **Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
 
-| Version / Branch                                             | Status  | Description                                                  |
-| ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-| [0.0.1](https://github.com/Open-EO/openeo-api/tree/0.0.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.1/index.html)) | legacy  | First draft with basic ideas, loosely implemented.           |
-| [0.0.2](https://github.com/Open-EO/openeo-api/tree/0.0.2) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.2/index.html)) | legacy  | Proof of concept, implemented.                               |
+| Version / Branch                                             | Status  | Description |
+| ------------------------------------------------------------ | ------- | ----------- |
+| [0.0.1](https://github.com/Open-EO/openeo-api/tree/0.0.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.1/index.html)) | legacy  | First draft with basic ideas, loosely implemented. |
+| [0.0.2](https://github.com/Open-EO/openeo-api/tree/0.0.2) ([Spec](https://open-eo.github.io/openeo-api/v/0.0.2/index.html)) | legacy  | Proof of concept, implemented. |
 | [0.3.0](https://github.com/Open-EO/openeo-api/tree/0.3.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.0/index.html)) | legacy | Major rework. |
 | [0.3.1](https://github.com/Open-EO/openeo-api/tree/0.3.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.1/index.html)) | current | Fixing minor issues, see the changelog. |
 | [**0.4.0**](https://github.com/Open-EO/openeo-api/tree/0.4.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.0/index.html)) | **planned** | Planned to improve data set descriptions, add process specifications and an extension concept. |

@@ -23,8 +23,8 @@ To define new processes, back-end providers should consider:
 
 In addition to the native data formats specified by JSON schema, openEO defines a set of specific formats that should be re-used in process schema definitions:
 
-| Format Name   | Description                                                  |
-| ------------- | ------------------------------------------------------------ |
+| Format Name   | Description |
+| ------------- | ----------- |
 | `callback`    | An openEO process graph that is passed as an argument and is expected to be execute by the process. |
 | `date`        | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
 | `date-time`   | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
