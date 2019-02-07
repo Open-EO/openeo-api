@@ -1458,7 +1458,7 @@
     "/udf_runtimes": {
       "get": {
         "summary": "List supported runtimes for UDFs.",
-        "description": "Returns a list of supported runtimes for user-defined functions (UDFs), which includes either the programming languages including version numbers and available libraries including versions or docker containers.",
+        "description": "Returns a list of supported runtimes for user-defined functions (UDFs), which includes either the programming languages including version numbers and available libraries including version numbers or docker containers.",
         "tags": [
           "Capabilities"
         ],
@@ -1482,39 +1482,46 @@
                         "title": "Programming language",
                         "type": "object",
                         "required": [
-                          "language",
-                          "version",
-                          "libraries"
+                          "default",
+                          "versions"
                         ],
                         "properties": {
                           "description": {
                             "$ref": "#/components/schemas/description"
                           },
-                          "language": {
-                            "type": "string",
-                            "description": "Name of the programming language."
+                          "default": {
+                            "description": "The default version.",
+                            "type": "string"
                           },
-                          "version": {
-                            "type": "string",
-                            "description": "Version number of the programming language."
-                          },
-                          "libraries": {
-                            "description": "List of installed libraries/modules/packages/extensions for the programming language. The names of the extension are used as the property keys.",
+                          "versions": {
+                            "description": "Versions available for the programming language.",
+                            "type": "object",
                             "additionalProperties": {
                               "type": "object",
                               "required": [
-                                "version"
+                                "libraries"
                               ],
                               "properties": {
-                                "version": {
-                                  "type": "string",
-                                  "description": "Version number of the library."
-                                },
-                                "links": {
-                                  "type": "array",
-                                  "description": "Related links, e.g. additional external documentation for this library.",
-                                  "items": {
-                                    "$ref": "#/components/schemas/link"
+                                "libraries": {
+                                  "description": "List of installed libraries/modules/packages/extensions for the programming language. The names of the extension are used as the property keys.",
+                                  "additionalProperties": {
+                                    "type": "object",
+                                    "required": [
+                                      "version"
+                                    ],
+                                    "properties": {
+                                      "version": {
+                                        "type": "string",
+                                        "description": "Version number of the library."
+                                      },
+                                      "links": {
+                                        "type": "array",
+                                        "description": "Related links, e.g. additional external documentation for this library.",
+                                        "items": {
+                                          "$ref": "#/components/schemas/link"
+                                        }
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -1530,7 +1537,8 @@
                         "type": "object",
                         "required": [
                           "docker",
-                          "tag"
+                          "default",
+                          "tags"
                         ],
                         "properties": {
                           "description": {
@@ -1540,9 +1548,17 @@
                             "type": "string",
                             "description": "Identifier of a Docker image on Docker Hub or a private repository, i.e. the docker image name."
                           },
-                          "tag": {
-                            "type": "string",
-                            "description": "The docker tag that is used."
+                          "default": {
+                            "description": "The default tag.",
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "description": "The docker tags that are supported.",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string"
+                            }
                           },
                           "links": {
                             "$ref": "#/components/schemas/udf_links"
@@ -1553,59 +1569,65 @@
                   }
                 },
                 "example": {
-                  "PHP7-latest": {
+                  "PHP7": {
                     "description": "Just an example how to reference a docker image.",
                     "docker": "openeo/udf-php7",
-                    "tag": "latest",
+                    "default": "latest",
+                    "tags": [
+                      "latest",
+                      "7.3.1",
+                      "7.3",
+                      "7.2"
+                    ],
                     "links": [
                       {
                         "href": "https://hub.docker.com/openeo/udf-php7/"
                       }
                     ]
                   },
-                  "R-3.1-legacy": {
-                    "description": "Legacy version of R for old UDFs.",
-                    "language": "R",
-                    "version": "3.1.0",
-                    "libraries": {
-                      "Rcpp": {
-                        "version": "1.0.0",
-                        "links": [
-                          {
-                            "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                  "R": {
+                    "description": "R programming language with Rcpp and rmarkdown.",
+                    "default": "3.5.2",
+                    "versions": {
+                      "3.1.0": {
+                        "libraries": {
+                          "Rcpp": {
+                            "version": "1.0.10",
+                            "links": [
+                              {
+                                "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                              }
+                            ]
+                          },
+                          "rmarkdown": {
+                            "version": 1.7,
+                            "links": [
+                              {
+                                "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                              }
+                            ]
                           }
-                        ]
+                        }
                       },
-                      "rmarkdown": {
-                        "version": 1.7,
-                        "links": [
-                          {
-                            "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                      "3.5.2": {
+                        "libraries": {
+                          "Rcpp": {
+                            "version": "1.2.0",
+                            "links": [
+                              {
+                                "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                              }
+                            ]
+                          },
+                          "rmarkdown": {
+                            "version": 1.7,
+                            "links": [
+                              {
+                                "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                              }
+                            ]
                           }
-                        ]
-                      }
-                    }
-                  },
-                  "R-3.x-latest": {
-                    "description": "Alwayst the newest version of R and its libraries.",
-                    "language": "R",
-                    "version": "3.5.2",
-                    "libraries": {
-                      "Rcpp": {
-                        "version": "1.0.0",
-                        "links": [
-                          {
-                            "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
-                          }
-                        ]
-                      },
-                      "rmarkdown": {
-                        "version": 1.11,
-                        "links": [
-                          {
-                            "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
-                          }
-                        ]
+                        }
                       }
                     }
                   }
