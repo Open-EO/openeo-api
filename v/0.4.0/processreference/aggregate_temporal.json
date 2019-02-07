@@ -1,7 +1,7 @@
 {
     "id": "aggregate_temporal",
     "summary": "Temporal aggregations",
-    "description": "Computes a temporal aggregation based on an array of date and/or time intervals.\n\nCalendar hierarchies such as year, month, week etc. must be transformed into specific intervals by the clients. For each interval, all data along the dimension will be passed through the reducer. The computed values will be projected to the labels, so the number of labels and the number of intervals need to be equal.\n\nIf the dimension is not set, the data cube is expected to only have one temporal dimension.",
+    "description": "Computes a temporal aggregation based on an array of date and/or time intervals.\n\nCalendar hierarchies such as year, month, week etc. must be transformed into specific intervals by the clients. For each interval, all data along the dimension will be passed through the reducer. The computed values will be projected to the labels, so the number of labels and the number of intervals need to be equal.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
     "categories": [
         "cubes",
         "aggregate"
@@ -97,9 +97,13 @@
             "required": true
         },
         "dimension": {
-            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
             "schema": {
-                "type": "string"
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "default": null
             }
         }
     },
