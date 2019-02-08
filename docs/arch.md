@@ -23,7 +23,7 @@ To simplify and structure the development, the API is divided into a few microse
 | EO Data Discovery             | Describes which datasets and image collections are available at the back-end. |
 | Process Discovery             | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
 | UDF                           | Discovery and execution of user-defined functions. |
-| Job Management                | Organizes and manages jobs that run processes on back-ends. |
+| Batch Job Management          | Organizes and manages batch jobs that run processes on back-ends. |
 | File Management               | Organizes and manages user-uploaded files. |
 | Process Graph Management      | Organizes and manages user-defined process graphs. |
 | Secondary Services Management | External web services to access data and job results such as a OGC WMTS service. |
