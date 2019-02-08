@@ -2624,7 +2624,7 @@
       },
       "post": {
         "summary": "Create a new batch job",
-        "description": "Creates a new batch processing task (job) from one or more (chained) processes at the back-end.",
+        "description": "Creates a new batch processing task (job) from one or more (chained) processes at the back-end.\n\nProcessing the data doesn't start yet. The job status gets initialized as `submitted` by default.",
         "tags": [
           "Batch Job Management"
         ],
@@ -2991,7 +2991,7 @@
       },
       "post": {
         "summary": "Start processing a batch job",
-        "description": "Adds a batch job to the processing queue to compute the results.",
+        "description": "Adds a batch job to the processing queue to compute the results.\n\nThis endpoint has no effect if the job status is already `queued` or `running`. In particular, it doesn't restart a running job. Processing MUST be canceled before to restart it.\n\nThe job status is set to `queued`, if processing doesn't start instantly.\n* Once the processing starts the status is set to `running`.\n \n* Once the data is available to download the status is set to `finished`.\n    \n* Whenever an error occurs during processing, the status must be set to `error`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -3014,7 +3014,7 @@
       },
       "delete": {
         "summary": "Cancel processing a batch job",
-        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing. A subset of processed results may be available for downloading depending on the state of the job as it was canceled. Results SHOULD not be deleted until the job is deleted or job processing is started again.",
+        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing.\n\nA subset of processed results may be available for downloading depending on the state of the job as it was canceled. Finished results MUST NOT be deleted until the job is deleted or job processing is started again.\n\nThis endpoint only has an effect if the job status is `queued` or `running`.\n\nThe job status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
         "tags": [
           "Batch Job Management"
         ],
@@ -4209,7 +4209,7 @@
           "finished",
           "error"
         ],
-        "description": "The current status of a batch job. The default state for a job is `Submitted`. A job is `queued` after calling `POST /jobs/{job_id}/results`. It remains in this state until processing has been started, which changes the status to `running`. After the processing has been completed the status is `finished` and results can be downloaded by requesting `GET /jobs/{job_id}/results`. Whenever an error occurs the status must be set to `error`.",
+        "description": "The current status of a batch job.\n\nThe following status changes can occur:\n* `POST /jobs`: The status is initialized as `submitted`.\n* `POST /jobs/{job_id}/results`: The status is set to `queued`, if processing doesn't start instantly.\n    * Once the processing starts the status is set to `running`.\n    * Once the data is available to download the status is set to `finished`.\n    * Whenever an error occurs during processing, the status must be set to `error`.\n* `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
         "example": "running",
         "default": "submitted"
       },
