@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added missing `Access-Control-Expose-Headers` header to required CORS headers.
 - Some endpoints didn't include authentication information.
+- `GET /jobs/{job_id}/estimate`: Property `downloads_included` had a wrong default value.
 
 ## [0.3.1] - 2018-11-06
 
