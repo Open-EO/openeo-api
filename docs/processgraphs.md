@@ -53,13 +53,12 @@ A value is defined as follows:
 <ArgumentValue> := <string|number|boolean|null|array|object|Callback|CallbackParameter|Result|Variable>
 ```
 
+**Note**: The specified data types except `Callback`, `CallbackParameter`, `Result` and `Variable` are the native data types supported by JSON. Limitations apply as objects are not allowed to have keys with the following names:
 
-!!! note
-​    The specified data types except `Callback`, `CallbackParameter`, `Result` and `Variable` are the native data types supported by JSON.
-    Limitations apply as objects are not allowed to have keys with the following names:
-​        * `variable_id`, except for objects of type `Variable`
-​        * `from_argument`, except for objects of type `CallbackParameter`
-​        * `from_node`, except for objects of type `Result`
+* `variable_id`, except for objects of type `Variable`
+* `from_argument`, except for objects of type `CallbackParameter`
+* `from_node`, except for objects of type `Result`
+
 
 `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 

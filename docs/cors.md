@@ -54,5 +54,4 @@ The following headers MUST be included with every response:
 | Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `Location, OpenEO-Identifier, OpenEO-Costs`. | `Location, OpenEO-Identifier, OpenEO-Costs` |
 
 
-!!! tip
-    Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
+**Tip**: Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.

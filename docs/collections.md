@@ -2,8 +2,7 @@
 
 openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS](https://github.com/opengeospatial/WFS_FES) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.6 and WFS 3.0 responses, including an incomplete compatibility with their APIs (see below).
 
-!!! warning
-​    STAC and OGC WFS 3, as well as openEO, are still under development.
+**WARNING**: STAC and OGC WFS 3, as well as openEO, are still under development.
 Therefore, it is very likely that further changes and adjustments will be made in the future.
 
 ## Extensions
@@ -22,8 +21,7 @@ Some commonly used extensions that are integrated in the openEO API specificatio
 
 For data discovery in general and each collection you can specify a set of references. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing, etc.
 
-!!! note
-​    STAC requires to add a link with relation type `self` (see below). Although this is not technically necessary for openEO and we do not enforce to provide such a link with our validation tools, we still recommend to provide it anyway for compatibility reasons.
+**Note**: STAC requires to add a link with relation type `self` (see below). Although this is not technically necessary for openEO and we do not enforce to provide such a link with our validation tools, we still recommend to provide it anyway for compatibility reasons.
 
 ### Common link relation types
 
