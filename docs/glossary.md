@@ -39,7 +39,9 @@ Examples:
 
 Note that for the first example, the aggregation function not only requires time series values, but also their time stamps.
 
-***Resampling*** (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). Resampling from finer to coarser grid may again be a special case of aggregation.
+***Resampling*** (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_.
+
+Resampling from finer to coarser grid is a special case of aggregation often called _downsampling_ or _downscaling_.
 
 When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are similar, (e.g. the source collection provides 10 day intervals and the target needs values for 16 day intervals), then some form of interpolation may be more appropriate than aggregation as defined here.
 

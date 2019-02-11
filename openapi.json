@@ -1131,163 +1131,7 @@
                     "processes": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "required": [
-                          "id",
-                          "description",
-                          "parameters",
-                          "returns"
-                        ],
-                        "properties": {
-                          "id": {
-                            "$ref": "#/components/schemas/process_id"
-                          },
-                          "summary": {
-                            "type": "string",
-                            "description": "A short summary of what the process does."
-                          },
-                          "description": {
-                            "$ref": "#/components/schemas/process_description"
-                          },
-                          "categories": {
-                            "type": "array",
-                            "description": "A list of categories.",
-                            "items": {
-                              "type": "string",
-                              "description": "Name of the category."
-                            }
-                          },
-                          "parameter_order": {
-                            "type": "array",
-                            "description": "Describes the order or the parameter for any environments that don't support named parameters. This property MUST be present for all processes with two or more parameters.",
-                            "items": {
-                              "type": "string",
-                              "description": "Each item MUST correspond to a key in the `parameters` object."
-                            }
-                          },
-                          "parameters": {
-                            "type": "object",
-                            "description": "A list of parameters that are applicable for this process. The keys of the object are the names of the parameters. They keys MUST match the following pattern: `^[A-Za-z0-9_]+$`",
-                            "additionalProperties": {
-                              "type": "object",
-                              "required": [
-                                "description",
-                                "schema"
-                              ],
-                              "properties": {
-                                "description": {
-                                  "$ref": "#/components/schemas/process_description"
-                                },
-                                "required": {
-                                  "type": "boolean",
-                                  "description": "Determines whether this parameter is mandatory.",
-                                  "default": false
-                                },
-                                "deprecated": {
-                                  "type": "boolean",
-                                  "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
-                                  "default": false
-                                },
-                                "experimental": {
-                                  "type": "boolean",
-                                  "description": "Specifies that a parameter is experimental and likely to change or produce unpredictable behaviour.",
-                                  "default": false
-                                },
-                                "media_type": {
-                                  "$ref": "#/components/schemas/process_media_type"
-                                },
-                                "schema": {
-                                  "$ref": "#/components/schemas/json_schema"
-                                }
-                              }
-                            }
-                          },
-                          "returns": {
-                            "type": "object",
-                            "description": "The data that is returned from this process.",
-                            "required": [
-                              "description",
-                              "schema"
-                            ],
-                            "properties": {
-                              "description": {
-                                "$ref": "#/components/schemas/process_description"
-                              },
-                              "media_type": {
-                                "$ref": "#/components/schemas/process_media_type"
-                              },
-                              "schema": {
-                                "$ref": "#/components/schemas/json_schema"
-                              }
-                            }
-                          },
-                          "deprecated": {
-                            "type": "boolean",
-                            "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
-                            "default": false
-                          },
-                          "experimental": {
-                            "type": "boolean",
-                            "description": "Declares this process to be still experimental, which means that it is likely to change or produce unpredictable behaviour.",
-                            "default": false
-                          },
-                          "exceptions": {
-                            "type": "object",
-                            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages.\n\nThe keys define the error code and MUST match the following pattern: `^[A-Za-z0-9_]+$`\n\nThis schema follows the schema of the general openEO error list (see errors.json).",
-                            "additionalProperties": {
-                              "type": "object",
-                              "required": [
-                                "message"
-                              ],
-                              "properties": {
-                                "description": {
-                                  "type": "string",
-                                  "description": "Detailed description to fully explain the error to client users and back-end developers. This should not be shown in the clients directly, but may be linked to in the errors `url` property.  \n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation."
-                                },
-                                "message": {
-                                  "type": "string",
-                                  "description": "Explains the reason the server is rejecting the request. This message is intended to be displayed to the client user. For \"4xx\" error codes the message should explain shortly how the client needs to modify the request.\n\nThe message MAY contain variables, which are enclosed by curly brackets. Example: `{variable_name}`",
-                                  "example": "The value specified for the process argument '{argument}' in process '{process}' is invalid: {reason}"
-                                },
-                                "http": {
-                                  "type": "integer",
-                                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.0/errors/). Defaults to `400`.",
-                                  "default": 400
-                                }
-                              }
-                            }
-                          },
-                          "examples": {
-                            "type": "array",
-                            "description": "Examples, may be used for tests. Either `process_graph` or `arguments` must be set, never both.",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "title": {
-                                  "type": "string",
-                                  "description": "A title for the example."
-                                },
-                                "description": {
-                                  "$ref": "#/components/schemas/process_description"
-                                },
-                                "process_graph": {
-                                  "$ref": "#/components/schemas/process_graph"
-                                },
-                                "arguments": {
-                                  "$ref": "#/components/schemas/process_arguments"
-                                },
-                                "returns": {}
-                              }
-                            }
-                          },
-                          "links": {
-                            "type": "array",
-                            "description": "Related links, e.g. additional external documentation for this process.",
-                            "items": {
-                              "$ref": "#/components/schemas/link"
-                            }
-                          }
-                        }
+                        "$ref": "#/components/schemas/process"
                       }
                     },
                     "links": {
@@ -3932,6 +3776,7 @@
           },
           "result": {
             "type": "boolean",
+            "description": "Used to specify which node is the last in the chain and returns the result to return to the requesting context. This flag MUST only be set once in each list of process nodes.",
             "default": false
           },
           "description": {
@@ -3980,7 +3825,7 @@
           },
           {
             "type": "object",
-            "title": "Return value of a process",
+            "title": "Result",
             "description": "Data that is expected to be passed from another process.",
             "required": [
               "from_node"
@@ -3994,7 +3839,7 @@
           },
           {
             "type": "object",
-            "title": "Callback parameter",
+            "title": "Callback Parameter",
             "description": "Data that is expected to be passed to a callback from a calling process.",
             "required": [
               "from_argument"
@@ -4168,6 +4013,166 @@
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      "process": {
+        "type": "object",
+        "required": [
+          "id",
+          "description",
+          "parameters",
+          "returns"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/process_id"
+          },
+          "summary": {
+            "type": "string",
+            "description": "A short summary of what the process does."
+          },
+          "description": {
+            "$ref": "#/components/schemas/process_description"
+          },
+          "categories": {
+            "type": "array",
+            "description": "A list of categories.",
+            "items": {
+              "type": "string",
+              "description": "Name of the category."
+            }
+          },
+          "parameter_order": {
+            "type": "array",
+            "description": "Describes the order or the parameter for any environments that don't support named parameters. This property MUST be present for all processes with two or more parameters.",
+            "items": {
+              "type": "string",
+              "description": "Each item MUST correspond to a key in the `parameters` object.",
+              "pattern": "^[A-Za-z0-9_]+$"
+            }
+          },
+          "parameters": {
+            "type": "object",
+            "description": "A list of parameters that are applicable for this process. The keys of the object are the names of the parameters. They keys MUST match the following pattern: `^[A-Za-z0-9_]+$`",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "description",
+                "schema"
+              ],
+              "properties": {
+                "description": {
+                  "$ref": "#/components/schemas/process_description"
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Determines whether this parameter is mandatory.",
+                  "default": false
+                },
+                "deprecated": {
+                  "type": "boolean",
+                  "description": "Specifies that a parameter is deprecated and SHOULD be transitioned out of usage.",
+                  "default": false
+                },
+                "experimental": {
+                  "type": "boolean",
+                  "description": "Specifies that a parameter is experimental and likely to change or produce unpredictable behaviour.",
+                  "default": false
+                },
+                "media_type": {
+                  "$ref": "#/components/schemas/process_media_type"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/json_schema"
+                }
+              }
+            }
+          },
+          "returns": {
+            "type": "object",
+            "description": "The data that is returned from this process.",
+            "required": [
+              "description",
+              "schema"
+            ],
+            "properties": {
+              "description": {
+                "$ref": "#/components/schemas/process_description"
+              },
+              "media_type": {
+                "$ref": "#/components/schemas/process_media_type"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/json_schema"
+              }
+            }
+          },
+          "deprecated": {
+            "type": "boolean",
+            "description": "Declares this process to be deprecated. Consumers SHOULD refrain from usage of the declared process.",
+            "default": false
+          },
+          "experimental": {
+            "type": "boolean",
+            "description": "Declares this process to be still experimental, which means that it is likely to change or produce unpredictable behaviour.",
+            "default": false
+          },
+          "exceptions": {
+            "type": "object",
+            "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages.\n\nThe keys define the error code and MUST match the following pattern: `^[A-Za-z0-9_]+$`\n\nThis schema follows the schema of the general openEO error list (see errors.json).",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "description": "Detailed description to fully explain the error to client users and back-end developers. This should not be shown in the clients directly, but may be linked to in the errors `url` property.  \n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation."
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Explains the reason the server is rejecting the request. This message is intended to be displayed to the client user. For \"4xx\" error codes the message should explain shortly how the client needs to modify the request.\n\nThe message MAY contain variables, which are enclosed by curly brackets. Example: `{variable_name}`",
+                  "example": "The value specified for the process argument '{argument}' in process '{process}' is invalid: {reason}"
+                },
+                "http": {
+                  "type": "integer",
+                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.0/errors/). Defaults to `400`.",
+                  "default": 400
+                }
+              }
+            }
+          },
+          "examples": {
+            "type": "array",
+            "description": "Examples, may be used for tests. Either `process_graph` or `arguments` must be set, never both.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "A title for the example."
+                },
+                "description": {
+                  "$ref": "#/components/schemas/process_description"
+                },
+                "process_graph": {
+                  "$ref": "#/components/schemas/process_graph"
+                },
+                "arguments": {
+                  "$ref": "#/components/schemas/process_arguments"
+                },
+                "returns": {}
+              }
+            }
+          },
+          "links": {
+            "type": "array",
+            "description": "Related links, e.g. additional external documentation for this process.",
+            "items": {
+              "$ref": "#/components/schemas/link"
             }
           }
         }

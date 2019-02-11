@@ -56,7 +56,7 @@ Method names of scopes in the *Content* category may collide with method names o
 
 ### Parameters
 
-The parameters usually follow the request schemas in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.
+The parameters usually follow the request schemes in the openAPI specification. The parameters should follow their characteristics, for example regarding the default values.
 
 Some methods have a long list of (optional) parameters. This is easy to implement in languages that support named parameters such as R. For example, creating a job in R with a budget would lead to this method call:
 
