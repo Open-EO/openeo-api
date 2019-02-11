@@ -3867,7 +3867,8 @@
         "example": "0.6.2"
       },
       "variable": {
-        "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.",
+        "title": "Variable",
+        "description": "Process graphs can hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.\n\nIf a process graph with a variable is about to be executed and neither a value nor a default value is specified, the back-end MUST reject the request with an error of type `VariableValueMissing`. The values are usually defined when loading the process graph with the `run_process_graph` process.\n\nInvalid variable types MUST be rejected with error `VariableTypeInvalid`. If the default value is not compatible to the specified type an `VariableDefaultValueTypeInvalid` error MUST be sent. Invalid variable ids MUST be rejected with error `VariableIdInvalid`. ",
         "type": "object",
         "required": [
           "variable_id"
@@ -3879,7 +3880,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The value for type is the expected data type for the content of the variable.",
+            "description": "The value for type is the expected data type for the content of the variable. `null` is allowed for all types.",
             "enum": [
               "string",
               "number",
@@ -3952,19 +3953,24 @@
         "nullable": true,
         "oneOf": [
           {
-            "type": "string"
+            "type": "string",
+            "title": "String"
           },
           {
-            "type": "number"
+            "type": "number",
+            "title": "Number (incl. integers)"
           },
           {
-            "type": "boolean"
+            "type": "boolean",
+            "title": "Boolean"
           },
           {
-            "type": "object"
+            "type": "object",
+            "title": "Object"
           },
           {
             "type": "array",
+            "title": "Array",
             "items": {
               "$ref": "#/components/schemas/process_argument_value"
             }
@@ -3974,6 +3980,7 @@
           },
           {
             "type": "object",
+            "title": "Return value of a process",
             "description": "Data that is expected to be passed from another process.",
             "required": [
               "from_node"
@@ -3987,6 +3994,7 @@
           },
           {
             "type": "object",
+            "title": "Callback parameter",
             "description": "Data that is expected to be passed to a callback from a calling process.",
             "required": [
               "from_argument"
@@ -4000,6 +4008,7 @@
           },
           {
             "type": "object",
+            "title": "Callback",
             "description": "Process graph to be executed as callback from withing the process.",
             "required": [
               "callback"
@@ -4013,7 +4022,7 @@
         ]
       },
       "process_graph": {
-        "description": "A process graph defines a graph-like structure in a set of executable process that are connected with each other. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+        "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
         "type": "object",
         "additionalProperties": {
           "$ref": "#/components/schemas/process_node"
