@@ -114,7 +114,7 @@
   {
     "id": "aggregate_polygon",
     "summary": "Compute zonal statistics for polygons",
-    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe number of total and valid pixels is returned together with the calculated values.",
+    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated from, for example a single band. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
     "categories": [
       "cubes",
       "aggregate"
@@ -189,6 +189,11 @@
             "format": "vector-cube"
           }
         ]
+      }
+    },
+    "exceptions": {
+      "TooManyDimensions": {
+        "message": "The dimensions need to be reduced to three for 'aggregate_polygon'."
       }
     },
     "links": [
@@ -3106,10 +3111,23 @@
         }
       },
       "crs": {
-        "description": "Coordinate reference system. EPSG codes must be supported. In addition, proj4 strings should be supported by back-ends. Whenever possible, it is recommended to use EPSG codes instead of proj4 strings. Defaults to EPSG:4326 unless the client explicitly requests a different coordinate reference system.",
+        "description": "Coordinate reference system of the parameters specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
         "schema": {
-          "type": "string",
-          "default": "EPSG:4326"
+          "oneOf": [
+            {
+              "title": "EPSG Code",
+              "type": "integer",
+              "format": "epsg-code",
+              "example": 7099
+            },
+            {
+              "title": "PROJ definition",
+              "type": "string",
+              "format": "proj-definition",
+              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+            }
+          ],
+          "default": 4326
         }
       }
     },
@@ -3119,7 +3137,24 @@
         "type": "object",
         "format": "raster-cube"
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://proj4.org/usage/projections.html",
+        "title": "PROJ parameters for cartographic projections"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg-registry.org",
+        "title": "Official EPSG code registry"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg.io",
+        "title": "Unofficial EPSG code database"
+      }
+    ]
   },
   {
     "id": "filter_geometry",
@@ -8454,6 +8489,95 @@
         "rel": "about",
         "href": "http://mathworld.wolfram.com/Variance.html",
         "title": "Variance explained by Wolfram MathWorld"
+      }
+    ]
+  },
+  {
+    "id": "warp_projection",
+    "summary": "Warp the projection",
+    "description": "Warps the data cube to the target projection.",
+    "categories": [
+      "cubes",
+      "aggregate"
+    ],
+    "parameter_order": [
+      "data",
+      "projection",
+      "method"
+    ],
+    "parameters": {
+      "data": {
+        "description": "A raster data cube.",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "projection": {
+        "description": "Target projection specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.",
+        "schema": {
+          "oneOf": [
+            {
+              "title": "EPSG Code",
+              "type": "integer",
+              "format": "epsg-code",
+              "example": 7099
+            },
+            {
+              "title": "PROJ definition",
+              "type": "string",
+              "format": "proj-definition",
+              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+            }
+          ]
+        },
+        "required": true
+      },
+      "method": {
+        "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
+        "schema": {
+          "type": "string",
+          "default": "near",
+          "enum": [
+            "near",
+            "bilinear",
+            "cubic",
+            "cubicspline",
+            "lanczos",
+            "average",
+            "mode",
+            "max",
+            "min",
+            "med",
+            "q1",
+            "q3"
+          ]
+        }
+      }
+    },
+    "returns": {
+      "description": "A raster data cube with values warped onto the new projection.",
+      "schema": {
+        "type": "object",
+        "format": "raster-cube"
+      }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://proj4.org/usage/projections.html",
+        "title": "PROJ parameters for cartographic projections"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg-registry.org",
+        "title": "Official EPSG code registry"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg.io",
+        "title": "Unofficial EPSG code database"
       }
     ]
   },
