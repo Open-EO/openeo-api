@@ -1,7 +1,7 @@
 {
     "id": "aggregate_polygon",
     "summary": "Compute zonal statistics for polygons",
-    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated from, for example a single band. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
+    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe process considers all pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC).\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated from, for example a single band. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
     "categories": [
         "cubes",
         "aggregate"
@@ -18,7 +18,7 @@
             "required": true
         },
         "polygons": {
-            "description": "One or multiple polygons to calculate zonal statistics for.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
+            "description": "One or more polygons to calculate zonal statistics for. Either specified as GeoJSON or vector data cube.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
             "schema": {
                 "anyOf": [
                     {
@@ -88,6 +88,11 @@
             "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
             "rel": "about",
             "title": "Aggregation explained in the openEO glossary"
+        },
+        {
+            "href": "http://www.opengeospatial.org/standards/sfa",
+            "rel": "about",
+            "title": "Simple Features standard by the OGC"
         }
     ]
 }

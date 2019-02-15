@@ -1,7 +1,7 @@
 {
     "id": "mask",
     "summary": "Apply a mask",
-    "description": "Applies a mask to a raster data cube. Therefore, compares the parallel elements of the raster data cubes specified for `data` and `mask` and replaces all elements in `data` that are non-zero (for numbers) or `true` (for boolean values) in `mask`. These elements are replaced with the value specified for `replacement`, which defaults to `null` (no data). No data values will be left untouched.",
+    "description": "Applies a mask to a raster data cube. A mask can either be specified as:\n\n* **Raster data cube** for which parallel pixels among `data` and `mask` are compared and those pixels in `data` are replaced, which are non-zero (for numbers) or `true` (for boolean values) in `mask`.\n* **GeoJSON or vector data cube** containing one or more polygons. All pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC) are replaced.\n\nThe pixel values are replaced with the value specified for `replacement`, which defaults to `null` (no data). No data values will be left untouched by the masking operation.",
     "categories": [
         "masks"
     ],
@@ -16,10 +16,23 @@
             "required": true
         },
         "mask": {
-            "description": "A compatible raster data cube so that every element in `data` has a parallel element in the data cube specified here.",
+            "description": "Either a raster data cube, a GeoJSON object or a vector data cube.\n\nFor **raster data cubes**, both data cubes must be compatible so that every pixel in `data` has a parallel element in `mask`.\n\nFor **GeoJSON** the provided types can be one of the following:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
+            "experimental": true,
             "schema": {
+                "anyOf": [
+                    {
                 "type": "object",
+                        "format": "geojson"
+                    },
+                    {
+                        "type": "object",
+                        "format": "vector-cube"
+                    },
+                    {
+                        "type": "object",
                 "format": "raster-cube"
+                    }
+                ]
             },
             "required": true
         },
@@ -50,5 +63,12 @@
             "type": "object",
             "format": "raster-cube"
         }
+    },
+    "links": [
+        {
+            "href": "http://www.opengeospatial.org/standards/sfa",
+            "rel": "about",
+            "title": "Simple Features standard by the OGC"
     }
+    ]
 }
