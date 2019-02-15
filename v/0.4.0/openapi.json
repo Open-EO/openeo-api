@@ -1584,7 +1584,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns the validation result.",
+            "description": "Returns the validation result as a list of errors. An empty list indicates a successful validation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1594,7 +1594,7 @@
                   ],
                   "properties": {
                     "errors": {
-                      "description": "List of errors. An empty list indicates a successful validation.",
+                      "description": "A list of validation errors.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/error"
@@ -2619,10 +2619,13 @@
                     },
                     "progress": {
                       "type": "number",
-                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job whiched errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
+                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job whiched errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped. Property may not be available for the status codes `submitted` and `queued`.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
                       "minimum": 0,
                       "maximum": 100,
                       "example": 75.5
+                    },
+                    "error": {
+                      "$ref": "#/components/schemas/job_error"
                     },
                     "submitted": {
                       "$ref": "#/components/schemas/submitted"
@@ -2728,6 +2731,16 @@
                       "example": "2020-11-01T00:00:00Z"
                     }
                   }
+                }
+              }
+            }
+          },
+          "424": {
+            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` repoonse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/job_error"
                 }
               }
             }
@@ -4329,8 +4342,8 @@
           }
         }
       },
-      "error": {
-        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.0/errors/index.html) provides additional information regarding error handling and a list of error codes.",
+      "job_error": {
+        "description": "An error message that describes the problem during the batch job execution. May only be available if the `status` is `error`. The error MUST be cleared if the job is started again (i.e. the status changes to `queue`).",
         "type": "object",
         "required": [
           "code",
@@ -4338,34 +4351,68 @@
         ],
         "properties": {
           "id": {
-            "type": "string",
-            "description": "A back-end may add a unique identifier to the error response to be able to log and track errors with further non-disclosable details.",
-            "example": "550e8400-e29b-11d4-a716-446655440000"
+            "$ref": "#/components/schemas/error_id"
           },
           "code": {
-            "type": "string",
-            "description": "The code is either one of the standardized error codes or a custom error code.",
-            "example": "SampleError"
+            "$ref": "#/components/schemas/error_code"
           },
           "message": {
-            "type": "string",
-            "description": "A message explaining what the client may need to change or what difficulties the server is facing. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
-            "example": "A sample error message."
+            "$ref": "#/components/schemas/error_message"
           },
           "links": {
-            "description": "Additional links related to this error, e.g. a resource that is explaining the error and potential solutions in-depth or a contact e-mail address.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/link"
-            },
-            "example": [
-              {
-                "href": "http://www.openeo.org/docs/errors/SampleError",
-                "rel": "about"
-              }
-            ]
+            "$ref": "#/components/schemas/error_links"
           }
         }
+      },
+      "error": {
+        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.0/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/error_id"
+          },
+          "code": {
+            "$ref": "#/components/schemas/error_code"
+          },
+          "message": {
+            "$ref": "#/components/schemas/error_message"
+          },
+          "links": {
+            "$ref": "#/components/schemas/error_links"
+          }
+        }
+      },
+      "error_id": {
+        "type": "string",
+        "description": "A back-end may add a unique identifier to the error response to be able to log and track errors with further non-disclosable details.  A client could communicate this id to a back-end provider to get further information.",
+        "example": "550e8400-e29b-11d4-a716-446655440000"
+      },
+      "error_code": {
+        "type": "string",
+        "description": "The code is either one of the standardized error codes or a custom error code.",
+        "example": "SampleError"
+      },
+      "error_message": {
+        "type": "string",
+        "description": "A message explaining what the client may need to change or what difficulties the server is facing. By default the message must be sent in English language. Content Negotiation is used to localize the error messages: If an Accept-Language header is sent by the client and a translation is available, the message should be translated accordingly and the Content-Language header must be present in the response.",
+        "example": "A sample error message."
+      },
+      "error_links": {
+        "description": "Additional links related to this error, e.g. a resource that is explaining the error and potential solutions in-depth or a contact e-mail address.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/link"
+        },
+        "example": [
+          {
+            "href": "http://www.openeo.org/docs/errors/SampleError",
+            "rel": "about"
+          }
+        ]
       },
       "json_schema": {
         "type": "object",
