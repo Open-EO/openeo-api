@@ -27,6 +27,9 @@ A **process** is an operation provided by the back end that performs a specific 
 
 A **process graph** chains specific process calls. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
 
+Sending a request to a back-end needs a process graph as input,
+will trigger a process, and will result in output (computed values).
+
 ## Aggregation and resampling
 
 ***Aggregation*** computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells), and an aggregation function (e.g., `mean`) that computes one or more new values from the original ones.
@@ -48,3 +51,5 @@ When the target grid or time series has a lower resolution (larger grid cells) o
 ## User-defined functions
 
 The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data.
+
+
