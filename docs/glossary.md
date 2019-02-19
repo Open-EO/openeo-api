@@ -30,7 +30,20 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 Sending a request to a back-end needs a process graph as input,
 will trigger a process, and will result in output (computed values).
 
-## Data cube
+## Spatial data cube
+
+A spatial data cube is an array with one or more dimensions referring to spatial dimensions.
+The figure below shows the data of an 8 x 8 x 2 x 2 datacube, with four dimensions, having
+name and values:
+
+| #| dimension name | dimension values                     |
+|--|----------------|--------------------------------------|
+| 1| x              | 288790.5, 288819, 288847.5, 288876, 288904.5, 288933, 288961.5, 288990 |
+| 2| y              | 9120747, 9120718, 9120690, 9120661, 9120633, 9120604, 9120576, 9120547 |
+| 3| band           | `red`, `green` |
+| 4| time           | `2018-02-10`, `2018-02-17` |
+
+
 
 ![](https://github.com/edzer/openeo-api/raw/0.4.0/docs/fig2.png)
 
