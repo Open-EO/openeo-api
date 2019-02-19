@@ -32,9 +32,10 @@ will trigger a process, and will result in output (computed values).
 
 ## Spatial data cube
 
-A spatial data cube is an array with one or more dimensions referring to spatial dimensions.
-The figure below shows the data of an 8 x 8 x 2 x 2 datacube, with four dimensions, having
-name and values:
+A spatial data cube is an array with one or more dimensions
+referring to spatial dimensions.  The figure below shows the data
+of a four-dimensional (8 x 8 x 2 x 2) datacube, with dimension names
+and values:
 
 | #| dimension name | dimension values                     |
 |--|----------------|--------------------------------------|
@@ -43,9 +44,16 @@ name and values:
 | 3| band           | `red`, `green` |
 | 4| time           | `2018-02-10`, `2018-02-17` |
 
-
+dimensions x and time are aligned along the x-axis; y and band are aligned along the y-axis.
 
 ![](https://github.com/edzer/openeo-api/raw/0.4.0/docs/fig2.png)
+
+Data cubes as defined here have a _single value_ (scalar) for each
+unique combination of dimension values.  The value pointed to by
+arrows corresponds to the combination of x=288847.5 (red),
+y=9120661 (yellow), band=red (blue), time=2018-02-17 (green),
+and its value is 84 (brown).
+
 
 ## Aggregation and resampling
 
