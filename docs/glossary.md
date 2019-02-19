@@ -30,6 +30,10 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 Sending a request to a back-end needs a process graph as input,
 will trigger a process, and will result in output (computed values).
 
+## Data cube
+
+![](https://github.com/edzer/openeo-api/raw/0.4.0/docs/fig2.png)
+
 ## Aggregation and resampling
 
 ***Aggregation*** computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells), and an aggregation function (e.g., `mean`) that computes one or more new values from the original ones.
