@@ -54,6 +54,26 @@ arrows corresponds to the combination of x=288847.5 (red),
 y=9120661 (yellow), band=red (blue), time=2018-02-17 (green),
 and its value is 84 (brown).
 
+It is tempting to call this value a _pixel value_, but one should
+only do this _after_ realizing this is not a tuple of, say, `{red,
+green, blue}` values, but rather a single value. "Pixel value of
+a single raster layer" would be a better analogy.
+
+## Processes that do not change dimensions
+
+Math process that do not reduce do not change anything to the array
+dimensions. An example is `abs`, or `sqrt`.
+
+## Filter: remove a dimension by selection
+
+## Reduce: remove a dimension by computation
+
+`reduce` reduces the number of dimensions by computation. For
+instance, using the _reducer_ proces `mean`, we can compute the
+mean of the two time steps by reducing over the time dimension.
+
+## Operations that do not change dimensions
+
 
 ## Aggregation and resampling
 
