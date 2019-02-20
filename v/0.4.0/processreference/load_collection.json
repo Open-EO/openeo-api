@@ -1,11 +1,12 @@
 {
     "id": "load_collection",
     "summary": "Load a collection",
-    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube.",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be filtered by an expression so that every part of the data that matches the expression is included in the data cube.",
     "categories": [
         "cubes",
         "import"
     ],
+    "parameter_order": ["id", "expression"],
     "parameters": {
         "id": {
             "description": "The collection id.",
@@ -14,6 +15,20 @@
                 "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
             },
             "required": true
+        },
+        "expression": {
+            "description": "Expression that filters the collection data to include only data in the data cube which matches the given expression. ``meta()`` can be used to retrieve metadata properties.",
+            "schema": {
+                "type": "object",
+                "format": "callback",
+                "properties": {
+                    "id": {
+                        "description": "The collection id.",
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
+                    }
+                }
+            }
         }
     },
     "returns": {

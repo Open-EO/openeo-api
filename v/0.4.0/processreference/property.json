@@ -1,11 +1,11 @@
 {
-    "id": "cube_property",
-    "summary": "Retrieve cube or dimension metadata",
-    "description": "Gets metadata for a data cube or a dimension in the cube. To get metadata for a dimension specify the `dimension` parameter, otherwise set it to `null`.",
+    "id": "property",
+    "summary": "Get metadata for data cubes or collections",
+    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed).\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
     "categories": [
         "cubes"
     ],
-    "parameter_order": ["data", "name", "dimension"],
+    "parameter_order": ["data", "name"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -18,6 +18,11 @@
                     {
                         "type": "object",
                         "format": "vector-cube"
+                    },
+                    {
+                        "description": "A collection id.",
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
                     }
                 ]
             },
@@ -29,16 +34,6 @@
                 "type": "string"
             },
             "required": true
-        },
-        "dimension": {
-            "description": "If required, a dimension name of the data cube.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
-            "schema": {
-                "type": [
-                    "string",
-                    "null"
-                ],
-                "default": null
-            }
         }
     },
     "returns": {

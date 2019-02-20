@@ -1,11 +1,11 @@
 {
     "id": "apply_dimension",
-    "summary": "Applies an n-ary process to one or more dimensions",
-    "description": "Applies an n-ary process (i.e. takes an array of values instead of a single value) to a raster data cube. The n-ary process must return as many elements in the returned array as there are in the input array.\n\nThe dimensions over which to iterate with the parameter `dimensions` can be specified. If the `dimensions` parameter is not set or an empty array, the process applies the callback to all dimensions.",
+    "summary": "Applies an n-ary process to all pixels",
+    "description": "Applies an **n-ary** process (i.e. takes an array of pixel values instead of a single pixel value) to a raster data cube. In contrast, the process ``apply()`` applies an unary process to all pixel values.\n\nBy default, `apply_dimension` applies the the process on all pixel values in the data cube as ``apply()`` does, but the parameter `dimension` can be specified to work only on a particular dimension only. For example, if the temporal dimension is specified the process will work on a time series of pixel values.\n\nThe n-ary process must return as many elements in the returned array as there are in the input array. Otherwise a `CardinalityChanged` error must be returned.",
     "categories": [
         "cubes"
     ],
-    "parameter_order": ["data", "process", "dimensions"],
+    "parameter_order": ["data", "process", "dimension"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -32,22 +32,24 @@
             },
             "required": true
         },
-        "dimensions": {
-            "description": "The names of the dimensions to apply the process on. Defaults to an empty array so that all dimensions are used.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+        "dimension": {
+            "description": "The name of the dimension to apply the process on. By default, applies the the process on all pixel values (as ``apply()`` does).",
             "schema": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                },
-                "default": []
+                "type": ["string", "null"],
+                "default": null
             }
         }
     },
     "returns": {
-        "description": "A data cube with the newly computed values for the specified dimensions. The resolution, cardinality and the number of dimensions are the same as for the original data cube.",
+        "description": "A data cube with the newly computed values for the specified . The resolution, cardinality and the number of dimensions are the same as for the original data cube.",
         "schema": {
             "type": "object",
             "format": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "CardinalityChanged": {
+            "message": "The callback returned less or more elements than it received."
         }
     }
 }

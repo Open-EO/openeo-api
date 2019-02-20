@@ -65,7 +65,7 @@
   {
     "id": "add_dimension",
     "summary": "Add a new dimension",
-    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The values of the dimension are set to the specified `value`.",
+    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The dimension value of the dimension is set to the specified `value`.",
     "categories": [
       "cubes"
     ],
@@ -91,9 +91,28 @@
         "required": true
       },
       "value": {
-        "description": "Value for the dimension.",
+        "description": "A dimension value (**not** a pixel value).",
         "schema": {
-          "description": "Any data type is allowed."
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "string",
+              "format": "time"
+            }
+          ]
         },
         "required": true
       }
@@ -193,7 +212,7 @@
     },
     "exceptions": {
       "TooManyDimensions": {
-        "message": "The dimensions need to be reduced to three for 'aggregate_polygon'."
+        "message": "The number of dimensions must be reduced to three for 'aggregate_polygon'."
       }
     },
     "links": [
@@ -566,15 +585,15 @@
   },
   {
     "id": "apply_dimension",
-    "summary": "Applies an n-ary process to one or more dimensions",
-    "description": "Applies an n-ary process (i.e. takes an array of values instead of a single value) to a raster data cube. The n-ary process must return as many elements in the returned array as there are in the input array.\n\nThe dimensions over which to iterate with the parameter `dimensions` can be specified. If the `dimensions` parameter is not set or an empty array, the process applies the callback to all dimensions.",
+    "summary": "Applies an n-ary process to all pixels",
+    "description": "Applies an **n-ary** process (i.e. takes an array of pixel values instead of a single pixel value) to a raster data cube. In contrast, the process ``apply()`` applies an unary process to all pixel values.\n\nBy default, `apply_dimension` applies the the process on all pixel values in the data cube as ``apply()`` does, but the parameter `dimension` can be specified to work only on a particular dimension only. For example, if the temporal dimension is specified the process will work on a time series of pixel values.\n\nThe n-ary process must return as many elements in the returned array as there are in the input array. Otherwise a `CardinalityChanged` error must be returned.",
     "categories": [
       "cubes"
     ],
     "parameter_order": [
       "data",
       "process",
-      "dimensions"
+      "dimension"
     ],
     "parameters": {
       "data": {
@@ -602,22 +621,27 @@
         },
         "required": true
       },
-      "dimensions": {
-        "description": "The names of the dimensions to apply the process on. Defaults to an empty array so that all dimensions are used.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+      "dimension": {
+        "description": "The name of the dimension to apply the process on. By default, applies the the process on all pixel values (as ``apply()`` does).",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
         }
       }
     },
     "returns": {
-      "description": "A data cube with the newly computed values for the specified dimensions. The resolution, cardinality and the number of dimensions are the same as for the original data cube.",
+      "description": "A data cube with the newly computed values for the specified . The resolution, cardinality and the number of dimensions are the same as for the original data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "CardinalityChanged": {
+        "message": "The callback returned less or more elements than it received."
       }
     }
   },
@@ -670,8 +694,8 @@
   },
   {
     "id": "apply",
-    "summary": "Applies a process to each pixel",
-    "description": "Applies a unary process (a local operation) to each value in the data cube.",
+    "summary": "Applies a unary process to each pixel",
+    "description": "Applies a **unary** process which takes a single value such as `abs` or `sqrt` to each pixel value in the data cube (i.e. a local operation). In contrast, the process ``apply_dimension()`` applies an n-ary process to a particular dimension.",
     "categories": [
       "cubes"
     ],
@@ -1933,60 +1957,6 @@
     }
   },
   {
-    "id": "cube_property",
-    "summary": "Retrieve cube or dimension metadata",
-    "description": "Gets metadata for a data cube or a dimension in the cube. To get metadata for a dimension specify the `dimension` parameter, otherwise set it to `null`.",
-    "categories": [
-      "cubes"
-    ],
-    "parameter_order": [
-      "data",
-      "name",
-      "dimension"
-    ],
-    "parameters": {
-      "data": {
-        "description": "A data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "format": "raster-cube"
-            },
-            {
-              "type": "object",
-              "format": "vector-cube"
-            }
-          ]
-        },
-        "required": true
-      },
-      "name": {
-        "description": "Name of the metadata property.",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
-      "dimension": {
-        "description": "If required, a dimension name of the data cube.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
-        "schema": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null
-        }
-      }
-    },
-    "returns": {
-      "description": "The value for the metadata property or `null` if no information are available.",
-      "schema": {
-        "description": "Any data type is allowed."
-      }
-    }
-  },
-  {
     "id": "cummax",
     "summary": "Cumulative maxima",
     "description": "Finds cumulative maxima of an array of numbers. Every computed element is equal to the bigger one between current element and the previously computed element. The returned array and the input array have always the same length.\n\nBy default, no-data values are skipped, but stay in the result. Setting the `ignore_nodata` flag to `true` makes that once a no-data value / `null` is reached all following elements are set to `null` in the result.",
@@ -3215,60 +3185,9 @@
     ]
   },
   {
-    "id": "filter_property",
-    "summary": "Filter by metadata attributes",
-    "description": "Limits the data cube over all dimensions to contain only data whose attributes match against the specified expression. The attribute to match against is specified with the parameter `name`. See the *Collection Discovery* for available attributes.",
-    "categories": [
-      "filter"
-    ],
-    "experimental": true,
-    "parameter_order": [
-      "data",
-      "name",
-      "expression"
-    ],
-    "parameters": {
-      "data": {
-        "description": "A data cube.",
-        "schema": {
-          "type": "object",
-          "format": "raster-cube"
-        },
-        "required": true
-      },
-      "name": {
-        "description": "Name of the attribute to filter on.",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
-      "expression": {
-        "description": "Expression to evaluate against the attribute values.",
-        "schema": {
-          "type": "object",
-          "format": "callback",
-          "properties": {
-            "x": {
-              "description": "A value of any data type could be passed."
-            }
-          }
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "A data cube with values restricted by a filter on its value's metadata attributes. Therefore, the cardinality is potentially lower, but the resolution and the number of dimensions are the same as for the original data cube.",
-      "schema": {
-        "type": "object",
-        "format": "raster-cube"
-      }
-    }
-  },
-  {
     "id": "filter_temporal",
     "summary": "Temporal filter for a date and/or time intervals",
-    "description": "Limits the data cube to the specified interval of dates and/or times.\n\nAlso supports open intervals by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the end of the exposure time is greater than or equal to the value of `start` and the start of the exposure time is less than the value of `end`. This corresponds to a left-closed interval, which contains the `start` but not the `end`.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
+    "description": "Limits the data cube to the specified interval of dates and/or times.\n\nAlso supports open intervals by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the temporal dimension value is greater than or equal to the value of `start` and the temporal dimension value is less than the value of `end`. This corresponds to a left-closed interval, which contains the `start` but not the `end`.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
     "categories": [
       "filter"
     ],
@@ -3362,7 +3281,7 @@
   {
     "id": "filter",
     "summary": "Filter based on a logical expression.",
-    "description": "Filters the data based on a logical expression so that afterwards each value in the data cube conforms to the expression.",
+    "description": "Filters the dimension values based on a logical expression so that afterwards each dimension value in the data cube conforms to the expression.",
     "categories": [
       "cubes",
       "filter"
@@ -3382,11 +3301,35 @@
         "required": true
       },
       "expression": {
-        "description": "An expression that is evaluated against each value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the values stored in the dimension.",
+        "description": "An expression that is evaluated against each dimension value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the dimension values stored for the dimension.",
         "schema": {
           "type": "object",
           "format": "callback",
-          "additionalProperties": true
+          "properties": {
+            "value": {
+              "description": "A single dimension values to compare against.",
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "time"
+                }
+              ]
+            }
+          }
         },
         "required": true
       },
@@ -3412,7 +3355,7 @@
   {
     "id": "find_collections",
     "summary": "Search for collections by metadata properties",
-    "description": "Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``cube_property()`` can be used to get property values.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
+    "description": "Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``meta()`` can be used to get metadata properties.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
     "categories": [
       "cubes",
       "import"
@@ -3425,18 +3368,10 @@
           "type": "object",
           "format": "callback",
           "properties": {
-            "data": {
-              "description": "A data cube.",
-              "anyOf": [
-                {
-                  "type": "object",
-                  "format": "raster-cube"
-                },
-                {
-                  "type": "object",
-                  "format": "vector-cube"
-                }
-              ]
+            "id": {
+              "description": "The collection id.",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
             }
           }
         },
@@ -3448,7 +3383,7 @@
       "schema": {
         "type": "array",
         "items": {
-          "description": "Each element is a job id.",
+          "description": "Each element is a collection id.",
           "type": "string",
           "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
         }
@@ -4398,10 +4333,14 @@
   {
     "id": "load_collection",
     "summary": "Load a collection",
-    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube.",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be filtered by an expression so that every part of the data that matches the expression is included in the data cube.",
     "categories": [
       "cubes",
       "import"
+    ],
+    "parameter_order": [
+      "id",
+      "expression"
     ],
     "parameters": {
       "id": {
@@ -4411,6 +4350,20 @@
           "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
         },
         "required": true
+      },
+      "expression": {
+        "description": "Expression that filters the collection data to include only data in the data cube which matches the given expression. ``meta()`` can be used to retrieve metadata properties.",
+        "schema": {
+          "type": "object",
+          "format": "callback",
+          "properties": {
+            "id": {
+              "description": "The collection id.",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+            }
+          }
+        }
       }
     },
     "returns": {
@@ -6492,6 +6445,54 @@
     }
   },
   {
+    "id": "property",
+    "summary": "Get metadata for data cubes or collections",
+    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed).\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
+    "categories": [
+      "cubes"
+    ],
+    "parameter_order": [
+      "data",
+      "name"
+    ],
+    "parameters": {
+      "data": {
+        "description": "A data cube.",
+        "schema": {
+          "anyOf": [
+            {
+              "type": "object",
+              "format": "raster-cube"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            },
+            {
+              "description": "A collection id.",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+            }
+          ]
+        },
+        "required": true
+      },
+      "name": {
+        "description": "Name of the metadata property.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "The value for the metadata property or `null` if no information are available.",
+      "schema": {
+        "description": "Any data type is allowed."
+      }
+    }
+  },
+  {
     "id": "quantiles",
     "summary": "Quantiles",
     "description": "Calculates quantiles, which are cut points dividing the range of a probability distribution into either\n\n* intervals corresponding to the given `probabilities` or\n* (nearly) equal-sized intervals (q-quantiles based on the parameter `q`).\n\nEither the parameter `probabilites` or `q` must be specified, otherwise the `QuantilesParameterMissing` exception must be thrown. If both parameters are set the `QuantilesParameterConflict` exception must be thrown.",
@@ -6838,6 +6839,71 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    }
+  },
+  {
+    "id": "rename_dimension",
+    "summary": "Renames a dimension",
+    "description": "Renames a dimension in the data cube.\n\nAfterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
+    "categories": [
+      "cubes"
+    ],
+    "parameter_order": [
+      "data",
+      "old",
+      "new"
+    ],
+    "parameters": {
+      "data": {
+        "description": "The data cube.",
+        "schema": {
+          "anyOf": [
+            {
+              "type": "object",
+              "format": "raster-cube"
+            },
+            {
+              "type": "object",
+              "format": "vector-cube"
+            }
+          ]
+        },
+        "required": true
+      },
+      "old": {
+        "description": "The current name of the dimension.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "new": {
+        "description": "A new Name for the dimension.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "The data cube with the renamed dimension. The old name can not be referenced any longer.",
+      "schema": {
+        "anyOf": [
+          {
+            "type": "object",
+            "format": "raster-cube"
+          },
+          {
+            "type": "object",
+            "format": "vector-cube"
+          }
+        ]
+      }
+    },
+    "exceptions": {
+      "DimensionExists": {
+        "message": "A dimension with the specified name already exists."
       }
     }
   },

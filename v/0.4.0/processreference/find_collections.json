@@ -1,7 +1,7 @@
 {
     "id": "find_collections",
     "summary": "Search for collections by metadata properties",
-    "description": "Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``cube_property()`` can be used to get property values.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
+    "description": "Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``meta()`` can be used to get metadata properties.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
     "categories": [
         "cubes",
         "import"
@@ -14,18 +14,10 @@
                 "type": "object",
                 "format": "callback",
                 "properties": {
-                    "data": {
-                        "description": "A data cube.",
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "format": "raster-cube"
-                            },
-                            {
-                                "type": "object",
-                                "format": "vector-cube"
-                            }
-                        ]
+                    "id": {
+                        "description": "The collection id.",
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
                     }
                 }
             },
@@ -37,7 +29,7 @@
         "schema": {
             "type": "array",
             "items": {
-                "description": "Each element is a job id.",
+                "description": "Each element is a collection id.",
                 "type": "string",
                 "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
             }

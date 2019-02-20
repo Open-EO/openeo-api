@@ -1,7 +1,7 @@
 {
     "id": "filter",
     "summary": "Filter based on a logical expression.",
-    "description": "Filters the data based on a logical expression so that afterwards each value in the data cube conforms to the expression.",
+    "description": "Filters the dimension values based on a logical expression so that afterwards each dimension value in the data cube conforms to the expression.",
     "categories": [
         "cubes",
         "filter"
@@ -17,11 +17,35 @@
             "required": true
         },
         "expression": {
-            "description": "An expression that is evaluated against each value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the values stored in the dimension.",
+            "description": "An expression that is evaluated against each dimension value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the dimension values stored for the dimension.",
             "schema": {
                 "type": "object",
                 "format": "callback",
-                "additionalProperties": true
+                "properties": {
+                    "value": {
+                        "description": "A single dimension values to compare against.",
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "string",
+                                "format": "time"
+                            }
+                        ]
+                    }
+                }
             },
             "required": true
         },
