@@ -101,7 +101,7 @@ Aggregation computes new values from sets of values that are _uniquely_ assigned
 In effect, `aggregate` combines the following three steps:
 
 - _split_ the data cube in groups, based on dimension constraints (time intervals, band groups, spatial polygons)
-- _apply_ a reducer to each group
+- _apply_ a reducer to each group (similar to the `reduce` process, but reducing a group rather than an entire dimension)
 - _combine_ the result to a new data cube, with some dimensions having reduced resolution (or e.g. raster to vector converted)
 
 Examples:
