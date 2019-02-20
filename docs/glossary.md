@@ -30,7 +30,7 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 Sending a request to a back-end needs a process graph as input,
 will trigger a process, and will result in output (computed values).
 
-## Spatial data cubes
+### Spatial data cubes
 
 A spatial data cube is an array with one or more dimensions
 referring to spatial dimensions. Special cases are raster and vector data cubes.
@@ -61,7 +61,7 @@ a tuple of, say, `{red, green, blue}` values.  "Cell value of a
 single raster layer" would be a better analogy; _data cube cell
 value_ may be a good compromise.
 
-## `apply`: processes that do not change dimensions
+### `apply`: processes that do not change dimensions
 
 Math process that do not reduce do not change anything to the array
 dimensions. The process `apply` can be used to apply unary functions
@@ -74,13 +74,17 @@ series. An example of `apply_dimension` to the spatial dimensions
 is to do a historgram stretch for every spatial (grayscale) image
 of an image time series.
 
-## `filter`: subsetting dimensions by dimension value selection
+### `filter`: subsetting dimensions by dimension value selection
 
 The `filter` process makes a cube smaller by selecting specific
-values for a particular dimension. An example is a band filter that
-selects the `red` band.
+values for a particular dimension. 
 
-## `reduce`: removing dimensions entirely by computation
+Examples: 
+
+- a band filter that selects the `red` band
+- a bounding box filter selects a spatial extent
+
+### `reduce`: removing dimensions entirely by computation
 
 `reduce` reduces the number of dimensions by computation. For
 instance, using the _reducer_ proces `mean`, we can compute the
@@ -90,25 +94,30 @@ Example:
 
 - a time series reduction may return a regression slope for every (grayscale) pixel time series
 
-## `aggregate`: reducing resolution
+### `aggregate`: reducing resolution
 
 Aggregation computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells, or a set of non-overlapping spatial polygons), and an reducer (e.g., `mean`) that computes one or more new values from the original ones.
+
+In effect, `aggregate` combines the following three steps:
+
+- _split_ the data cube in groups, based on dimension constraints (time intervals, band groups, spatial polygons)
+- _apply_ a reducer to each group
+- _combine_ the result to a new data cube, with some dimensions having reduced resolution (or e.g. raster to vector converted)
 
 Examples:
 
 - a weekly time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)
 - _spatial_ aggregation involves computing e.g. _mean_ pixel values on a 100 x 100 m grid, from 10 m x 10 m pixels, where each original pixel is assigned uniquely to a larger pixel (grouping predicate: 100 m x 100 m grid cells)
 
-## `resample`: changing data cube geometry
+### `resample`: changing data cube geometry
 
-Resampling (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_. 
+Resampling considers the case where we have data at one resolution and coordinate reference system, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_. 
 
 Resampling from finer to coarser grid is a special case of aggregation often called _downsampling_ or _downscaling_.
 
 When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are similar, (e.g. the source collection provides 10 day intervals and the target needs values for 16 day intervals), then some form of interpolation may be more appropriate than aggregation as defined here.
 
-## User-defined functions
+### User-defined functions
 
-The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data.
-
+The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, or applied to a particular dimension or set of dimensions, allowing custom server-side calculations.
 
