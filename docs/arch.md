@@ -20,7 +20,7 @@ To simplify and structure the development, the API is divided into a few microse
 | Microservice                  | Description |
 | ----------------------------- | ----------- |
 | Capabilities                  | This microservice reports on the capabilities of the back-end, i.e. which API endpoints are implemented, which authentication methods are supported, and whether and how UDFs can be executed at the back-end. |
-| EO Data Discovery             | Describes which datasets and image collections are available at the back-end. |
+| EO Data Discovery             | Describes which collections are available at the back-end. |
 | Process Discovery             | Provides services to find out which processes a back-end provides, i.e., what users can do with the available data. |
 | UDF                           | Discovery and execution of user-defined functions. |
 | Batch Job Management          | Organizes and manages batch jobs that run processes on back-ends. |
