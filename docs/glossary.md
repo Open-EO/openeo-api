@@ -30,7 +30,7 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 Sending a request to a back-end needs a process graph as input,
 will trigger a process, and will result in output (computed values).
 
-## Spatial data cube
+## Spatial data cubes
 
 A spatial data cube is an array with one or more dimensions
 referring to spatial dimensions. Special cases are raster and vector data cubes.
