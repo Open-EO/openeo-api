@@ -33,8 +33,9 @@ will trigger a process, and will result in output (computed values).
 ## Spatial data cube
 
 A spatial data cube is an array with one or more dimensions
-referring to spatial dimensions.  The figure below shows the data
-of a four-dimensional (8 x 8 x 2 x 2) datacube, with dimension names
+referring to spatial dimensions. Special cases are raster and vector data cubes.
+The figure below shows the data of
+a four-dimensional (8 x 8 x 2 x 2) raster data cube, with dimension names
 and values:
 
 | #| dimension name | dimension values                     |
@@ -60,7 +61,7 @@ a tuple of, say, `{red, green, blue}` values.  "Cell value of a
 single raster layer" would be a better analogy; _data cube cell
 value_ may be a good compromise.
 
-## Processes that do not change dimensions
+## `apply`: processes that do not change dimensions
 
 Math process that do not reduce do not change anything to the array
 dimensions. The process `apply` can be used to apply unary functions
@@ -73,13 +74,13 @@ series. An example of `apply_dimension` to the spatial dimensions
 is to do a historgram stretch for every spatial (grayscale) image
 of an image time series.
 
-## Subsetting dimensions by dimension value selection
+## `filter`: subsetting dimensions by dimension value selection
 
 The `filter` process makes a cube smaller by selecting specific
 values for a particular dimension. An example is a band filter that
 selects the `red` band.
 
-## Removing dimensions entirely by computation: `reduce`
+## `reduce`: removing dimensions entirely by computation
 
 `reduce` reduces the number of dimensions by computation. For
 instance, using the _reducer_ proces `mean`, we can compute the
@@ -89,7 +90,7 @@ Example:
 
 - a time series reduction may return a regression slope for every (grayscale) pixel time series
 
-## Reducing resolution: `aggregate`
+## `aggregate`: reducing resolution
 
 Aggregation computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells, or a set of non-overlapping spatial polygons), and an reducer (e.g., `mean`) that computes one or more new values from the original ones.
 
@@ -98,7 +99,7 @@ Examples:
 - a weekly time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)
 - _spatial_ aggregation involves computing e.g. _mean_ pixel values on a 100 x 100 m grid, from 10 m x 10 m pixels, where each original pixel is assigned uniquely to a larger pixel (grouping predicate: 100 m x 100 m grid cells)
 
-## Changing data cube geometry: `resample` (or `warp`)
+## `resample`: changing data cube geometry
 
 Resampling (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_. 
 
