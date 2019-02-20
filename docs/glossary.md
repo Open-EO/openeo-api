@@ -50,44 +50,57 @@ dimensions x and time are aligned along the x-axis; y and band are aligned along
 
 Data cubes as defined here have a _single value_ (scalar) for each
 unique combination of dimension values.  The value pointed to by
-arrows corresponds to the combination of x=288847.5 (red),
-y=9120661 (yellow), band=red (blue), time=2018-02-17 (green),
-and its value is 84 (brown).
+arrows corresponds to the combination of x=288847.5 (red arrow),
+y=9120661 (yellow arrow), band=red (blue arrow), time=2018-02-17 (green arrow),
+and its value is 84 (brown arrow).
 
-It is tempting to call this value a _pixel value_, but one should
-only do this _after_ realizing this is not a tuple of, say, `{red,
-green, blue}` values, but rather a single value. "Pixel value of
-a single raster layer" would be a better analogy.
+If the data concerns grayscale imagery, we could call this _single_
+value a _pixel value_. One should keep in mind that it is _never_
+a tuple of, say, `{red, green, blue}` values.  "Cell value of a
+single raster layer" would be a better analogy; _data cube cell
+value_ may be a good compromise.
 
 ## Processes that do not change dimensions
 
 Math process that do not reduce do not change anything to the array
-dimensions. An example is `abs`, or `sqrt`.
+dimensions. The process `apply` can be used to apply unary functions
+such as `abs` or `sqrt` to all values in a data cube. The process
+`apply_dimension` applies (maps) an n-ary function to a particular
+dimension. An example would be to apply `sort` to the time dimension,
+in order to get every time series sorted. A more realistic example
+would for instance apply a moving average filter to every time
+series. An example of `apply_dimension` to the spatial dimensions
+is to do a historgram stretch for every spatial (grayscale) image
+of an image time series.
 
-## Filter: remove a dimension by selection
+## Subsetting dimensions by dimension value selection
 
-## Reduce: remove a dimension by computation
+The `filter` process makes a cube smaller by selecting specific
+values for a particular dimension. An example is a band filter that
+selects the `red` band.
+
+## Removing dimensions entirely by computation: `reduce`
 
 `reduce` reduces the number of dimensions by computation. For
 instance, using the _reducer_ proces `mean`, we can compute the
-mean of the two time steps by reducing over the time dimension.
+mean of the two time steps, and by that remove the time dimension.
 
-## Operations that do not change dimensions
+Example:
 
+- a time series reduction may return a regression slope for every (grayscale) pixel time series
 
-## Aggregation and resampling
+## Reducing resolution: `aggregate`
 
-***Aggregation*** computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells), and an aggregation function (e.g., `mean`) that computes one or more new values from the original ones.
+Aggregation computes new values from sets of values that are _uniquely_ assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells, or a set of non-overlapping spatial polygons), and an reducer (e.g., `mean`) that computes one or more new values from the original ones.
 
 Examples:
 
-- a time series aggregation may return a regression slope and intercept for every pixel time series, for a single band (grouping predicate: full time extent)
-- a time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)
+- a weekly time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)
 - _spatial_ aggregation involves computing e.g. _mean_ pixel values on a 100 x 100 m grid, from 10 m x 10 m pixels, where each original pixel is assigned uniquely to a larger pixel (grouping predicate: 100 m x 100 m grid cells)
 
-Note that for the first example, the aggregation function not only requires time series values, but also their time stamps.
+## Changing data cube geometry: `resample` (or `warp`)
 
-***Resampling*** (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_.
+Resampling (also called _scaling_) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called _upsampling_ or _upscaling_. 
 
 Resampling from finer to coarser grid is a special case of aggregation often called _downsampling_ or _downscaling_.
 
