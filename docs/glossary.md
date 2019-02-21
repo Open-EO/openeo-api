@@ -12,7 +12,7 @@ This glossary introduces the major technical terms used in the openEO project.
 
 ## EO data
 
-In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
+In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** (sometimes also called *item* or *asset* in the specification) typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
 
 The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists synonyms used (by organizations) for:
 
@@ -30,7 +30,7 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 Sending a request to a back-end needs a process graph as input,
 will trigger a process, and will result in output (computed values).
 
-### Spatial data cubes
+## Spatial data cubes
 
 A spatial data cube is an array with one or more dimensions
 referring to spatial dimensions. Special cases are raster and vector data cubes.
@@ -120,4 +120,3 @@ When the target grid or time series has a lower resolution (larger grid cells) o
 ### User-defined functions
 
 The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, or applied to a particular dimension or set of dimensions, allowing custom server-side calculations.
-
