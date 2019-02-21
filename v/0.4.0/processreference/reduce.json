@@ -1,12 +1,12 @@
 {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into a single output value computed by the reducer.\n\nThe reducer must accept an array and return a single value (see parameter `reducer`). Nominal values are possible, but need to be mapped, e.g. band names to wavelengths, date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must computes a single or multiple return values of the same type as the input values. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
         "cubes",
         "reducer"
     ],
-    "parameter_order": ["data", "reducer", "dimension"],
+    "parameter_order": ["data", "reducer", "dimension", "target_dimension", "binary"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -17,19 +17,40 @@
             "required": true
         },
         "reducer": {
-            "description": "A reducer to be applied on the specified dimension. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
+            "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
             "schema": {
-                "type": "object",
-                "format": "callback",
-                "properties": {
-                    "data": {
-                        "description": "An array with elements of any type.",
-                        "type": "array",
-                        "items": {
-                            "description": "Any data type."
-                        }
+                "oneOf": [
+                    {
+                        "title": "Unary behaviour",
+                        "description": "Passes an array to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "properties": {
+                            "data": {
+                                "description": "An array with elements of any type.",
+                                "type": "array",
+                                "items": {
+                                    "description": "Any data type."
+                                }
+                            }
+                        } 
+                    },
+                    {
+                        "title": "Binary behaviour",
+                        "description": "Passes two values to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "properties": {
+                            "x": {
+                                "description": "The first value. Any data type could be passed."
+                            },
+                            "y": {
+                                "description": "The second value. Any data type could be passed."
+                            }
+                        } 
                     }
-                }
+                ]
+
             },
             "required": true
         },
@@ -39,13 +60,34 @@
                 "type": "string"
             },
             "required": true
+        },
+        "target_dimension": {
+            "description": "The name of the target dimension. Only required if the reducer returns multiple values, otherwise ignored. By default creates a new dimension with the specified name and the type `other` (see ``add_dimension()``). If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.",
+            "schema": {
+                "type": ["string", "null"],
+                "default": null
+            }
+        },
+        "binary": {
+            "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "schema": {
+                "type": "boolean",
+                "default": false
+            }
         }
     },
     "returns": {
-        "description": "A data cube with the newly computed values. The number of dimensions is reduced, but the resolution and cardinality are the same as for the original data cube.",
+        "description": "A data cube with the newly computed values. The number of dimensions is reduced for callbacks returning a single value or doesn't change if the callback returns multiple values. The resolution and cardinality are the same as for the original data cube.",
         "schema": {
             "type": "object",
             "format": "raster-cube"
         }
-    }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+            "title": "Background information on reduction operators (binary reducers) by Wikipedia"
+        }
+    ]
 }
