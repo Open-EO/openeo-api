@@ -47,7 +47,7 @@ and values:
 
 dimensions x and time are aligned along the x-axis; y and band are aligned along the y-axis.
 
-![](https://github.com/edzer/openeo-api/raw/0.4.0/docs/fig2.png)
+![Data cube example](img/datacube-example.png)
 
 Data cubes as defined here have a _single value_ (scalar) for each
 unique combination of dimension values.  The value pointed to by
