@@ -150,7 +150,7 @@
     "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe process considers all pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC).\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated from, for example a single band. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
     "categories": [
       "cubes",
-      "aggregate"
+      "aggregate & resample"
     ],
     "experimental": true,
     "parameter_order": [
@@ -253,7 +253,7 @@
     "description": "Computes a temporal aggregation based on an array of date and/or time intervals.\n\nCalendar hierarchies such as year, month, week etc. must be transformed into specific intervals by the clients. For each interval, all data along the dimension will be passed through the reducer. The computed values will be projected to the labels, so the number of labels and the number of intervals need to be equal.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
     "categories": [
       "cubes",
-      "aggregate"
+      "aggregate & resample"
     ],
     "experimental": true,
     "parameter_order": [
@@ -6968,12 +6968,12 @@
     }
   },
   {
-    "id": "resample_spatial",
-    "summary": "Resample the spatial dimensions",
-    "description": "Resamples the spatial dimensions.",
+    "id": "resample_cube_spatial",
+    "summary": "Resample the spatial dimensions to a target data cube",
+    "description": "Resamples the spatial dimensions from a source data cube to a target data cube and return the results as a new data cube.",
     "categories": [
       "cubes",
-      "aggregate"
+      "aggregate & resample"
     ],
     "experimental": true,
     "parameter_order": [
@@ -6991,14 +6991,14 @@
         "required": true
       },
       "target": {
-        "description": "A data cube that describes the target resolution.",
+        "description": "A data cube that describes the spatial target resolution.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
         },
         "required": true
       },
-      "method": {
+      "spatial_method": {
         "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
         "schema": {
           "type": "string",
@@ -7041,12 +7041,12 @@
     ]
   },
   {
-    "id": "resample_temporal",
-    "summary": "Resample a temporal dimension",
-    "description": "Resamples a temporal dimension.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
+    "id": "resample_cube_temporal",
+    "summary": "Resample a temporal dimension to a target data cube",
+    "description": "Resamples a temporal dimension from a source data cube to a target data cube and return the results as a new data cube.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
     "categories": [
       "cubes",
-      "aggregate"
+      "aggregate & resample"
     ],
     "experimental": true,
     "parameter_order": [
@@ -7065,7 +7065,7 @@
         "required": true
       },
       "target": {
-        "description": "A data cube that describes the target resolution.",
+        "description": "A data cube that describes the temporal target resolution.",
         "schema": {
           "type": "object",
           "format": "raster-cube"
@@ -7090,7 +7090,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to resample. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -7122,6 +7122,106 @@
         "href": "https://github.com/Open-EO/openeo-processes/issues/14",
         "rel": "experimental",
         "title": "More information about the experimental status of the process"
+      }
+    ]
+  },
+  {
+    "id": "resample_spatial",
+    "summary": "Resample and warp the spatial dimensions",
+    "description": "Resamples the data cube to a specified resoltion and/or warps the data cube to the target projection. At least `resolution` or `projection` must be specified.",
+    "categories": [
+      "cubes",
+      "aggregate & resample"
+    ],
+    "parameter_order": [
+      "data",
+      "resolution",
+      "projection",
+      "method"
+    ],
+    "parameters": {
+      "data": {
+        "description": "A raster data cube.",
+        "schema": {
+          "type": "object",
+          "format": "raster-cube"
+        },
+        "required": true
+      },
+      "resolution": {
+        "description": "Resamples the data cube to the target resoltion. Specified in the units of the target projection. Doesn't change the resolution by default (`0`).",
+        "type": "number",
+        "default": 0,
+        "minimum": 0
+      },
+      "projection": {
+        "description": "Warps the data cube to the target projection. Target projection specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Doesn't change the projection by default (`null`).",
+        "schema": {
+          "oneOf": [
+            {
+              "title": "EPSG Code",
+              "type": "integer",
+              "format": "epsg-code",
+              "example": 7099
+            },
+            {
+              "title": "PROJ definition",
+              "type": "string",
+              "format": "proj-definition",
+              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+            },
+            {
+              "title": "Don't change projection",
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "method": {
+        "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
+        "schema": {
+          "type": "string",
+          "default": "near",
+          "enum": [
+            "near",
+            "bilinear",
+            "cubic",
+            "cubicspline",
+            "lanczos",
+            "average",
+            "mode",
+            "max",
+            "min",
+            "med",
+            "q1",
+            "q3"
+          ]
+        }
+      }
+    },
+    "returns": {
+      "description": "A raster data cube with values warped onto the new projection.",
+      "schema": {
+        "type": "object",
+        "format": "raster-cube"
+      }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://proj4.org/usage/projections.html",
+        "title": "PROJ parameters for cartographic projections"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg-registry.org",
+        "title": "Official EPSG code registry"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg.io",
+        "title": "Unofficial EPSG code database"
       }
     ]
   },
@@ -8647,95 +8747,6 @@
         "rel": "about",
         "href": "http://mathworld.wolfram.com/Variance.html",
         "title": "Variance explained by Wolfram MathWorld"
-      }
-    ]
-  },
-  {
-    "id": "warp_projection",
-    "summary": "Warp the projection",
-    "description": "Warps the data cube to the target projection.",
-    "categories": [
-      "cubes",
-      "aggregate"
-    ],
-    "parameter_order": [
-      "data",
-      "projection",
-      "method"
-    ],
-    "parameters": {
-      "data": {
-        "description": "A raster data cube.",
-        "schema": {
-          "type": "object",
-          "format": "raster-cube"
-        },
-        "required": true
-      },
-      "projection": {
-        "description": "Target projection specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.",
-        "schema": {
-          "oneOf": [
-            {
-              "title": "EPSG Code",
-              "type": "integer",
-              "format": "epsg-code",
-              "example": 7099
-            },
-            {
-              "title": "PROJ definition",
-              "type": "string",
-              "format": "proj-definition",
-              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-            }
-          ]
-        },
-        "required": true
-      },
-      "method": {
-        "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
-        "schema": {
-          "type": "string",
-          "default": "near",
-          "enum": [
-            "near",
-            "bilinear",
-            "cubic",
-            "cubicspline",
-            "lanczos",
-            "average",
-            "mode",
-            "max",
-            "min",
-            "med",
-            "q1",
-            "q3"
-          ]
-        }
-      }
-    },
-    "returns": {
-      "description": "A raster data cube with values warped onto the new projection.",
-      "schema": {
-        "type": "object",
-        "format": "raster-cube"
-      }
-    },
-    "links": [
-      {
-        "rel": "about",
-        "href": "https://proj4.org/usage/projections.html",
-        "title": "PROJ parameters for cartographic projections"
-      },
-      {
-        "rel": "about",
-        "href": "http://www.epsg-registry.org",
-        "title": "Official EPSG code registry"
-      },
-      {
-        "rel": "about",
-        "href": "http://www.epsg.io",
-        "title": "Unofficial EPSG code database"
       }
     ]
   },
