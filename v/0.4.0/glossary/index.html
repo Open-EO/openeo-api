@@ -307,19 +307,60 @@
     Processes and process graphs
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregation-and-resampling" title="Aggregation and resampling" class="md-nav__link">
-    Aggregation and resampling
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatial-data-cubes" title="Spatial data cubes" class="md-nav__link">
+    Spatial data cubes
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
+  <a href="#apply-processes-that-do-not-change-dimensions" title="apply: processes that do not change dimensions" class="md-nav__link">
+    apply: processes that do not change dimensions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-subsetting-dimensions-by-dimension-value-selection" title="filter: subsetting dimensions by dimension value selection" class="md-nav__link">
+    filter: subsetting dimensions by dimension value selection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce-removing-dimensions-entirely-by-computation" title="reduce: removing dimensions entirely by computation" class="md-nav__link">
+    reduce: removing dimensions entirely by computation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-reducing-resolution" title="aggregate: reducing resolution" class="md-nav__link">
+    aggregate: reducing resolution
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resample-changing-data-cube-geometry" title="resample: changing data cube geometry" class="md-nav__link">
+    resample: changing data cube geometry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#user-defined-functions" title="User-defined functions" class="md-nav__link">
     User-defined functions
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -726,19 +767,60 @@
     Processes and process graphs
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#aggregation-and-resampling" title="Aggregation and resampling" class="md-nav__link">
-    Aggregation and resampling
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spatial-data-cubes" title="Spatial data cubes" class="md-nav__link">
+    Spatial data cubes
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
+  <a href="#apply-processes-that-do-not-change-dimensions" title="apply: processes that do not change dimensions" class="md-nav__link">
+    apply: processes that do not change dimensions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-subsetting-dimensions-by-dimension-value-selection" title="filter: subsetting dimensions by dimension value selection" class="md-nav__link">
+    filter: subsetting dimensions by dimension value selection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce-removing-dimensions-entirely-by-computation" title="reduce: removing dimensions entirely by computation" class="md-nav__link">
+    reduce: removing dimensions entirely by computation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aggregate-reducing-resolution" title="aggregate: reducing resolution" class="md-nav__link">
+    aggregate: reducing resolution
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resample-changing-data-cube-geometry" title="resample: changing data cube geometry" class="md-nav__link">
+    resample: changing data cube geometry
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#user-defined-functions" title="User-defined functions" class="md-nav__link">
     User-defined functions
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -782,20 +864,103 @@
 <p>The terms <em>process</em> and <em>process graph</em> have specific meanings in the openEO API specification.</p>
 <p>A <strong>process</strong> is an operation provided by the back end that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. </p>
 <p>A <strong>process graph</strong> chains specific process calls. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.</p>
-<h2 id="aggregation-and-resampling">Aggregation and resampling<a class="headerlink" href="#aggregation-and-resampling" title="Permanent link">&para;</a></h2>
-<p><strong><em>Aggregation</em></strong> computes new values from sets of values that are <em>uniquely</em> assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells), and an aggregation function (e.g., <code>mean</code>) that computes one or more new values from the original ones.</p>
+<p>Sending a request to a back-end needs a process graph as input,
+will trigger a process, and will result in output (computed values).</p>
+<h3 id="spatial-data-cubes">Spatial data cubes<a class="headerlink" href="#spatial-data-cubes" title="Permanent link">&para;</a></h3>
+<p>A spatial data cube is an array with one or more dimensions
+referring to spatial dimensions. Special cases are raster and vector data cubes.
+The figure below shows the data of
+a four-dimensional (8 x 8 x 2 x 2) raster data cube, with dimension names
+and values:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>dimension name</th>
+<th>dimension values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>x</td>
+<td>288790.5, 288819, 288847.5, 288876, 288904.5, 288933, 288961.5, 288990</td>
+</tr>
+<tr>
+<td>2</td>
+<td>y</td>
+<td>9120747, 9120718, 9120690, 9120661, 9120633, 9120604, 9120576, 9120547</td>
+</tr>
+<tr>
+<td>3</td>
+<td>band</td>
+<td><code>red</code>, <code>green</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>time</td>
+<td><code>2018-02-10</code>, <code>2018-02-17</code></td>
+</tr>
+</tbody>
+</table>
+<p>dimensions x and time are aligned along the x-axis; y and band are aligned along the y-axis.</p>
+<p><img alt="" src="https://github.com/edzer/openeo-api/raw/0.4.0/docs/fig2.png" /></p>
+<p>Data cubes as defined here have a <em>single value</em> (scalar) for each
+unique combination of dimension values.  The value pointed to by
+arrows corresponds to the combination of x=288847.5 (red arrow),
+y=9120661 (yellow arrow), band=red (blue arrow), time=2018-02-17 (green arrow),
+and its value is 84 (brown arrow).</p>
+<p>If the data concerns grayscale imagery, we could call this <em>single</em>
+value a <em>pixel value</em>. One should keep in mind that it is <em>never</em>
+a tuple of, say, <code>{red, green, blue}</code> values.  "Cell value of a
+single raster layer" would be a better analogy; <em>data cube cell
+value</em> may be a good compromise.</p>
+<h3 id="apply-processes-that-do-not-change-dimensions"><code>apply</code>: processes that do not change dimensions<a class="headerlink" href="#apply-processes-that-do-not-change-dimensions" title="Permanent link">&para;</a></h3>
+<p>Math process that do not reduce do not change anything to the array
+dimensions. The process <code>apply</code> can be used to apply unary functions
+such as <code>abs</code> or <code>sqrt</code> to all values in a data cube. The process
+<code>apply_dimension</code> applies (maps) an n-ary function to a particular
+dimension. An example would be to apply <code>sort</code> to the time dimension,
+in order to get every time series sorted. A more realistic example
+would for instance apply a moving average filter to every time
+series. An example of <code>apply_dimension</code> to the spatial dimensions
+is to do a historgram stretch for every spatial (grayscale) image
+of an image time series.</p>
+<h3 id="filter-subsetting-dimensions-by-dimension-value-selection"><code>filter</code>: subsetting dimensions by dimension value selection<a class="headerlink" href="#filter-subsetting-dimensions-by-dimension-value-selection" title="Permanent link">&para;</a></h3>
+<p>The <code>filter</code> process makes a cube smaller by selecting specific
+values for a particular dimension. </p>
+<p>Examples: </p>
+<ul>
+<li>a band filter that selects the <code>red</code> band</li>
+<li>a bounding box filter selects a spatial extent</li>
+</ul>
+<h3 id="reduce-removing-dimensions-entirely-by-computation"><code>reduce</code>: removing dimensions entirely by computation<a class="headerlink" href="#reduce-removing-dimensions-entirely-by-computation" title="Permanent link">&para;</a></h3>
+<p><code>reduce</code> reduces the number of dimensions by computation. For
+instance, using the <em>reducer</em> proces <code>mean</code>, we can compute the
+mean of the two time steps, and by that remove the time dimension.</p>
+<p>Example:</p>
+<ul>
+<li>a time series reduction may return a regression slope for every (grayscale) pixel time series</li>
+</ul>
+<h3 id="aggregate-reducing-resolution"><code>aggregate</code>: reducing resolution<a class="headerlink" href="#aggregate-reducing-resolution" title="Permanent link">&para;</a></h3>
+<p>Aggregation computes new values from sets of values that are <em>uniquely</em> assigned to groups. It involves a grouping predicate (e.g. monthly, 100 m x 100 m grid cells, or a set of non-overlapping spatial polygons), and an reducer (e.g., <code>mean</code>) that computes one or more new values from the original ones.</p>
+<p>In effect, <code>aggregate</code> combines the following three steps:</p>
+<ul>
+<li><em>split</em> the data cube in groups, based on dimension constraints (time intervals, band groups, spatial polygons)</li>
+<li><em>apply</em> a reducer to each group (similar to the <code>reduce</code> process, but reducing a group rather than an entire dimension)</li>
+<li><em>combine</em> the result to a new data cube, with some dimensions having reduced resolution (or e.g. raster to vector converted)</li>
+</ul>
 <p>Examples:</p>
 <ul>
-<li>a time series aggregation may return a regression slope and intercept for every pixel time series, for a single band (grouping predicate: full time extent)</li>
-<li>a time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)</li>
+<li>a weekly time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)</li>
 <li><em>spatial</em> aggregation involves computing e.g. <em>mean</em> pixel values on a 100 x 100 m grid, from 10 m x 10 m pixels, where each original pixel is assigned uniquely to a larger pixel (grouping predicate: 100 m x 100 m grid cells)</li>
 </ul>
-<p>Note that for the first example, the aggregation function not only requires time series values, but also their time stamps.</p>
-<p><strong><em>Resampling</em></strong> (also called <em>scaling</em>) is a broader term where we have data at one resolution, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called <em>upsampling</em> or <em>upscaling</em>.</p>
+<h3 id="resample-changing-data-cube-geometry"><code>resample</code>: changing data cube geometry<a class="headerlink" href="#resample-changing-data-cube-geometry" title="Permanent link">&para;</a></h3>
+<p>Resampling considers the case where we have data at one resolution and coordinate reference system, and need values at another. In case we have values at a 100 m x 100 m grid and need values at a 10 m x 10 m grid, the original values will be reused many times, and may be simply assigned to the nearest high resolution grid cells (nearest neighbor method), or may be interpolated using various methods (e.g. by bilinear interpolation). This is often called <em>upsampling</em> or <em>upscaling</em>. </p>
 <p>Resampling from finer to coarser grid is a special case of aggregation often called <em>downsampling</em> or <em>downscaling</em>.</p>
 <p>When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are similar, (e.g. the source collection provides 10 day intervals and the target needs values for 16 day intervals), then some form of interpolation may be more appropriate than aggregation as defined here.</p>
-<h2 id="user-defined-functions">User-defined functions<a class="headerlink" href="#user-defined-functions" title="Permanent link">&para;</a></h2>
-<p>The abbreviation <strong>UDF</strong> stands for <strong>user-defined function</strong>. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, allowing custom calculations on server-side data.</p>
+<h3 id="user-defined-functions">User-defined functions<a class="headerlink" href="#user-defined-functions" title="Permanent link">&para;</a></h3>
+<p>The abbreviation <strong>UDF</strong> stands for <strong>user-defined function</strong>. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, or applied to a particular dimension or set of dimensions, allowing custom server-side calculations.</p>
                 
                   
                 
