@@ -26,7 +26,7 @@ The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workin
 - **granule**: dataset (ESA, ISO 19115), granule (NASA), product (ESA, CNES), scene (JAXA)
 - **collection**: dataset series (ESA, ISO 19115), collection (CNES, NASA), dataset (JAXA), product (JAXA)
 
-In openEO, a back-end offers a set of collections to be processed. All collections can be requested using a client and are described using the [STAC metadata specification](https://github.com/radiantearth/stac-spec) as STAC collections. A user can load (a subset of) a collection using special process for processing on the back-end. This process returns a (spatial) data cube. All further processing is then applied to the data cube.
+In openEO, a back-end offers a set of collections to be processed. All collections can be requested using a client and are described using the [STAC metadata specification](https://github.com/radiantearth/stac-spec) as STAC collections. A user can load (a subset of) a collection using a special process for processing on the back-end. This process returns a (spatial) data cube. All further processing is then applied to the data cube.
 
 ## Spatial data cubes
 
