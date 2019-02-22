@@ -6,7 +6,7 @@
         "cubes",
         "filter"
     ],
-    "parameter_order": ["data", "expression", "dimensions"],
+    "parameter_order": ["data", "expression", "dimension"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -17,13 +17,13 @@
             "required": true
         },
         "expression": {
-            "description": "An expression that is evaluated against each dimension value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the dimension values stored for the dimension.",
+            "description": "An expression that is evaluated against each dimension value in the specified dimension. A dimension value is dropped from the data cube if the expression returns `false`. The data type of the parameter depends on the dimension values stored for the dimension.",
             "schema": {
                 "type": "object",
                 "format": "callback",
                 "parameters": {
                     "value": {
-                        "description": "A single dimension values to compare against.",
+                        "description": "A single dimension value to compare against.",
                         "anyOf": [
                             {
                                 "type": "number"
@@ -49,13 +49,10 @@
             },
             "required": true
         },
-        "dimensions": {
-            "description": "The dimensions to filter on. The values for each of these dimensions will be passed to the expression with the parameter name being the dimension name.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+        "dimension": {
+            "description": "The dimension to filter on.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
             "schema": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
+                "type": "string"
             },
             "required": true
         }

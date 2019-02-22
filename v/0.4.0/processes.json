@@ -2943,7 +2943,7 @@
   {
     "id": "filter_bands",
     "summary": "Filter the bands by name",
-    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one spectral dimension.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes.",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
     "categories": [
       "filter"
     ],
@@ -2963,7 +2963,7 @@
         "required": true
       },
       "bands": {
-        "description": "A list of band names.\n\nThe order of the specified array defines the order of the bands in the data cube!",
+        "description": "A list of band names.\n\nThe order of the specified array defines the order of the bands in the data cube.",
         "schema": {
           "type": "array",
           "items": {
@@ -2972,7 +2972,7 @@
         }
       },
       "common_names": {
-        "description": "A list of common band names.\n\nThe order of the specified array defines the order of the bands in the data cube!",
+        "description": "A list of common band names.\n\nThe order of the specified array defines the order of the bands in the data cube.",
         "schema": {
           "type": "array",
           "items": {
@@ -2981,7 +2981,7 @@
         }
       },
       "wavelengths": {
-        "description": "A list of sub-lists with each sub-list consisting of two elements. The first element is the minimum wavelength and the second element is the maximum wavelength. Wavelengths are specified in micrometres (μm).\n\nThe order of the specified array defines the order of the bands in the data cube!",
+        "description": "A list of sub-lists with each sub-list consisting of two elements. The first element is the minimum wavelength and the second element is the maximum wavelength. Wavelengths are specified in micrometres (μm).\n\nThe order of the specified array defines the order of the bands in the data cube.",
         "schema": {
           "type": "array",
           "items": {
@@ -3302,7 +3302,7 @@
     "parameter_order": [
       "data",
       "expression",
-      "dimensions"
+      "dimension"
     ],
     "parameters": {
       "data": {
@@ -3314,13 +3314,13 @@
         "required": true
       },
       "expression": {
-        "description": "An expression that is evaluated against each dimension value in the data cube. For each dimension specified a parameter is passed to the expression callback with the name of the parameter being the dimension name. The data type of the parameter depends on the dimension values stored for the dimension.",
+        "description": "An expression that is evaluated against each dimension value in the specified dimension. A dimension value is dropped from the data cube if the expression returns `false`. The data type of the parameter depends on the dimension values stored for the dimension.",
         "schema": {
           "type": "object",
           "format": "callback",
           "parameters": {
             "value": {
-              "description": "A single dimension values to compare against.",
+              "description": "A single dimension value to compare against.",
               "anyOf": [
                 {
                   "type": "number"
@@ -3346,13 +3346,10 @@
         },
         "required": true
       },
-      "dimensions": {
-        "description": "The dimensions to filter on. The values for each of these dimensions will be passed to the expression with the parameter name being the dimension name.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+      "dimension": {
+        "description": "The dimension to filter on.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string"
         },
         "required": true
       }
@@ -3376,7 +3373,7 @@
     "experimental": true,
     "parameters": {
       "expression": {
-        "description": "An expression that is evaluated against each collection the back-end offers.",
+        "description": "An expression that is evaluated against each collection the back-end offers. The expression filters the collections to include only collection ids which the given expression returns `true` for. ``property()`` can be used to retrieve metadata properties.",
         "schema": {
           "type": "object",
           "format": "callback",
@@ -3393,11 +3390,10 @@
       }
     },
     "returns": {
-      "description": "An array of matching collection ids.",
+      "description": "An array of collection ids.",
       "schema": {
         "type": "array",
         "items": {
-          "description": "Each element is a collection id.",
           "type": "string",
           "format": "collection-id",
           "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
@@ -4348,7 +4344,7 @@
   {
     "id": "load_collection",
     "summary": "Load a collection",
-    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be filtered by an expression so that every part of the data that matches the expression is included in the data cube.",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be filtered by an expression so that every part of the data that the expression returns `true` for is included in the data cube.",
     "categories": [
       "cubes",
       "import"
@@ -4368,7 +4364,7 @@
         "required": true
       },
       "expression": {
-        "description": "Expression that filters the collection data to include only data in the data cube which matches the given expression. ``property()`` can be used to retrieve metadata properties.",
+        "description": "Expression that filters the collection data to include only data in the data cube which the given expression returns `true` for. ``property()`` can be used to retrieve metadata properties.",
         "schema": {
           "anyOf": [
             {
@@ -6873,7 +6869,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension for the bands such as `spectral`.",
+        "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
