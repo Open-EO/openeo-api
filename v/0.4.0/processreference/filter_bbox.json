@@ -1,11 +1,11 @@
 {
     "id": "filter_bbox",
     "summary": "Spatial filter using a bounding box",
-    "description": "Limits the data cube to the specified bounding box.\n\nThe bounding box may include a vertical axis (see `base` and `height`).",
+    "description": "Limits the data cube to the specified bounding box.",
     "categories": [
         "filter"
     ],
-    "parameter_order": ["data", "west", "south", "east", "north", "base", "height", "crs"],
+    "parameter_order": ["data", "extent"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -15,66 +15,61 @@
             },
             "required": true
         },
-        "west": {
-            "description": "West (lower left corner, coordinate axis 1).",
+        "extent": {
+            "description": "A bounding box, which may include a vertical axis (see `base` and `height`).\n\nThe coordinate reference system of the extent must be specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.",
+            "required": true,
             "schema": {
-                "type": "number"
-            },
-            "required": true
-        },
-        "south": {
-            "description": "South (lower left corner, coordinate axis 2).",
-            "schema": {
-                "type": "number"
-            },
-            "required": true
-        },
-        "east": {
-            "description": "East (upper right corner, coordinate axis 1).",
-            "schema": {
-                "type": "number"
-            },
-            "required": true
-        },
-        "north": {
-            "description": "North (upper right corner, coordinate axis 2).",
-            "schema": {
-                "type": "number"
-            },
-            "required": true
-        },
-        "base": {
-            "description": "Base (optional, lower left corner, coordinate axis 3).",
-            "schema": {
-                "type": ["number", "null"],
-                "default": null
-            }
-        },
-        "height": {
-            "description": "Height (optional, upper right corner, coordinate axis 3).",
-            "schema": {
-                "type": ["number", "null"],
-                "default": null
-            }
-        },
-        "crs": {
-            "description": "Coordinate reference system of the parameters specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
-            "schema": {
-                "oneOf": [
-                    {
-                        "title": "EPSG Code",
-                        "type": "integer",
-                        "format": "epsg-code",
-                        "example": 7099
+                "type": "object",
+                "format": "bounding-box",
+                "required": ["west", "south", "east", "north"],
+                "properties": {
+                    "west": {
+                        "description": "West (lower left corner, coordinate axis 1).",
+                        "type": "number"
                     },
-                    {
-                        "title": "PROJ definition",
-                        "type": "string",
-                        "format": "proj-definition",
-                        "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+                    "south": {
+                        "description": "South (lower left corner, coordinate axis 2).",
+                        "type": "number"
+                    },
+                    "east": {
+                        "description": "East (upper right corner, coordinate axis 1).",
+                        "type": "number"
+                    },
+                    "north": {
+                        "description": "North (upper right corner, coordinate axis 2).",
+                        "type": "number"
+                    },
+                    "base": {
+                        "description": "Base (optional, lower left corner, coordinate axis 3).",
+                        "type": ["number", "null"],
+                        "default": null
+                    },
+                    "height": {
+                        "description": "Height (optional, upper right corner, coordinate axis 3).",
+                        "type": ["number", "null"],
+                        "default": null
+                    },
+                    "crs": {
+                        "description": "Coordinate reference system of the extent specified as EPSG code or PROJ definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "title": "EPSG Code",
+                                    "type": "integer",
+                                    "format": "epsg-code",
+                                    "examples": [7099]
+                                },
+                                {
+                                    "title": "PROJ definition",
+                                    "type": "string",
+                                    "format": "proj-definition",
+                                    "examples": ["+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"]
+                                }
+                            ],
+                            "default": 4326
+                        }
                     }
-                ],
-                "default": 4326
+                }
             }
         }
     },

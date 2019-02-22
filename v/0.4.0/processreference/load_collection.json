@@ -12,6 +12,7 @@
             "description": "The collection id.",
             "schema": {
                 "type": "string",
+                "format": "collection-id",
                 "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
             },
             "required": true
@@ -19,15 +20,24 @@
         "expression": {
             "description": "Expression that filters the collection data to include only data in the data cube which matches the given expression. ``property()`` can be used to retrieve metadata properties.",
             "schema": {
-                "type": "object",
-                "format": "callback",
-                "properties": {
-                    "id": {
-                        "description": "The collection id.",
-                        "type": "string",
-                        "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "id": {
+                                "description": "The collection id.",
+                                "type": "string",
+                                "format": "collection-id",
+                                "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
+                            }
+                        }
+                    },
+                    {
+                        "type": "null"
                     }
-                }
+                ],
+                "default": null
             }
         }
     },

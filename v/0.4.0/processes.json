@@ -189,7 +189,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "data": {
               "description": "An array with elements of any type.",
               "type": "array",
@@ -361,7 +361,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "data": {
               "description": "An array with elements of any type.",
               "type": "array",
@@ -623,7 +623,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "data": {
               "description": "An array with elements of any type.",
               "type": "array",
@@ -664,6 +664,7 @@
     "summary": "Applies a kernel to compute pixel-wise values",
     "description": "Applies a focal operation based on a weighted kernel to each value of the specified dimensions in the data cube.",
     "categories": [
+      "cubes",
       "math > image filter"
     ],
     "parameter_order": [
@@ -684,6 +685,7 @@
         "description": "The kernel to be applied on the data cube. The kernel has to be as many dimensions as the data cube has dimensions.",
         "schema": {
           "type": "array",
+          "format": "kernel",
           "items": {
             "description": "Usually a multi-dimensional array of numbers."
           }
@@ -731,7 +733,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "x": {
               "description": "A value of any data type could be passed."
             }
@@ -1863,7 +1865,7 @@
               "description": "An expression that is evaluated against each element in the array.",
               "type": "object",
               "format": "callback",
-              "properties": {
+              "parameters": {
                 "x": {
                   "description": "A single value from the array. Any data type could be passed."
                 }
@@ -3028,19 +3030,13 @@
   {
     "id": "filter_bbox",
     "summary": "Spatial filter using a bounding box",
-    "description": "Limits the data cube to the specified bounding box.\n\nThe bounding box may include a vertical axis (see `base` and `height`).",
+    "description": "Limits the data cube to the specified bounding box.",
     "categories": [
       "filter"
     ],
     "parameter_order": [
       "data",
-      "west",
-      "south",
-      "east",
-      "north",
-      "base",
-      "height",
-      "crs"
+      "extent"
     ],
     "parameters": {
       "data": {
@@ -3051,72 +3047,76 @@
         },
         "required": true
       },
-      "west": {
-        "description": "West (lower left corner, coordinate axis 1).",
+      "extent": {
+        "description": "A bounding box, which may include a vertical axis (see `base` and `height`).\n\nThe coordinate reference system of the extent must be specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.",
+        "required": true,
         "schema": {
-          "type": "number"
-        },
-        "required": true
-      },
-      "south": {
-        "description": "South (lower left corner, coordinate axis 2).",
-        "schema": {
-          "type": "number"
-        },
-        "required": true
-      },
-      "east": {
-        "description": "East (upper right corner, coordinate axis 1).",
-        "schema": {
-          "type": "number"
-        },
-        "required": true
-      },
-      "north": {
-        "description": "North (upper right corner, coordinate axis 2).",
-        "schema": {
-          "type": "number"
-        },
-        "required": true
-      },
-      "base": {
-        "description": "Base (optional, lower left corner, coordinate axis 3).",
-        "schema": {
-          "type": [
-            "number",
-            "null"
+          "type": "object",
+          "format": "bounding-box",
+          "required": [
+            "west",
+            "south",
+            "east",
+            "north"
           ],
-          "default": null
-        }
-      },
-      "height": {
-        "description": "Height (optional, upper right corner, coordinate axis 3).",
-        "schema": {
-          "type": [
-            "number",
-            "null"
-          ],
-          "default": null
-        }
-      },
-      "crs": {
-        "description": "Coordinate reference system of the parameters specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
-        "schema": {
-          "oneOf": [
-            {
-              "title": "EPSG Code",
-              "type": "integer",
-              "format": "epsg-code",
-              "example": 7099
+          "properties": {
+            "west": {
+              "description": "West (lower left corner, coordinate axis 1).",
+              "type": "number"
             },
-            {
-              "title": "PROJ definition",
-              "type": "string",
-              "format": "proj-definition",
-              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+            "south": {
+              "description": "South (lower left corner, coordinate axis 2).",
+              "type": "number"
+            },
+            "east": {
+              "description": "East (upper right corner, coordinate axis 1).",
+              "type": "number"
+            },
+            "north": {
+              "description": "North (upper right corner, coordinate axis 2).",
+              "type": "number"
+            },
+            "base": {
+              "description": "Base (optional, lower left corner, coordinate axis 3).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": null
+            },
+            "height": {
+              "description": "Height (optional, upper right corner, coordinate axis 3).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": null
+            },
+            "crs": {
+              "description": "Coordinate reference system of the extent specified as EPSG code or PROJ definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+              "schema": {
+                "anyOf": [
+                  {
+                    "title": "EPSG Code",
+                    "type": "integer",
+                    "format": "epsg-code",
+                    "examples": [
+                      7099
+                    ]
+                  },
+                  {
+                    "title": "PROJ definition",
+                    "type": "string",
+                    "format": "proj-definition",
+                    "examples": [
+                      "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+                    ]
+                  }
+                ],
+                "default": 4326
+              }
             }
-          ],
-          "default": 4326
+          }
         }
       }
     },
@@ -3167,7 +3167,6 @@
       },
       "polygons": {
         "description": "One or more polygons used for filtering, either specified as GeoJSON or vector data cube.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-        "experimental": true,
         "schema": {
           "anyOf": [
             {
@@ -3319,7 +3318,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "value": {
               "description": "A single dimension values to compare against.",
               "anyOf": [
@@ -3381,10 +3380,11 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "id": {
               "description": "The collection id.",
               "type": "string",
+              "format": "collection-id",
               "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
             }
           }
@@ -3399,6 +3399,7 @@
         "items": {
           "description": "Each element is a collection id.",
           "type": "string",
+          "format": "collection-id",
           "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
         }
       }
@@ -4361,6 +4362,7 @@
         "description": "The collection id.",
         "schema": {
           "type": "string",
+          "format": "collection-id",
           "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
         },
         "required": true
@@ -4368,15 +4370,24 @@
       "expression": {
         "description": "Expression that filters the collection data to include only data in the data cube which matches the given expression. ``property()`` can be used to retrieve metadata properties.",
         "schema": {
-          "type": "object",
-          "format": "callback",
-          "properties": {
-            "id": {
-              "description": "The collection id.",
-              "type": "string",
-              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+          "anyOf": [
+            {
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "id": {
+                  "description": "The collection id.",
+                  "type": "string",
+                  "format": "collection-id",
+                  "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+                }
+              }
+            },
+            {
+              "type": "null"
             }
-          }
+          ],
+          "default": null
         }
       }
     },
@@ -4404,12 +4415,12 @@
       "cubes",
       "import"
     ],
-    "experimental": true,
     "parameters": {
       "id": {
         "description": "The id of a batch job with results.",
         "schema": {
           "type": "string",
+          "format": "job-id",
           "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
         },
         "required": true
@@ -4805,7 +4816,6 @@
       },
       "mask": {
         "description": "Either a raster data cube, a GeoJSON object or a vector data cube.\n\nFor **raster data cubes**, both data cubes must be compatible so that every pixel in `data` has a parallel element in `mask`.\n\nFor **GeoJSON** the provided types can be one of the following:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-        "experimental": true,
         "schema": {
           "anyOf": [
             {
@@ -4827,19 +4837,11 @@
       "replacement": {
         "description": "The value used to replace non-zero and `true` values with.",
         "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
+          "type": [
+            "number",
+            "boolean",
+            "string",
+            "null"
           ],
           "default": null
         }
@@ -5167,7 +5169,6 @@
     "categories": [
       "cubes"
     ],
-    "experimental": true,
     "parameter_order": [
       "cube1",
       "cube2",
@@ -5193,17 +5194,25 @@
       "overlap_resolver": {
         "description": "An overlap resolver if the data overlaps. It must be process that is able to reduce the values available in the data cubes to a single value. So the specified process must be a reducer that accepts an array and computes a single return value of the same type as the input values for it, for example ``median()``.",
         "schema": {
-          "type": "object",
-          "format": "callback",
-          "properties": {
-            "overlap": {
-              "description": "An array with elements of any type.",
-              "type": "array",
-              "items": {
-                "description": "Any data type."
+          "anyOf": [
+            {
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "overlap": {
+                  "description": "An array with elements of any type.",
+                  "type": "array",
+                  "items": {
+                    "description": "Any data type."
+                  }
+                }
               }
+            },
+            {
+              "type": "null"
             }
-          }
+          ],
+          "default": null
         }
       }
     },
@@ -6485,6 +6494,7 @@
             {
               "description": "A collection id.",
               "type": "string",
+              "format": "collection-id",
               "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
             }
           ]
@@ -6828,13 +6838,13 @@
       "reducer": {
         "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
         "schema": {
-          "oneOf": [
+          "anyOf": [
             {
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
               "format": "callback",
-              "properties": {
+              "parameters": {
                 "data": {
                   "description": "An array with elements of any type.",
                   "type": "array",
@@ -6849,7 +6859,7 @@
               "description": "Passes two values to the reducer.",
               "type": "object",
               "format": "callback",
-              "properties": {
+              "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
                 },
@@ -6970,12 +6980,11 @@
   {
     "id": "resample_cube_spatial",
     "summary": "Resample the spatial dimensions to a target data cube",
-    "description": "Resamples the spatial dimensions from a source data cube to a target data cube and return the results as a new data cube.",
+    "description": "Resamples the spatial dimensions (x,y) from a source data cube to a target data cube and return the results as a new data cube.",
     "categories": [
       "cubes",
       "aggregate & resample"
     ],
-    "experimental": true,
     "parameter_order": [
       "data",
       "target",
@@ -7032,11 +7041,6 @@
         "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Resampling explained in the openEO glossary"
-      },
-      {
-        "href": "https://github.com/Open-EO/openeo-processes/issues/14",
-        "rel": "experimental",
-        "title": "More information about the experimental status of the process"
       }
     ]
   },
@@ -7048,7 +7052,6 @@
       "cubes",
       "aggregate & resample"
     ],
-    "experimental": true,
     "parameter_order": [
       "data",
       "target",
@@ -7077,7 +7080,7 @@
         "schema": {
           "type": "object",
           "format": "callback",
-          "properties": {
+          "parameters": {
             "data": {
               "description": "An array with elements of any type.",
               "type": "array",
@@ -7117,18 +7120,13 @@
         "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Resampling explained in the openEO glossary"
-      },
-      {
-        "href": "https://github.com/Open-EO/openeo-processes/issues/14",
-        "rel": "experimental",
-        "title": "More information about the experimental status of the process"
       }
     ]
   },
   {
     "id": "resample_spatial",
     "summary": "Resample and warp the spatial dimensions",
-    "description": "Resamples the data cube to a specified resolution and/or warps the data cube to the target projection. At least `resolution` or `projection` must be specified.",
+    "description": "Resamples the spatial dimensions (x,y) of the data cube to a specified resolution and/or warps the data cube to the target projection. At least `resolution` or `projection` must be specified.",
     "categories": [
       "cubes",
       "aggregate & resample"
@@ -7149,28 +7147,47 @@
         "required": true
       },
       "resolution": {
-        "description": "Resamples the data cube to the target resolution. Specified in the units of the target projection. Doesn't change the resolution by default (`0`).",
+        "description": "Resamples the data cube to the target resolution, which can be specified either as separate values for x and y or as a single value for both axes. Specified in the units of the target projection. Doesn't change the resolution by default (`0`).",
         "schema": {
-          "type": "number",
-          "default": 0,
-          "minimum": 0
+          "anyOf": [
+            {
+              "description": "A single number used as resolution for both x and y.",
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "description": "A two-element array to specify separate resolutions for x (first element) and y (second element).",
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          ],
+          "default": 0
         }
       },
       "projection": {
         "description": "Warps the data cube to the target projection. Target projection specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Doesn't change the projection by default (`null`).",
         "schema": {
-          "oneOf": [
+          "anyOf": [
             {
               "title": "EPSG Code",
               "type": "integer",
               "format": "epsg-code",
-              "example": 7099
+              "examples": [
+                7099
+              ]
             },
             {
               "title": "PROJ definition",
               "type": "string",
               "format": "proj-definition",
-              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+              "examples": [
+                "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+              ]
             },
             {
               "title": "Don't change projection",
@@ -7345,6 +7362,7 @@
             {
               "description": "Process graph id",
               "type": "string",
+              "format": "process-graph-id",
               "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
             }
           ]
@@ -7352,9 +7370,10 @@
         "required": true
       },
       "variables": {
-        "description": "An object holding key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
+        "description": "Key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
         "schema": {
           "type": "object",
+          "format": "process-graph-variables",
           "default": {}
         }
       }
@@ -7381,7 +7400,6 @@
       "import",
       "udf"
     ],
-    "experimental": true,
     "parameter_order": [
       "url",
       "options"
@@ -7430,7 +7448,6 @@
       "import",
       "udf"
     ],
-    "experimental": true,
     "parameter_order": [
       "udf",
       "runtime",
@@ -7525,7 +7542,8 @@
       "format": {
         "description": "The file format to save to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "format": "output-format"
         },
         "required": true
       },
@@ -7533,6 +7551,7 @@
         "description": "The file format options to be used to create the file(s). Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
         "schema": {
           "type": "object",
+          "format": "output-format-options",
           "default": {}
         }
       }
@@ -8637,7 +8656,6 @@
     "categories": [
       "cubes"
     ],
-    "experimental": true,
     "parameters": {
       "data": {
         "description": "A raster data cube to trim.",

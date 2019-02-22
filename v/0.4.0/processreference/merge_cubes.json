@@ -5,7 +5,6 @@
     "categories": [
         "cubes"
     ],
-    "experimental": true,
     "parameter_order": ["cube1", "cube2", "overlap_resolver"],
     "parameters": {
         "cube1": {
@@ -27,17 +26,25 @@
         "overlap_resolver": {
             "description": "An overlap resolver if the data overlaps. It must be process that is able to reduce the values available in the data cubes to a single value. So the specified process must be a reducer that accepts an array and computes a single return value of the same type as the input values for it, for example ``median()``.",
             "schema": {
-                "type": "object",
-                "format": "callback",
-                "properties": {
-                    "overlap": {
-                        "description": "An array with elements of any type.",
-                        "type": "array",
-                        "items": {
-                            "description": "Any data type."
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "overlap": {
+                                "description": "An array with elements of any type.",
+                                "type": "array",
+                                "items": {
+                                    "description": "Any data type."
+                                }
+                            }
                         }
+                    },
+                    {
+                        "type": "null"
                     }
-                }
+                ],
+                "default": null
             }
         }
     },
