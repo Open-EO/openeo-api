@@ -91,9 +91,9 @@ The values passed from `apply` to `abs` are the callback parameters, which you c
 }
 ```
 
-Please note that the `<CallbackParameterName>` is also strictly scoped and can not be referenced in child or parent process graphs. 
+Please note that the `<CallbackParameterName>` is also strictly scoped and can not be referenced in child or parent process graphs. 
 
-The callback parameter names (`<CallbackParameterName>`) are defined by the processes. See the `properties` in the JSON schema of the parameter.
+The callback parameter names (`<CallbackParameterName>`) are defined by the processes. See the [`parameters` property](processes.md#callbacks) in the JSON schema of the parameter.
 
 ### Variables
 
