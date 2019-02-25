@@ -6,7 +6,7 @@ openEO develops an open API to connect R, python and javascript clients to big E
 
 ## Versions
 
-The openEO (core) API is currently released in version **0.4.0**. This branch specifies the pre-release version **0.4.0**.
+The openEO (core) API is currently released in version **0.4.0**.
 
 **Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
 
@@ -25,7 +25,8 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 
 This repository contains a set of files formally and technically describing the openEO API, each with a human-readable and easily browseable version:
 
-* [openapi.json](openapi.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
-* [processes/](processes/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
-* [subscriptions.json](subscriptions.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/)) provides the [AsyncAPI](https://www.asyncapi.com/) 1.2 definitions for the WebSocket-based subscriptions and notifications API for openEO.
 * [docs/](docs/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/)) contains all additional written documentation, including 'getting started' guides, the architecture, feature descriptions, development guidelines and more.
+* [processes/](processes/) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
+* [openapi.json](openapi.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
+* [subscriptions.json](subscriptions.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/)) provides the [AsyncAPI](https://www.asyncapi.com/) 1.2 definitions for the WebSocket-based subscriptions and notifications API for openEO.
+* [errors.json](errors.json) ([browseable version](https://open-eo.github.io/openeo-api/v/0.4.0/errors/#openeo-error-codes)) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
