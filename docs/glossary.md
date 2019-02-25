@@ -59,6 +59,17 @@ a tuple of, say, `{red, green, blue}` values.  "Cell value of a
 single raster layer" would be a better analogy; _data cube cell
 value_ may be a good compromise.
 
+A data cube stores some additional properties per dimension such as:
+
+* name
+* axis / number
+* type
+* extents *or* nominal dimension values
+* reference systems / projections
+* resolutions
+
+Having these properties available allows to easily resample from one data cube to another for example.
+
 ### `apply`: processes that do not change dimensions
 
 Math process that do not reduce do not change anything to the array
