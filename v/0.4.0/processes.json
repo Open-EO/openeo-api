@@ -3030,7 +3030,7 @@
   {
     "id": "filter_bbox",
     "summary": "Spatial filter using a bounding box",
-    "description": "Limits the data cube to the specified bounding box.",
+    "description": "Limits the data cube to the specified bounding box.\n\nThe filter retains a pixel in the data cube if the point at the pixel center intersects with the bounding box (as defined in the Simple Features standard by the OGC).",
     "categories": [
       "filter"
     ],
@@ -3142,6 +3142,11 @@
         "rel": "about",
         "href": "http://www.epsg.io",
         "title": "Unofficial EPSG code database"
+      },
+      {
+        "href": "http://www.opengeospatial.org/standards/sfa",
+        "rel": "about",
+        "title": "Simple Features standard by the OGC"
       }
     ]
   },
@@ -6466,13 +6471,14 @@
   {
     "id": "property",
     "summary": "Get metadata for data cubes or collections",
-    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed).\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
+    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed). Properties for a single dimension can be queried with the `dimension` parameter.\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
     "categories": [
       "cubes"
     ],
     "parameter_order": [
       "data",
-      "name"
+      "name",
+      "dimension"
     ],
     "parameters": {
       "data": {
@@ -6503,6 +6509,16 @@
           "type": "string"
         },
         "required": true
+      },
+      "dimension": {
+        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube.",
+        "schema": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
       }
     },
     "returns": {
@@ -7122,7 +7138,7 @@
   {
     "id": "resample_spatial",
     "summary": "Resample and warp the spatial dimensions",
-    "description": "Resamples the spatial dimensions (x,y) of the data cube to a specified resolution and/or warps the data cube to the target projection. At least `resolution` or `projection` must be specified.",
+    "description": "Resamples the spatial dimensions (x,y) of the data cube to a specified resolution and/or warps the data cube to the target projection. At least `resolution` or `projection` must be specified.\n\nUse ``filter_bbox()`` to set the target spatial extent.",
     "categories": [
       "cubes",
       "aggregate & resample"
@@ -7131,7 +7147,8 @@
       "data",
       "resolution",
       "projection",
-      "method"
+      "method",
+      "align"
     ],
     "parameters": {
       "data": {
@@ -7212,6 +7229,19 @@
             "q1",
             "q3"
           ]
+        }
+      },
+      "align": {
+        "description": "Specifies to which corner of the spatial extent the new resampled data is aligned to.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "lower-left",
+            "upper-left",
+            "lower-right",
+            "upper-right"
+          ],
+          "default": "lower-left"
         }
       }
     },
