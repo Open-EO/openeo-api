@@ -11,7 +11,7 @@ STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.
 
 Some commonly used extensions that are integrated in the openEO API specification are:
 
-- EO extension
+- EO (Electro-Optical) extension
 - SAR extension
 - Commons extension
 - Scientific extension
