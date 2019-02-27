@@ -880,152 +880,134 @@ A process node MUST always contain key-value-pairs named <code>process_id</code>
 <p>The value for <code>variable_id</code> is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use <a href="https://en.wikipedia.org/wiki/Snake_case">snake case</a> and limit the characters to <code>a-z</code>, <code>0-9</code> and <code>_</code>.</p>
 <p>Whenever no value for the variable is defined the <code>default</code> value is used or the process graph is rejected if not default value has been specified.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p>An example for a not very meaningful algorithm. The main process chain in blue, callbacks in yellow:</p>
+<p>Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process chain in blue, callbacks in yellow:</p>
 <p><img alt="Graph with processing instructions" src="../img/pg-example.png" /></p>
 <p>The process graph representing the algorithm:</p>
 <div class="codehilite"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;export1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;mergec1&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;export&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;export2&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce2&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;export&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;filter1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;getcol1&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;2017-01-01&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;2017-01-31&quot;</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_temporal&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;filter2&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;getcol1&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-01-01&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;to&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-01-31&quot;</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_temporal&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;filter3&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;bands&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;nir&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;red&quot;</span>
-            <span class="p">],</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce1&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_bands&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;getcol1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sentinel-1&quot;</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;get_collection&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;mergec1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;filter1&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;data2&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;filter2&quot;</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;merge_collections&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;reduce1&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;mergec1&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;temporal&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;reducer&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;callback&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="nt">&quot;min1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension_data&quot;</span>
-                            <span class="p">},</span>
-                            <span class="nt">&quot;dimension&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">},</span>
-                        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;reduce2&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;filter3&quot;</span>
-            <span class="p">},</span>
-            <span class="nt">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;spectral&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;reducer&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="nt">&quot;callback&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="nt">&quot;divide1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;substr1&quot;</span>
-                            <span class="p">},</span>
-                            <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;sum1&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">},</span>
-                        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;divide&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
-                    <span class="p">},</span>
-                    <span class="nt">&quot;output1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;divide1&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">},</span>
-                        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;output&quot;</span>
-                    <span class="p">},</span>
-                    <span class="nt">&quot;substr1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension_data&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">},</span>
-                        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;substract&quot;</span>
-                    <span class="p">},</span>
-                    <span class="nt">&quot;sum1&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;dimension_data&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">},</span>
-                        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce&quot;</span>
+  <span class="nt">&quot;dc&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;load_collection&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;Sentinel-2&quot;</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;temp&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_temporal&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;dc&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-01-01&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-02-01&quot;</span>
     <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;bbox&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_bbox&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;temp&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;extent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;west&quot;</span><span class="p">:</span> <span class="mf">16.1</span><span class="p">,</span> <span class="nt">&quot;east&quot;</span><span class="p">:</span> <span class="mf">16.6</span><span class="p">,</span> <span class="nt">&quot;north&quot;</span><span class="p">:</span> <span class="mf">48.6</span><span class="p">,</span> <span class="nt">&quot;south&quot;</span><span class="p">:</span> <span class="mf">47.2</span><span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;bands&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_bands&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;process_description&quot;</span><span class="p">:</span> <span class="s2">&quot;Filter and order the bands. The order is important for the following reduce operation.&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;bbox&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;bands&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;B08&quot;</span><span class="p">,</span> <span class="s2">&quot;B04&quot;</span><span class="p">,</span> <span class="s2">&quot;B02&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;evi&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;process_description&quot;</span><span class="p">:</span> <span class="s2">&quot;Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;bands&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;spectral&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;reducer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;callback&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;nir&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;array_element&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">},</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;red&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;array_element&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">},</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;blue&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;array_element&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">},</span>
+              <span class="nt">&quot;index&quot;</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;sub&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;substract&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;nir&quot;</span><span class="p">},</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;p1&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;product&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;p2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;product&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">-7.5</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">}]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;sum&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;nir&quot;</span><span class="p">},</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;p1&quot;</span><span class="p">},</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;p2&quot;</span><span class="p">}]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;div&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;divide&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;sub&quot;</span><span class="p">},</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">}]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;p3&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;product&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;div&quot;</span><span class="p">}]</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;mintime&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;process_description&quot;</span><span class="p">:</span> <span class="s2">&quot;Compute a minimum time composite by reducing the temporal dimension&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;evi&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;dimension&quot;</span><span class="p">:</span> <span class="s2">&quot;temporal&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;reducer&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;callback&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;min&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_argument&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">}</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;export&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:</span> <span class="s2">&quot;export&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&quot;from_node&quot;</span><span class="p">:</span> <span class="s2">&quot;mintime&quot;</span><span class="p">},</span>
+      <span class="nt">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;GTiff&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 

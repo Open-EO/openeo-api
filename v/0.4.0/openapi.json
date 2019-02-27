@@ -3889,147 +3889,129 @@
           "$ref": "#/components/schemas/process_node"
         },
         "example": {
-          "export1": {
-            "process_id": "export",
-            "arguments": {
-              "data": {
-                "from_node": "mergec1"
-              },
-              "format": "png"
-            }
+          "dc": {
+            "process_id": "load_collection",
+            "arguments": {"id": "Sentinel-2"}
           },
-          "export2": {
-            "process_id": "export",
-            "arguments": {
-              "data": {
-                "from_node": "reduce2"
-              },
-              "format": "png"
-            },
-            "result": true
-          },
-          "filter1": {
+          "temp": {
             "process_id": "filter_temporal",
             "arguments": {
-              "data": {
-                "from_node": "getcol1"
-              },
-              "from": "2017-01-01",
-              "to": "2017-01-31"
+              "data": {"from_node": "dc"},
+              "start": "2018-01-01",
+              "end": "2018-02-01"
             }
           },
-          "filter2": {
-            "process_id": "filter_temporal",
+          "bbox": {
+            "process_id": "filter_bbox",
             "arguments": {
-              "data": {
-                "from_node": "getcol1"
-              },
-              "from": "2018-01-01",
-              "to": "2018-01-31"
+              "data": {"from_node": "temp"},
+              "extent": {"west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2}
             }
           },
-          "filter3": {
+          "bands": {
             "process_id": "filter_bands",
+            "process_description": "Filter and order the bands. The order is important for the following reduce operation.",
             "arguments": {
-              "bands": [
-                "nir",
-                "red"
-              ],
-              "data": {
-                "from_node": "reduce1"
-              }
+              "data": {"from_node": "bbox"},
+              "bands": ["B08", "B04", "B02"]
             }
           },
-          "getcol1": {
-            "process_id": "get_collection",
-            "arguments": {
-              "name": "Sentinel-1"
-            }
-          },
-          "mergec1": {
-            "process_id": "merge_collections",
-            "arguments": {
-              "data1": {
-                "from_node": "filter1"
-              },
-              "data2": {
-                "from_node": "filter2"
-              }
-            }
-          },
-          "reduce1": {
+          "evi": {
             "process_id": "reduce",
+            "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
             "arguments": {
-              "data": {
-                "from_node": "mergec1"
-              },
-              "dimension": "temporal",
-              "reducer": {
-                "callback": {
-                  "min1": {
-                    "process_id": "min",
-                    "arguments": {
-                      "data": {
-                        "from_argument": "dimension_data"
-                      },
-                      "dimension": {
-                        "from_argument": "dimension"
-                      }
-                    },
-                    "result": true
-                  }
-                }
-              }
-            }
-          },
-          "reduce2": {
-            "process_id": "reduce",
-            "arguments": {
-              "data": {
-                "from_node": "filter3"
-              },
+              "data": {"from_node": "bands"},
               "dimension": "spectral",
               "reducer": {
                 "callback": {
-                  "divide1": {
-                    "process_id": "divide",
+                  "nir": {
+                    "process_id": "array_element",
                     "arguments": {
-                      "x": {
-                        "from_node": "substr1"
-                      },
-                      "y": {
-                        "from_node": "sum1"
-                      }
-                    },
-                    "result": true
-                  },
-                  "output1": {
-                    "process_id": "output",
-                    "arguments": {
-                      "data": {
-                        "from_node": "divide1"
-                      }
+                      "data": {"from_argument": "data"},
+                      "index": 0
                     }
                   },
-                  "substr1": {
+                  "red": {
+                    "process_id": "array_element",
+                    "arguments": {
+                      "data": {"from_argument": "data"},
+                      "index": 1
+                    }
+                  },
+                  "blue": {
+                    "process_id": "array_element",
+                    "arguments": {
+                      "data": {"from_argument": "data"},
+                      "index": 2
+                    }
+                  },
+                  "sub": {
                     "process_id": "substract",
                     "arguments": {
-                      "data": {
-                        "from_argument": "dimension_data"
-                      }
+                      "data": [{"from_node": "nir"}, {"from_node": "red"}]
                     }
                   },
-                  "sum1": {
+                  "p1": {
+                    "process_id": "product",
+                    "arguments": {
+                      "data": [6, {"from_node": "red"}]
+                    }
+                  },
+                  "p2": {
+                    "process_id": "product",
+                    "arguments": {
+                      "data": [-7.5, {"from_node": "blue"}]
+                    }
+                  },
+                  "sum": {
                     "process_id": "sum",
                     "arguments": {
-                      "data": {
-                        "from_argument": "dimension_data"
-                      }
+                      "data": [1, {"from_node": "nir"}, {"from_node": "p1"}, {"from_node": "p2"}]
                     }
+                  },
+                  "div": {
+                    "process_id": "divide",
+                    "arguments": {
+                      "data": [{"from_node": "sub"}, {"from_node": "sum"}]
+                    }
+                  },
+                  "p3": {
+                    "process_id": "product",
+                    "arguments": {
+                      "data": [2.5, {"from_node": "div"}]
+                    },
+                    "result": true
                   }
                 }
               }
             }
+          },
+          "mintime": {
+            "process_id": "reduce",
+            "process_description": "Compute a minimum time composite by reducing the temporal dimension",
+            "arguments": {
+              "data": {"from_node": "evi"},
+              "dimension": "temporal",
+              "reducer": {
+                "callback": {
+                  "min": {
+                    "process_id": "min",
+                    "arguments": {
+                      "data": {"from_argument": "data"}
+                    },
+                    "result": true
+                  }
+                }
+              }
+            }
+          },
+          "export": {
+            "process_id": "export",
+            "arguments": {
+              "data": {"from_node": "mintime"},
+              "format": "GTiff"
+            },
+            "result": true
           }
         }
       },
