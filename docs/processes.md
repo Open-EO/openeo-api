@@ -49,7 +49,7 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 
 A callback is defined by setting the `type` to `object` and the `format` to `callback`. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the callback parameter names and the values being a valid JSON Schema again.
 
-A schema for a callback with two parameters `dimension` (a string) and `dimension_data` (an array of numbers) could be defined as follows:
+A schema for a callback with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
 
 ```json
 {
@@ -60,7 +60,7 @@ A schema for a callback with two parameters `dimension` (a string) and `dimensi
       "description": "Name of the dimension",
       "type": "string"
     },
-    "dimension_data": {
+    "data": {
       "description": "Data for the dimension",
       "type": "array",
       "items": {

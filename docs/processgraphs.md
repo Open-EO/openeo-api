@@ -118,7 +118,7 @@ Whenever no value for the variable is defined the `default` value is used or the
 
 ## Example
 
-An example for a not very meaningful algorithm. The main process chain in blue, callbacks in yellow:
+Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process chain in blue, callbacks in yellow:
 
 ![Graph with processing instructions](img/pg-example.png)
 
@@ -126,148 +126,130 @@ The process graph representing the algorithm:
 
 ``` json
 {
-    "export1": {
-        "arguments": {
-            "data": {
-                "from_node": "mergec1"
-            },
-            "format": "png"
-        },
-        "process_id": "export"
-    },
-    "export2": {
-        "arguments": {
-            "data": {
-                "from_node": "reduce2"
-            },
-            "format": "png"
-        },
-        "process_id": "export",
-        "result": true
-    },
-    "filter1": {
-        "arguments": {
-            "data": {
-                "from_node": "getcol1"
-            },
-            "from": "2017-01-01",
-            "to": "2017-01-31"
-        },
-        "process_id": "filter_temporal"
-    },
-    "filter2": {
-        "arguments": {
-            "data": {
-                "from_node": "getcol1"
-            },
-            "from": "2018-01-01",
-            "to": "2018-01-31"
-        },
-        "process_id": "filter_temporal"
-    },
-    "filter3": {
-        "arguments": {
-            "bands": [
-                "nir",
-                "red"
-            ],
-            "data": {
-                "from_node": "reduce1"
-            }
-        },
-        "process_id": "filter_bands"
-    },
-    "getcol1": {
-        "arguments": {
-            "name": "Sentinel-1"
-        },
-        "process_id": "get_collection"
-    },
-    "mergec1": {
-        "arguments": {
-            "data1": {
-                "from_node": "filter1"
-            },
-            "data2": {
-                "from_node": "filter2"
-            }
-        },
-        "process_id": "merge_collections"
-    },
-    "reduce1": {
-        "arguments": {
-            "data": {
-                "from_node": "mergec1"
-            },
-            "dimension": "temporal",
-            "reducer": {
-                "callback": {
-                    "min1": {
-                        "arguments": {
-                            "data": {
-                                "from_argument": "dimension_data"
-                            },
-                            "dimension": {
-                                "from_argument": "dimension"
-                            }
-                        },
-                        "process_id": "min",
-                        "result": true
-                    }
-                }
-            }
-        },
-        "process_id": "reduce"
-    },
-    "reduce2": {
-        "arguments": {
-            "data": {
-                "from_node": "filter3"
-            },
-            "dimension": "spectral",
-            "reducer": {
-                "callback": {
-                    "divide1": {
-                        "arguments": {
-                            "x": {
-                                "from_node": "substr1"
-                            },
-                            "y": {
-                                "from_node": "sum1"
-                            }
-                        },
-                        "process_id": "divide",
-                        "result": true
-                    },
-                    "output1": {
-                        "arguments": {
-                            "data": {
-                                "from_node": "divide1"
-                            }
-                        },
-                        "process_id": "output"
-                    },
-                    "substr1": {
-                        "arguments": {
-                            "data": {
-                                "from_argument": "dimension_data"
-                            }
-                        },
-                        "process_id": "substract"
-                    },
-                    "sum1": {
-                        "arguments": {
-                            "data": {
-                                "from_argument": "dimension_data"
-                            }
-                        },
-                        "process_id": "sum"
-                    }
-                }
-            }
-        },
-        "process_id": "reduce"
+  "dc": {
+    "process_id": "load_collection",
+    "arguments": {"id": "Sentinel-2"}
+  },
+  "temp": {
+    "process_id": "filter_temporal",
+    "arguments": {
+      "data": {"from_node": "dc"},
+      "start": "2018-01-01",
+      "end": "2018-02-01"
     }
+  },
+  "bbox": {
+    "process_id": "filter_bbox",
+    "arguments": {
+      "data": {"from_node": "temp"},
+      "extent": {"west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2}
+    }
+  },
+  "bands": {
+    "process_id": "filter_bands",
+    "process_description": "Filter and order the bands. The order is important for the following reduce operation.",
+    "arguments": {
+      "data": {"from_node": "bbox"},
+      "bands": ["B08", "B04", "B02"]
+    }
+  },
+  "evi": {
+    "process_id": "reduce",
+    "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
+    "arguments": {
+      "data": {"from_node": "bands"},
+      "dimension": "spectral",
+      "reducer": {
+        "callback": {
+          "nir": {
+            "process_id": "array_element",
+            "arguments": {
+              "data": {"from_argument": "data"},
+              "index": 0
+            }
+          },
+          "red": {
+            "process_id": "array_element",
+            "arguments": {
+              "data": {"from_argument": "data"},
+              "index": 1
+            }
+          },
+          "blue": {
+            "process_id": "array_element",
+            "arguments": {
+              "data": {"from_argument": "data"},
+              "index": 2
+            }
+          },
+          "sub": {
+            "process_id": "substract",
+            "arguments": {
+              "data": [{"from_node": "nir"}, {"from_node": "red"}]
+            }
+          },
+          "p1": {
+            "process_id": "product",
+            "arguments": {
+              "data": [6, {"from_node": "red"}]
+            }
+          },
+          "p2": {
+            "process_id": "product",
+            "arguments": {
+              "data": [-7.5, {"from_node": "blue"}]
+            }
+          },
+          "sum": {
+            "process_id": "sum",
+            "arguments": {
+              "data": [1, {"from_node": "nir"}, {"from_node": "p1"}, {"from_node": "p2"}]
+            }
+          },
+          "div": {
+            "process_id": "divide",
+            "arguments": {
+              "data": [{"from_node": "sub"}, {"from_node": "sum"}]
+            }
+          },
+          "p3": {
+            "process_id": "product",
+            "arguments": {
+              "data": [2.5, {"from_node": "div"}]
+            },
+            "result": true
+          }
+        }
+      }
+    }
+  },
+  "mintime": {
+    "process_id": "reduce",
+    "process_description": "Compute a minimum time composite by reducing the temporal dimension",
+    "arguments": {
+      "data": {"from_node": "evi"},
+      "dimension": "temporal",
+      "reducer": {
+        "callback": {
+          "min": {
+            "process_id": "min",
+            "arguments": {
+              "data": {"from_argument": "data"}
+            },
+            "result": true
+          }
+        }
+      }
+    }
+  },
+  "export": {
+    "process_id": "export",
+    "arguments": {
+      "data": {"from_node": "mintime"},
+      "format": "GTiff"
+    },
+    "result": true
+  }
 }
 ```
 
