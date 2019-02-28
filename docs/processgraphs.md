@@ -59,6 +59,7 @@ A value is defined as follows:
 * `from_argument`, except for objects of type `CallbackParameter`
 * `from_node`, except for objects of type `Result`
 
+**Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
 `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 
@@ -75,7 +76,7 @@ For `Variable`, `Callback` and `CallbackParameter` see the following sections.
 
 ### Callbacks
 
-Callbacks are simply specifying a process graph to be evaluated as part of another process. A callback object is a simple object with a single property `callback` that stores a process graph:
+Callbacks are simply specifying a process graph to be evaluated as part of another process. A callback object is a simple object with a single property `callback` that stores a process graph:
 
 ```
 <Callback> := {
