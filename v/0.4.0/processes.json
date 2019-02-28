@@ -781,9 +781,9 @@
     "examples": [
       {
         "arguments": {
-          "x": 0
+          "x": 1
         },
-        "returns": 1
+        "returns": 0
       },
       {
         "process_graph": {
@@ -845,9 +845,9 @@
     "examples": [
       {
         "arguments": {
-          "x": 0
+          "x": 1
         },
-        "returns": 1
+        "returns": 0
       },
       {
         "process_graph": {
@@ -1568,16 +1568,16 @@
       {
         "arguments": {
           "x": -0.5,
-          "min": 0,
-          "max": -1
+          "min": -1,
+          "max": 0
         },
         "returns": true
       },
       {
         "arguments": {
-          "x": "00:00:01+01:00",
-          "min": "00:00:00Z",
-          "max": "00:00:00+01:00"
+          "x": "00:59:59Z",
+          "min": "01:00:00+01:00",
+          "max": "01:00:00Z"
         },
         "returns": true
       },
@@ -1604,6 +1604,15 @@
           "max": "2018-12-31"
         },
         "returns": true
+      },
+      {
+        "arguments": {
+          "x": "2018-12-31T17:22:45Z",
+          "min": "2018-01-01",
+          "max": "2018-12-31",
+          "exclude_max": true
+        },
+        "returns": false
       }
     ]
   },
@@ -2775,6 +2784,7 @@
         "returns": true
       },
       {
+        "description": "`y` is not a valid date-time representation and therefore will be treated as a string so that the provided values are not equal.",
         "arguments": {
           "x": "2018-01-01T12:00:00Z",
           "y": "2018-01-01T12:00:00"
@@ -2782,9 +2792,10 @@
         "returns": false
       },
       {
+        "description": "01:00 in the timezone +1 is equal to 00:00 in UTC.",
         "arguments": {
           "x": "2018-01-01T00:00:00Z",
-          "y": "2018-01-01Z01:00:00+01:00"
+          "y": "2018-01-01T01:00:00+01:00"
         },
         "returns": true
       }
@@ -5309,10 +5320,7 @@
             2
           ]
         },
-        "returns": [
-          0,
-          3
-        ]
+        "returns": 0
       },
       {
         "arguments": {
@@ -5323,10 +5331,7 @@
             -0.7
           ]
         },
-        "returns": [
-          -0.7,
-          5
-        ]
+        "returns": -0.7
       },
       {
         "arguments": {
@@ -5339,20 +5344,13 @@
           ],
           "ignore_nodata": false
         },
-        "returns": [
-          null,
-          null
-        ]
+        "returns": null
       },
       {
-        "description": "The input array is empty: return two `null` values.",
         "arguments": {
           "data": []
         },
-        "returns": [
-          null,
-          null
-        ]
+        "returns": null
       }
     ],
     "links": [
@@ -5433,13 +5431,6 @@
           "y": -5
         },
         "returns": -2
-      },
-      {
-        "arguments": {
-          "x": 27,
-          "y": 5
-        },
-        "returns": 2
       },
       {
         "arguments": {
@@ -5790,6 +5781,7 @@
         "returns": false
       },
       {
+        "description": "`y` is not a valid date-time representation and therefore will be treated as a string so that the provided values are not equal.",
         "arguments": {
           "x": "2018-01-01T12:00:00Z",
           "y": "2018-01-01T12:00:00"
@@ -5797,9 +5789,10 @@
         "returns": true
       },
       {
+        "description": "01:00 in the timezone +1 is equal to 00:00 in UTC.",
         "arguments": {
           "x": "2018-01-01T00:00:00Z",
-          "y": "2018-01-01Z01:00:00+01:00"
+          "y": "2018-01-01T01:00:00+01:00"
         },
         "returns": false
       }
