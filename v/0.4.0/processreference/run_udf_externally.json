@@ -1,7 +1,7 @@
 {
     "id": "run_udf_externally",
     "summary": "Run an externally hosted UDF container",
-    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/).\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
+    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/).\n\nThe referenced UDF service can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. In this case an array is passed instead of a raster data cube. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
         "import",
         "udf"
@@ -9,13 +9,23 @@
     "parameter_order": ["data", "url", "context"],
     "parameters": {
         "data": {
-            "description": "The data to be passed to the UDF as array.",
+            "description": "The data to be passed to the UDF as array or raster data cube.",
             "schema": {
-                "type": "array",
-                "minItems": 1,
-                "items": {
-                    "description": "Any data type."
-                }
+                "anyOf": [
+                    {
+                        "title": "Raster data cube",
+                        "type": "object",
+                        "format": "raster-cube"
+                    },
+                    {
+                        "title": "Array",
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "description": "Any data type."
+                        }
+                    }
+                ]
             },
             "required": true
         },
@@ -36,9 +46,19 @@
         }
     },
     "returns": {
-        "description": "The data processed by the UDF service.",
+        "description": "The data processed by the UDF service. Returns a raster data cube if a raster data cube was passed for `data`. If an array was passed for `data`, the returned value is defined by the context and is exactly what the UDF returned.",
         "schema": {
-            "description": "Any data type."
+            "anyOf": [
+                {
+                    "title": "Raster data cube",
+                    "type": "object",
+                    "format": "raster-cube"
+                },
+                {
+                    "title": "Any",
+                    "description": "Any data type."
+                }
+            ]
         }
     },
     "links": [
