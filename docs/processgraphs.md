@@ -75,10 +75,12 @@ For `Variable`, `Callback` and `CallbackParameter` see the following sections.
 
 ### Callbacks
 
-Callbacks are simply process graphs that are evaulated as part of another process:
+Callbacks are simply specifying a process graph to be evaluated as part of another process. A callback object is a simple object with a single property `callback` that stores a process graph:
 
 ```
-<Callback> := <ProcessGraph>
+<Callback> := {
+  "callback": <ProcessGraph>
+}
 ```
 
 For example, you'd like to iterate over an array and want to apply another process `abs` (absolute value) on each value in the array. You can do so by executing `apply` in openEO (often also called `map` in other languages) and pass as callback the process `abs`, which is wrapped in a process graph.
