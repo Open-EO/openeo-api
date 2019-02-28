@@ -1,7 +1,7 @@
 {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must computes a single or multiple return values of the same type as the input values. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
         "cubes",
         "reducer"
@@ -48,11 +48,15 @@
                                 "description": "The second value. Any data type could be passed."
                             }
                         } 
+                    },
+                    {
+                        "title": "No operation behaviour",
+                        "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
+                        "type": "null"
                     }
-                ]
-
-            },
-            "required": true
+                ],
+                "default": null
+            }
         },
         "dimension": {
             "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
@@ -69,7 +73,7 @@
             }
         },
         "binary": {
-            "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
             "schema": {
                 "type": "boolean",
                 "default": false
@@ -81,6 +85,11 @@
         "schema": {
             "type": "object",
             "format": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "TooManyDimensionValues": {
+            "message": "The number of dimension values exceeds one, which requires a reducer."
         }
     },
     "links": [

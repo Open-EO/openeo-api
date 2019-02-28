@@ -1,11 +1,11 @@
 {
     "id": "between",
     "summary": "Between comparison",
-    "description": "Checks whether `x` is greater than or equal to `min` and lower than or equal to `max` or to put it in simpler words checks whether `x` is between the lower bound `min` and the upper bound `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
+    "description": "By default this process checks whether `x` is greater than or equal to `min` and lower than or equal to `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nIf `exclude_max` is set to `true` the upper bound is excluded so that the process checks whether `x` is greater than or equal to `min` and lower than `max`. In this case the process works the same as executing `and([gte(x, min), lt(x, max)])`.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
     "categories": [
         "comparison"
     ],
-    "parameter_order": ["x", "min", "max"],
+    "parameter_order": ["x", "min", "max", "exclude_max"],
     "parameters": {
         "x": {
             "description": "",
@@ -78,6 +78,13 @@
                 ]
             },
             "required": true
+        },
+        "exclude_max": {
+            "description": "Exclude the upper boundary `max` if set to `true`. Defaults to `false`.",
+            "schema": {
+                "type": "boolean",
+                "default": false
+            }
         }
     },
     "returns": {
@@ -94,6 +101,23 @@
                 "max": 1
             },
             "returns": null
+        },
+        {
+            "arguments": {
+                "x": 1,
+                "min": 0,
+                "max": 1
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": 1,
+                "min": 0,
+                "max": 1,
+                "exclude_max": true
+            },
+            "returns": false
         },
         {
             "description": "Swapped bounds (min is greater than max) MUST always return `false`.",

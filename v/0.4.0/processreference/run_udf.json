@@ -1,13 +1,24 @@
 {
     "id": "run_udf",
     "summary": "Run an UDF",
-    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
+    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
         "import",
         "udf"
     ],
-    "parameter_order": ["udf", "runtime", "version", "options"],
+    "parameter_order": ["data", "udf", "runtime", "version", "context"],
     "parameters": {
+        "data": {
+            "description": "The data to be passed to the UDF as array.",
+            "schema": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "description": "Any data type."
+                }
+            },
+            "required": true
+        },
         "udf": {
             "description": "Either source code, an absolute URL or a path to an UDF script.",
             "schema": {
@@ -42,8 +53,8 @@
                 "default": null
             }
         },
-        "options": {
-            "description": "Options that should be passed to the UDF.",
+        "context": {
+            "description": "Additional data such as configuration options that should be passed to the UDF.",
             "schema": {
                 "type": "object",
                 "default": {}

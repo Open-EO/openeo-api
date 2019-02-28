@@ -147,7 +147,7 @@
   {
     "id": "aggregate_polygon",
     "summary": "Compute zonal statistics for polygons",
-    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe process considers all pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC).\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated from, for example a single band. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
+    "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe process considers all pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC).\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated for, for example the temporal dimension to get a time series. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
     "categories": [
       "cubes",
       "aggregate & resample"
@@ -1433,14 +1433,15 @@
   {
     "id": "between",
     "summary": "Between comparison",
-    "description": "Checks whether `x` is greater than or equal to `min` and lower than or equal to `max` or to put it in simpler words checks whether `x` is between the lower bound `min` and the upper bound `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
+    "description": "By default this process checks whether `x` is greater than or equal to `min` and lower than or equal to `max`. Therefore, this process is an alias for `and([gte(x, min), lte(x, max)])` and all definitions from these processes apply here as well.\n\nIf `exclude_max` is set to `true` the upper bound is excluded so that the process checks whether `x` is greater than or equal to `min` and lower than `max`. In this case the process works the same as executing `and([gte(x, min), lt(x, max)])`.\n\nLower and upper bounds are not allowed to be swapped. So `min` MUST be lower than or equal to `max` or otherwise the process always returns `false`.",
     "categories": [
       "comparison"
     ],
     "parameter_order": [
       "x",
       "min",
-      "max"
+      "max",
+      "exclude_max"
     ],
     "parameters": {
       "x": {
@@ -1514,6 +1515,13 @@
           ]
         },
         "required": true
+      },
+      "exclude_max": {
+        "description": "Exclude the upper boundary `max` if set to `true`. Defaults to `false`.",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
       }
     },
     "returns": {
@@ -1530,6 +1538,23 @@
           "max": 1
         },
         "returns": null
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "min": 0,
+          "max": 1
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "min": 0,
+          "max": 1,
+          "exclude_max": true
+        },
+        "returns": false
       },
       {
         "description": "Swapped bounds (min is greater than max) MUST always return `false`.",
@@ -6826,7 +6851,7 @@
   {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must computes a single or multiple return values of the same type as the input values. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
       "cubes",
       "reducer"
@@ -6879,10 +6904,15 @@
                   "description": "The second value. Any data type could be passed."
                 }
               }
+            },
+            {
+              "title": "No operation behaviour",
+              "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
+              "type": "null"
             }
-          ]
-        },
-        "required": true
+          ],
+          "default": null
+        }
       },
       "dimension": {
         "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
@@ -6902,7 +6932,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -6914,6 +6944,11 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "TooManyDimensionValues": {
+        "message": "The number of dimension values exceeds one, which requires a reducer."
       }
     },
     "links": [
@@ -7421,16 +7456,28 @@
   {
     "id": "run_udf_externally",
     "summary": "Run an externally hosted UDF container",
-    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/). See ``run_udf()`` for more information on usage and options.",
+    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/).\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
       "import",
       "udf"
     ],
     "parameter_order": [
+      "data",
       "url",
-      "options"
+      "context"
     ],
     "parameters": {
+      "data": {
+        "description": "The data to be passed to the UDF as array.",
+        "schema": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "description": "Any data type."
+          }
+        },
+        "required": true
+      },
       "url": {
         "description": "URL to a remote UDF service.",
         "schema": {
@@ -7439,8 +7486,8 @@
         },
         "required": true
       },
-      "options": {
-        "description": "Options that should be passed to the UDF.",
+      "context": {
+        "description": "Additional data such as configuration options that should be passed to the UDF.",
         "schema": {
           "type": "object",
           "default": {}
@@ -7469,18 +7516,30 @@
   {
     "id": "run_udf",
     "summary": "Run an UDF",
-    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``.",
+    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace, so without the user id in the path.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
       "import",
       "udf"
     ],
     "parameter_order": [
+      "data",
       "udf",
       "runtime",
       "version",
-      "options"
+      "context"
     ],
     "parameters": {
+      "data": {
+        "description": "The data to be passed to the UDF as array.",
+        "schema": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "description": "Any data type."
+          }
+        },
+        "required": true
+      },
       "udf": {
         "description": "Either source code, an absolute URL or a path to an UDF script.",
         "schema": {
@@ -7515,8 +7574,8 @@
           "default": null
         }
       },
-      "options": {
-        "description": "Options that should be passed to the UDF.",
+      "context": {
+        "description": "Additional data such as configuration options that should be passed to the UDF.",
         "schema": {
           "type": "object",
           "default": {}
