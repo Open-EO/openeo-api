@@ -803,115 +803,194 @@
                         "cube:dimensions": {
                           "description": "Uniquely named dimensions of the data cube.",
                           "type": "object",
-                          "oneOf": [
-                            {
-                              "title": "Spatial Dimension",
-                              "type": "object",
-                              "required": [
-                                "type",
-                                "extent",
-                                "axis"
-                              ],
-                              "properties": {
-                                "type": {
-                                  "description": "Type of the dimension, always `spatial`.",
-                                  "type": "string",
-                                  "enum": [
-                                    "spatial"
+                          "additionalProperties": {
+                            "anyOf": [
+                              {
+                                "title": "Additional Dimension Object",
+                                "type": "object",
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "type",
+                                      "extent"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "type",
+                                      "values"
+                                    ]
+                                  }
+                                ],
+                                "not": {
+                                  "required": [
+                                    "axis"
                                   ]
                                 },
-                                "extent": {
-                                  "description": "Extent of the dimension, i.e. the lower and upper bounds as two-dimensional array.",
-                                  "oneOf": [
-                                    {
-                                      "type": "string"
-                                    },
-                                    {
+                                "properties": {
+                                  "type": {
+                                    "allOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "not": {
+                                          "type": "string",
+                                          "enum": [
+                                            "spatial"
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "extent": {
+                                    "$ref": "#/components/schemas/collection_dimension_extent_open"
+                                  },
+                                  "values": {
+                                    "$ref": "#/components/schemas/collection_dimension_values"
+                                  },
+                                  "step": {
+                                    "$ref": "#/components/schemas/collection_dimension_step"
+                                  },
+                                  "unit": {
+                                    "$ref": "#/components/schemas/collection_dimension_unit"
+                                  },
+                                  "reference_system": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "title": "Horizontal Spatial Dimension Object",
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "axis",
+                                  "extent"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "$ref": "#/components/schemas/collection_dimension_type_spatial"
+                                  },
+                                  "axis": {
+                                    "type": "string",
+                                    "enum": [
+                                      "x",
+                                      "y"
+                                    ]
+                                  },
+                                  "extent": {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": {
                                       "type": "number"
                                     }
-                                  ]
-                                },
-                                "crs": {
-                                  "type": "string",
-                                  "format": "url",
-                                  "description": "The reference system for the data, specified as [OGC URL](http://www.opengis.net/def/uom/).",
-                                  "default": "http://www.opengis.net/def/crs/EPSG/0/4326"
-                                },
-                                "axis": {
-                                  "type": "string",
-                                  "description": "Axis of the spatial dimension.",
-                                  "enum": [
-                                    "x",
-                                    "y",
-                                    "z"
-                                  ]
+                                  },
+                                  "values": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "step": {
+                                    "$ref": "#/components/schemas/collection_dimension_step"
+                                  },
+                                  "reference_system": {
+                                    "$ref": "#/components/schemas/collection_dimension_reference_system_spatial"
+                                  }
                                 }
-                              }
-                            },
-                            {
-                              "title": "Temporal Dimension",
-                              "type": "object",
-                              "required": [
-                                "type",
-                                "extent"
-                              ],
-                              "properties": {
-                                "type": {
-                                  "description": "Type of the dimension, always `temporal`.",
-                                  "type": "string",
-                                  "enum": [
-                                    "temporal"
+                              },
+                              {
+                                "title": "Vertical Spatial Dimension Object",
+                                "type": "object",
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "type",
+                                      "axis",
+                                      "extent"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "type",
+                                      "axis",
+                                      "values"
+                                    ]
+                                  }
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "$ref": "#/components/schemas/collection_dimension_type_spatial"
+                                  },
+                                  "axis": {
+                                    "type": "string",
+                                    "enum": [
+                                      "z"
+                                    ]
+                                  },
+                                  "extent": {
+                                    "$ref": "#/components/schemas/collection_dimension_extent_open"
+                                  },
+                                  "values": {
+                                    "$ref": "#/components/schemas/collection_dimension_values"
+                                  },
+                                  "step": {
+                                    "$ref": "#/components/schemas/collection_dimension_step"
+                                  },
+                                  "unit": {
+                                    "$ref": "#/components/schemas/collection_dimension_unit"
+                                  },
+                                  "reference_system": {
+                                    "$ref": "#/components/schemas/collection_dimension_reference_system_spatial"
+                                  }
+                                }
+                              },
+                              {
+                                "title": "Temporal Dimension Object",
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "extent"
+                                ],
+                                "not": {
+                                  "required": [
+                                    "axis"
                                   ]
                                 },
-                                "extent": {
-                                  "description": "Extent of the dimension, i.e. the lower and upper bounds as two-dimensional array. `null` is allowed for open date ranges.",
-                                  "oneOf": [
-                                    {
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "temporal"
+                                    ]
+                                  },
+                                  "values": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "extent": {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": {
                                       "type": "string",
                                       "nullable": true
                                     }
-                                  ]
-                                },
-                                "trs": {
-                                  "type": "string",
-                                  "format": "url",
-                                  "description": "The temporal reference system for the data, specified as [OGC URL](http://www.opengis.net/def/uom/).",
-                                  "default": "http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"
+                                  },
+                                  "step": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
                                 }
                               }
-                            },
-                            {
-                              "title": "Other Dimension",
-                              "type": "object",
-                              "required": [
-                                "extent"
-                              ],
-                              "properties": {
-                                "extent": {
-                                  "description": "Extent of the dimension, i.e. the lower and upper bounds as two-dimensional array. Use `null` for open intervals.",
-                                  "oneOf": [
-                                    {
-                                      "type": "string"
-                                    },
-                                    {
-                                      "type": "number",
-                                      "nullable": true
-                                    }
-                                  ]
-                                },
-                                "unit": {
-                                  "type": "string",
-                                  "format": "url",
-                                  "description": "The unit of measurement for the data, specified as [OGC URL](http://www.opengis.net/def/uom/)."
-                                },
-                                "reference_system": {
-                                  "type": "string",
-                                  "format": "url",
-                                  "description": "The reference system for the data, specified as [OGC URL](http://www.opengis.net/def/uom/)."
-                                }
-                              }
-                            }
-                          ]
+                            ]
+                          }
                         }
                       },
                       "anyOf": [
@@ -3721,6 +3800,53 @@
         "pattern": "^[A-Za-z0-9_\\-\\.~\\/]+$",
         "example": "Sentinel-2A"
       },
+      "collection_dimension_type_spatial": {
+        "type": "string",
+        "enum": [
+          "spatial"
+        ]
+      },
+      "collection_dimension_extent_open": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number",
+          "nullable": true
+        }
+      },
+      "collection_dimension_values": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "collection_dimension_step": {
+        "type": "number",
+        "nullable": true
+      },
+      "collection_dimension_unit": {
+        "type": "string"
+      },
+      "collection_dimension_reference_system_spatial": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "default": 4326
+      },
       "stac_version": {
         "type": "string",
         "description": "The STAC version the collection implements.",
@@ -3891,12 +4017,16 @@
         "example": {
           "dc": {
             "process_id": "load_collection",
-            "arguments": {"id": "Sentinel-2"}
+            "arguments": {
+              "id": "Sentinel-2"
+            }
           },
           "temp": {
             "process_id": "filter_temporal",
             "arguments": {
-              "data": {"from_node": "dc"},
+              "data": {
+                "from_node": "dc"
+              },
               "start": "2018-01-01",
               "end": "2018-02-01"
             }
@@ -3904,81 +4034,142 @@
           "bbox": {
             "process_id": "filter_bbox",
             "arguments": {
-              "data": {"from_node": "temp"},
-              "extent": {"west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2}
+              "data": {
+                "from_node": "temp"
+              },
+              "extent": {
+                "west": 16.1,
+                "east": 16.6,
+                "north": 48.6,
+                "south": 47.2
+              }
             }
           },
           "bands": {
             "process_id": "filter_bands",
             "process_description": "Filter and order the bands. The order is important for the following reduce operation.",
             "arguments": {
-              "data": {"from_node": "bbox"},
-              "bands": ["B08", "B04", "B02"]
+              "data": {
+                "from_node": "bbox"
+              },
+              "bands": [
+                "B08",
+                "B04",
+                "B02"
+              ]
             }
           },
           "evi": {
             "process_id": "reduce",
             "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
             "arguments": {
-              "data": {"from_node": "bands"},
+              "data": {
+                "from_node": "bands"
+              },
               "dimension": "spectral",
               "reducer": {
                 "callback": {
                   "nir": {
                     "process_id": "array_element",
                     "arguments": {
-                      "data": {"from_argument": "data"},
+                      "data": {
+                        "from_argument": "data"
+                      },
                       "index": 0
                     }
                   },
                   "red": {
                     "process_id": "array_element",
                     "arguments": {
-                      "data": {"from_argument": "data"},
+                      "data": {
+                        "from_argument": "data"
+                      },
                       "index": 1
                     }
                   },
                   "blue": {
                     "process_id": "array_element",
                     "arguments": {
-                      "data": {"from_argument": "data"},
+                      "data": {
+                        "from_argument": "data"
+                      },
                       "index": 2
                     }
                   },
                   "sub": {
                     "process_id": "substract",
                     "arguments": {
-                      "data": [{"from_node": "nir"}, {"from_node": "red"}]
+                      "data": [
+                        {
+                          "from_node": "nir"
+                        },
+                        {
+                          "from_node": "red"
+                        }
+                      ]
                     }
                   },
                   "p1": {
                     "process_id": "product",
                     "arguments": {
-                      "data": [6, {"from_node": "red"}]
+                      "data": [
+                        6,
+                        {
+                          "from_node": "red"
+                        }
+                      ]
                     }
                   },
                   "p2": {
                     "process_id": "product",
                     "arguments": {
-                      "data": [-7.5, {"from_node": "blue"}]
+                      "data": [
+                        -7.5,
+                        {
+                          "from_node": "blue"
+                        }
+                      ]
                     }
                   },
                   "sum": {
                     "process_id": "sum",
                     "arguments": {
-                      "data": [1, {"from_node": "nir"}, {"from_node": "p1"}, {"from_node": "p2"}]
+                      "data": [
+                        1,
+                        {
+                          "from_node": "nir"
+                        },
+                        {
+                          "from_node": "p1"
+                        },
+                        {
+                          "from_node": "p2"
+                        }
+                      ]
                     }
                   },
                   "div": {
                     "process_id": "divide",
                     "arguments": {
-                      "data": [{"from_node": "sub"}, {"from_node": "sum"}]
+                      "data": [
+                        {
+                          "from_node": "sub"
+                        },
+                        {
+                          "from_node": "sum"
+                        }
+                      ]
                     }
                   },
                   "p3": {
                     "process_id": "product",
                     "arguments": {
-                      "data": [2.5, {"from_node": "div"}]
+                      "data": [
+                        2.5,
+                        {
+                          "from_node": "div"
+                        }
+                      ]
                     },
                     "result": true
                   }
@@ -3990,14 +4181,18 @@
             "process_id": "reduce",
             "process_description": "Compute a minimum time composite by reducing the temporal dimension",
             "arguments": {
-              "data": {"from_node": "evi"},
+              "data": {
+                "from_node": "evi"
+              },
               "dimension": "temporal",
               "reducer": {
                 "callback": {
                   "min": {
                     "process_id": "min",
                     "arguments": {
-                      "data": {"from_argument": "data"}
+                      "data": {
+                        "from_argument": "data"
+                      }
                     },
                     "result": true
                   }
@@ -4008,7 +4203,9 @@
           "export": {
             "process_id": "export",
             "arguments": {
-              "data": {"from_node": "mintime"},
+              "data": {
+                "from_node": "mintime"
+              },
               "format": "GTiff"
             },
             "result": true
