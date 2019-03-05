@@ -6,7 +6,7 @@
         "cubes",
         "aggregate & resample"
     ],
-    "parameter_order": ["data", "target", "method", "dimension"],
+    "parameter_order": ["data", "target", "method", "dimension", "binary"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -25,19 +25,39 @@
             "required": true
         },
         "method": {
-            "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The method must be a callable process (or a set processes) such as ``first()``, ``last()``, ``min()``, ``max()``, ``mean()`` or ``median()``.",
+            "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
             "schema": {
-                "type": "object",
-                "format": "callback",
-                "parameters": {
-                    "data": {
-                        "description": "An array with elements of any type.",
-                        "type": "array",
-                        "items": {
-                            "description": "Any data type."
-                        }
+                "anyOf": [
+                    {
+                        "title": "Unary behaviour",
+                        "description": "Passes an array to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "data": {
+                                "description": "An array with elements of any data type.",
+                                "type": "array",
+                                "items": {
+                                    "description": "Any data type."
+                                }
+                            }
+                        } 
+                    },
+                    {
+                        "title": "Binary behaviour",
+                        "description": "Passes two values to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "x": {
+                                "description": "The first value. Any data type could be passed."
+                            },
+                            "y": {
+                                "description": "The second value. Any data type could be passed."
+                            }
+                        } 
                     }
-                }
+                ]
             },
             "required": true
         },
@@ -49,6 +69,13 @@
                     "null"
                 ],
                 "default": null
+            }
+        },
+        "binary": {
+            "description": "Specifies whether the process should pass two values to the reducer specified as resampling method or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "schema": {
+                "type": "boolean",
+                "default": false
             }
         }
     },
@@ -69,6 +96,11 @@
             "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
             "rel": "about",
             "title": "Resampling explained in the openEO glossary"
+        },
+        {
+            "rel": "about",
+            "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+            "title": "Background information on reduction operators (binary reducers) by Wikipedia"
         }
     ]
 }

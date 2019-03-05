@@ -7,7 +7,7 @@
         "aggregate & resample"
     ],
     "experimental": true,
-    "parameter_order": ["data", "polygons", "reducer", "name"],
+    "parameter_order": ["data", "polygons", "reducer", "name", "binary"],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -34,19 +34,39 @@
             "required": true
         },
         "reducer": {
-            "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
+            "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
             "schema": {
-                "type": "object",
-                "format": "callback",
-                "parameters": {
-                    "data": {
-                        "description": "An array with elements of any type.",
-                        "type": "array",
-                        "items": {
-                            "description": "Any data type."
-                        }
+                "anyOf": [
+                    {
+                        "title": "Unary behaviour",
+                        "description": "Passes an array to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "data": {
+                                "description": "An array with elements of any data type.",
+                                "type": "array",
+                                "items": {
+                                    "description": "Any data type."
+                                }
+                            }
+                        } 
+                    },
+                    {
+                        "title": "Binary behaviour",
+                        "description": "Passes two values to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "x": {
+                                "description": "The first value. Any data type could be passed."
+                            },
+                            "y": {
+                                "description": "The second value. Any data type could be passed."
+                            }
+                        } 
                     }
-                }
+                ]
             },
             "required": true
         },
@@ -55,6 +75,13 @@
             "schema": {
                 "type": "string",
                 "default": "result"
+            }
+        },
+        "binary": {
+            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "schema": {
+                "type": "boolean",
+                "default": false
             }
         }
     },
@@ -93,6 +120,11 @@
             "href": "http://www.opengeospatial.org/standards/sfa",
             "rel": "about",
             "title": "Simple Features standard by the OGC"
+        },
+        {
+            "rel": "about",
+            "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+            "title": "Background information on reduction operators (binary reducers) by Wikipedia"
         }
     ]
 }

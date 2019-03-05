@@ -157,7 +157,8 @@
       "data",
       "polygons",
       "reducer",
-      "name"
+      "name",
+      "binary"
     ],
     "parameters": {
       "data": {
@@ -185,19 +186,39 @@
         "required": true
       },
       "reducer": {
-        "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
+        "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
-          "type": "object",
-          "format": "callback",
-          "parameters": {
-            "data": {
-              "description": "An array with elements of any type.",
-              "type": "array",
-              "items": {
-                "description": "Any data type."
+          "anyOf": [
+            {
+              "title": "Unary behaviour",
+              "description": "Passes an array to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "data": {
+                  "description": "An array with elements of any data type.",
+                  "type": "array",
+                  "items": {
+                    "description": "Any data type."
+                  }
+                }
+              }
+            },
+            {
+              "title": "Binary behaviour",
+              "description": "Passes two values to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "x": {
+                  "description": "The first value. Any data type could be passed."
+                },
+                "y": {
+                  "description": "The second value. Any data type could be passed."
+                }
               }
             }
-          }
+          ]
         },
         "required": true
       },
@@ -206,6 +227,13 @@
         "schema": {
           "type": "string",
           "default": "result"
+        }
+      },
+      "binary": {
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -244,6 +272,11 @@
         "href": "http://www.opengeospatial.org/standards/sfa",
         "rel": "about",
         "title": "Simple Features standard by the OGC"
+      },
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+        "title": "Background information on reduction operators (binary reducers) by Wikipedia"
       }
     ]
   },
@@ -261,7 +294,8 @@
       "intervals",
       "labels",
       "reducer",
-      "dimension"
+      "dimension",
+      "binary"
     ],
     "parameters": {
       "data": {
@@ -273,12 +307,13 @@
         "required": true
       },
       "intervals": {
-        "description": "Temporal left-closed intervals so that the start time is contained, but not the end time. Intervals can overlap.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
+        "description": "Left-closed temporal intervals, which are allowed to overlap. Each temporal interval in the array has exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
         "schema": {
           "type": "array",
           "format": "temporal-intervals",
           "items": {
             "type": "array",
+            "format": "temporal-interval",
             "minItems": 2,
             "maxItems": 2,
             "items": {
@@ -357,19 +392,39 @@
         "required": true
       },
       "reducer": {
-        "description": "A reducer to be applied on all values along the specified dimension. The reducer must be a callable process (or a set processes) that accepts an array and computes a single return value of the same type as the input values, for example ``median()``.",
+        "description": "A reducer to be applied on all values along the specified dimension. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
-          "type": "object",
-          "format": "callback",
-          "parameters": {
-            "data": {
-              "description": "An array with elements of any type.",
-              "type": "array",
-              "items": {
-                "description": "Any data type."
+          "anyOf": [
+            {
+              "title": "Unary behaviour",
+              "description": "Passes an array to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "data": {
+                  "description": "An array with elements of any data type.",
+                  "type": "array",
+                  "items": {
+                    "description": "Any data type."
+                  }
+                }
+              }
+            },
+            {
+              "title": "Binary behaviour",
+              "description": "Passes two values to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "x": {
+                  "description": "The first value. Any data type could be passed."
+                },
+                "y": {
+                  "description": "The second value. Any data type could be passed."
+                }
               }
             }
-          }
+          ]
         },
         "required": true
       },
@@ -381,6 +436,13 @@
             "null"
           ],
           "default": null
+        }
+      },
+      "binary": {
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -397,7 +459,9 @@
           "loadco1": {
             "process_id": "load_collection",
             "arguments": {
-              "id": "S2B"
+              "id": "S2B",
+              "spatial_extent": null,
+              "temporal_extent": null
             }
           },
           "aggreg1": {
@@ -467,6 +531,11 @@
         "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Aggregation explained in the openEO glossary"
+      },
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+        "title": "Background information on reduction operators (binary reducers) by Wikipedia"
       }
     ]
   },
@@ -625,7 +694,7 @@
           "format": "callback",
           "parameters": {
             "data": {
-              "description": "An array with elements of any type.",
+              "description": "An array with elements of any data type.",
               "type": "array",
               "items": {
                 "description": "Any data type."
@@ -735,7 +804,7 @@
           "format": "callback",
           "parameters": {
             "x": {
-              "description": "A value of any data type could be passed."
+              "description": "A value of any type could be passed."
             }
           }
         },
@@ -1882,7 +1951,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array with elements of any type.",
+        "description": "An array with elements of any data type.",
         "schema": {
           "type": "array",
           "items": {
@@ -3241,14 +3310,13 @@
   {
     "id": "filter_temporal",
     "summary": "Temporal filter for a date and/or time intervals",
-    "description": "Limits the data cube to the specified interval of dates and/or times.\n\nAlso supports open intervals by setting either `start` or `end` to `null`, but never both.\n\nMore precisely, the filter checks checks whether the temporal dimension value is greater than or equal to the value of `start` and the temporal dimension value is less than the value of `end`. This corresponds to a left-closed interval, which contains the `start` but not the `end`.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
+    "description": "Limits the data cube to the specified interval of dates and/or times.\n\nMore precisely, the filter checks whether the temporal dimension value is greater than or equal to the lower boundary (start date/time) and the temporal dimension value is less than the value of the upper boundary (end date/time). This corresponds to a left-closed interval, which contains the lower boundary but not the upper boundary.\n\nIf the dimension is set to `null` (it's the default value), the data cube is expected to only have one temporal dimension.",
     "categories": [
       "filter"
     ],
     "parameter_order": [
       "data",
-      "start",
-      "end",
+      "extent",
       "dimension"
     ],
     "parameters": {
@@ -3260,51 +3328,44 @@
         },
         "required": true
       },
-      "start": {
-        "description": "The start of the date and/or time interval. The specified instance in time is included in the interval.",
+      "extent": {
+        "description": "Left-closed temporal interval, i.e. an array with exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.\n\nAlso supports open intervals by setting one of the boundaries to `null`, but never both.",
         "schema": {
-          "anyOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date"
-            },
-            {
-              "type": "string",
-              "format": "time"
-            },
-            {
-              "type": "null"
-            }
+          "type": "array",
+          "format": "temporal-interval",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "examples": [
+            [
+              "2015-01-01",
+              "2016-01-01"
+            ],
+            [
+              "12:00:00Z",
+              "24:00:00Z"
+            ]
           ]
         },
         "required": true
-      },
-      "end": {
-        "description": "The end of the date and/or time interval. The specified instance in time is excluded from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date"
-            },
-            {
-              "type": "string",
-              "format": "time"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        }
       },
       "dimension": {
         "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
@@ -3456,7 +3517,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array with elements of any type. An empty array resolves always with `null`.",
+        "description": "An array with elements of any data type. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4157,7 +4218,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array with elements of any type. An empty array resolves always with `null`.",
+        "description": "An array with elements of any data type. An empty array resolves always with `null`.",
         "schema": {
           "type": "array",
           "items": {
@@ -4385,14 +4446,17 @@
   {
     "id": "load_collection",
     "summary": "Load a collection",
-    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be filtered by an expression so that every part of the data that the expression returns `true` for is included in the data cube.\n\n*Remarks:**\n\n* The bands (and all dimensions that specify nominal dimension values) are expected to be ordered as specified in the metadata.\n* If `expression` is not specified this would imply that the whole data set is expected to be loaded. Due to the immensive size of several data sets this may be optimized by back-ends to only load the data that is actually required after evaluation subsequent processes such as filters. This means that the pixel values should be processed only after the data has been limited to the required extents and as a consequence also to a manageable size.",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be restricted with the additional `spatial_extent`, `temporal_extent`, `bands` and `properties`.\n\n**Remarks:**\n\n* The bands (and all dimensions that specify nominal dimension values) are expected to be ordered as specified in the metadata if the `bands` parameter is set to `null`.\n* If no additional parameter is specified this would imply that the whole data set is expected to be loaded. Due to the large size of many data sets this is not recommended and may be optimized by back-ends to only load the data that is actually required after evaluating subsequent processes such as filters. This means that the pixel values should be processed only after the data has been limited to the required extents and as a consequence also to a manageable size.",
     "categories": [
       "cubes",
       "import"
     ],
     "parameter_order": [
       "id",
-      "expression"
+      "spatial_extent",
+      "temporal_extent",
+      "bands",
+      "properties"
     ],
     "parameters": {
       "id": {
@@ -4404,20 +4468,168 @@
         },
         "required": true
       },
-      "expression": {
-        "description": "Expression that filters the collection data to include only data in the data cube which the given expression returns `true` for. ``property()`` can be used to retrieve metadata properties.",
+      "spatial_extent": {
+        "description": "Limits the data to load from the collection to the specified bounding box or polygons.\n\nThe process puts a pixel into the data cube if the point at the pixel center intersects with the bounding box or any of the polygons (as defined in the Simple Features standard by the OGC).\n\nThe coordinate reference system of the bounding box must be specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.\n\nThe GeoJSON can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
+        "schema": {
+          "anyOf": [
+            {
+              "title": "Bounding Box",
+              "type": "object",
+              "format": "bounding-box",
+              "required": [
+                "west",
+                "south",
+                "east",
+                "north"
+              ],
+              "properties": {
+                "west": {
+                  "description": "West (lower left corner, coordinate axis 1).",
+                  "type": "number"
+                },
+                "south": {
+                  "description": "South (lower left corner, coordinate axis 2).",
+                  "type": "number"
+                },
+                "east": {
+                  "description": "East (upper right corner, coordinate axis 1).",
+                  "type": "number"
+                },
+                "north": {
+                  "description": "North (upper right corner, coordinate axis 2).",
+                  "type": "number"
+                },
+                "base": {
+                  "description": "Base (optional, lower left corner, coordinate axis 3).",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "default": null
+                },
+                "height": {
+                  "description": "Height (optional, upper right corner, coordinate axis 3).",
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "default": null
+                },
+                "crs": {
+                  "description": "Coordinate reference system of the extent specified as EPSG code or PROJ definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                  "schema": {
+                    "anyOf": [
+                      {
+                        "title": "EPSG Code",
+                        "type": "integer",
+                        "format": "epsg-code",
+                        "examples": [
+                          7099
+                        ]
+                      },
+                      {
+                        "title": "PROJ definition",
+                        "type": "string",
+                        "format": "proj-definition",
+                        "examples": [
+                          "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+                        ]
+                      }
+                    ],
+                    "default": 4326
+                  }
+                }
+              }
+            },
+            {
+              "title": "GeoJSON Polygon(s)",
+              "type": "object",
+              "format": "geojson"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "required": true
+      },
+      "temporal_extent": {
+        "description": "Limits the data to load from the collection to the specified left-closed temporal interval. Applies to all temporal dimensions if there are multiple of them. The interval has to be specified as an array with exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.\n\nAlso supports open intervals by setting one of the boundaries to `null`, but never both.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
+        "schema": {
+          "anyOf": [
+            {
+              "type": "array",
+              "format": "temporal-interval",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "string",
+                    "format": "time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "examples": [
+                [
+                  "2015-01-01",
+                  "2016-01-01"
+                ],
+                [
+                  "12:00:00Z",
+                  "24:00:00Z"
+                ]
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "required": true
+      },
+      "bands": {
+        "description": "Only adds the specified bands into the data cube so that bands that don't match the list of band names are not available. Applies to all dimensions of type `bands` if there are multiple of them.\n\nThe order of the specified array defines the order of the bands in the data cube.",
+        "schema": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "null"
+        }
+      },
+      "properties": {
+        "description": "Limits the data by metadata properties to include only data in the data cube which the given expressions return `true` for.\n\nSpecify key-value-pairs with the keys being the name of the metadata property, which can be retrieved with the openEO Data Discovery for Collections. The values must be expressions to be evaluated against the collection metadata, see the example.",
         "experimental": true,
         "schema": {
           "anyOf": [
             {
               "type": "object",
-              "format": "callback",
-              "parameters": {
-                "id": {
-                  "description": "The collection id.",
-                  "type": "string",
-                  "format": "collection-id",
-                  "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+              "additionalProperties": {
+                "type": "object",
+                "format": "callback",
+                "parameters": {
+                  "value": {
+                    "description": "The property value. Any data type could be passed."
+                  }
                 }
               }
             },
@@ -4443,7 +4655,90 @@
           }
         ]
       }
-    }
+    },
+    "examples": [
+      {
+        "description": "Loading `Sentinel-2B` data from a `Sentinel-2` collection for 2018, but only with cloud cover between 0 and 10%.",
+        "process_graph": {
+          "loadco1": {
+            "process_id": "load_collection",
+            "arguments": {
+              "id": "Sentinel-2",
+              "spatial_extent": {
+                "west": 16.1,
+                "east": 16.6,
+                "north": 48.6,
+                "south": 47.2
+              },
+              "temporal_extent": [
+                "2018-01-01",
+                "2019-01-01"
+              ],
+              "properties": {
+                "eo:cloud_cover": {
+                  "callback": {
+                    "cc": {
+                      "process_id": "between",
+                      "arguments": {
+                        "x": {
+                          "from_argument": "value"
+                        },
+                        "min": 0,
+                        "max": 10
+                      },
+                      "result": true
+                    }
+                  }
+                },
+                "eo:platform": {
+                  "callback": {
+                    "pf": {
+                      "process_id": "eq",
+                      "arguments": {
+                        "x": {
+                          "from_argument": "value"
+                        },
+                        "y": "Sentinel-2B",
+                        "case_sensitive": false
+                      },
+                      "result": true
+                    }
+                  }
+                }
+              }
+            },
+            "result": true
+          }
+        }
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://proj4.org/usage/projections.html",
+        "title": "PROJ parameters for cartographic projections"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg-registry.org",
+        "title": "Official EPSG code registry"
+      },
+      {
+        "rel": "about",
+        "href": "http://www.epsg.io",
+        "title": "Unofficial EPSG code database"
+      },
+      {
+        "href": "http://www.opengeospatial.org/standards/sfa",
+        "rel": "about",
+        "title": "Simple Features standard by the OGC"
+      },
+      {
+        "rel": "about",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "title": "Information about the supported temporal formats."
+      }
+    ]
   },
   {
     "id": "load_result",
@@ -5203,14 +5498,15 @@
   {
     "id": "merge_cubes",
     "summary": "Merging two data cubes",
-    "description": "The data cubes have to be compatible. A merge is the inverse of a split if there is no overlap. If data overlaps the overlap resolver must be specified to resolve the overlap. It doesn't add dimensions.",
+    "description": "The data cubes have to be compatible. A merge is the inverse of a split if there is no overlap. If data overlaps the parameter `overlap_resolver` must be specified to resolve the overlap. It doesn't add dimensions.",
     "categories": [
       "cubes"
     ],
     "parameter_order": [
       "cube1",
       "cube2",
-      "overlap_resolver"
+      "overlap_resolver",
+      "binary"
     ],
     "parameters": {
       "cube1": {
@@ -5230,15 +5526,17 @@
         "required": true
       },
       "overlap_resolver": {
-        "description": "An overlap resolver if the data overlaps. It must be process that is able to reduce the values available in the data cubes to a single value. So the specified process must be a reducer that accepts an array and computes a single return value of the same type as the input values for it, for example ``median()``.",
+        "description": "A reducer that resolves the conflict if the data overlaps. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
         "schema": {
           "anyOf": [
             {
+              "title": "Unary behaviour",
+              "description": "Passes an array to the reducer.",
               "type": "object",
               "format": "callback",
               "parameters": {
-                "overlap": {
-                  "description": "An array with elements of any type.",
+                "data": {
+                  "description": "An array with elements of any data type.",
                   "type": "array",
                   "items": {
                     "description": "Any data type."
@@ -5247,10 +5545,32 @@
               }
             },
             {
+              "title": "Binary behaviour",
+              "description": "Passes two values to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "x": {
+                  "description": "The first value. Any data type could be passed."
+                },
+                "y": {
+                  "description": "The second value. Any data type could be passed."
+                }
+              }
+            },
+            {
+              "title": "No overlap resolver",
               "type": "null"
             }
           ],
           "default": null
+        }
+      },
+      "binary": {
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -5265,7 +5585,14 @@
       "OverlapResolverMissing": {
         "message": "Two data cubes with overlap but without an overlap resolver have been specified."
       }
-    }
+    },
+    "links": [
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+        "title": "Background information on reduction operators (binary reducers) by Wikipedia"
+      }
+    ]
   },
   {
     "id": "min",
@@ -5550,7 +5877,7 @@
     ]
   },
   {
-    "id": "NDVI",
+    "id": "ndvi",
     "summary": "Normalized Difference Vegetation Index",
     "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. The newly created band is named `ndvi` by default. This name can be changed with the `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
     "categories": [
@@ -5809,7 +6136,7 @@
   {
     "id": "normalized_difference",
     "summary": "Normalized difference for two bands",
-    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. The newly created band is named `normalized_difference` by default. This name can be changed with the `name` parameter.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes available for convenience such as the ``NDVI()``.",
+    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. The newly created band is named `normalized_difference` by default. This name can be changed with the `name` parameter.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes available for convenience such as the ``ndvi()``.",
     "categories": [
       "math > indices",
       "vegetation indices"
@@ -6845,7 +7172,7 @@
   {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the parameter description for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
       "cubes",
       "reducer"
@@ -6877,7 +7204,7 @@
               "format": "callback",
               "parameters": {
                 "data": {
-                  "description": "An array with elements of any type.",
+                  "description": "An array with elements of any data type.",
                   "type": "array",
                   "items": {
                     "description": "Any data type."
@@ -6926,7 +7253,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the reducer should pass two values to the reducer or a list of values (default).\n\nIf the reducer passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -7097,7 +7424,8 @@
       "data",
       "target",
       "method",
-      "dimension"
+      "dimension",
+      "binary"
     ],
     "parameters": {
       "data": {
@@ -7117,19 +7445,39 @@
         "required": true
       },
       "method": {
-        "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The method must be a callable process (or a set processes) such as ``first()``, ``last()``, ``min()``, ``max()``, ``mean()`` or ``median()``.",
+        "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
-          "type": "object",
-          "format": "callback",
-          "parameters": {
-            "data": {
-              "description": "An array with elements of any type.",
-              "type": "array",
-              "items": {
-                "description": "Any data type."
+          "anyOf": [
+            {
+              "title": "Unary behaviour",
+              "description": "Passes an array to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "data": {
+                  "description": "An array with elements of any data type.",
+                  "type": "array",
+                  "items": {
+                    "description": "Any data type."
+                  }
+                }
+              }
+            },
+            {
+              "title": "Binary behaviour",
+              "description": "Passes two values to the reducer.",
+              "type": "object",
+              "format": "callback",
+              "parameters": {
+                "x": {
+                  "description": "The first value. Any data type could be passed."
+                },
+                "y": {
+                  "description": "The second value. Any data type could be passed."
+                }
               }
             }
-          }
+          ]
         },
         "required": true
       },
@@ -7141,6 +7489,13 @@
             "null"
           ],
           "default": null
+        }
+      },
+      "binary": {
+        "description": "Specifies whether the process should pass two values to the reducer specified as resampling method or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -7161,6 +7516,11 @@
         "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Resampling explained in the openEO glossary"
+      },
+      {
+        "rel": "about",
+        "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+        "title": "Background information on reduction operators (binary reducers) by Wikipedia"
       }
     ]
   },
