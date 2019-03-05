@@ -93,8 +93,8 @@ Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.
             "end": "2017-02-01"
           }
         },
-        "NDVI1": {
-          "process_id": "NDVI",
+        "ndvi1": {
+          "process_id": "ndvi",
           "arguments": {
             "data": {"from_node": "filter1"}
           }
@@ -102,7 +102,7 @@ Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.
         "reduce1": {
           "process_id": "reduce",
           "arguments": {
-            "data": {"from_node": "NDVI1"},
+            "data": {"from_node": "ndvi1"},
             "dimension": "temporal",
             "reducer": {
               "callback": {

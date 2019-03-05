@@ -41,15 +41,16 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 | `process-graph-variables` | object    | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
 | `proj-definition`         | string    | Specifies details about cartographic projections as [PROJ](https://proj4.org) definition. |
 | `raster-cube`             | object    | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
-| `temporal-intervals`      | array     | An array of two-element arrays, which contains temporal left-closed intervals. For more information see the parameter `intervals` in the process `aggregate_temporal`. |
+| `temporal-interval`       | array     | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the formats `date-time`, `date` (see above) and `time` (see below). |
+| `temporal-intervals`      | array     | An array of two-element arrays, each being an array with format `temporal-interval` (see above). |
 | `time`                    | string    | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), this definition allows the value '24' for the hour as end time in an interval in order to make it possible that left-closed time intervals can fully cover the day. |
 | `vector-cube`             | object    | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
 
 ### Callbacks
 
-A callback is defined by setting the `type` to `object` and the `format` to `callback`. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the callback parameter names and the values being a valid JSON Schema again.
+A callback is defined by setting the `type` to `object` and the `format` to `callback`. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the callback parameter names and the values being a valid JSON Schema again.
 
-A schema for a callback with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
+A schema for a callback with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
 
 ```json
 {
