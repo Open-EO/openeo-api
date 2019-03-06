@@ -2206,7 +2206,7 @@
     "/service_types": {
       "get": {
         "summary": "Supported secondary web service protocols",
-        "description": "The request will ask the back-end for supported secondary web service protocols, e.g. WMS or WCS. The response is an object of all available secondary web service protocols, including their parameters and attributes.\nParameters configure the service and therefore need to be defined upon creation of a service. Attributes are read-only characteristics of the service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nTo improve interoperability between back-ends common names for the services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective services.\nService names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported secondary web service protocols, e.g. WMS or WCS. The response is an object of all available secondary web service protocols, including their parameters, attributes and process graph variables.\nParameters configure the service and therefore need to be defined upon creation of a service. Attributes are read-only characteristics of the service and may be computed based on the parameters, e.g. available layers for a WMS based on the bands in the underlying GeoTiff.\nA list of process graph variables is also available. This variables can be used by users in a process graph that is used to compute web service results. The objects can directly be used inside the process graph. Such variables are usually things that have to be injected into the process graph from the context of the web service. For example, a map service such as a WMS would need to inject the spatial extent into the process graph so that the back-end can compute the corresponding tile correctly.\nTo improve interoperability between back-ends common names for the services SHOULD be used, e.g. the abbreviations used in the official [OGC Schema Repository](http://schemas.opengis.net/) for the respective services.\nService names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Secondary Services Management"
@@ -2231,19 +2231,27 @@
                     "type": "object",
                     "properties": {
                       "parameters": {
-                        "type": "object",
                         "title": "Service Type Parameters",
                         "description": "List of supported parameters for configuration.",
+                        "type": "object",
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
                         }
                       },
                       "attributes": {
-                        "type": "object",
                         "title": "Service Type Attributes",
                         "description": "List of supported attributes.",
+                        "type": "object",
                         "additionalProperties": {
                           "$ref": "#/components/schemas/argument"
+                        }
+                      },
+                      "variables": {
+                        "title": "Service Type Variables",
+                        "description": "List of supported process graph variables.",
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/variable"
                         }
                       },
                       "links": {
@@ -2279,6 +2287,30 @@
                           ]
                         }
                       },
+                      "variables": [
+                        {
+                          "variable_id": "layer",
+                          "type": "string",
+                          "desctiption": "The layer name.",
+                          "default": "roads"
+                        },
+                        {
+                          "variable_id": "spetial_extent_west",
+                          "type": "number"
+                        },
+                        {
+                          "variable_id": "spetial_extent_east",
+                          "type": "number"
+                        },
+                        {
+                          "variable_id": "spetial_extent_north",
+                          "type": "number"
+                        },
+                        {
+                          "variable_id": "spetial_extent_south",
+                          "type": "number"
+                        }
+                      ],
                       "links": [
                         {
                           "href": "https://www.opengeospatial.org/standards/wms",
@@ -4097,6 +4129,7 @@
             "enum": [
               "string",
               "number",
+              "integer",
               "boolean",
               "array",
               "object"
@@ -4165,6 +4198,7 @@
         }
       },
       "process_argument_value": {
+        "title": "Process Argument Value",
         "description": "Arguments for a process. See the API documentation for more information.",
         "nullable": true,
         "oneOf": [
