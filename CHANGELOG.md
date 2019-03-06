@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2019-03-06
+## [0.4.0] - 2019-03-07
 ### Added
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
 - `GET /jobs/{job_id}` has two new properties:
@@ -23,10 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Processes and parameters can be declared to be `experimental`.
 - `GET /output_formats` and `GET /service_types` can now provide links per entry.
 - `GET /udf_runtimes` provide a list of UDF runtime environments. [#87](https://github.com/Open-EO/openeo-api/issues/87)
+- `GET /service_types` allows to specify `variables` that can be used in process graphs. [#172](https://github.com/Open-EO/openeo-api/issues/172)
 
 ### Changed
-- Completely new version of the processes
+- Completely new version of the processes.
 - Changed process graph to a flexible graph-like structure, which also allows callbacks. [#160](https://github.com/Open-EO/openeo-api/issues/160)
+- Updated `GET /collections` and `GET /collections/{collection_id}` to follow STAC v0.6.2. [#158](https://github.com/Open-EO/openeo-api/issues/158), [#173](https://github.com/Open-EO/openeo-api/issues/173)
 - The `process_graph_id` of stored process graphs, the `service_id` of services and the `job_id` of jobs has changed to `id` in responses. [#130](https://github.com/Open-EO/openeo-api/issues/130)
 - The `status` property for jobs is now required. 
 - `POST /preview` renamed to `POST /result`. [#162](https://github.com/Open-EO/openeo-api/issues/162)
