@@ -33,13 +33,13 @@ Example:
 * Procedural style:
   ```php
   $connection = openeo_connect("https://openeo.org");
-  openeo_get_capabilities($connection);
+  openeo_capabilities($connection);
   ```
 * Object-oriented style:
   ```java
   OpenEO obj = new OpenEO();
   Connection con = obj.connect("https://openeo.org");
-  con.getCapabilities();
+  con.capabilities();
   ```
 
 ### Scope categories
@@ -107,7 +107,7 @@ Parameters with a leading `?` are optional.
 | List the supported output file formats.                      | `GET /output_formats`                    | `listFileTypes()` |
 | List the supported secondary service types.                  | `GET /service_types`                     | `listServiceTypes()` |
 | List all collections available on the back-end.              | `GET /collections`                       | `listCollections()` |
-| Get information about a single collection.                   | `GET /collections/{name}`                | `describeCollection(name)` |
+| Get information about a single collection.                   | `GET /collections/{collection_id}`       | `describeCollection(collection_id)` |
 | List all processes available on the back-end.                | `GET /processes`                         | `listProcesses()` |
 | Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`             | `authenticateOIDC(?options)` |
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`                | `authenticateBasic(username, password)` |
@@ -115,7 +115,7 @@ Parameters with a leading `?` are optional.
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`                   | `listFiles(?userId)` |
 | Opens a (existing or non-existing) file without reading any information. Returns a `File`. | *None*     | `openFile(path, ?userId)` |
 | Validates a process graph.                                   | `POST /validate`                         | `validateProcessGraph(processGraph)` |
-| Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs`                    | `listProcessGraphs()` |
+| Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs` | `listProcessGraphs()` |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`                  | `createProcessGraph(processGraph, ?title, ?description)` |
 | Get all information about a stored process graph. Returns a `ProcessGraph`. | `GET /process_graphs/{process_graph_id}` | `getJobById(id)` |
 | Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)` |
@@ -170,7 +170,7 @@ The `Job` scope internally knows the `job_id`.
 
 | Description                                | API Request                        | Client method |
 | ------------------------------------------ | ---------------------------------- | ------------- |
-| Get (and update on client-side) all job information. | `GET /jobs/{job_id}`               | `describeJob()` |
+| Get (and update on client-side) all job information. | `GET /jobs/{job_id}`     | `describeJob()` |
 | Modify a job at the back-end.              | `PATCH /jobs/{job_id}`             | `updateJob(?processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Delete a job                               | `DELETE /jobs/{job_id}`            | `deleteJob()` |
 | Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()` |
@@ -223,6 +223,8 @@ Some simplified example workflows using different programming styles are listed 
 9. After a while, showing the job details, e.g. checking the job status.
 10. Once processing is finished, downloading the job results to the local directory `/tmp/job_results/`.
 
+Please note that the examples below do not comply to the latest process specification. They are meant to show the differences in client development, but are no working examples!
+
 ### R (functional style)
 
 ```r
@@ -234,11 +236,11 @@ cap %>% apiVersion()
 con %>% describeCollection("Sentinel-2A")
 con %>% listProcesses()
 
-processgraph = process("get_collection", name = "Sentinel-2A") %>% 
-  process("filterBbox", west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632") %>%
-  process("filterDaterange", extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
-  process("NDVI", nir = "B4", red = "B8A") %>%
-  process("minTime")
+processgraph = process("load_collection", id = "Sentinel-2A") %>% 
+  process("filter_bbox", west = 672000, south = 5181000, east = 652000, north = 5161000, crs = "EPSG:32632") %>%
+  process("filter_temporal", extent = c("2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z")) %>%
+  process("ndvi", nir = "B4", red = "B8A") %>%
+  process("min_time")
 
 job = con %>% createJob(processgraph)
 job %>% startJob()
@@ -258,10 +260,10 @@ print(con.describe_collection("Sentinel-2A"))
 print(con.list_processes())
 
 processes = con.get_processes()
-pg = processes.get_collection(name="Sentinel-2A")
+pg = processes.load_collection(id="Sentinel-2A")
 pg = processes.filter_bbox(pg, west=672000, south=5181000, east=652000, north=5161000, crs="EPSG:32632")
-pg = processes.filter_daterange(pg, extent=["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
-pg = processes.NDVI(pg, nir="B4", red="B8A")
+pg = processes.filter_temporal(pg, extent=["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"])
+pg = processes.ndvi(pg, nir="B4", red="B8A")
 pg = processes.min_time(pg)
 
 job = con.create_job(pg.graph)
@@ -303,10 +305,10 @@ echo openeo_api_version($capabilites);
 echo openeo_describe_collection($connection, "Sentinel-2A");
 echo openeo_list_processes($connection);
 
-$pg = openeo_process($pg, "get_collection", ["name" => "Sentinel-2A"]);
+$pg = openeo_process($pg, "load_collection", ["id" => "Sentinel-2A"]);
 $pg = openeo_process($pg, "filter_bbox", ["west" => 672000, "south" => 5181000, "east" => 652000, "north" => 5161000, "crs" => "EPSG:32632"]);
-$pg = openeo_process($pg, "filter_daterange", ["extent" => ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"]]);
-$pg = openeo_process($pg, "NDVI", ["red" => "B4", "nir" => "B8A"]);
+$pg = openeo_process($pg, "filter_temporal", ["extent" => ["2017-01-01T00:00:00Z", "2017-01-31T23:59:59Z"]]);
+$pg = openeo_process($pg, "ndvi", ["red" => "B4", "nir" => "B8A"]);
 $pg = openeo_process($pg, "min_time");
 
 $job = openeo_create_job($connection, $pg);

@@ -48,7 +48,7 @@ The openEO API usually uses the following HTTP status codes for successful reque
 
 The openEO API often uses the following HTTP status codes for failed requests: 
 
-- **400 Bad request**:
+- **400 Bad Request**:
   The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
 
 - **401 Unauthorized**:
@@ -64,7 +64,7 @@ The openEO API often uses the following HTTP status codes for failed requests:
 - **500 Internal Server Error**:
   The error has its origin on server side and no other status code in the 500 range is suitable.
 
-- **501 Not implemented**:
+- **501 Not Implemented**:
   An endpoint is specified in the openEO API, but is not supported.
 
 

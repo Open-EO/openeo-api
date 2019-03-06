@@ -19,7 +19,7 @@ A **process graph** chains specific process calls. Similarly to scripts in the c
 
 ## EO data (Collections)
 
-In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** (sometimes also called *item* or *asset* in the specification) typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
+In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** (sometimes also called *item* or *asset* in the specification) typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
 
 The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists synonyms used (by organizations) for:
 
@@ -36,12 +36,12 @@ The figure below shows the data of
 a four-dimensional (8 x 8 x 2 x 2) raster data cube, with dimension names
 and values:
 
-| #| dimension name | dimension values                     |
-|--|----------------|--------------------------------------|
-| 1| x              | 288790.5, 288819, 288847.5, 288876, 288904.5, 288933, 288961.5, 288990 |
-| 2| y              | 9120747, 9120718, 9120690, 9120661, 9120633, 9120604, 9120576, 9120547 |
-| 3| band           | `red`, `green` |
-| 4| time           | `2018-02-10`, `2018-02-17` |
+| #    | dimension name | dimension values |
+| ---- | -------------- | ---------------- |
+| 1    | x              | 288790.5, 288819, 288847.5, 288876, 288904.5, 288933, 288961.5, 288990 |
+| 2    | y              | 9120747, 9120718, 9120690, 9120661, 9120633, 9120604, 9120576, 9120547 |
+| 3    | band           | `red`, `green` |
+| 4    | time           | `2018-02-10`, `2018-02-17` |
 
 dimensions x and time are aligned along the x-axis; y and band are aligned along the y-axis.
 
@@ -129,3 +129,11 @@ When the target grid or time series has a lower resolution (larger grid cells) o
 ### User-defined function (UDF)
 
 The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, or applied to a particular dimension or set of dimensions, allowing custom server-side calculations. See the section on [UDFs](udfs.md) for more information.
+
+# Data Processing modes
+
+Process graphs can be processed in three different ways:
+
+1. Results can be pre-computed by creating a ***batch job*** using  `POST /jobs`.  They are submitted to the back-end's processing system, but will remain inactive until `POST /jobs/{job_id}/results` has been called. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming so that user interaction is not possible. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
+2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
+3. Process graphs can also be executed **on-demand** (i.e. synchronously) by sending the process graph to `POST /result`. Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).

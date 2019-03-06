@@ -14,13 +14,13 @@ In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, �
 
 Unless otherwise stated the API works case sensitive.
 
-All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lowercased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lowercased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
 
 ## Technical requirements
 
 ### HTTP
 
-The API developed by the openEO project uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer)[Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
+The API developed by the openEO project uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) [Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
 
 Public APIs MUST be available via HTTPS only and all inbound calls MUST be HTTPS. 
 

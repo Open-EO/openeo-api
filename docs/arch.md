@@ -11,7 +11,7 @@ The openEO API defines a language how clients communicate to back-ends in order 
 7. The openEO API may define *profiles* in order to group specific functionality.
 
 ![Architecture - openEO API shown in dark blue](img/arch.png)
-*Figure: Architecture - openEO API shown in dark blue*
+*Figure: Architecture*
 
 # Microservices
 

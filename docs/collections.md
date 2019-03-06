@@ -1,6 +1,6 @@
 # Data Discovery (Collections)
 
-openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS](https://github.com/opengeospatial/WFS_FES) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.6 and WFS 3.0 responses, including an incomplete compatibility with their APIs (see below).
+openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS](https://github.com/opengeospatial/WFS_FES) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.6 and WFS 3.0 responses, including a partial compatibility with their APIs (see below).
 
 **WARNING**: STAC and OGC WFS 3, as well as openEO, are still under development.
 Therefore, it is very likely that further changes and adjustments will be made in the future.
@@ -15,7 +15,8 @@ Some commonly used extensions that are integrated in the openEO API specificatio
 - SAR extension
 - Commons extension
 - Scientific extension
-- Data Cube extension (draft)
+- Data Cube extension
+- Non-Common Properties extension
 
 ## Links
 

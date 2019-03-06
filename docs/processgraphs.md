@@ -59,7 +59,7 @@ A value is defined as follows:
 * `from_argument`, except for objects of type `CallbackParameter`
 * `from_node`, except for objects of type `Result`
 
-**Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
+**Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
 `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 
@@ -131,28 +131,16 @@ The process graph representing the algorithm:
 {
   "dc": {
     "process_id": "load_collection",
-    "arguments": {"id": "Sentinel-2"}
-  },
-  "temp": {
-    "process_id": "filter_temporal",
+    "process_description": "Loading the data; The order of the specified bands is important for the following reduce operation.",
     "arguments": {
-      "data": {"from_node": "dc"},
-      "start": "2018-01-01",
-      "end": "2018-02-01"
-    }
-  },
-  "bbox": {
-    "process_id": "filter_bbox",
-    "arguments": {
-      "data": {"from_node": "temp"},
-      "extent": {"west": 16.1, "east": 16.6, "north": 48.6, "south": 47.2}
-    }
-  },
-  "bands": {
-    "process_id": "filter_bands",
-    "process_description": "Filter and order the bands. The order is important for the following reduce operation.",
-    "arguments": {
-      "data": {"from_node": "bbox"},
+      "id": "Sentinel-2",
+      "spatial_extent": {
+        "west": 16.1,
+        "east": 16.6,
+        "north": 48.6,
+        "south": 47.2
+      },
+      "temporal_extent": ["2018-01-01", "2018-02-01"],
       "bands": ["B08", "B04", "B02"]
     }
   },
@@ -160,7 +148,7 @@ The process graph representing the algorithm:
     "process_id": "reduce",
     "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
     "arguments": {
-      "data": {"from_node": "bands"},
+      "data": {"from_node": "dc"},
       "dimension": "spectral",
       "reducer": {
         "callback": {

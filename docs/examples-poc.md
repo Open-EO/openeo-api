@@ -82,21 +82,20 @@ Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.
         "loadco1": {
           "process_id": "load_collection",
           "arguments": {
-            "id": "Sentinel-2"
-          }
-        },
-        "filter1": {
-          "process_id": "filter_temporal",
-          "arguments": {
-            "data": {"from_node": "loadco1"},
-            "start": "2017-01-01",
-            "end": "2017-02-01"
+            "id": "Sentinel-2",
+            "spatial_extent": {
+              "west": {"variable_id": "spatial_extent_west"},
+              "east": {"variable_id": "spatial_extent_east"},
+              "north": {"variable_id": "spatial_extent_north"},
+              "south": {"variable_id": "spatial_extent_south"}
+            },
+            "temporal_extent": ["2017-01-01", "2017-02-01"]
           }
         },
         "ndvi1": {
           "process_id": "ndvi",
           "arguments": {
-            "data": {"from_node": "filter1"}
+            "data": {"from_node": "loadco1"}
           }
         },
         "reduce1": {
@@ -176,33 +175,20 @@ Create a monthly aggregated Sentinel 1 product from a custom Python script.
         "loadco1": {
           "process_id": "load_collection",
           "arguments": {
-            "id": "Sentinel-1"
-          }
-        },
-        "filter1": {
-          "process_id": "filter_bbox",
-          "arguments": {
-            "data": {"from_node": "loadco1"},
-            "extent": {
+            "id": "Sentinel-1",
+            "spatial_extent": {
               "west": 16.1,
               "east": 16.6,
               "north": 48.6,
               "south": 47.2
-            }
-          }
-        },
-        "filter2": {
-          "process_id": "filter_temporal",
-          "arguments": {
-            "data": {"from_node": "filter1"},
-            "start": "2017-01-01",
-            "end": "2017-02-01"
+            },
+            "temporal_extent": ["2017-01-01", "2017-02-01"]
           }
         },
         "reduce1": {
           "process_id": "reduce",
           "arguments": {
-            "data": {"from_node": "filter2"},
+            "data": {"from_node": "loadco1"},
             "dimension": "temporal",
             "reducer": {
               "callback": {
@@ -307,40 +293,21 @@ Compute time series of zonal (regional) statistics of Sentinel 2 imagery over us
         "loadco1": {
           "process_id": "load_collection",
           "arguments": {
-            "id": "Sentinel-2"
-          }
-        },
-        "filter1": {
-          "process_id": "filter_bbox",
-          "arguments": {
-            "data": {"from_node": "loadco1"},
-            "extent": {
+            "id": "Sentinel-2",
+            "spatial_extent": {
               "west": 16.1,
               "east": 16.6,
               "north": 48.6,
               "south": 47.2
-            }
-          }
-        },
-        "filter2": {
-          "process_id": "filter_temporal",
-          "arguments": {
-            "data": {"from_node": "filter1"},
-            "start": "2017-01-01",
-            "end": "2017-02-01"
-          }
-        },
-        "filter3": {
-          "process_id": "filter_bands",
-          "arguments": {
-            "data": {"from_node": "filter2"},
+            },
+            "temporal_extent": ["2017-01-01", "2017-02-01"],
             "bands": ["B8"]
           }
         },
         "reduce1": {
           "process_id": "reduce",
           "arguments": {
-            "data": {"from_node": "filter3"},
+            "data": {"from_node": "loadco1"},
             "dimension": "spectral"
           }
         },

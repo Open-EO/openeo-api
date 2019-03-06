@@ -24,8 +24,8 @@ To define new processes, back-end providers MUST follow the `process` schema in 
 
 In addition to the native data formats specified by JSON schema, openEO defines a set of specific formats that should be re-used in process schema definitions:
 
-| Format Name               | Data type | Description                                                  |
-| ------------------------- | --------- | ------------------------------------------------------------ |
+| Format Name               | Data type | Description |
+| ------------------------- | --------- | ----------- |
 | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code or PROJ definition. |
 | `callback`                | object    | An openEO process graph that is passed as an argument and is expected to be executed by the process. Callback parameters are specified in a `parameters` property (see chapter "Callbacks" below). |
 | `collection-id`           | string    | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
@@ -34,8 +34,8 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 | `epsg-code`               | integer   | Specifies details about cartographic projections as [EPSG](http://www.epsg.org) code. |
 | `geojson`                 | object    | GeoJSON as defined by [RFC 7946](https://tools.ietf.org/html/rfc7946). [JSON Schemes for validation are available.](https://github.com/geojson/schema) |
 | `job-id`                  | string    | A batch job id, either one of the jobs a user has stored or a publicly available job. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-| `kernel`                  | array     | Image kernel, a multi-dimensional array of numbers.          |
-| `output-format`           | string    | An output format supported by the back-end.                  |
+| `kernel`                  | array     | Image kernel, a multi-dimensional array of numbers. |
+| `output-format`           | string    | An output format supported by the back-end. |
 | `output-format-options`   | object    | Key-value-pairs with arguments for the output format options supported by the back-end. |
 | `process-graph-id`        | string    | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
 | `process-graph-variables` | object    | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |

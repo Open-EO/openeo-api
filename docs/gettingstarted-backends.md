@@ -8,17 +8,17 @@ If your preferred technology has no back-end driver yet, you may consider writin
 
 You certainly need to understand the [architecture](arch.md) of openEO and concepts behind [jobs](jobs.md), [processes](processes.md) and [process graphs](processgraphs.md). This helps you read and understand the [API specification](apireference.md). Technical API related documents like [CORS](cors.md) and [error handing](errors.md) should be read, too.
 
-If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [Swagger code generator](https://github.com/swagger-api/swagger-codegen). If you are using Python or NodeJS to implement your driver you may re-use some common modules of existing driver implementations:
+If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator). If you are using Python implement your driver you may re-use some common modules of existing driver implementations:
 
-* [Python Driver](https://github.com/Open-EO/openeo-python-driver)
-* [NodeJS Driver](https://github.com/Open-EO/openeo-nodejs-driver)
+* [Python Driver Commons](https://github.com/Open-EO/openeo-python-driver)
 
 You can implement a back-end in iterations. It is recommended to start by implementing the [Capabilities](apireference.md#tag/Capabilities) microservice. [EO Data Discovery](apireference.md#tag/EO-Data-Discovery), [Process Discovery](apireference.md#tag/Process-Discovery) are important for the client libraries to be available, too. Afterwards you should implement [Batch Job Management](apireference.md#tag/Batch-Job-Management) or [synchronous data processing](apireference.md#/paths/~1result/post). All other microservices can be added later and are not strictly required to run openEO services. Keep in mind that you don't need to implement all endpoints in the first iteration and that you can specify in the Capabilities, which endpoints you are supporting.
 
 For example, you could start by implementing the following endpoints in the first iteration:
 
+* Well-Known Document: `GET /.well-known/openeo`
 * Capabilities: `GET /` and `GET /output_formats`
-* Data discovery: `GET /collections` and `GET /collections/{name}`
+* Data discovery: `GET /collections` and `GET /collections/{collection_id}`
 * Process discovery: `GET /processes`
 * Data processing: `POST /result`
 * Authentication (if required): `GET /credentials/basic`
