@@ -1,8 +1,8 @@
 # openEO - Concepts and API Reference
 
-_Work in progress, please contribute by adding [issues](https://github.com/Open-EO/openeo-api/issues)._
+***Note:*** *The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so everybody is encouraged to try it out and give feedback (for example by adding [issues](https://github.com/Open-EO/openeo-api/issues)). But the goal is to actually be able to act on that feedback, which will mean changes are quite possible.*
 
-openEO develops an open application programming interface(API) that connects clients like R, Python and JavaScript to big Earth observation cloud back-ends in a simple and unified way. The acronym openEO contracts two concepts:
+openEO develops an open application programming interface (API) that connects clients like R, Python and JavaScript to big Earth observation cloud back-ends in a simple and unified way. The acronym openEO contracts two concepts:
 
 - **open**: used here in the context of open source software; open source software is available in source code form, and can be freely modified and redistributed; the openEO project will create open source software, reusable under a liberal open source license (Apache 2.0)
 - **EO**: Earth observation
@@ -18,11 +18,11 @@ The openEO API defines a [HTTP API](apireference.md) that lets cloud back-ends w
 
 As an overview, the openEO API specifies how to
 
-- discover which Earth observation data and processes are available at cloud back-ends,
-- execute (chained) processes on back-ends, 
+- discover which Earth observation [data](collections.md) and [processes](processes.md) are available at cloud back-ends,
+- execute [(chained) processes](processgraphs.md) on back-ends, 
 - run [user-defined functions](udfs.md) (UDFs) on back-ends where UDFs can be exposed to the data in different ways, 
 - download (intermediate) results, and
-- manage user content including accounting.
+- manage  [user content including billing](usermanagement.md).
 
 
 The API is defined as an [OpenAPI 3.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md) JSON file.
