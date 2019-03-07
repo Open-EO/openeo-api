@@ -52,7 +52,6 @@ def build_error_list():
         html += "<table>"
         html += "<tr>"
         html += "<th>openEO Error Code</th>"
-        html += "<th>openEO Error Name</th>"
         html += "<th>Description</th>"
         html += "<th>Message</th>"
         html += "<th>HTTP Status Code</th>"
@@ -60,7 +59,6 @@ def build_error_list():
         for key in sorted(errors[tag].keys()):
             error = errors[tag][key]
             html += "<tr>"
-            html += "<td>" + str(error['code']) + "</td>"
             html += "<td>" + error['name'] + "</td>"
             html += "<td>" + error['description'] + "</td>"
             html += "<td>" + error['message'] + "</td>"

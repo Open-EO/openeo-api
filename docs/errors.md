@@ -15,9 +15,9 @@ A JSON error object SHOULD be sent with all responses that have a status code be
 ``` json
 {
   "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
-  "code": 123,
+  "code": "SampleError",
   "message": "A sample error message.",
-  "url": "http://www.openeo.org/docs/errors/123"
+  "url": "http://www.openeo.org/docs/errors/SampleError"
 }
 ```
 
@@ -25,7 +25,7 @@ Sending `code` and `message` is REQUIRED.
 
 * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
 
-* The `code` is either one of the standardized openEO error codes below or a proprietary error code. Please note, that the numeric error code will be replaced by a descriptive textual code such as `SampleError` in API v0.4.0.
+* The `code` is either one of the standardized textual openEO error codes below or a proprietary error code.
 
 * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
 
@@ -48,7 +48,7 @@ The openEO API usually uses the following HTTP status codes for successful reque
 
 The openEO API often uses the following HTTP status codes for failed requests: 
 
-- **400 Bad request**:
+- **400 Bad Request**:
   The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
 
 - **401 Unauthorized**:
@@ -64,7 +64,7 @@ The openEO API often uses the following HTTP status codes for failed requests:
 - **500 Internal Server Error**:
   The error has its origin on server side and no other status code in the 500 range is suitable.
 
-- **501 Not implemented**:
+- **501 Not Implemented**:
   An endpoint is specified in the openEO API, but is not supported.
 
 
