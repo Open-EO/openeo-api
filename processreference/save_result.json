@@ -1,0 +1,62 @@
+{
+    "id": "save_result",
+    "summary": "Save processed data to storage",
+    "description": "Saves processed data to the local user workspace / data store of the authenticated user. This process aims to be compatible to GDAL/OGR formats and options. STAC-compatible metadata should be stored with the processed data.\n\nCalling this process may be rejected by back-ends in the context of secondary web services.",
+    "categories": [
+        "cubes",
+        "export"
+    ],
+    "parameter_order": ["data", "format", "options"],
+    "parameters": {
+        "data": {
+            "description": "The data to save.",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "format": "raster-cube"
+                    },
+                    {
+                        "type": "object",
+                        "format": "vector-cube"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "format": {
+            "description": "The file format to save to. It must be one of the values that the server reports as supported output formats, which usually correspond to the short GDAL/OGR codes. This parameter is *case insensitive*.",
+            "schema": {
+                "type": "string",
+                "format": "output-format"
+            },
+            "required": true
+        },
+        "options": {
+            "description": "The file format options to be used to create the file(s). Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
+            "schema": {
+                "type": "object",
+                "format": "output-format-options",
+                "default": {}
+            }
+        }
+    },
+    "returns": {
+        "description": "`false` if saving failed, `true` otherwise.",
+        "schema": {
+            "type": "boolean"
+        }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://www.gdal.org/formats_list.html",
+            "title": "GDAL Raster Formats"
+        },
+        {
+            "rel": "about",
+            "href": "https://www.gdal.org/ogr_formats.html",
+            "title": "OGR Vector Formats"
+        }
+    ]
+}
