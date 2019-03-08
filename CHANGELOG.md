@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Numeric openEO error codes. Replaced in responses with textual error codes. [#139](https://github.com/Open-EO/openeo-api/issues/139)
 - Query parameters to replace process graph variables in `GET /process_graphs/{process_graph_id}`. [#147](https://github.com/Open-EO/openeo-api/issues/147)
 - `min_parameters` and `dependencies` for parameters in process descriptions returned by `GET /processes`.
-- Replaced output format properties in favor of an export process, which has resulted in in the removal of:
+- Replaced output format properties in favor of a `save_result` process, which has resulted in in the removal of:
   - The default output format in `GET /output_formats`. [#153](https://github.com/Open-EO/openeo-api/issues/153)
   - The output format properties in `POST /result` (fka `POST /preview`), `POST /jobs`, `PATCH /jobs` and `GET /jobs/{job_id}` requests. [#153](https://github.com/Open-EO/openeo-api/issues/153)
   - `gis_data_type` (not to be confused with `gis_data_types`) in the parameters of output formats in `GET /output_formats`
