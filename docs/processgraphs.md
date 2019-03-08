@@ -233,8 +233,8 @@ The process graph representing the algorithm:
       }
     }
   },
-  "export": {
-    "process_id": "export",
+  "save": {
+    "process_id": "save_result",
     "arguments": {
       "data": {"from_node": "mintime"},
       "format": "GTiff"

@@ -340,8 +340,8 @@ Compute time series of zonal (regional) statistics of Sentinel 2 imagery over us
             }
           }
         },
-        "export1": {
-          "process_id": "export",
+        "savere1": {
+          "process_id": "save_result",
           "arguments": {
             "data": {"from_node": "aggreg1"},
             "format": "JSON"

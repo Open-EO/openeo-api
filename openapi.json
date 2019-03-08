@@ -3710,7 +3710,7 @@
                   "description": "Not required, but **STRONGLY RECOMMENDED**! The name commonly used to refer to the band to make it easier to search for bands across instruments. See the \"[Common Band Names](https://github.com/radiantearth/stac-spec/tree/master/extensions/eo#common-band-names)\" for a list of accepted common names."
                 },
                 "description": {
-                  "$ref": "#/components/schemas/description"
+                  "$ref": "#/components/schemas/collection_band_description"
                 },
                 "gsd": {
                   "type": "number",
@@ -3727,32 +3727,6 @@
                 "full_width_half_max": {
                   "type": "number",
                   "description": "Full width at half maximum (FWHM) is a common way to describe the size of a spectral band. It is the width, in micrometers (μm), of the bandpass measured at a half of the maximum transmission. Thus, if the maximum transmission of the bandpass was 80%, the FWHM is measured as the width of the bandpass at 40% transmission."
-                },
-                "offset": {
-                  "description": "Offset to convert band values to the actual measurement scale.",
-                  "type": "number",
-                  "default": 0
-                },
-                "scale": {
-                  "description": "Scale to convert band values to the actual measurement scale.",
-                  "type": "number",
-                  "default": 1
-                },
-                "unit": {
-                  "description": "The unit of measurement for the data, specified as [OGC URN](http://www.opengis.net/def/uom/).",
-                  "type": "string",
-                  "format": "url"
-                },
-                "nodata": {
-                  "description": "Specific values representing no data.",
-                  "type": "array",
-                  "items": {
-                    "type": "number"
-                  }
-                },
-                "periodicity": {
-                  "description": "Periodictity of the measurements, preferably specified using ISO 8601.",
-                  "type": "string"
                 }
               }
             }
@@ -3837,9 +3811,8 @@
                   "description": "The name of the band.",
                   "type": "string"
                 },
-                "common_name": {
-                  "description": "Description to fully explain the band, should include processing information.\n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
-                  "type": "string"
+                "description": {
+                  "$ref": "#/components/schemas/collection_band_description"
                 },
                 "data_type": {
                   "description": "Specifies the type of the data contained in the band, for example `amplitude`, `intensity`, `phase`, `angle`, `sigma0`, `gamma0`.",
@@ -4450,8 +4423,8 @@
               }
             }
           },
-          "export": {
-            "process_id": "export",
+          "save": {
+            "process_id": "save_result",
             "arguments": {
               "data": {
                 "from_node": "mintime"
@@ -4713,6 +4686,10 @@
       },
       "collection_description": {
         "description": "Detailed multi-line description to fully explain the collection.\n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string"
+      },
+      "collection_band_description": {
+        "description": "Description to fully explain the band, should include processing information.\n\n[CommonMark 0.28](http://commonmark.org/) syntax MAY be used for rich text representation.",
         "type": "string"
       },
       "service_type": {
