@@ -1,0 +1,61 @@
+{
+    "id": "rename_dimension",
+    "summary": "Renames a dimension",
+    "description": "Renames a dimension in the data cube.\n\nAfterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
+    "categories": [
+        "cubes"
+    ],
+    "parameter_order": ["data", "old", "new"],
+    "parameters": {
+        "data": {
+            "description": "The data cube.",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "format": "raster-cube"
+                    },
+                    {
+                        "type": "object",
+                        "format": "vector-cube"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "old": {
+            "description": "The current name of the dimension.",
+            "schema": {
+                "type": "string"
+            },
+            "required": true
+        },
+        "new": {
+            "description": "A new Name for the dimension.",
+            "schema": {
+                "type": "string"
+            },
+            "required": true
+        }
+    },
+    "returns": {
+        "description": "The data cube with the renamed dimension. The old name can not be referenced any longer.",
+        "schema": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "format": "raster-cube"
+                },
+                {
+                    "type": "object",
+                    "format": "vector-cube"
+                }
+            ]
+        }
+    },
+    "exceptions": {
+        "DimensionExists": {
+            "message": "A dimension with the specified name already exists."
+        }
+    }
+}
