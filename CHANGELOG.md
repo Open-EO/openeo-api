@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.1] - Unreleased
 
-## Changed
+### Changed
 - Updated the process catalog, see the separate [changelog](processes/CHANGELOG.md).
-- The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. Changed the data type object to array.
+- The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. The data type has been changed from object to array.
+
+### Removed
+- The property `sar:absolute_orbit` in `GET /collections/{collection_id}` has been removed.
 
 ### Fixed
 - Improved and clarified the documentation and descriptions.
