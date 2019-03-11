@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 - Updated the process catalog, see the separate [changelog](processes/CHANGELOG.md).
 
+### Fixed
+- Improved and clarified the documentation and descriptions.
+
 ## [0.4.0] - 2019-03-07
 
 ### Added
