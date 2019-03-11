@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - Updated the process catalog, see the separate [changelog](processes/CHANGELOG.md).
+- The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. Changed the data type object to array.
 
 ### Fixed
 - Improved and clarified the documentation and descriptions.
