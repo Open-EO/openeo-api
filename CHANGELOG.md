@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - The schema for `exceptions` follows the general schema for openEO errors. [#139](https://github.com/Open-EO/openeo-api/issues/139)
     - Changed the structure of `examples`.
 - `POST /validation` (Process graph validation):
-    - Returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144]
+    - Returns HTTP status code 200 for valid and invalid process graphs and responds with a list of errors. [#144](https://github.com/Open-EO/openeo-api/issues/144)
     - Allowed to call the endpoint without authentication. [#151](https://github.com/Open-EO/openeo-api/issues/151)
 - Behavior for `DELETE /jobs/{job_id}/results` and `POST /jobs/{job_id}/results` specified depending on the job status. Clarified status changes in general. [#142](https://github.com/Open-EO/openeo-api/issues/142)
 - Improved client development guidelines. [#124](https://github.com/Open-EO/openeo-api/issues/124), [#138](https://github.com/Open-EO/openeo-api/issues/138)
