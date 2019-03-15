@@ -2956,7 +2956,17 @@
                       "example": 75.5
                     },
                     "error": {
-                      "$ref": "#/components/schemas/job_error"
+                      "oneOf": [
+                        {
+                          "nullable": true,
+                          "enum": [
+                            null
+                          ]
+                        },
+                        {
+                          "$ref": "#/components/schemas/job_error"
+                        }
+                      ]
                     },
                     "submitted": {
                       "$ref": "#/components/schemas/submitted"
@@ -3067,16 +3077,6 @@
               }
             }
           },
-          "424": {
-            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` repoonse.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/job_error"
-                }
-              }
-            }
-          },
           "4XX": {
             "$ref": "#/components/responses/client_error_auth"
           },
@@ -3167,6 +3167,16 @@
                     "summary": "External metalink file as an example (no openEO related content).",
                     "externalValue": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.metalink"
                   }
+                }
+              }
+            }
+          },
+          "424": {
+            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` repoonse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/job_error"
                 }
               }
             }

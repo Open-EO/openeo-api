@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /collections/{collection_id}`:
     - `properties` in `GET /collections/{collection_id}` doesn't require any of the integrated STAC extensions any longer.
     - The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. The data type has been changed from object to array.
+- `GET /jobs/{job_id}/results` was expected to return HTTP status code 424 with an error message, but it was specified in `/jobs/{job_id}/estimate` instead. The definition was moved. [#177](https://github.com/Open-EO/openeo-api/issues/177)
 
 ## [0.4.0] - 2019-03-07
 
@@ -38,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Processes and parameters can be declared to be `experimental`.
 - `GET /output_formats` and `GET /service_types` can now provide links per entry.
 - `GET /udf_runtimes` provide a list of UDF runtime environments. [#87](https://github.com/Open-EO/openeo-api/issues/87)
-- `GET /service_types` allows to specify `variables` that can be used in process graphs. [#172](https://github.com/Open-EO/openeo-api/issues/172)
+- `GET /service_types` allows to specify `variables` that can be used in process graphs. [#172](https://github.com/Open-EO/openeo-api/issues/172)
 
 ### Changed
 - Completely new version of the processes.
