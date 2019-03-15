@@ -17,7 +17,7 @@ The openEO (core) API is currently released in version **0.4.0**.
 | [0.3.0](https://github.com/Open-EO/openeo-api/tree/0.3.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.0/index.html)) | legacy | Major rework. |
 | [0.3.1](https://github.com/Open-EO/openeo-api/tree/0.3.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.3.1/index.html)) | legacy, supported | Fixing minor issues, see the [changelog](CHANGELOG.md#031---2018-11-06). |
 | [**0.4.0**](https://github.com/Open-EO/openeo-api/tree/0.4.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.0/index.html)) | **current** | Improved discovery, added processes catalogue, new process graph structure and [more](CHANGELOG.md#040---2019-03-07). |
-| [0.4.1](https://github.com/Open-EO/openeo-api/tree/0.4.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.1/index.html)) | draft | Bugfix release, see the [changelog](CHANGELOG.md#041---Unreleased). |
+| [0.4.1](https://github.com/Open-EO/openeo-api/tree/0.4.1) ([Spec](https://open-eo.github.io/openeo-api/v/0.4.1/index.html)) | draft | Bugfix release, see the [changelog](CHANGELOG.md). |
 | [0.5.0](https://github.com/Open-EO/openeo-api/tree/0.5.0) ([Spec](https://open-eo.github.io/openeo-api/v/0.5.0/index.html)) | planned | Improvements based on implementer feedback, introduce extension concept. |
 
 See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
