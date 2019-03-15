@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `properties` in `GET /collections/{collection_id}` doesn't require any of the integrated STAC extensions any longer.
     - The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. The data type has been changed from object to array.
 - `GET /jobs/{job_id}/results` was expected to return HTTP status code 424 with an error message, but it was specified in `/jobs/{job_id}/estimate` instead. The definition was moved. [#177](https://github.com/Open-EO/openeo-api/issues/177)
+- `path` in `GET` and `PUT` `/files/{user_id}` is required again.
 
 ## [0.4.0] - 2019-03-07
 
