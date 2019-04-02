@@ -26,6 +26,7 @@ In addition to the native data formats specified by JSON schema, openEO defines 
 
 | Format Name               | Data type | Description |
 | ------------------------- | --------- | ----------- |
+| `band-name`               | string    | A band name available in the data cube. |
 | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code or PROJ definition. |
 | `callback`                | object    | An openEO process graph that is passed as an argument and is expected to be executed by the process. Callback parameters are specified in a `parameters` property (see chapter "Callbacks" below). |
 | `collection-id`           | string    | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
