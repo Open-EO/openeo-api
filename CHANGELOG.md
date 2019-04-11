@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - The property `sar:absolute_orbit` in `GET /collections/{collection_id}` has been removed.
+- Sending a Bearer token to `GET /credentials/oidc` is not allwoed any longer.
 
 ### Fixed
 - Improved and clarified the documentation and descriptions.
