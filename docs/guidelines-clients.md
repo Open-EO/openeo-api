@@ -118,9 +118,9 @@ Parameters with a leading `?` are optional.
 | Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs` | `listProcessGraphs()` |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`                  | `createProcessGraph(processGraph, ?title, ?description)` |
 | Get all information about a stored process graph. Returns a `ProcessGraph`. | `GET /process_graphs/{process_graph_id}` | `getJobById(id)` |
-| Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)` |
+| Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?plan, ?budget)` |
 | Lists all jobs of the authenticated user. Returns a list of `Job`. | `GET /jobs`                        | `listJobs()` |
-| Creates a new job. Returns a `Job`.                          | `POST /jobs`                             | `createJob(processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Creates a new job. Returns a `Job`.                          | `POST /jobs`                             | `createJob(processGraph, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Get all information about a job. Returns a `Job`.            | `GET /jobs/{job_id}`                     | `getJobById(id)` |
 | Lists all secondary services of the authenticated user. Returns a list of `Service`. | `GET /services`  | `listServices()` |
 | Creates a new secondary service. Returns  a `Service`.       | `POST /services`                         | `createService(processGraph, type, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)` |
@@ -171,7 +171,7 @@ The `Job` scope internally knows the `job_id`.
 | Description                                | API Request                        | Client method |
 | ------------------------------------------ | ---------------------------------- | ------------- |
 | Get (and update on client-side) all job information. | `GET /jobs/{job_id}`     | `describeJob()` |
-| Modify a job at the back-end.              | `PATCH /jobs/{job_id}`             | `updateJob(?processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Modify a job at the back-end.              | `PATCH /jobs/{job_id}`             | `updateJob(?processGraph, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Delete a job                               | `DELETE /jobs/{job_id}`            | `deleteJob()` |
 | Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()` |
 | Start / queue a job for processing.        | `POST /jobs/{job_id}/results`      | `startJob()` |
