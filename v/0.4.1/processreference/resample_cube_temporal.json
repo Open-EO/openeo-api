@@ -62,7 +62,7 @@
             "required": true
         },
         "dimension": {
-            "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+            "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
             "schema": {
                 "type": [
                     "string",
@@ -84,6 +84,14 @@
         "schema": {
             "type": "object",
             "format": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "TooManyDimensions": {
+            "message": "The number of temporal dimensions must be reduced to one for 'resample_cube_temporal'."
+        },
+        "DimensionNotAvailable": {
+            "message": "A dimension with the specified name does not exist."
         }
     },
     "links": [

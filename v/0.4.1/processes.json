@@ -65,7 +65,7 @@
   {
     "id": "add_dimension",
     "summary": "Add a new dimension",
-    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The dimension value of the dimension is set to the specified `value`.",
+    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, the process fails with a `DimensionExists` error. The dimension value of the dimension is set to the specified `value`.",
     "categories": [
       "cubes"
     ],
@@ -429,7 +429,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -521,6 +521,14 @@
         }
       }
     ],
+    "exceptions": {
+      "TooManyDimensions": {
+        "message": "The number of dimensions must be reduced to three for 'aggregate_polygon'."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      }
+    },
     "links": [
       {
         "rel": "about",
@@ -725,6 +733,9 @@
     "exceptions": {
       "CardinalityChanged": {
         "message": "The callback returned less or more elements than it received."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -3048,7 +3059,7 @@
   {
     "id": "filter_bands",
     "summary": "Filter the bands by name",
-    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`. Fails with a `DimensionMissing` error if no such dimension exists.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
     "categories": [
       "filter"
     ],
@@ -3123,6 +3134,9 @@
     "exceptions": {
       "BandFilterParameterMissing": {
         "message": "The process 'filter_bands' requires any of the parameters 'bands', 'common_names' or 'wavelengths' to be set."
+      },
+      "DimensionMissing": {
+        "message": "A band dimension is missing."
       }
     },
     "links": [
@@ -3369,7 +3383,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -3384,6 +3398,14 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      },
+      "TooManyDimensions": {
+        "message": "The number of temporal dimensions must be reduced to one for 'filter_temporal'."
       }
     },
     "links": [
@@ -3450,7 +3472,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The dimension to filter on.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "description": "The dimension to filter on. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
@@ -3462,6 +3484,11 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -6893,7 +6920,7 @@
         "required": true
       },
       "dimension": {
-        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube.",
+        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
         "schema": {
           "type": [
             "string",
@@ -6907,6 +6934,11 @@
       "description": "The value for the metadata property or `null` if no information are available.",
       "schema": {
         "description": "Any data type is allowed."
+      }
+    },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -7272,7 +7304,7 @@
         }
       },
       "dimension": {
-        "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "description": "The dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
@@ -7306,6 +7338,9 @@
     "exceptions": {
       "TooManyDimensionValues": {
         "message": "The number of dimension values exceeds one, which requires a reducer."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     },
     "links": [
@@ -7319,7 +7354,7 @@
   {
     "id": "rename_dimension",
     "summary": "Renames a dimension",
-    "description": "Renames a dimension in the data cube.\n\nAfterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
+    "description": "Renames a dimension in the data cube. Afterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
     "categories": [
       "cubes"
     ],
@@ -7518,7 +7553,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -7540,6 +7575,14 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "TooManyDimensions": {
+        "message": "The number of temporal dimensions must be reduced to one for 'resample_cube_temporal'."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     },
     "links": [
