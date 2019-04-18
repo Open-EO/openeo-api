@@ -91,7 +91,7 @@ Parameters with a leading `?` are optional.
 
 | Description                                                  | Client method |
 | ------------------------------------------------------------ | ------------- |
-| Connect to a back-end, including version discovery (`GET /well-known/openeo`) and authentication. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
+| Connect to a back-end, includes version discovery (`GET /well-known/openeo`), requesting capabilities and authentication where required. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
 | Get client library version.                                  | `clientVersion()` |
 
 #### Parameters
@@ -144,7 +144,7 @@ Should be prefixed with `Capabilities` if collisions of names between different 
 | Get the description of the back-end.             | `description`          | `description()` |
 | List all supported features / endpoints.         | `endpoints`            | `listFeatures()` |
 | Check whether a feature / endpoint is supported. | `endpoints` > ...      | `hasFeature(methodName)` |
-| Get default billing currency.                    | `billing` > `currency` | `currency()` |
+| Get the default billing currency.                | `billing` > `currency` | `currency()` |
 | List all billing plans.                          | `billing` > `plans`    | `listPlans()` |
 
 #### Parameters
