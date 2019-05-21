@@ -1,7 +1,7 @@
 {
     "id": "rename_dimension",
     "summary": "Renames a dimension",
-    "description": "Renames a dimension in the data cube. Afterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
+    "description": "Renames a dimension in the data cube. Afterwards, the dimension can be referenced with the new name.",
     "categories": [
         "cubes"
     ],
@@ -24,14 +24,14 @@
             "required": true
         },
         "old": {
-            "description": "The current name of the dimension.",
+            "description": "The current name of the dimension. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
             "schema": {
                 "type": "string"
             },
             "required": true
         },
         "new": {
-            "description": "A new Name for the dimension.",
+            "description": "A new Name for the dimension. Fails with a `DimensionExists` error if a dimension with the specified name exists.",
             "schema": {
                 "type": "string"
             },
@@ -54,6 +54,9 @@
         }
     },
     "exceptions": {
+        "DimensionNotAvailable": {
+            "message": "A dimension with the specified name does not exist."
+        },
         "DimensionExists": {
             "message": "A dimension with the specified name already exists."
         }
