@@ -118,7 +118,7 @@
             "required": true
         },
         "dimension": {
-            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
             "schema": {
                 "type": [
                     "string",
@@ -128,7 +128,7 @@
             }
         },
         "binary": {
-            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
             "schema": {
                 "type": "boolean",
                 "default": false
@@ -190,14 +190,22 @@
             }
         }
     ],
+    "exceptions": {
+        "TooManyDimensions": {
+            "message": "The number of dimensions must be reduced to three for 'aggregate_polygon'."
+        },
+        "DimensionNotAvailable": {
+            "message": "A dimension with the specified name does not exist."
+        }
+    },
     "links": [
         {
             "rel": "about",
-            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
             "title": "Information about the supported temporal formats."
         },
         {
-            "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+            "href": "https://open-eo.github.io/openeo-api/v/0.4.1/glossary/#aggregation-and-resampling",
             "rel": "about",
             "title": "Aggregation explained in the openEO glossary"
         },

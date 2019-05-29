@@ -65,7 +65,7 @@
   {
     "id": "add_dimension",
     "summary": "Add a new dimension",
-    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown. The dimension value of the dimension is set to the specified `value`.",
+    "description": "Adds a new named dimension to the data cube.\n\nAfterwards, the dimension can be referenced with the specified `name`. If a dimension with the specified name exists, the process fails with a `DimensionExists` error. The dimension value of the dimension is set to the specified `value`.",
     "categories": [
       "cubes"
     ],
@@ -230,7 +230,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -264,7 +264,7 @@
         "title": "More information about the experimental status of the process"
       },
       {
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Aggregation explained in the openEO glossary"
       },
@@ -429,7 +429,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -439,7 +439,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -521,14 +521,22 @@
         }
       }
     ],
+    "exceptions": {
+      "TooManyDimensions": {
+        "message": "The number of dimensions must be reduced to three for 'aggregate_polygon'."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      }
+    },
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       },
       {
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Aggregation explained in the openEO glossary"
       },
@@ -669,7 +677,7 @@
   {
     "id": "apply_dimension",
     "summary": "Applies an n-ary process to all pixels",
-    "description": "Applies an **n-ary** process (i.e. takes an array of pixel values instead of a single pixel value) to a raster data cube. In contrast, the process ``apply()`` applies an unary process to all pixel values.\n\nBy default, `apply_dimension` applies the the process on all pixel values in the data cube as ``apply()`` does, but the parameter `dimension` can be specified to work only on a particular dimension only. For example, if the temporal dimension is specified the process will work on a time series of pixel values.\n\nThe n-ary process must return as many elements in the returned array as there are in the input array. Otherwise a `CardinalityChanged` error must be returned.",
+    "description": "Applies an **n-ary** process (i.e. takes an array of pixel values instead of a single pixel value) to a raster data cube. In contrast, the process ``apply()`` applies an unary process to all pixel values.\n\nBy default, `apply_dimension` applies the process on all pixel values in the data cube as ``apply()`` does, but the parameter `dimension` can be specified to work only on a particular dimension only. For example, if the temporal dimension is specified the process will work on a time series of pixel values.\n\nThe n-ary process must return as many elements in the returned array as there are in the input array. Otherwise a `CardinalityChanged` error must be returned.",
     "categories": [
       "cubes"
     ],
@@ -705,7 +713,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The name of the dimension to apply the process on. By default, applies the the process on all pixel values (as ``apply()`` does).",
+        "description": "The name of the dimension to apply the process on. By default, applies the process on all pixel values (as ``apply()`` does).",
         "schema": {
           "type": [
             "string",
@@ -725,6 +733,9 @@
     "exceptions": {
       "CardinalityChanged": {
         "message": "The callback returned less or more elements than it received."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -2528,7 +2539,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/#publish-openeojobsdebug",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/#publish-openeojobsdebug",
         "title": "Information about the openEO API for Subscriptions"
       }
     ]
@@ -2872,7 +2883,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -3048,7 +3059,7 @@
   {
     "id": "filter_bands",
     "summary": "Filter the bands by name",
-    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`. Fails with a `DimensionMissing` error if no such dimension exists.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
     "categories": [
       "filter"
     ],
@@ -3072,7 +3083,8 @@
         "schema": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "format": "band-name"
           }
         }
       },
@@ -3122,6 +3134,9 @@
     "exceptions": {
       "BandFilterParameterMissing": {
         "message": "The process 'filter_bands' requires any of the parameters 'bands', 'common_names' or 'wavelengths' to be set."
+      },
+      "DimensionMissing": {
+        "message": "A band dimension is missing."
       }
     },
     "links": [
@@ -3368,7 +3383,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -3385,10 +3400,18 @@
         "format": "raster-cube"
       }
     },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      },
+      "TooManyDimensions": {
+        "message": "The number of temporal dimensions must be reduced to one for 'filter_temporal'."
+      }
+    },
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -3449,7 +3472,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The dimension to filter on.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "description": "The dimension to filter on. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
@@ -3461,6 +3484,11 @@
       "schema": {
         "type": "object",
         "format": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -3772,7 +3800,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -3905,7 +3933,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -4606,7 +4634,8 @@
             {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "string",
+                "format": "band-name"
               }
             },
             {
@@ -4735,7 +4764,7 @@
       },
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -4988,7 +5017,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -5121,7 +5150,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -5200,7 +5229,6 @@
     "summary": "Maximum value",
     "description": "Computes the largest value of an array of numbers, which is is equal to the first element of a sorted (i.e., ordered) version the array.",
     "categories": [
-      "arrays",
       "math",
       "reducer"
     ],
@@ -5567,7 +5595,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -5599,7 +5627,6 @@
     "summary": "Minimum value",
     "description": "Computes the smallest value of an array of numbers, which is is equal to the last element of a sorted (i.e., ordered) version the array.",
     "categories": [
-      "arrays",
       "math",
       "reducer"
     ],
@@ -6128,7 +6155,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       }
     ]
@@ -6572,7 +6599,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       },
       {
@@ -6619,7 +6646,7 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/apireference-subscriptions/#publish-openeojobsoutput",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/#publish-openeojobsoutput",
         "title": "Information about the openEO API for Subscriptions"
       }
     ]
@@ -6812,7 +6839,43 @@
           "null"
         ]
       }
-    }
+    },
+    "exceptions": {
+      "MultiplicandMissing": {
+        "message": "Multiplication requires at least two numbers."
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            5,
+            0
+          ]
+        },
+        "returns": 0
+      },
+      {
+        "arguments": {
+          "data": [
+            -2,
+            4,
+            2.5
+          ]
+        },
+        "returns": -20
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      }
+    ]
   },
   {
     "id": "property",
@@ -6857,7 +6920,7 @@
         "required": true
       },
       "dimension": {
-        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube.",
+        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
         "schema": {
           "type": [
             "string",
@@ -6871,6 +6934,11 @@
       "description": "The value for the metadata property or `null` if no information are available.",
       "schema": {
         "description": "Any data type is allowed."
+      }
+    },
+    "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     }
   },
@@ -7236,7 +7304,7 @@
         }
       },
       "dimension": {
-        "description": "The dimension over which to reduce.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "description": "The dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
@@ -7253,7 +7321,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -7270,6 +7338,9 @@
     "exceptions": {
       "TooManyDimensionValues": {
         "message": "The number of dimension values exceeds one, which requires a reducer."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
       }
     },
     "links": [
@@ -7283,7 +7354,7 @@
   {
     "id": "rename_dimension",
     "summary": "Renames a dimension",
-    "description": "Renames a dimension in the data cube.\n\nAfterwards, the dimension can be referenced with the new name. If a dimension with the specified name already exists, a `DimensionExists` exception is thrown.",
+    "description": "Renames a dimension in the data cube. Afterwards, the dimension can be referenced with the new name.",
     "categories": [
       "cubes"
     ],
@@ -7310,14 +7381,14 @@
         "required": true
       },
       "old": {
-        "description": "The current name of the dimension.",
+        "description": "The current name of the dimension. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
         "schema": {
           "type": "string"
         },
         "required": true
       },
       "new": {
-        "description": "A new Name for the dimension.",
+        "description": "A new Name for the dimension. Fails with a `DimensionExists` error if a dimension with the specified name exists.",
         "schema": {
           "type": "string"
         },
@@ -7340,6 +7411,9 @@
       }
     },
     "exceptions": {
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      },
       "DimensionExists": {
         "message": "A dimension with the specified name already exists."
       }
@@ -7406,7 +7480,7 @@
     },
     "links": [
       {
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Resampling explained in the openEO glossary"
       }
@@ -7482,7 +7556,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -7492,7 +7566,7 @@
         }
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer specified as resampling method or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "description": "Specifies whether the process should pass two values to the reducer specified as resampling method or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
           "type": "boolean",
           "default": false
@@ -7506,14 +7580,22 @@
         "format": "raster-cube"
       }
     },
+    "exceptions": {
+      "TooManyDimensions": {
+        "message": "The number of temporal dimensions must be reduced to one for 'resample_cube_temporal'."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      }
+    },
     "links": [
       {
         "rel": "about",
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/processes/#openeo-specific-formats",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/processes/#openeo-specific-formats",
         "title": "Information about the supported temporal formats."
       },
       {
-        "href": "https://open-eo.github.io/openeo-api/v/0.4.0/glossary/#aggregation-and-resampling",
+        "href": "https://open-eo.github.io/openeo-api/v/0.4.1/glossary/#aggregation-and-resampling",
         "rel": "about",
         "title": "Resampling explained in the openEO glossary"
       },
