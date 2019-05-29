@@ -4,7 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2019-05-29
+
+### Changed
+- Updated the process catalog, see the separate changelog.
+
+### Removed
+- The property `sar:absolute_orbit` in `GET /collections/{collection_id}` has been removed.
+- Sending a Bearer token to `GET /credentials/oidc` is not allowed any longer.
+
+### Fixed
+- Improved and clarified the documentation and descriptions.
+- `GET /collections/{collection_id}`:
+    - `properties` in `GET /collections/{collection_id}` doesn't require any of the integrated STAC extensions any longer.
+    - The property `sci:publications` in `GET /collections/{collection_id}` was ported over incorrectly from STAC. The data type has been changed from object to array.
+- `GET /jobs/{job_id}/results` was expected to return HTTP status code 424 with an error message, but it was specified in `/jobs/{job_id}/estimate` instead. The definition was moved. [#177](https://github.com/Open-EO/openeo-api/issues/177)
+- `path` in `GET` and `PUT` `/files/{user_id}` is required again.
+- Fixed several issues in the client development guidelines.
+
 ## [0.4.0] - 2019-03-07
+
 ### Added
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
 - `GET /jobs/{job_id}` has two new properties:
@@ -23,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Processes and parameters can be declared to be `experimental`.
 - `GET /output_formats` and `GET /service_types` can now provide links per entry.
 - `GET /udf_runtimes` provide a list of UDF runtime environments. [#87](https://github.com/Open-EO/openeo-api/issues/87)
-- `GET /service_types` allows to specify `variables` that can be used in process graphs. [#172](https://github.com/Open-EO/openeo-api/issues/172)
+- `GET /service_types` allows to specify `variables` that can be used in process graphs. [#172](https://github.com/Open-EO/openeo-api/issues/172)
 
 ### Changed
 - Completely new version of the processes.

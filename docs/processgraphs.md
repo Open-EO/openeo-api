@@ -174,7 +174,7 @@ The process graph representing the algorithm:
             }
           },
           "sub": {
-            "process_id": "substract",
+            "process_id": "subtract",
             "arguments": {
               "data": [{"from_node": "nir"}, {"from_node": "red"}]
             }

@@ -91,7 +91,7 @@ Parameters with a leading `?` are optional.
 
 | Description                                                  | Client method |
 | ------------------------------------------------------------ | ------------- |
-| Connect to a back-end, including authentication. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
+| Connect to a back-end, includes version discovery (`GET /well-known/openeo`), requesting capabilities and authentication where required. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
 | Get client library version.                                  | `clientVersion()` |
 
 #### Parameters
@@ -106,6 +106,7 @@ Parameters with a leading `?` are optional.
 | Get the capabilities of the back-end. Returns `Capabilities`. | `GET /`                                 | `capabilities()` |
 | List the supported output file formats.                      | `GET /output_formats`                    | `listFileTypes()` |
 | List the supported secondary service types.                  | `GET /service_types`                     | `listServiceTypes()` |
+| List the supported UDF runtimes.                             | `GET /udf_runtimes`                      | `listUdfRuntimes()` |
 | List all collections available on the back-end.              | `GET /collections`                       | `listCollections()` |
 | Get information about a single collection.                   | `GET /collections/{collection_id}`       | `describeCollection(collection_id)` |
 | List all processes available on the back-end.                | `GET /processes`                         | `listProcesses()` |
@@ -114,13 +115,13 @@ Parameters with a leading `?` are optional.
 | Get information about the authenticated user.                | `GET /me`                                | `describeAccount()` |
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`                   | `listFiles(?userId)` |
 | Opens a (existing or non-existing) file without reading any information. Returns a `File`. | *None*     | `openFile(path, ?userId)` |
-| Validates a process graph.                                   | `POST /validate`                         | `validateProcessGraph(processGraph)` |
+| Validates a process graph.                                   | `POST /validation`                       | `validateProcessGraph(processGraph)` |
 | Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs` | `listProcessGraphs()` |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`                  | `createProcessGraph(processGraph, ?title, ?description)` |
-| Get all information about a stored process graph. Returns a `ProcessGraph`. | `GET /process_graphs/{process_graph_id}` | `getJobById(id)` |
-| Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?outputFormat, ?outputParameters, ?budget)` |
+| Get all information about a stored process graph. Returns a `ProcessGraph`. | `GET /process_graphs/{process_graph_id}` | `getProcessGraphById(id)` |
+| Executes a process graph synchronously.                      | `POST /result`                           | `computeResult(processGraph, ?plan, ?budget)` |
 | Lists all jobs of the authenticated user. Returns a list of `Job`. | `GET /jobs`                        | `listJobs()` |
-| Creates a new job. Returns a `Job`.                          | `POST /jobs`                             | `createJob(processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Creates a new job. Returns a `Job`.                          | `POST /jobs`                             | `createJob(processGraph, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Get all information about a job. Returns a `Job`.            | `GET /jobs/{job_id}`                     | `getJobById(id)` |
 | Lists all secondary services of the authenticated user. Returns a list of `Service`. | `GET /services`  | `listServices()` |
 | Creates a new secondary service. Returns  a `Service`.       | `POST /services`                         | `createService(processGraph, type, ?title, ?description, ?enabled, ?parameters, ?plan, ?budget)` |
@@ -143,7 +144,7 @@ Should be prefixed with `Capabilities` if collisions of names between different 
 | Get the description of the back-end.             | `description`          | `description()` |
 | List all supported features / endpoints.         | `endpoints`            | `listFeatures()` |
 | Check whether a feature / endpoint is supported. | `endpoints` > ...      | `hasFeature(methodName)` |
-| Get default billing currency.                    | `billing` > `currency` | `currency()` |
+| Get the default billing currency.                | `billing` > `currency` | `currency()` |
 | List all billing plans.                          | `billing` > `plans`    | `listPlans()` |
 
 #### Parameters
@@ -171,7 +172,7 @@ The `Job` scope internally knows the `job_id`.
 | Description                                | API Request                        | Client method |
 | ------------------------------------------ | ---------------------------------- | ------------- |
 | Get (and update on client-side) all job information. | `GET /jobs/{job_id}`     | `describeJob()` |
-| Modify a job at the back-end.              | `PATCH /jobs/{job_id}`             | `updateJob(?processGraph, ?outputFormat, ?outputParameters, ?title, ?description, ?plan, ?budget, ?additional)` |
+| Modify a job at the back-end.              | `PATCH /jobs/{job_id}`             | `updateJob(?processGraph, ?title, ?description, ?plan, ?budget, ?additional)` |
 | Delete a job                               | `DELETE /jobs/{job_id}`            | `deleteJob()` |
 | Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()` |
 | Start / queue a job for processing.        | `POST /jobs/{job_id}/results`      | `startJob()` |
