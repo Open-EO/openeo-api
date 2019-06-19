@@ -8,6 +8,12 @@ node_js: 8
 sudo: required
 
 before_install:
+- npm install -g speccy
+- speccy lint openapi.json -r "speccy.yml"
+- pip install openapi-spec-validator
+- openapi-spec-validator openapi.json
+
+install:
 - pip install mkdocs
 - pip install mkdocs-material
 - pip install mkdocs-macros-plugin
@@ -15,10 +21,8 @@ before_install:
 - pip install pygments
 - npm install -g asyncapi-generator@0.6.7 # 0.7 only supports AsyncAPI 2.0
 - npm install -g concat-json-files
-- npm install -g speccy
-- speccy lint openapi.json -r "speccy.yml"
 
-install:
+script:
 - concat-json-files "processes/*.json" -t "processes.json"
 - mv CHANGELOG.md docs/changelog.md
 - ag subscriptions.json markdown
@@ -29,7 +33,7 @@ install:
 - \mv -f docs/processreference.html site/processreference/index.html
 - cp processes/*.json site/processreference/
 
-script:
+before_deploy:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
 - cd gh-pages
 - if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
