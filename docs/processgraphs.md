@@ -13,7 +13,7 @@ A process graph is defined to be a map of connected processes with exactly one n
 }
 ```
 
-`<ProcessNodeIdentifier>` is a unique key across the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only across the current map of processes, so excluding any parent and child process graphs. This means all identifier are strictly scoped and can not be used in child or parent process graphs. Please note that circular references are not allowed.
+`<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
 
 ### Processes (Process Nodes)
 
@@ -35,9 +35,8 @@ One of the nodes in a map of processes (the final one) MUST have the `result` fl
 
 ### Arguments
 
-A process can in theory have an arbitrary number of arguments. The arguments including its names and values are specified by the process specification.
-
-Arguments are specified as an object and therefore is a simple map with key-value-pairs:
+A process can have an arbitrary number of arguments. Their name and value are specified 
+in the process specification as an object of key-value pairs:
 
 ```
 <Arguments> := {
@@ -45,7 +44,7 @@ Arguments are specified as an object and therefore is a simple map with key-valu
 }
 ```
 
-The key `<ArgumentValue>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and MUST limit the characters to letters (a-z), numbers and underscores.
+The key `<ParameterName>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) and MUST limit the characters to letters (a-z), numbers and underscores.
 
 A value is defined as follows:
 
@@ -53,30 +52,34 @@ A value is defined as follows:
 <ArgumentValue> := <string|number|boolean|null|array|object|Callback|CallbackParameter|Result|Variable>
 ```
 
-**Note**: The specified data types except `Callback`, `CallbackParameter`, `Result` and `Variable` are the native data types supported by JSON. Limitations apply as objects are not allowed to have keys with the following names:
+Notes:
+- The specified value types, except `Callback`, `CallbackParameter`, `Result` and `Variable`, are the native data types supported by JSON. 
+- Object-type values are not allowed to have keys with the following names:
 
-* `variable_id`, except for objects of type `Variable`
-* `from_argument`, except for objects of type `CallbackParameter`
-* `from_node`, except for objects of type `Result`
+    * `variable_id`, except for objects of type `Variable`
+    * `from_argument`, except for objects of type `CallbackParameter`
+    * `from_node`, except for objects of type `Result`
+
+- A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
+
+        <Result> := {
+          "from_node": <ProcessNodeIdentifier>
+        }
+
+    Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
+
+- For `Variable`, `Callback` and `CallbackParameter` see the sections below.
+
 
 **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
-`<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 
 
-```
-<Result> := {
-  "from_node": <ProcessNodeIdentifier>
-}
-```
-
-Please note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
-
-For `Variable`, `Callback` and `CallbackParameter` see the following sections.
 
 ### Callbacks
 
-Callbacks are simply specifying a process graph to be evaluated as part of another process. A callback object is a simple object with a single property `callback` that stores a process graph:
+A callback is a "child" process graph to be evaluated as part of another process.
+A callback object (given as argument to its "parent" process) is a simple object with a single property `callback` that specifies a process graph:
 
 ```
 <Callback> := {
@@ -84,9 +87,12 @@ Callbacks are simply specifying a process graph to be evaluated as part of anoth
 }
 ```
 
-For example, you'd like to iterate over an array and want to apply another process `abs` (absolute value) on each value in the array. You can do so by executing `apply` in openEO (often also called `map` in other languages) and pass as callback the process `abs`, which is wrapped in a process graph.
+For example, you want to iterate over an array and calculate the absolute value of each value in the array.
+You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass the `absolute` process as callback, wrapped in a process graph.
 
-The values passed from `apply` to `abs` are the callback parameters, which you can also "expect", similar to return values of processes (see above). You can use an object of type `CallbackParameter` with with a key `from_argument` with the callback parameter name as value:
+The values passed from the "parent" process (`apply` in the example) to the "child" process (`absolute` in te example) are the *callback parameters*. 
+You link them to the desired arguments of the child process through the `CallbackParameter` value type (similar to the `Result` type discussed above).
+It is a simple object with key `from_argument` specifying the callback parameter name: 
 
 ```
 <CallbackParameter> := {
@@ -94,9 +100,34 @@ The values passed from `apply` to `abs` are the callback parameters, which you c
 }
 ```
 
-Please note that the `<CallbackParameterName>` is also strictly scoped and can not be referenced in child or parent process graphs. 
+The available callback parameter names (`<CallbackParameterName>`) are defined by the processes.
+See the [`parameters` property](processes.md#callbacks) in the documentation or JSON schema of the callback argument of the process.
 
-The callback parameter names (`<CallbackParameterName>`) are defined by the processes. See the [`parameters` property](processes.md#callbacks) in the JSON schema of the parameter.
+In case of the `apply-absolute` example, `apply` provides a callback parameter named `x` 
+and `absolute` expects an argument with the same name coincidentally:
+
+    {
+        "process_id": "apply",
+        "arguments": {
+            "data": {"from_node": "loadcollection1"}
+            "process": {
+                "callback": {
+                    "abs1": {
+                        "process_id": "absolute",
+                        "arguments: {
+                            "x": {"from_argument": "x"}
+                        },
+                        "result": true
+                    }
+                }
+            }
+        }
+    }
+        
+
+
+Please note that the `<CallbackParameterName>` is also strictly scoped within the callback process graph and can not be referenced from other process graphs. 
+
 
 ### Variables
 
@@ -117,7 +148,7 @@ The value for `type` is the expected data type for the content of the variable a
 
 The value for `variable_id` is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`.
 
-Whenever no value for the variable is defined the `default` value is used or the process graph is rejected if not default value has been specified.
+Whenever no value for the variable is defined, the `default` value is used or the process graph is rejected if not default value has been specified.
 
 ## Example
 
