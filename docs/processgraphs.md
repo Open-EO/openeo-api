@@ -62,9 +62,11 @@ Notes:
 
 - A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 
-        <Result> := {
-          "from_node": <ProcessNodeIdentifier>
-        }
+    ```
+    <Result> := {
+      "from_node": <ProcessNodeIdentifier>
+    }
+    ```
 
     Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
 
@@ -72,8 +74,6 @@ Notes:
 
 
 **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
-
-
 
 
 ### Callbacks
@@ -90,7 +90,7 @@ A callback object (given as argument to its "parent" process) is a simple object
 For example, you want to iterate over an array and calculate the absolute value of each value in the array.
 You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass the `absolute` process as callback, wrapped in a process graph.
 
-The values passed from the "parent" process (`apply` in the example) to the "child" process (`absolute` in te example) are the *callback parameters*. 
+The values passed from the "parent" process (`apply` in the example) to the "child" process (`absolute` in the example) are the *callback parameters*. 
 You link them to the desired arguments of the child process through the `CallbackParameter` value type (similar to the `Result` type discussed above).
 It is a simple object with key `from_argument` specifying the callback parameter name: 
 
@@ -104,26 +104,28 @@ The available callback parameter names (`<CallbackParameterName>`) are defined b
 See the [`parameters` property](processes.md#callbacks) in the documentation or JSON schema of the callback argument of the process.
 
 In case of the `apply-absolute` example, `apply` provides a callback parameter named `x` 
-and `absolute` expects an argument with the same name coincidentally:
+and `absolute` expects an argument with the same name coincidentally.
+`loadcollection1` would be a result from another process (not defined in this example):
 
-    {
-        "process_id": "apply",
-        "arguments": {
-            "data": {"from_node": "loadcollection1"}
-            "process": {
-                "callback": {
-                    "abs1": {
-                        "process_id": "absolute",
-                        "arguments: {
-                            "x": {"from_argument": "x"}
-                        },
-                        "result": true
-                    }
-                }
-            }
+```
+{
+  "process_id": "apply",
+  "arguments": {
+    "data": {"from_node": "loadcollection1"}
+    "process": {
+      "callback": {
+        "abs1": {
+          "process_id": "absolute",
+          "arguments: {
+            "x": {"from_argument": "x"}
+          },
+          "result": true
         }
+      }
     }
-        
+  }
+}
+```
 
 
 Please note that the `<CallbackParameterName>` is also strictly scoped within the callback process graph and can not be referenced from other process graphs. 
