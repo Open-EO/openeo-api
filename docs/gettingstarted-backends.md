@@ -2,13 +2,14 @@
 
 As a back-end provider who wants to provide its datasets, processes and infrastructure to a broader audience through a standardized interface you may want to implement a driver for openEO.
 
-First of all, you should go through the list of [openEO repositories](https://github.com/Open-EO) and check whether there is already a back-end driver that suits your needs. In this case you don't need to develop your own driver, but "only" need to ingest your data, adopt your required processes and set-up the infrastructure. Please follow the documentation for the individual driver you want to use.
+First of all, you should go through the list of [openEO repositories](https://github.com/Open-EO) and check whether there is already a back-end driver that suits your needs. In this case you don't need to develop your own driver, but "only" need to ingest your data, adopt your required processes and set up the infrastructure. Please follow the documentation for the individual driver you want to use.
 
 If your preferred technology has no back-end driver yet, you may consider writing your own driver. All software written for openEO should follow the [software development guidelines](guidelines-software.md).
 
 You certainly need to understand the [architecture](arch.md) of openEO and concepts behind [jobs](jobs.md), [processes](processes.md) and [process graphs](processgraphs.md). This helps you read and understand the [API specification](apireference.md). Technical API related documents like [CORS](cors.md) and [error handing](errors.md) should be read, too.
 
-If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator). If you are using Python implement your driver you may re-use some common modules of existing driver implementations:
+If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator).
+If you are using Python to implement your driver you may reuse some common modules of the existing driver implementations:
 
 * [Python Driver Commons](https://github.com/Open-EO/openeo-python-driver)
 

@@ -4,8 +4,9 @@ This glossary introduces the major technical terms used in the openEO project.
 
 ## General terms
 
+- **EO**: Earth observation
 - **API**: application programming interface ([wikipedia](https://en.wikipedia.org/wiki/Application_programming_interface)); a communication protocol between client and back-end
-- **client**: software environment (software) that end-users directly interact with, e.g. R (rstudio), Python (jupyter notebook), and JavaScript (web browser); R and Python are two major data science platforms; JavaScript is a major language for web development
+- **client**: software tool or environment that end-users directly interact with, e.g. R (RStudio), Python (Jupyter notebook), and JavaScript (web browser); R and Python are two major data science platforms; JavaScript is a major language for web development
 - **(cloud) back-end**: server; computer infrastructure (one or more physical computers or virtual machines) used for storing EO data and processing it
 - **big Earth observation cloud back-end**: server infrastructure where industry and researchers analyse large amounts of EO data
 
@@ -15,18 +16,18 @@ The terms _process_ and _process graph_ have specific meanings in the openEO API
 
 A **process** is an operation provided by the back end that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. 
 
-A **process graph** chains specific process calls. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
+A **process graph** chains specific process calls together. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
 
 ## EO data (Collections)
 
-In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** (sometimes also called *item* or *asset* in the specification) typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites) while a **collection** is an aggregation of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
+In our domain, different terms are used to describe EO data(sets). Within openEO, a **granule** (sometimes also called *item* or *asset* in the specification) typically refers to a limited area and a single overpass leading to a very short observation period (seconds) or a temporal aggregation of such data (e.g. for 16-day MODIS composites). A **collection** is a sequence of granules sharing the same product specification. It typically corresponds to the series of products derived from data acquired by a sensor on board a satellite and having the same mode of operation.
 
-The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists synonyms used (by organizations) for:
+The [CEOS OpenSearch Best Practice Document v1.2](http://ceos.org/ourwork/workinggroups/wgiss/access/opensearch/) lists the following synonyms used by other organizations:
 
 - **granule**: dataset (ESA, ISO 19115), granule (NASA), product (ESA, CNES), scene (JAXA)
 - **collection**: dataset series (ESA, ISO 19115), collection (CNES, NASA), dataset (JAXA), product (JAXA)
 
-In openEO, a back-end offers a set of collections to be processed. All collections can be requested using a client and are described using the [STAC metadata specification](https://github.com/radiantearth/stac-spec) as STAC collections. A user can load (a subset of) a collection using a special process for processing on the back-end. This process returns a (spatial) data cube. All further processing is then applied to the data cube.
+In openEO, a back-end offers a set of collections to be processed. All collections can be requested using a client and are described using the [STAC (SpatioTemporal Asset Catalog) metadata specification](https://github.com/radiantearth/stac-spec) as STAC collections. A user can load (a subset of) a collection using a special process, which returns a (spatial) data cube. All further processing is then applied to the data cube on the back-end.
 
 ## Spatial data cubes
 
@@ -72,36 +73,33 @@ Having these properties available allows to easily resample from one data cube t
 
 ### `apply`: processes that do not change dimensions
 
-Math process that do not reduce do not change anything to the array
+Math process that does not reduce or change anything to the array
 dimensions. The process `apply` can be used to apply unary functions
-such as `abs` or `sqrt` to all values in a data cube. The process
-`apply_dimension` applies (maps) an n-ary function to a particular
-dimension. An example would be to apply `sort` to the time dimension,
-in order to get every time series sorted. A more realistic example
-would for instance apply a moving average filter to every time
-series. An example of `apply_dimension` to the spatial dimensions
+such as `abs` or `sqrt` to all values in a data cube.
+
+The process `apply_dimension` applies (maps) an n-ary function to a particular
+dimension. An example along the time dimension is to apply a moving
+average filter to implement temporal smoothing.
+An example of `apply_dimension` to the spatial dimensions
 is to do a historgram stretch for every spatial (grayscale) image
 of an image time series.
 
 ### `filter`: subsetting dimensions by dimension value selection
 
 The `filter` process makes a cube smaller by selecting specific
-values for a particular dimension. 
+value ranges for a particular dimension.
 
 Examples: 
 
 - a band filter that selects the `red` band
-- a bounding box filter selects a spatial extent
+- a bounding box filter "crops" the collection to a spatial extent
 
 ### `reduce`: removing dimensions entirely by computation
 
-`reduce` reduces the number of dimensions by computation. For
-instance, using the _reducer_ proces `mean`, we can compute the
-mean of the two time steps, and by that remove the time dimension.
-
-Example:
-
-- a time series reduction may return a regression slope for every (grayscale) pixel time series
+The `reduce` process removes a dimension by "rolling up" or summarizing
+the values along that dimension to a single value.
+For example: eliminate the time dimension by taking the `mean` along that dimension.
+Another example is taking the `sum` or `max` along the band dimension.
 
 ### `aggregate`: reducing resolution
 
@@ -115,7 +113,7 @@ In effect, `aggregate` combines the following three steps:
 
 Examples:
 
-- a weekly time series may be aggregated to monthly values by computing the mean for all values in a month (grouping predicate: months)
+- a weekly time series may be aggregated to monthly values by computing the `mean` for all values in a month (grouping predicate: months)
 - _spatial_ aggregation involves computing e.g. _mean_ pixel values on a 100 x 100 m grid, from 10 m x 10 m pixels, where each original pixel is assigned uniquely to a larger pixel (grouping predicate: 100 m x 100 m grid cells)
 
 ### `resample`: changing data cube geometry
@@ -134,6 +132,6 @@ The abbreviation **UDF** stands for **user-defined function**. With this concept
 
 Process graphs can be processed in three different ways:
 
-1. Results can be pre-computed by creating a ***batch job*** using  `POST /jobs`.  They are submitted to the back-end's processing system, but will remain inactive until `POST /jobs/{job_id}/results` has been called. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming so that user interaction is not possible. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
-2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
+1. Results can be pre-computed by creating a ***batch job*** using  `POST /jobs`.  They are submitted to the back-end's processing system, but will remain inactive until `POST /jobs/{job_id}/results` has been called. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming and user interaction is not possible. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
+2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms) (Open Geospatial Consortium Web Map Service), [OGC WCS](http://www.opengeospatial.org/standards/wcs) (Web Coverage Service) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
 3. Process graphs can also be executed **on-demand** (i.e. synchronously) by sending the process graph to `POST /result`. Results are delivered with the request itself and no job is created. Only lightweight computations, for example small previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
