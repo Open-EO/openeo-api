@@ -1,6 +1,6 @@
 # Processes
 
-A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of a name, a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](processgraphs.md)), which can be applied to EO data to derive your own findings from the data.
+A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](processgraphs.md)), which can be applied to EO data to derive your own findings from the data.
 
 ## Core processes
 
@@ -14,7 +14,7 @@ Any back-end provider can either implement a set of pre-defined processes (STRON
 
 To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
 
-* Choosing a intuitive and ideally unique process name consisting of only letters (a-z), numbers and underscores.
+* Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
 * Defining the parameters and their exacts (JSON) schemes.
 * Specifying the return value of a process also with a (JSON) schema.
 * Providing examples or compliance tests.
