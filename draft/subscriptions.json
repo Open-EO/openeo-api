@@ -1,0 +1,620 @@
+{
+  "asyncapi": "1.2.0",
+  "info": {
+    "title": "openEO API for Subscriptions",
+    "version": "0.4.2",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n\nThis is a subset of the openEO API that handles WebSocket-based protocols for subscriptions and notifications.\n\n`openeo.authorize`, `openeo.welcome`, `openeo.subscribe` and `openeo.unsubsribe` MUST be implemeneted by all back-ends.\n\n**Security considerations:** A handshake has to be performed directly after establishing the WebSocket connection. The client MUST send a `openeo.authorize` request and receives a `openeo.welcome` message after a successful authorization. The WebSocket connections MUST be closed by servers once a request with invalid authorization credentials is sent. Servers are allowed to close connections to clients that have not sent a `openeo.authorize` request 30 seconds after establishing a WebSocket connection.",
+    "contact": {
+      "name": "openEO Consortium",
+      "url": "http://openeo.org/",
+      "email": "openeo@list.tuwien.ac.at"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "externalDocs": {
+    "description": "openEO Documentation",
+    "url": "https://open-eo.github.io/openeo-api/v/0.4.2/"
+  },
+  "baseTopic": "openeo",
+  "topics": {
+    "authorize": {
+      "subscribe": {
+        "summary": "Starts a handshake with the server to authorize the client.",
+        "description": "The client MUST send a `openeo.authorize` request directly after establishing the WebSocket connection and a `openeo.welcome` will be sent by the server after successful authorization. The WebSocket connections MUST be closed if invalid authorization credentials are sent.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "authorization",
+            "message"
+          ],
+          "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "message": {
+              "$ref": "#/components/schemas/message"
+            }
+          },
+          "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.authorize"
+            }
+          }
+        }
+      }
+    },
+    "welcome": {
+      "publish": {
+        "summary": "Welcome message for clients.",
+        "description": "Sends the supported topics, excluding `openeo.authorize`, `openeo.subscribe`, `openeo.unsubscribe` and `openeo.welcome` (because these MUST be implemented by every back-end anyway). This message MUST be sent by all servers directly after receiving the `openeo.authorize` message with valid credentials.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "topics"
+              ],
+              "properties": {
+                "topics": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "example": {
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.welcome"
+            },
+            "payload": {
+              "topics": [
+                "openeo.jobs.output",
+                "openeo.jobs.status",
+                "openeo.data"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "subscribe": {
+      "subscribe": {
+        "summary": "Subscribes to certain topics.",
+        "description": "Additional parameters that may be used to restrict the scope of the subscription are described in the specific messages. For example, a restriction of a subscription to a specific job.\n\nThe WebSocket connections MUST be closed if invalid authorization credentials are sent.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "authorization",
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "topics"
+              ],
+              "properties": {
+                "topics": {
+                  "$ref": "#/components/schemas/topics"
+                }
+              }
+            }
+          },
+          "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.subscribe"
+            },
+            "payload": {
+              "topics": [
+                {
+                  "topic": "openeo.jobs.status",
+                  "job_id": "a3cca2b2aa1e3b5b"
+                },
+                {
+                  "topic": "openeo.files"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "unsubscribe": {
+      "subscribe": {
+        "summary": "Unsubscribes from certain topics.",
+        "description": "The WebSocket connections MUST be closed if invalid authorization credentials are sent.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "authorization",
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "authorization": {
+              "$ref": "#/components/schemas/authorization"
+            },
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "topics"
+              ],
+              "properties": {
+                "topics": {
+                  "$ref": "#/components/schemas/topics"
+                }
+              }
+            }
+          },
+          "example": {
+            "authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0",
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.unsubscribe"
+            },
+            "payload": {
+              "topics": [
+                {
+                  "topic": "openeo.jobs.status",
+                  "job_id": "a3cca2b2aa1e3b5b"
+                },
+                {
+                  "topic": "openeo.files"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "jobs.output": {
+      "publish": {
+        "summary": "Data written to the output console with processes of a job.",
+        "description": "Subscriptions to this message can be restricted to a certain job by specifying a `job_id`.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "job_id",
+                "output"
+              ],
+              "properties": {
+                "job_id": {
+                  "$ref": "#/components/schemas/job_id"
+                },
+                "output": {
+                  "description": "Output data of any type"
+                }
+              }
+            }
+          },
+          "example": {
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.jobs.debug"
+            },
+            "payload": {
+              "job_id": "a3cca2b2aa1e3b5b",
+              "output": "Hello world!"
+            }
+          }
+        }
+      }
+    },
+    "jobs.debug": {
+      "publish": {
+        "summary": "Debugging information from job execution.",
+        "description": "Subscriptions to this message can be restricted to a certain job by specifying a `job_id`.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "job_id",
+                "message"
+              ],
+              "properties": {
+                "job_id": {
+                  "$ref": "#/components/schemas/job_id"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "The thrown debug message"
+                },
+                "process": {
+                  "type": "object",
+                  "description": "Process throwing the debug message.",
+                  "required": [
+                    "name",
+                    "parameters"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the process."
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "description": "Key-value pairs for the parameters of the process. The keys are the parameter names and the values are the actual values specified for the parameter. Specify the empty object if the process does not have any parameters or was called without parameters.",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "example": {
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.jobs.debug"
+            },
+            "payload": {
+              "job_id": "a3cca2b2aa1e3b5b",
+              "message": "Invalid CRS specified, defaulting to EPSG:4326.",
+              "process": {
+                "name": "filter_bbox",
+                "parameters": {
+                  "crs": 9999,
+                  "west": 55,
+                  "south": 10,
+                  "east": 56,
+                  "north": 11
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "jobs.status": {
+      "publish": {
+        "summary": "Inform about a status change of a job.",
+        "description": "Subscriptions to this message can be restricted to a certain job by specifying a `job_id`.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "job_id",
+                "status"
+              ],
+              "properties": {
+                "job_id": {
+                  "$ref": "#/components/schemas/job_id"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Current status",
+                  "example": "running",
+                  "enum": [
+                    "submitted",
+                    "queued",
+                    "running",
+                    "canceled",
+                    "finished",
+                    "error"
+                  ]
+                },
+                "progress": {
+                  "type": "number",
+                  "description": "Progress of a running job in percent.",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          "example": {
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.jobs.status"
+            },
+            "payload": {
+              "job_id": "a3cca2b2aa1e3b5b",
+              "status": "running",
+              "progress": 75.5
+            }
+          }
+        }
+      }
+    },
+    "files": {
+      "publish": {
+        "summary": "Inform about changes regarding the user files.",
+        "description": "Subscriptions to this message can't be restricted to a certain file or folder.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "user_id",
+                "path",
+                "action"
+              ],
+              "properties": {
+                "user_id": {
+                  "$ref": "#/components/schemas/user_id"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Path of the file, relative to the user's root directory. MUST NOT start with a slash and MUST NOT be url-encoded."
+                },
+                "action": {
+                  "type": "string",
+                  "description": "Describes what has changed.",
+                  "enum": [
+                    "created",
+                    "updated",
+                    "deleted"
+                  ]
+                }
+              }
+            }
+          },
+          "example": {
+            "message": {
+              "issued": "2018-08-07T14:06:36Z",
+              "topic": "openeo.files"
+            },
+            "payload": {
+              "user_id": "john_doe",
+              "path": "new_file.txt",
+              "action": "created"
+            }
+          }
+        }
+      }
+    },
+    "data": {
+      "publish": {
+        "summary": "Inform about changes regarding an EO dataset.",
+        "description": "At least one of the `temporal_extent` and `spatial_extent` fields MUST be specified.\n\nSubscriptions to this message can be restricted to a certain collection by specifying  `name` and providing a valid collection name.",
+        "payload": {
+          "type": "object",
+          "required": [
+            "message",
+            "payload"
+          ],
+          "properties": {
+            "message": {
+              "$ref": "#/components/schemas/message"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "$ref": "#/components/schemas/collection_name"
+                },
+                "temporal_extent": {
+                  "type": "array",
+                  "description": "MUST be specified if the temporal extent of the dataset has changed. The temporal extent is always specified as an array, that consists of either a single timestamp or a start and an end time, each element formatted as a RFC 3339 date-time. Specifies the temporal extent of the data that has changed, not of the whole dataset. Example: The dataset covers images from beginning of 2015 until the end of 2018. A single image has been added, captured at the first day in 2019 at 01:00:00 UTC (1am). The spatial extent specified here must be an array containing a single string: `2019-01-01T01:00:00Z`.",
+                  "example": [
+                    "2016-01-01T02:30:00Z",
+                    "2016-01-01T04:45:00Z"
+                  ],
+                  "minItems": 1,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "spatial_extent": {
+                  "type": "object",
+                  "description": "MUST always be specified. It is the spatial extent of the data that was changed. Specifies the spatial extent of the data that has changed, not of the whole dataset. Example: The dataset covers the whole world and an image of Austria has been added. The spatial extent specified here must be the bounding box of Austria.",
+                  "required": [
+                    "west",
+                    "south",
+                    "east",
+                    "north"
+                  ],
+                  "properties": {
+                    "crs": {
+                      "description": "Coordinate reference system specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                      "oneOf": [
+                          {
+                              "title": "EPSG Code",
+                              "type": "integer",
+                              "format": "epsg-code",
+                              "example": 7099
+                          },
+                          {
+                              "title": "PROJ definition",
+                              "type": "string",
+                              "format": "proj-definition",
+                              "example": "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+                          }
+                      ],
+                      "default": 4326
+                    },
+                    "west": {
+                      "description": "West (lower left corner, coordinate axis 1).",
+                      "type": "number"
+                    },
+                    "south": {
+                      "description": "South (lower left corner, coordinate axis 2).",
+                      "type": "number"
+                    },
+                    "east": {
+                      "description": "East (upper right corner, coordinate axis 1).",
+                      "type": "number"
+                    },
+                    "north": {
+                      "description": "North (upper right corner, coordinate axis 2).",
+                      "type": "number"
+                    },
+                    "base": {
+                      "description": "Base (optional, lower left corner, coordinate axis 3).",
+                      "type": "number"
+                    },
+                    "height": {
+                      "description": "Height (optional, upper right corner, coordinate axis 3).",
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "message": {
+            "issued": "2018-08-07T14:06:36Z",
+            "topic": "openeo.data"
+          },
+          "payload": {
+            "name": "MOD18Q1",
+            "temporal_extent": [
+              "2018-08-07T15:30:00Z",
+              "2018-08-08T16:43:00Z"
+            ],
+            "spatial_extent": {
+              "west": 34.6,
+              "south": 39.6,
+              "east": 35.1,
+              "north": 40.1
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "authorization": {
+        "type": "string",
+        "description": "Takes the same values as the HTTP Authorization header that is accepted by most openEO endpoints. The value is concatenated from the Authorization scheme (usually `Bearer`), a space and the actual token for authorization.",
+        "example": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.4E_Bsx-pJi3kOW9wVXN8CgbATwP09D9V5gxh9-9zSZ0"
+      },
+      "message": {
+        "type": "object",
+        "required": [
+          "topic",
+          "issued"
+        ],
+        "properties": {
+          "issued": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the message was sent, formatted as a RFC 3339 date-time."
+          },
+          "topic": {
+            "type": "string",
+            "description": "Message type",
+            "example": "openeo.sample"
+          }
+        }
+      },
+      "collection_name": {
+        "type": "string",
+        "description": "Unique identifier for EO datasets.",
+        "example": "MOD18Q1"
+      },
+      "job_id": {
+        "type": "string",
+        "description": "Unique identifier of a job that is generated by the back-end during job submission.",
+        "example": "a3cca2b2aa1e3b5b"
+      },
+      "user_id": {
+        "type": "string",
+        "description": "Unique identifier of the user.",
+        "example": "john_doe"
+      },
+      "topics": {
+        "type": "array",
+        "description": "A list of topics to (un)subscribe to/from.",
+        "items": {
+          "type": "object",
+          "description": "A topic MUST be specified and may be complemented by restricting parameters, e.g. a job (id) to limit the subscription to. If no restricting parameter is specified, it (un)subscribes to/from all resources, e.g. all jobs.",
+          "required": [
+            "topic"
+          ],
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "One of the supported publish topics."
+            }
+          },
+          "additionalProperties": true
+        },
+        "example": [
+          {
+            "topic": "openeo.jobs.output",
+            "job_id": 123
+          },
+          {
+            "topic": "openeo.jobs.status"
+          },
+          {
+            "topic": "openeo.data",
+            "name": "MOD18Q1"
+          }
+        ]
+      }
+    }
+  }
+}

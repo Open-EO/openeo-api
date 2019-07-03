@@ -1,0 +1,841 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.0">
+    
+    
+      
+        <title>Error Handling - openEO API 0.4.2</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.0284f74d.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#status-and-error-handling" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="openEO API 0.4.2" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              openEO API 0.4.2
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Error Handling
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/Open-EO/openeo-api/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="openEO API 0.4.2" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    openEO API 0.4.2
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/Open-EO/openeo-api/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Prologue
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        Prologue
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Introduction" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../glossary/" title="Glossary" class="md-nav__link">
+      Glossary
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../codeofconduct/" title="Contributor Code of Conduct" class="md-nav__link">
+      Contributor Code of Conduct
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../changelog/" title="Changelog" class="md-nav__link">
+      Changelog
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Getting started
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        Getting started
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted-users/" title="Users" class="md-nav__link">
+      Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted-backends/" title="Back-end Providers" class="md-nav__link">
+      Back-end Providers
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted-clients/" title="Client Developers" class="md-nav__link">
+      Client Developers
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../examples-poc/" title="Examples (proof of concept)" class="md-nav__link">
+      Examples (proof of concept)
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../arch/" title="Architecture" class="md-nav__link">
+      Architecture
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../usermanagement/" title="User Management and Accounting" class="md-nav__link">
+      User Management and Accounting
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../udfs/" title="UDFs" class="md-nav__link">
+      UDFs
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../collections/" title="Data Discovery" class="md-nav__link">
+      Data Discovery
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../processgraphs/" title="Process Graphs" class="md-nav__link">
+      Process Graphs
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Error Handling
+      </label>
+    
+    <a href="./" title="Error Handling" class="md-nav__link md-nav__link--active">
+      Error Handling
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#json-error-object" title="JSON error object" class="md-nav__link">
+    JSON error object
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standardized-status-codes" title="Standardized status codes" class="md-nav__link">
+    Standardized status codes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openeo-error-codes" title="openEO error codes" class="md-nav__link">
+    openEO error codes
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cors/" title="CORS" class="md-nav__link">
+      CORS
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Development guidelines
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Development guidelines
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../guidelines-software/" title="Software Development" class="md-nav__link">
+      Software Development
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../guidelines-clients/" title="Client Library Development" class="md-nav__link">
+      Client Library Development
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../guidelines-api/" title="API Specification" class="md-nav__link">
+      API Specification
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../apireference/" title="Core API Reference" class="md-nav__link">
+      Core API Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../apireference-subscriptions/" title="Subscriptions API Reference" class="md-nav__link">
+      Subscriptions API Reference
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../processreference/" title="Process Reference" class="md-nav__link">
+      Process Reference
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#json-error-object" title="JSON error object" class="md-nav__link">
+    JSON error object
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standardized-status-codes" title="Standardized status codes" class="md-nav__link">
+    Standardized status codes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#openeo-error-codes" title="openEO error codes" class="md-nav__link">
+    openEO error codes
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/Open-EO/openeo-api/edit/master/docs/errors.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="status-and-error-handling">Status and error handling<a class="headerlink" href="#status-and-error-handling" title="Permanent link">&para;</a></h1>
+<p>The success of requests MUST be indicated using <a href="https://tools.ietf.org/html/rfc7231#section-6">HTTP status codes</a> according to <a href="https://tools.ietf.org/html/rfc7231">RFC 7231</a>.</p>
+<p>If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.</p>
+<p>In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service <em>correctly</em> rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do <em>not</em> contribute to overall API availability. </p>
+<p>Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors <em>do</em> contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. </p>
+<h2 id="json-error-object">JSON error object<a class="headerlink" href="#json-error-object" title="Permanent link">&para;</a></h2>
+<p>A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.</p>
+<div class="codehilite"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;936DA01F-9ABD-4D9D-80C7-02AF85C822A8&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;SampleError&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;A sample error message.&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.openeo.org/docs/errors/SampleError&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>Sending <code>code</code> and <code>message</code> is REQUIRED. </p>
+<ul>
+<li>
+<p>A back-end MAY add a free-form <code>id</code> (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.</p>
+</li>
+<li>
+<p>The <code>code</code> is either one of the standardized textual openEO error codes below or a proprietary error code.</p>
+</li>
+<li>
+<p>The <code>message</code> explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.</p>
+</li>
+</ul>
+<p>By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an <code>Accept-Language</code> header is sent by the client and a translation is available, the message should be translated accordingly and the <code>Content-Language</code> header must be present in the response. See "<a href="http://apiux.com/2013/04/25/how-to-localize-your-api/">How to localize your API</a>" for more information.</p>
+<ul>
+<li><code>url</code> is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.</li>
+</ul>
+<h2 id="standardized-status-codes">Standardized status codes<a class="headerlink" href="#standardized-status-codes" title="Permanent link">&para;</a></h2>
+<p>The openEO API usually uses the following HTTP status codes for successful requests: </p>
+<ul>
+<li><strong>200 OK</strong>:
+  Indicates a successful request <strong>with</strong> a response body being sent.</li>
+<li><strong>201 Created</strong>
+  Indicates a successful request that successfully created a new resource. Sends a <code>Location</code> header to the newly created resource <strong>without</strong> a response body.</li>
+<li><strong>202 Accepted</strong>
+  Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent <strong>without</strong> a response body.</li>
+<li><strong>204 No Content</strong>:
+  Indicates a successful request <strong>without</strong> a response body being sent.</li>
+</ul>
+<p>The openEO API often uses the following HTTP status codes for failed requests: </p>
+<ul>
+<li>
+<p><strong>400 Bad Request</strong>:
+  The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.</p>
+</li>
+<li>
+<p><strong>401 Unauthorized</strong>:
+  The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.</p>
+</li>
+<li>
+<p><strong>403 Forbidden</strong>:
+  The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.</p>
+</li>
+<li>
+<p><strong>404 Not Found</strong>:
+  The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
+  <em>Note:</em> Unsupported endpoints MUST use HTTP status code 501.</p>
+</li>
+<li>
+<p><strong>500 Internal Server Error</strong>:
+  The error has its origin on server side and no other status code in the 500 range is suitable.</p>
+</li>
+<li>
+<p><strong>501 Not Implemented</strong>:
+  An endpoint is specified in the openEO API, but is not supported.</p>
+</li>
+</ul>
+<p>If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.</p>
+<p>All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.</p>
+<h2 id="openeo-error-codes">openEO error codes<a class="headerlink" href="#openeo-error-codes" title="Permanent link">&para;</a></h2>
+<p>The following table of error codes is <strong>incomplete</strong>. These error codes will evolve over time. If you are missing any common error, please contribute it by adding an <a href="https://github.com/Open-EO/openeo-api/issues/new">issue</a>, creating a pull request or get in contact in our <a href="https://openeo-chat.eodc.eu/channel/public">chat room</a>.</p>
+<p>The whole table of error codes is available as <a href="../errors.json">JSON file</a>, which can be used by implementors to automatically generate error responses.</p>
+<h3>Categories</h3>
+
+<ul><li><a href='#account_management'>Account Management</a></li><li><a href='#eo_data_discovery'>EO Data Discovery</a></li><li><a href='#file_management'>File Management</a></li><li><a href='#general'>General</a></li><li><a href='#job_management'>Job Management</a></li><li><a href='#process_graph_management'>Process Graph Management</a></li><li><a href='#processes'>Processes</a></li><li><a href='#secondary_services_management'>Secondary Services Management</a></li><li><a href='#subscriptions'>Subscriptions</a></li></ul>
+
+<p><a name='account_management'></a><h3>Account Management</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>AuthenticationRequired</td><td>The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.</td><td>Unauthorized.</td><td>401</td></tr><tr><td>AuthenticationSchemeInvalid</td><td>Invalid authentication scheme (e.g. Bearer).</td><td>Authentication method not supported.</td><td>403</td></tr><tr><td>CredentialsInvalid</td><td></td><td>Credentials are not correct.</td><td>403</td></tr><tr><td>TokenInvalid</td><td>Authorization token invalid or expired.</td><td>Session has expired.</td><td>403</td></tr></table><a name='eo_data_discovery'></a><h3>EO Data Discovery</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>CollectionNotFound</td><td>The requested collection does not exist.</td><td>Collection does not exist.</td><td>404</td></tr></table><a name='file_management'></a><h3>File Management</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>ContentTypeInvalid</td><td>The specified media (MIME) type used in the Content-Type header is not allowed.</td><td>The media type is not supported. Allowed: {types}</td><td>400</td></tr><tr><td>FileContentInvalid</td><td>The content of the file is invalid.</td><td>File content is invalid.</td><td>400</td></tr><tr><td>FileLocked</td><td>The file is locked by a running job or another process.</td><td>File '{file}' is locked.</td><td>400</td></tr><tr><td>FileNotFound</td><td>The requested file does not exist.</td><td>File does not exist.</td><td>404</td></tr><tr><td>FileOperationUnsupported</td><td>The specified path is not a file and the operation is only supported for files. Path is likely a directory.</td><td>Operation is only supported for files.</td><td>400</td></tr><tr><td>FilePathInvalid</td><td>The specified path is invalid or not accessible. Path could contain invalid characters, an invalid user ID or point to an existing folder or a location outside of the user folder.</td><td>File path is invalid.</td><td>400</td></tr><tr><td>FileSizeExceeded</td><td>File exceeds allowed maximum file size.</td><td>File size it too large. Maximum file size: {size}</td><td>400</td></tr><tr><td>FileTypeInvalid</td><td>File format, file extension or media (MIME) type is not allowed.</td><td>File type not allowed. Allowed file types: {types}</td><td>400</td></tr><tr><td>StorageFailure</td><td>Server couldn't store file(s) due to server-side reasons.</td><td>Unable to store file(s).</td><td>500</td></tr><tr><td>StorageQuotaExceeded</td><td>The storage quota has been exceeded by the user.</td><td>Insufficient Storage.</td><td>400</td></tr></table><a name='general'></a><h3>General</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>ContentTypeInvalid</td><td>The specified media (MIME) type used in the Content-Type header is not allowed.</td><td>The media type is not supported. Allowed: {types}</td><td>400</td></tr><tr><td>FeatureUnsupported</td><td>The back-end responds with this error whenever an endpoint is specified in the openEO API, but is not supported.</td><td>Feature not supported.</td><td>501</td></tr><tr><td>InfrastructureBusy</td><td>Service is generally available, but the infrastructure can't handle it at the moment as too many requests are processed.</td><td>Service is not available at the moment due to overloading. Please try again later.</td><td>503</td></tr><tr><td>InfrastructureMaintenance</td><td>Service is currently not available, but the infrastructure is currently undergoing maintenance work.</td><td>Service is not available at the moment due to maintenance work. Please try again later.</td><td>503</td></tr><tr><td>Internal</td><td>An internal server error with a proprietary message.</td><td>Server error: {message}</td><td>500</td></tr><tr><td>NotFound</td><td>To be used if the requested resource does not exist. Note: Unsupported endpoints MUST send an 'FeatureUnsupported' error. There are also specialized errors for missing jobs (JobNotFound), files (FileNotFound), etc.</td><td>Resource not found.</td><td>404</td></tr><tr><td>Timeout</td><td>The request took too long and timed out.</td><td>Request timed out.</td><td>408</td></tr></table><a name='job_management'></a><h3>Job Management</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>BillingPlanInvalid</td><td>The billing plan is not on the list of available plans.</td><td>The billing plan is not valid.</td><td>400</td></tr><tr><td>BudgetInvalid</td><td>The budget is too low as it is either smaller than or equal to 0 or below the costs.</td><td>The budget is too low.</td><td>400</td></tr><tr><td>FormatArgumentInvalid</td><td></td><td>The output format argument '{argument}' is invalid: {reason}</td><td>400</td></tr><tr><td>FormatArgumentUnsupported</td><td></td><td>Output format argument '{argument}' is not supported.</td><td>400</td></tr><tr><td>FormatUnsuitable</td><td></td><td>Data can't be transformed into the requested output format.</td><td>400</td></tr><tr><td>FormatUnsupported</td><td></td><td>Output format not supported.</td><td>400</td></tr><tr><td>JobLocked</td><td>The job is currently locked due to a running batch computation and can't be modified meanwhile.</td><td>Job is locked due to a queued or running batch computation.</td><td>400</td></tr><tr><td>JobNotFinished</td><td></td><td>Job has not finished computing the results yet. Please try again later.</td><td>400</td></tr><tr><td>JobNotFound</td><td>The requested job does not exist.</td><td>The job does not exist.</td><td>404</td></tr><tr><td>JobNotStarted</td><td>Job has not been queued or started yet or was canceled and not restarted by the user.</td><td>Job hasn't been started yet.</td><td>400</td></tr><tr><td>NoDataForUpdate</td><td>For PATCH requests: No valid data specified at all.</td><td>No valid data specified to be updated.</td><td>400</td></tr><tr><td>PaymentRequired</td><td>The budget required to fulfil the request are insufficient.</td><td>Payment required.</td><td>402</td></tr><tr><td>ProcessGraphMissing</td><td></td><td>No valid process graph specified.</td><td>400</td></tr><tr><td>PropertyNotEditable</td><td>For PATCH requests: The specified parameter can't be updated. It is read-only.</td><td>Property '{property}' is read-only.</td><td>400</td></tr><tr><td>StorageFailure</td><td>Server couldn't store file(s) due to server-side reasons.</td><td>Unable to store file(s).</td><td>500</td></tr><tr><td>StorageQuotaExceeded</td><td>The storage quota has been exceeded by the user.</td><td>Insufficient Storage.</td><td>400</td></tr><tr><td>Timeout</td><td>The request took too long and timed out.</td><td>Request timed out.</td><td>408</td></tr><tr><td>VariableDefaultValueTypeInvalid</td><td></td><td>The default value for the process graph variable '{variable_id}' is not of type '{type}'.</td><td>400</td></tr><tr><td>VariableIdInvalid</td><td></td><td>A specified variable ID is not valid.</td><td>400</td></tr><tr><td>VariableTypeInvalid</td><td></td><td>The data type for the process graph variable '{variable_id}' is invalid. Must be one of: string, boolean, number, array or object.</td><td>400</td></tr><tr><td>VariableValueMissing</td><td></td><td>No value specified for process graph variable '{variable_id}'.</td><td>400</td></tr></table><a name='process_graph_management'></a><h3>Process Graph Management</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>NoDataForUpdate</td><td>For PATCH requests: No valid data specified at all.</td><td>No valid data specified to be updated.</td><td>400</td></tr><tr><td>ProcessGraphMissing</td><td></td><td>No valid process graph specified.</td><td>400</td></tr><tr><td>ProcessGraphNotFound</td><td>The requested process graph does not exist.</td><td>Process graph does not exist.</td><td>404</td></tr><tr><td>PropertyNotEditable</td><td>For PATCH requests: The specified parameter can't be updated. It is read-only.</td><td>Property '{property}' is read-only.</td><td>400</td></tr><tr><td>VariableDefaultValueTypeInvalid</td><td></td><td>The default value for the process graph variable '{variable_id}' is not of type '{type}'.</td><td>400</td></tr><tr><td>VariableIdInvalid</td><td></td><td>A specified variable ID is not valid.</td><td>400</td></tr><tr><td>VariableTypeInvalid</td><td></td><td>The data type for the process graph variable '{variable_id}' is invalid. Must be one of: string, boolean, number, array or object.</td><td>400</td></tr><tr><td>VariableValueMissing</td><td></td><td>No value specified for process graph variable '{variable_id}'.</td><td>400</td></tr></table><a name='processes'></a><h3>Processes</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>CRSInvalid</td><td>Invalid or unsupported CRS specified.</td><td>CRS '{crs}' is invalid.</td><td>400</td></tr><tr><td>CollectionNotFound</td><td>The requested collection does not exist.</td><td>Collection does not exist.</td><td>404</td></tr><tr><td>CoordinateOutOfBounds</td><td></td><td>Coordinate is out of bounds.</td><td>400</td></tr><tr><td>FileContentInvalid</td><td>The content of the file is invalid.</td><td>File content is invalid.</td><td>400</td></tr><tr><td>FileNotFound</td><td>The requested file does not exist.</td><td>File does not exist.</td><td>404</td></tr><tr><td>JobNotFound</td><td>The requested job does not exist.</td><td>The job does not exist.</td><td>404</td></tr><tr><td>ProcessArgumentInvalid</td><td></td><td>The argument '{argument}' in process '{process}' is invalid: {reason}</td><td>400</td></tr><tr><td>ProcessArgumentRequired</td><td></td><td>Process '{process}' requires argument '{argument}'.</td><td>400</td></tr><tr><td>ProcessArgumentUnsupported</td><td></td><td>Process '{process}' does not support argument '{argument}'.</td><td>400</td></tr><tr><td>ProcessArgumentsMissing</td><td></td><td>Process '{process}' requires at least {min_parameters} parameters.</td><td>400</td></tr><tr><td>ProcessUnsupported</td><td></td><td>Process '{process}' is not supported.</td><td>400</td></tr></table><a name='secondary_services_management'></a><h3>Secondary Services Management</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>BillingPlanInvalid</td><td>The billing plan is not on the list of available plans.</td><td>The billing plan is not valid.</td><td>400</td></tr><tr><td>BudgetInvalid</td><td>The budget is too low as it is either smaller than or equal to 0 or below the costs.</td><td>The budget is too low.</td><td>400</td></tr><tr><td>NoDataForUpdate</td><td>For PATCH requests: No valid data specified at all.</td><td>No valid data specified to be updated.</td><td>400</td></tr><tr><td>PaymentRequired</td><td>The budget required to fulfil the request are insufficient.</td><td>Payment required.</td><td>402</td></tr><tr><td>ProcessGraphMissing</td><td></td><td>No valid process graph specified.</td><td>400</td></tr><tr><td>PropertyNotEditable</td><td>For PATCH requests: The specified parameter can't be updated. It is read-only.</td><td>Property '{property}' is read-only.</td><td>400</td></tr><tr><td>ServiceArgumentInvalid</td><td></td><td>The secondary service argument '{argument}' is invalid: {reason}</td><td>400</td></tr><tr><td>ServiceArgumentRequired</td><td></td><td>Required secondary service argument '{argument}' is missing.</td><td>400</td></tr><tr><td>ServiceArgumentUnsupported</td><td></td><td>Secondary service argument '{argument}' is not supported.</td><td>400</td></tr><tr><td>ServiceNotFound</td><td>The requested secondary service does not exist.</td><td>Service does not exist.</td><td>404</td></tr><tr><td>ServiceUnsupported</td><td></td><td>Secondary service type is not supported.</td><td>400</td></tr><tr><td>VariableValueMissing</td><td></td><td>No value specified for process graph variable '{variable_id}'.</td><td>400</td></tr></table><a name='subscriptions'></a><h3>Subscriptions</h3><table><tr><th>openEO Error Code</th><th>Description</th><th>Message</th><th>HTTP Status Code</th></tr><tr><td>WebSocketUpgradeNotRequested</td><td>In order to subscribe the connection must be upgradable to WebSockets.</td><td>Client sent invalid request to establish subscriptions.</td><td>400</td></tr></table></p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../processgraphs/" title="Process Graphs" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Process Graphs
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../cors/" title="CORS" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                CORS
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.245445c6.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>
