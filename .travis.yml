@@ -3,7 +3,8 @@ language: python
 python:
 - "3.5"
 
-node_js: 8
+node_js:
+- "8"
 
 sudo: required
 
@@ -12,6 +13,9 @@ before_install:
 - speccy lint openapi.json -r "speccy.yml"
 - pip install openapi-spec-validator
 - openapi-spec-validator openapi.json
+# DIY example validation (PR#194)
+- pip install -r tests/requirements.txt
+- pytest tests
 
 install:
 - pip install mkdocs
@@ -21,10 +25,8 @@ install:
 - pip install pygments
 - npm install -g asyncapi-generator@0.6.7 # 0.7 only supports AsyncAPI 2.0
 - npm install -g concat-json-files
-- pip install -r tests/requirements.txt  # DIY example validation (PR#194)
 
 script:
-- pytest tests  # DIY example validation (PR#194)
 - concat-json-files "processes/*.json" -t "processes.json"
 - mv CHANGELOG.md docs/changelog.md
 - ag subscriptions.json markdown

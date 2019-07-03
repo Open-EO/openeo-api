@@ -821,16 +821,17 @@
                             "minItems": 2,
                             "maxItems": 2,
                             "items": {
+                              "nullable": true,
                               "anyOf": [
                                 {
-                                  "type": "number"
+                                  "type": "number",
+                                  "nullable": true
                                 },
                                 {
                                   "type": "string",
                                   "format": "date-time"
                                 }
-                              ],
-                              "nullable": true
+                              ]
                             }
                           },
                           "values": {
@@ -838,9 +839,11 @@
                             "description": "If the property consists of [nominal](https://en.wikipedia.org/wiki/Level_of_measurement#Nominal_level), a set of all potential values can be specified. Only primitive data types allowed.",
                             "type": "array",
                             "items": {
+                              "nullable": true,
                               "anyOf": [
                                 {
-                                  "type": "number"
+                                  "type": "number",
+                                  "nullable": true
                                 },
                                 {
                                   "type": "string"
@@ -852,8 +855,7 @@
                                 {
                                   "type": "boolean"
                                 }
-                              ],
-                              "nullable": true
+                              ]
                             }
                           }
                         }
@@ -4114,6 +4116,10 @@
             "nullable": true,
             "anyOf": [
               {
+                "type": "object",
+                "nullable": true
+              },
+              {
                 "type": "string"
               },
               {
@@ -4125,9 +4131,6 @@
               },
               {
                 "type": "boolean"
-              },
-              {
-                "type": "object"
               },
               {
                 "$ref": "#/components/schemas/process_graph"
@@ -4173,6 +4176,11 @@
         "nullable": true,
         "anyOf": [
           {
+            "type": "object",
+            "nullable": true,
+            "title": "Object"
+          },
+          {
             "type": "string",
             "title": "String"
           },
@@ -4183,10 +4191,6 @@
           {
             "type": "boolean",
             "title": "Boolean"
-          },
-          {
-            "type": "object",
-            "title": "Object"
           },
           {
             "type": "array",
@@ -4210,7 +4214,8 @@
                 "description": "The ID of the node that data is expected to come from.",
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": false
           },
           {
             "type": "object",
@@ -4224,7 +4229,8 @@
                 "description": "The name of the parameter that is made available to a callback by a calling process.",
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": false
           },
           {
             "type": "object",
@@ -4237,7 +4243,8 @@
               "callback": {
                 "$ref": "#/components/schemas/process_graph"
               }
-            }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -4593,7 +4600,9 @@
                 "arguments": {
                   "$ref": "#/components/schemas/process_arguments"
                 },
-                "returns": {}
+                "returns": {
+                  "nullable": true
+                }
               }
             }
           },
