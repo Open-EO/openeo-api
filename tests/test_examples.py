@@ -1,3 +1,11 @@
+"""
+
+DIY validation of openapi.json examples against their corresponding schema (PR#194).
+Currently implemented as pytest based test suite due to lack of this
+validation feature in speccy itself (see https://github.com/wework/speccy/issues/287)
+
+"""
+
 import json
 from pathlib import Path
 
