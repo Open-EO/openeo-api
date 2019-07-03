@@ -4,14 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.4.2] - 2019-06-11
 
 ### Fixed
-- Improved documentation with clarifications and more.
-- Fixed invalid examples
+- Improved documentation with several clarifications, better examples and more.
 - SAR Bands had a required but undefined property. [#187](https://github.com/Open-EO/openeo-api/issues/187)
-- [Removed `null` from SAR Bands enum, is handled by `nullable`](https://github.com/OAI/OpenAPI-Specification/issues/1900).
-- [`nullable` doesn't combine well with `anyOf`, `allOf` and `oneOf`, therefore placed `nullable` in the sub-schemas](https://github.com/OAI/OpenAPI-Specification/issues/1368).
+- OpenAPI nullable issues:
+  - Removed `null` from SAR Bands `enum` for OpenAPI code generator, is handled by `nullable`. [OpenAPI-Specification#1900](https://github.com/OAI/OpenAPI-Specification/issues/1900)
+  - `nullable` doesn't combine well with `anyOf`, `allOf` and `oneOf`, therefore placed `nullable` also in one of the sub-schemas.  [OpenAPI-Specification#1368](https://github.com/OAI/OpenAPI-Specification/issues/1368)
 
 ## [0.4.1] - 2019-05-29
 
