@@ -124,11 +124,11 @@ Resampling from finer to coarser grid is a special case of aggregation often cal
 
 When the target grid or time series has a lower resolution (larger grid cells) or lower frequency (longer time intervals) than the source grid, aggregation might be used for resampling. For example, if the resolutions are similar, (e.g. the source collection provides 10 day intervals and the target needs values for 16 day intervals), then some form of interpolation may be more appropriate than aggregation as defined here.
 
-### User-defined function (UDF)
+## User-defined function (UDF)
 
 The abbreviation **UDF** stands for **user-defined function**. With this concept, users are able to upload custom code and have it executed e.g. for every pixel of a scene, or applied to a particular dimension or set of dimensions, allowing custom server-side calculations. See the section on [UDFs](udfs.md) for more information.
 
-# Data Processing modes
+## Data Processing modes
 
 Process graphs can be processed in three different ways:
 

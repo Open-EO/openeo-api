@@ -6,7 +6,7 @@ First of all, you should go through the list of [openEO repositories](https://gi
 
 If your preferred technology has no back-end driver yet, you may consider writing your own driver. All software written for openEO should follow the [software development guidelines](guidelines-software.md).
 
-You certainly need to understand the [architecture](arch.md) of openEO and concepts behind [jobs](jobs.md), [processes](processes.md) and [process graphs](processgraphs.md). This helps you read and understand the [API specification](apireference.md). Technical API related documents like [CORS](cors.md) and [error handing](errors.md) should be read, too.
+You certainly need to understand the [glossary](glossary.md), the [architecture](arch.md) of openEO and the concepts behind [processes](processes.md) and [process graphs](processgraphs.md). This helps you read and understand the [API specification](apireference.md). Technical API related documents like [CORS](cors.md) and [error handing](errors.md) should be read, too.
 
 If you do not want to start from scratch, you could try to generate a server stub from the [OpenAPI 3.0](https://www.openapis.org/)-based [API specification](apireference.md) with the [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator).
 If you are using Python to implement your driver you may reuse some common modules of the existing driver implementations:
