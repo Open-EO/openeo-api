@@ -284,3 +284,206 @@ To process the process graph on the back-end you need to go through all nodes/pr
 You can now start and execute the start nodes (in parallel if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
 
 Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
+
+### Process graph validation
+
+Process graph validation is a quite complex task. Below you can find a process graph JSON schema for basic validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
+
+1. Validate whether there's exactly one `result: true` per process graph.
+2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
+4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
+5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
+6. Validate whether the data types of process graph variables are compatible to the JSON schema of the parameters.
+7. Check the content of arrays and objects. These could include variables and other references (`from_node`, `from_argument` etc.). Note that this is a very complex validation step and [still under discussions in issue #183](https://github.com/Open-EO/openeo-api/issues/183).
+
+```json
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "title":"Process Graph",
+  "description":"A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+  "allOf":[
+    {
+      "$ref":"#/definitions/process_graph"
+    }
+  ],
+  "definitions":{
+    "process_graph":{
+      "title":"Process Graph",
+      "type":"object",
+      "additionalProperties":{
+        "$ref":"#/definitions/process_node"
+      }
+    },
+    "process_node":{
+      "title":"Process Node",
+      "type":"object",
+      "required":[
+        "process_id",
+        "arguments"
+      ],
+      "properties":{
+        "process_id":{
+          "$ref":"#/definitions/process_id"
+        },
+        "result":{
+          "type":"boolean",
+          "default":false
+        },
+        "description":{
+          "type":[
+            "string",
+            "null"
+          ]
+        },
+        "arguments":{
+          "$ref":"#/definitions/process_arguments"
+        }
+      }
+    },
+    "process_arguments":{
+      "title":"Process Arguments",
+      "type":"object",
+      "additionalProperties":{
+        "$ref":"#/definitions/process_argument_value"
+      }
+    },
+    "process_argument_value":{
+      "title":"Process Argument Value",
+      "anyOf":[
+        {
+          "type":"null"
+        },
+        {
+          "type":"object",
+          "title":"Object"
+        },
+        {
+          "type":"string",
+          "title":"String"
+        },
+        {
+          "type":"number",
+          "title":"Number (incl. integers)"
+        },
+        {
+          "type":"boolean",
+          "title":"Boolean"
+        },
+        {
+          "type":"array",
+          "title":"Array",
+          "items":{
+            "$ref":"#/definitions/process_argument_value"
+          }
+        },
+        {
+          "$ref":"#/definitions/variable"
+        },
+        {
+          "type":"object",
+          "title":"Result",
+          "required":[
+            "from_node"
+          ],
+          "properties":{
+            "from_node":{
+              "type":"string"
+            }
+          },
+          "additionalProperties":false
+        },
+        {
+          "type":"object",
+          "title":"Callback Parameter",
+          "required":[
+            "from_argument"
+          ],
+          "properties":{
+            "from_argument":{
+              "type":"string"
+            }
+          },
+          "additionalProperties":false
+        },
+        {
+          "type":"object",
+          "title":"Callback",
+          "required":[
+            "callback"
+          ],
+          "properties":{
+            "callback":{
+              "$ref":"#/definitions/process_graph"
+            }
+          },
+          "additionalProperties":false
+        }
+      ]
+    },
+    "variable":{
+      "title":"Process Graph Variable",
+      "type":"object",
+      "required":[
+        "variable_id"
+      ],
+      "properties":{
+        "variable_id":{
+          "type":"string"
+        },
+        "type":{
+          "type":"string",
+          "enum":[
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "array",
+            "object"
+          ],
+          "default":"string"
+        },
+        "description":{
+          "type":[
+            "string",
+            "null"
+          ]
+        },
+        "default":{
+          "anyOf":[
+            {
+              "type":"null"
+            },
+            {
+              "type":"object"
+            },
+            {
+              "type":"string"
+            },
+            {
+              "type":"number"
+            },
+            {
+              "type":"array",
+              "items":{
+                "description": "Any type is allowed."
+              }
+            },
+            {
+              "type":"boolean"
+            },
+            {
+              "$ref":"#/definitions/process_graph"
+            }
+          ]
+        }
+      }
+    },
+    "process_id":{
+      "type":"string",
+      "format":"process-id",
+      "pattern":"^[A-Za-z0-9_]+$"
+    }
+  }
+}
+```
