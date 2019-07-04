@@ -15,6 +15,8 @@ A process graph is defined to be a map of connected processes with exactly one n
 
 `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
 
+Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
+
 ### Processes (Process Nodes)
 
 A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
