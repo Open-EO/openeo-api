@@ -32,7 +32,7 @@ In openEO, a back-end offers a set of collections to be processed. All collectio
 ## Spatial data cubes
 
 A *spatiotemporal* data cube is a multidimensional array with one or more spatial or temporal dimensions.
-In EO it common to be implicit about the time dimension and just refer to them as *spatial* data cubes in short.
+In the EO domain, it is common to be implicit about the temporal dimension and just refer to them as *spatial* data cubes in short.
 Special cases are raster and vector data cubes.
 
 The figure below shows the data of
