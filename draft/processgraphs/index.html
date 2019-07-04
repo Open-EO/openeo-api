@@ -518,6 +518,19 @@
     Remarks for back-end processing
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-graph-validation" title="Process graph validation" class="md-nav__link">
+    Process graph validation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
       
@@ -728,6 +741,19 @@
   <a href="#remarks-for-back-end-processing" title="Remarks for back-end processing" class="md-nav__link">
     Remarks for back-end processing
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#process-graph-validation" title="Process graph validation" class="md-nav__link">
+    Process graph validation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -991,6 +1017,206 @@ and <code>absolute</code> expects an argument with the same name coincidentally.
 <p>To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.</p>
 <p>You can now start and execute the start nodes (in parallel if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.</p>
 <p>Please be aware that the result node (<code>result</code> set to <code>true</code>) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!</p>
+<h3 id="process-graph-validation">Process graph validation<a class="headerlink" href="#process-graph-validation" title="Permanent link">&para;</a></h3>
+<p>Process graph validation is a quite complex task. Below you can find a process graph JSON schema for basic validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:</p>
+<ol>
+<li>Validate whether there's exactly one <code>result: true</code> per process graph.</li>
+<li>Check whether the process names that are referenced in the field <code>process_id</code> are actually available. There's a custom format <code>process-id</code>, which can be used to check the value directly during validation against the JSON Schema.</li>
+<li>Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.</li>
+<li>Check whether the values specified for <code>from_node</code> have a corresponding node in the same process graph.</li>
+<li>Validate whether the return value and the arguments requesting a return value with <code>from_node</code> are compatible.</li>
+<li>Validate whether the data types of process graph variables are compatible to the JSON schema of the parameters.</li>
+<li>Check the content of arrays and objects. These could include variables and other references (<code>from_node</code>, <code>from_argument</code> etc.). Note that this is a very complex validation step and <a href="https://github.com/Open-EO/openeo-api/issues/183">still under discussions in issue #183</a>.</li>
+</ol>
+<div class="codehilite"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="s2">&quot;http://json-schema.org/draft-07/schema#&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Graph&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;allOf&quot;</span><span class="p">:[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_graph&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;definitions&quot;</span><span class="p">:{</span>
+    <span class="nt">&quot;process_graph&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Graph&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;additionalProperties&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_node&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;process_node&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Node&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;required&quot;</span><span class="p">:[</span>
+        <span class="s2">&quot;process_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arguments&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;properties&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;process_id&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_id&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;result&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;null&quot;</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;arguments&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_arguments&quot;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;process_arguments&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Arguments&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;additionalProperties&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_argument_value&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;process_argument_value&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Argument Value&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;anyOf&quot;</span><span class="p">:[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;null&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Object&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;String&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;number&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Number (incl. integers)&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Boolean&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Array&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;items&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_argument_value&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/variable&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Result&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;required&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;from_node&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;properties&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;from_node&quot;</span><span class="p">:{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Callback Parameter&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;required&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;from_argument&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;properties&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;from_argument&quot;</span><span class="p">:{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Callback&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;required&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;callback&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;properties&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;callback&quot;</span><span class="p">:{</span>
+              <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_graph&quot;</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="kc">false</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;variable&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="s2">&quot;Process Graph Variable&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;required&quot;</span><span class="p">:[</span>
+        <span class="s2">&quot;variable_id&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;properties&quot;</span><span class="p">:{</span>
+        <span class="nt">&quot;variable_id&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+          <span class="nt">&quot;enum&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;object&quot;</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:[</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;null&quot;</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;default&quot;</span><span class="p">:{</span>
+          <span class="nt">&quot;anyOf&quot;</span><span class="p">:[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;null&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;object&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;number&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;items&quot;</span><span class="p">:{</span>
+                <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Any type is allowed.&quot;</span>
+              <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;boolean&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;$ref&quot;</span><span class="p">:</span><span class="s2">&quot;#/definitions/process_graph&quot;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;process_id&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="s2">&quot;process-id&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="s2">&quot;^[A-Za-z0-9_]+$&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
                 
                   
                 
