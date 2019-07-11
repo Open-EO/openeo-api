@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2019-06-11
+
+### Changed
+- Updated the process catalog, see the separate changelog.
+
+### Added
+- Basic JSON Schema for process graph validation.
+
+### Removed
+- Disallowed CommonMark in descriptions of process graph variables and process graph nodes.
+
+### Fixed
+- Improved documentation with several clarifications, better examples and more.
+- SAR Bands had a required but undefined property. [#187](https://github.com/Open-EO/openeo-api/issues/187)
+- Clarified how file paths in the URL must be encoded for file handling.
+- OpenAPI `nullable` issues:
+    - Removed `null` from SAR Bands `enum` for OpenAPI code generator, is handled by `nullable`. [OpenAPI-Specification#1900](https://github.com/OAI/OpenAPI-Specification/issues/1900)
+    - `nullable` doesn't combine well with `anyOf`, `allOf` and `oneOf`, therefore placed `nullable` also in one of the sub-schemas.  [OpenAPI-Specification#1368](https://github.com/OAI/OpenAPI-Specification/issues/1368)
+
 ## [0.4.1] - 2019-05-29
 
 ### Changed

@@ -13,7 +13,9 @@ A process graph is defined to be a map of connected processes with exactly one n
 }
 ```
 
-`<ProcessNodeIdentifier>` is a unique key across the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only across the current map of processes, so excluding any parent and child process graphs. This means all identifier are strictly scoped and can not be used in child or parent process graphs. Please note that circular references are not allowed.
+`<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
+
+Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
 
 ### Processes (Process Nodes)
 
@@ -35,9 +37,8 @@ One of the nodes in a map of processes (the final one) MUST have the `result` fl
 
 ### Arguments
 
-A process can in theory have an arbitrary number of arguments. The arguments including its names and values are specified by the process specification.
-
-Arguments are specified as an object and therefore is a simple map with key-value-pairs:
+A process can have an arbitrary number of arguments. Their name and value are specified 
+in the process specification as an object of key-value pairs:
 
 ```
 <Arguments> := {
@@ -45,7 +46,7 @@ Arguments are specified as an object and therefore is a simple map with key-valu
 }
 ```
 
-The key `<ArgumentValue>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and MUST limit the characters to letters (a-z), numbers and underscores.
+The key `<ParameterName>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) and MUST limit the characters to letters (a-z), numbers and underscores.
 
 A value is defined as follows:
 
@@ -53,30 +54,34 @@ A value is defined as follows:
 <ArgumentValue> := <string|number|boolean|null|array|object|Callback|CallbackParameter|Result|Variable>
 ```
 
-**Note**: The specified data types except `Callback`, `CallbackParameter`, `Result` and `Variable` are the native data types supported by JSON. Limitations apply as objects are not allowed to have keys with the following names:
+Notes:
+- The specified value types, except `Callback`, `CallbackParameter`, `Result` and `Variable`, are the native data types supported by JSON. 
+- Object-type values are not allowed to have keys with the following names:
 
-* `variable_id`, except for objects of type `Variable`
-* `from_argument`, except for objects of type `CallbackParameter`
-* `from_node`, except for objects of type `Result`
+    * `variable_id`, except for objects of type `Variable`
+    * `from_argument`, except for objects of type `CallbackParameter`
+    * `from_node`, except for objects of type `Result`
+
+- A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
+
+    ```
+    <Result> := {
+      "from_node": <ProcessNodeIdentifier>
+    }
+    ```
+
+    Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
+
+- For `Variable`, `Callback` and `CallbackParameter` see the sections below.
+
 
 **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
-`<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
-
-
-```
-<Result> := {
-  "from_node": <ProcessNodeIdentifier>
-}
-```
-
-Please note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
-
-For `Variable`, `Callback` and `CallbackParameter` see the following sections.
 
 ### Callbacks
 
-Callbacks are simply specifying a process graph to be evaluated as part of another process. A callback object is a simple object with a single property `callback` that stores a process graph:
+A callback is a "child" process graph to be evaluated as part of another process.
+A callback object (given as argument to its "parent" process) is a simple object with a single property `callback` that specifies a process graph:
 
 ```
 <Callback> := {
@@ -84,9 +89,12 @@ Callbacks are simply specifying a process graph to be evaluated as part of anoth
 }
 ```
 
-For example, you'd like to iterate over an array and want to apply another process `abs` (absolute value) on each value in the array. You can do so by executing `apply` in openEO (often also called `map` in other languages) and pass as callback the process `abs`, which is wrapped in a process graph.
+For example, you want to iterate over an array and calculate the absolute value of each value in the array.
+You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass the `absolute` process as callback, wrapped in a process graph.
 
-The values passed from `apply` to `abs` are the callback parameters, which you can also "expect", similar to return values of processes (see above). You can use an object of type `CallbackParameter` with with a key `from_argument` with the callback parameter name as value:
+The values passed from the "parent" process (`apply` in the example) to the "child" process (`absolute` in the example) are the *callback parameters*. 
+You link them to the desired arguments of the child process through the `CallbackParameter` value type (similar to the `Result` type discussed above).
+It is a simple object with key `from_argument` specifying the callback parameter name: 
 
 ```
 <CallbackParameter> := {
@@ -94,9 +102,36 @@ The values passed from `apply` to `abs` are the callback parameters, which you c
 }
 ```
 
-Please note that the `<CallbackParameterName>` is also strictly scoped and can not be referenced in child or parent process graphs. 
+The available callback parameter names (`<CallbackParameterName>`) are defined by the processes.
+See the [`parameters` property](processes.md#callbacks) in the documentation or JSON schema of the callback argument of the process.
 
-The callback parameter names (`<CallbackParameterName>`) are defined by the processes. See the [`parameters` property](processes.md#callbacks) in the JSON schema of the parameter.
+In case of the `apply-absolute` example, `apply` provides a callback parameter named `x` 
+and `absolute` expects an argument with the same name coincidentally.
+`loadcollection1` would be a result from another process (not defined in this example):
+
+```
+{
+  "process_id": "apply",
+  "arguments": {
+    "data": {"from_node": "loadcollection1"}
+    "process": {
+      "callback": {
+        "abs1": {
+          "process_id": "absolute",
+          "arguments: {
+            "x": {"from_argument": "x"}
+          },
+          "result": true
+        }
+      }
+    }
+  }
+}
+```
+
+
+Please note that the `<CallbackParameterName>` is also strictly scoped within the callback process graph and can not be referenced from other process graphs. 
+
 
 ### Variables
 
@@ -117,7 +152,7 @@ The value for `type` is the expected data type for the content of the variable a
 
 The value for `variable_id` is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`.
 
-Whenever no value for the variable is defined the `default` value is used or the process graph is rejected if not default value has been specified.
+Whenever no value for the variable is defined, the `default` value is used or the process graph is rejected if not default value has been specified.
 
 ## Example
 
@@ -131,7 +166,7 @@ The process graph representing the algorithm:
 {
   "dc": {
     "process_id": "load_collection",
-    "process_description": "Loading the data; The order of the specified bands is important for the following reduce operation.",
+    "description": "Loading the data; The order of the specified bands is important for the following reduce operation.",
     "arguments": {
       "id": "Sentinel-2",
       "spatial_extent": {
@@ -146,7 +181,7 @@ The process graph representing the algorithm:
   },
   "evi": {
     "process_id": "reduce",
-    "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
+    "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
     "arguments": {
       "data": {"from_node": "dc"},
       "dimension": "spectral",
@@ -216,7 +251,7 @@ The process graph representing the algorithm:
   },
   "mintime": {
     "process_id": "reduce",
-    "process_description": "Compute a minimum time composite by reducing the temporal dimension",
+    "description": "Compute a minimum time composite by reducing the temporal dimension",
     "arguments": {
       "data": {"from_node": "evi"},
       "dimension": "temporal",
@@ -251,3 +286,206 @@ To process the process graph on the back-end you need to go through all nodes/pr
 You can now start and execute the start nodes (in parallel if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
 
 Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
+
+### Process graph validation
+
+Process graph validation is a quite complex task. Below you can find a process graph JSON schema for basic validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
+
+1. Validate whether there's exactly one `result: true` per process graph.
+2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
+4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
+5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
+6. Validate whether the data types of process graph variables are compatible to the JSON schema of the parameters.
+7. Check the content of arrays and objects. These could include variables and other references (`from_node`, `from_argument` etc.). Note that this is a very complex validation step and [still under discussions in issue #183](https://github.com/Open-EO/openeo-api/issues/183).
+
+```json
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "title":"Process Graph",
+  "description":"A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+  "allOf":[
+    {
+      "$ref":"#/definitions/process_graph"
+    }
+  ],
+  "definitions":{
+    "process_graph":{
+      "title":"Process Graph",
+      "type":"object",
+      "additionalProperties":{
+        "$ref":"#/definitions/process_node"
+      }
+    },
+    "process_node":{
+      "title":"Process Node",
+      "type":"object",
+      "required":[
+        "process_id",
+        "arguments"
+      ],
+      "properties":{
+        "process_id":{
+          "$ref":"#/definitions/process_id"
+        },
+        "result":{
+          "type":"boolean",
+          "default":false
+        },
+        "description":{
+          "type":[
+            "string",
+            "null"
+          ]
+        },
+        "arguments":{
+          "$ref":"#/definitions/process_arguments"
+        }
+      }
+    },
+    "process_arguments":{
+      "title":"Process Arguments",
+      "type":"object",
+      "additionalProperties":{
+        "$ref":"#/definitions/process_argument_value"
+      }
+    },
+    "process_argument_value":{
+      "title":"Process Argument Value",
+      "anyOf":[
+        {
+          "type":"null"
+        },
+        {
+          "type":"object",
+          "title":"Object"
+        },
+        {
+          "type":"string",
+          "title":"String"
+        },
+        {
+          "type":"number",
+          "title":"Number (incl. integers)"
+        },
+        {
+          "type":"boolean",
+          "title":"Boolean"
+        },
+        {
+          "type":"array",
+          "title":"Array",
+          "items":{
+            "$ref":"#/definitions/process_argument_value"
+          }
+        },
+        {
+          "$ref":"#/definitions/variable"
+        },
+        {
+          "type":"object",
+          "title":"Result",
+          "required":[
+            "from_node"
+          ],
+          "properties":{
+            "from_node":{
+              "type":"string"
+            }
+          },
+          "additionalProperties":false
+        },
+        {
+          "type":"object",
+          "title":"Callback Parameter",
+          "required":[
+            "from_argument"
+          ],
+          "properties":{
+            "from_argument":{
+              "type":"string"
+            }
+          },
+          "additionalProperties":false
+        },
+        {
+          "type":"object",
+          "title":"Callback",
+          "required":[
+            "callback"
+          ],
+          "properties":{
+            "callback":{
+              "$ref":"#/definitions/process_graph"
+            }
+          },
+          "additionalProperties":false
+        }
+      ]
+    },
+    "variable":{
+      "title":"Process Graph Variable",
+      "type":"object",
+      "required":[
+        "variable_id"
+      ],
+      "properties":{
+        "variable_id":{
+          "type":"string"
+        },
+        "type":{
+          "type":"string",
+          "enum":[
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "array",
+            "object"
+          ],
+          "default":"string"
+        },
+        "description":{
+          "type":[
+            "string",
+            "null"
+          ]
+        },
+        "default":{
+          "anyOf":[
+            {
+              "type":"null"
+            },
+            {
+              "type":"object"
+            },
+            {
+              "type":"string"
+            },
+            {
+              "type":"number"
+            },
+            {
+              "type":"array",
+              "items":{
+                "description": "Any type is allowed."
+              }
+            },
+            {
+              "type":"boolean"
+            },
+            {
+              "$ref":"#/definitions/process_graph"
+            }
+          ]
+        }
+      }
+    },
+    "process_id":{
+      "type":"string",
+      "format":"process-id",
+      "pattern":"^[A-Za-z0-9_]+$"
+    }
+  }
+}
+```
