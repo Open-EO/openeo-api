@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] - 2019-06-11
 
+### Changed
+- Updated the process catalog, see the separate changelog.
+
 ### Added
 - Basic JSON Schema for process graph validation.
 
