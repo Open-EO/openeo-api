@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SAR Bands had a required but undefined property. [#187](https://github.com/Open-EO/openeo-api/issues/187)
 - Clarified how file paths in the URL must be encoded for file handling.
 - OpenAPI `nullable` issues:
-  - Removed `null` from SAR Bands `enum` for OpenAPI code generator, is handled by `nullable`. [OpenAPI-Specification#1900](https://github.com/OAI/OpenAPI-Specification/issues/1900)
-  - `nullable` doesn't combine well with `anyOf`, `allOf` and `oneOf`, therefore placed `nullable` also in one of the sub-schemas.  [OpenAPI-Specification#1368](https://github.com/OAI/OpenAPI-Specification/issues/1368)
+    - Removed `null` from SAR Bands `enum` for OpenAPI code generator, is handled by `nullable`. [OpenAPI-Specification#1900](https://github.com/OAI/OpenAPI-Specification/issues/1900)
+    - `nullable` doesn't combine well with `anyOf`, `allOf` and `oneOf`, therefore placed `nullable` also in one of the sub-schemas.  [OpenAPI-Specification#1368](https://github.com/OAI/OpenAPI-Specification/issues/1368)
 
 ## [0.4.1] - 2019-05-29
 
