@@ -14,8 +14,8 @@
   ],
   "info": {
     "title": "openEO API",
-    "version": "0.4.1",
-    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.4.1/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.4.1/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
+    "version": "0.4.2",
+    "description": "The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.\n \n**Make sure to take account of several global API specifications**, which are not (fully) covered in this specification:\n * [Cross-Origin Resource Sharing (CORS) support](https://open-eo.github.io/openeo-api/v/0.4.2/cors/index.html) to allow browser-based access to the API.\n * [Error handling](https://open-eo.github.io/openeo-api/v/0.4.2/errors/index.html)\n * Unless otherwise stated the API works *case sensitive*.",
     "contact": {
       "name": "openEO Consortium",
       "url": "http://www.openeo.org",
@@ -28,7 +28,7 @@
   },
   "externalDocs": {
     "description": "openEO Documentation",
-    "url": "https://open-eo.github.io/openeo-api/v/0.4.1/"
+    "url": "https://open-eo.github.io/openeo-api/v/0.4.2/"
   },
   "tags": [
     {
@@ -94,7 +94,7 @@
                     "api_version": {
                       "type": "string",
                       "description": "Version number of the openEO specification this back-end implements.",
-                      "example": "0.4.1"
+                      "example": "0.4.2"
                     },
                     "backend_version": {
                       "type": "string",
@@ -340,7 +340,7 @@
                           "api_version": {
                             "type": "string",
                             "description": "Version number of the openEO specification this back-end implements.",
-                            "example": "0.4.1"
+                            "example": "0.4.2"
                           }
                         }
                       }
@@ -547,7 +547,7 @@
     "/collections": {
       "get": {
         "summary": "Basic metadata for all datasets.",
-        "description": "Lists available collections with basic information. To retrieve domain specific information (e.g. SAR) request all information for a specific collection using `GET /collections/{collection_id}`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.1/collections/), including common relation types for links, are available in the documentation.",
+        "description": "Lists available collections with basic information. To retrieve domain specific information (e.g. SAR) request all information for a specific collection using `GET /collections/{collection_id}`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.2/collections/), including common relation types for links, are available in the documentation.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -748,7 +748,7 @@
       ],
       "get": {
         "summary": "Full metadata for a specific dataset",
-        "description": "Lists all information about a specific collection specified by the identifier `collection_id`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.1/collections/), including common relation types for links, are available in the documentation.",
+        "description": "Lists all information about a specific collection specified by the identifier `collection_id`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/v/0.4.2/collections/), including common relation types for links, are available in the documentation.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -821,16 +821,17 @@
                             "minItems": 2,
                             "maxItems": 2,
                             "items": {
+                              "nullable": true,
                               "anyOf": [
                                 {
-                                  "type": "number"
+                                  "type": "number",
+                                  "nullable": true
                                 },
                                 {
                                   "type": "string",
                                   "format": "date-time"
                                 }
-                              ],
-                              "nullable": true
+                              ]
                             }
                           },
                           "values": {
@@ -838,9 +839,11 @@
                             "description": "If the property consists of [nominal](https://en.wikipedia.org/wiki/Level_of_measurement#Nominal_level), a set of all potential values can be specified. Only primitive data types allowed.",
                             "type": "array",
                             "items": {
+                              "nullable": true,
                               "anyOf": [
                                 {
-                                  "type": "number"
+                                  "type": "number",
+                                  "nullable": true
                                 },
                                 {
                                   "type": "string"
@@ -852,8 +855,7 @@
                                 {
                                   "type": "boolean"
                                 }
-                              ],
-                              "nullable": true
+                              ]
                             }
                           }
                         }
@@ -1156,7 +1158,7 @@
                       }
                     ],
                     "properties": {
-                      "cube:properties": {
+                      "cube:dimensions": {
                         "x": {
                           "type": "spatial",
                           "axis": "x",
@@ -1685,66 +1687,66 @@
                         }
                       }
                     ]
-                  }
-                },
-                "example": {
-                  "PHP7": {
-                    "description": "Just an example how to reference a docker image.",
-                    "docker": "openeo/udf-php7",
-                    "default": "latest",
-                    "tags": [
-                      "latest",
-                      "7.3.1",
-                      "7.3",
-                      "7.2"
-                    ],
-                    "links": [
-                      {
-                        "href": "https://hub.docker.com/openeo/udf-php7/"
-                      }
-                    ]
                   },
-                  "R": {
-                    "description": "R programming language with Rcpp and rmarkdown.",
-                    "default": "3.5.2",
-                    "versions": {
-                      "3.1.0": {
-                        "libraries": {
-                          "Rcpp": {
-                            "version": "1.0.10",
-                            "links": [
-                              {
-                                "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
-                              }
-                            ]
-                          },
-                          "rmarkdown": {
-                            "version": 1.7,
-                            "links": [
-                              {
-                                "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
-                              }
-                            ]
-                          }
+                  "example": {
+                    "PHP7": {
+                      "description": "Just an example how to reference a docker image.",
+                      "docker": "openeo/udf-php7",
+                      "default": "latest",
+                      "tags": [
+                        "latest",
+                        "7.3.1",
+                        "7.3",
+                        "7.2"
+                      ],
+                      "links": [
+                        {
+                          "href": "https://hub.docker.com/openeo/udf-php7/"
                         }
-                      },
-                      "3.5.2": {
-                        "libraries": {
-                          "Rcpp": {
-                            "version": "1.2.0",
-                            "links": [
-                              {
-                                "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
-                              }
-                            ]
-                          },
-                          "rmarkdown": {
-                            "version": 1.7,
-                            "links": [
-                              {
-                                "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
-                              }
-                            ]
+                      ]
+                    },
+                    "R": {
+                      "description": "R programming language with Rcpp and rmarkdown.",
+                      "default": "3.5.2",
+                      "versions": {
+                        "3.1.0": {
+                          "libraries": {
+                            "Rcpp": {
+                              "version": "1.0.10",
+                              "links": [
+                                {
+                                  "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                                }
+                              ]
+                            },
+                            "rmarkdown": {
+                              "version": "1.7.0",
+                              "links": [
+                                {
+                                  "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "3.5.2": {
+                          "libraries": {
+                            "Rcpp": {
+                              "version": "1.2.0",
+                              "links": [
+                                {
+                                  "href": "https://cran.r-project.org/web/packages/Rcpp/index.html"
+                                }
+                              ]
+                            },
+                            "rmarkdown": {
+                              "version": "1.7.0",
+                              "links": [
+                                {
+                                  "href": "https://cran.r-project.org/web/packages/rmarkdown/index.html"
+                                }
+                              ]
+                            }
                           }
                         }
                       }
@@ -3291,7 +3293,7 @@
                         "modified": "2018-01-03T10:55:29Z"
                       }
                     ],
-                    "links": {}
+                    "links": []
                   }
                 }
               }
@@ -3525,7 +3527,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to notifications",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.4.1/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/v/0.4.2/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Batch Job Management",
           "File Management",
@@ -3760,7 +3762,6 @@
           "sar:instrument_mode",
           "sar:frequency_band",
           "sar:polarization",
-          "sar:pass_direction",
           "sar:type"
         ],
         "properties": {
@@ -3848,8 +3849,7 @@
                     "HH",
                     "VV",
                     "HV",
-                    "VH",
-                    null
+                    "VH"
                   ]
                 }
               }
@@ -4109,12 +4109,18 @@
             "default": "string"
           },
           "description": {
-            "$ref": "#/components/schemas/description"
+            "description": "Optional description about the variable.",
+            "type": "string",
+            "nullable": true
           },
           "default": {
             "description": "Whenever no value for the variable is defined, the default value is used.",
             "nullable": true,
             "anyOf": [
+              {
+                "type": "object",
+                "nullable": true
+              },
               {
                 "type": "string"
               },
@@ -4127,9 +4133,6 @@
               },
               {
                 "type": "boolean"
-              },
-              {
-                "type": "object"
               },
               {
                 "$ref": "#/components/schemas/process_graph"
@@ -4155,7 +4158,9 @@
             "default": false
           },
           "description": {
-            "$ref": "#/components/schemas/description"
+            "description": "Optional description about the process and its arguments.",
+            "type": "string",
+            "nullable": true
           },
           "arguments": {
             "$ref": "#/components/schemas/process_arguments"
@@ -4175,6 +4180,11 @@
         "nullable": true,
         "anyOf": [
           {
+            "type": "object",
+            "nullable": true,
+            "title": "Object"
+          },
+          {
             "type": "string",
             "title": "String"
           },
@@ -4185,10 +4195,6 @@
           {
             "type": "boolean",
             "title": "Boolean"
-          },
-          {
-            "type": "object",
-            "title": "Object"
           },
           {
             "type": "array",
@@ -4212,7 +4218,8 @@
                 "description": "The ID of the node that data is expected to come from.",
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": false
           },
           {
             "type": "object",
@@ -4226,7 +4233,8 @@
                 "description": "The name of the parameter that is made available to a callback by a calling process.",
                 "type": "string"
               }
-            }
+            },
+            "additionalProperties": false
           },
           {
             "type": "object",
@@ -4239,7 +4247,8 @@
               "callback": {
                 "$ref": "#/components/schemas/process_graph"
               }
-            }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -4269,7 +4278,7 @@
           },
           "bands": {
             "process_id": "filter_bands",
-            "process_description": "Filter and order the bands. The order is important for the following reduce operation.",
+            "description": "Filter and order the bands. The order is important for the following reduce operation.",
             "arguments": {
               "data": {
                 "from_node": "dc"
@@ -4283,7 +4292,7 @@
           },
           "evi": {
             "process_id": "reduce",
-            "process_description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
+            "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
             "arguments": {
               "data": {
                 "from_node": "bands"
@@ -4401,7 +4410,7 @@
           },
           "mintime": {
             "process_id": "reduce",
-            "process_description": "Compute a minimum time composite by reducing the temporal dimension",
+            "description": "Compute a minimum time composite by reducing the temporal dimension",
             "arguments": {
               "data": {
                 "from_node": "evi"
@@ -4555,7 +4564,7 @@
                 },
                 "http": {
                   "type": "integer",
-                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.1/errors/). Defaults to `400`.",
+                  "description": "HTTP Status Code, following the [error handling conventions in openEO](https://open-eo.github.io/openeo-api/v/0.4.2/errors/). Defaults to `400`.",
                   "default": 400
                 }
               }
@@ -4595,7 +4604,9 @@
                 "arguments": {
                   "$ref": "#/components/schemas/process_arguments"
                 },
-                "returns": {}
+                "returns": {
+                  "nullable": true
+                }
               }
             }
           },
@@ -4766,13 +4777,10 @@
           }
         },
         "example": {
-          "format": "GTiff",
-          "parameters": {
-            "tiles": true,
-            "compress": "jpeg",
-            "photometric": "YCBCR",
-            "jpeg_quality": 80
-          }
+          "description": "A percentage between 0 and 100.",
+          "required": true,
+          "minimum": 0,
+          "maximum": 100
         }
       },
       "job_error": {
@@ -4800,7 +4808,7 @@
       },
       "error": {
         "title": "General Error",
-        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.1/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
+        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/v/0.4.2/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
         "type": "object",
         "required": [
           "code",
@@ -4852,7 +4860,7 @@
       "json_schema": {
         "type": "object",
         "title": "JSON Schema",
-        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.4.1/processes/index.html), e.g. bbox or crs. Callback parameters are defined with the custom schema keyword `parameters`."
+        "description": "A schema object according to the specification of [JSON Schema draft-07](http://json-schema.org/). Additional values for `format` are defined [centrally in the API documentation](https://open-eo.github.io/openeo-api/v/0.4.2/processes/index.html), e.g. bbox or crs. Callback parameters are defined with the custom schema keyword `parameters`."
       },
       "process_media_type": {
         "type": "string",
@@ -4979,11 +4987,20 @@
       "file_path": {
         "name": "path",
         "in": "path",
-        "description": "Path of the file, relative to the user's root directory. Folder and file names in the path MUST be url-encoded. The path separator `/` MUST NOT be url-encoded.",
+        "description": "Path of the file, relative to the user's root directory.\r\n\r\n**Note:** Folder and file names in the path MUST be url-encoded. The path separator `/` and the file extension separator `.` MUST NOT be url-encoded. This may be shown incorrectly in rendered versions due to [OpenAPI 3 not supporting path parameters which contain slashes](https://github.com/OAI/OpenAPI-Specification/issues/892).",
         "required": true,
         "schema": {
-          "type": "string",
-          "example": "borders/europe.geojson"
+          "type": "string"
+        },
+        "examples": {
+          "normal": {
+            "description": "A path without special chars. It describes a file `europe.geojson` in a folder called `borders`.",
+            "value": "borders/europe.geojson"
+          },
+          "specialchars": {
+            "description": "A path with special chars. It describes a file `münster.shp` in folders called `europe` and `österreich`.",
+            "value": "europe/%C3%B6sterreich/m%C3%BCnster.shp"
+          }
         }
       }
     },
