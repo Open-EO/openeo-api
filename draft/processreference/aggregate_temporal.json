@@ -1,0 +1,218 @@
+{
+    "id": "aggregate_temporal",
+    "summary": "Temporal aggregations",
+    "description": "Computes a temporal aggregation based on an array of date and/or time intervals.\n\nCalendar hierarchies such as year, month, week etc. must be transformed into specific intervals by the clients. For each interval, all data along the dimension will be passed through the reducer. The computed values will be projected to the labels, so the number of labels and the number of intervals need to be equal.\n\nIf the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension.",
+    "categories": [
+        "cubes",
+        "aggregate & resample"
+    ],
+    "experimental": true,
+    "parameter_order": ["data", "intervals", "labels", "reducer", "dimension", "binary"],
+    "parameters": {
+        "data": {
+            "description": "A data cube.",
+            "schema": {
+                "type": "object",
+                "format": "raster-cube"
+            },
+            "required": true
+        },
+        "intervals": {
+            "description": "Left-closed temporal intervals, which are allowed to overlap. Each temporal interval in the array has exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
+            "schema": {
+                "type": "array",
+                "format": "temporal-intervals",
+                "items": {
+                    "type": "array",
+                    "format": "temporal-interval",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "examples": [
+                    [["2015-01-01", "2016-01-01"], ["2016-01-01", "2017-01-01"], ["2017-01-01", "2018-01-01"]],
+                    [["00:00:00Z", "12:00:00Z"], ["12:00:00Z", "24:00:00Z"]]
+                ]
+            },
+            "required": true
+        },
+        "labels": {
+            "description": "Labels for the intervals, which can contain dates and/or times. The number of labels and the number of groups need to be equal.",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "format": "date-time"
+                        },
+                        {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        {
+                            "type": "string",
+                            "format": "time"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": true
+        },
+        "reducer": {
+            "description": "A reducer to be applied on all values along the specified dimension. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+            "schema": {
+                "anyOf": [
+                    {
+                        "title": "Unary behaviour",
+                        "description": "Passes an array to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "data": {
+                                "description": "An array with elements of any data type.",
+                                "type": "array",
+                                "items": {
+                                    "description": "Any data type."
+                                }
+                            }
+                        } 
+                    },
+                    {
+                        "title": "Binary behaviour",
+                        "description": "Passes two values to the reducer.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "x": {
+                                "description": "The first value. Any data type could be passed."
+                            },
+                            "y": {
+                                "description": "The second value. Any data type could be passed."
+                            }
+                        } 
+                    }
+                ]
+            },
+            "required": true
+        },
+        "dimension": {
+            "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+            "schema": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "default": null
+            }
+        },
+        "binary": {
+            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "schema": {
+                "type": "boolean",
+                "default": false
+            }
+        }
+    },
+    "returns": {
+        "description": "A data cube with potentially lower resolution and potentially lower cardinality, but the same number of dimensions as the original data cube.",
+        "schema": {
+            "type": "object",
+            "format": "raster-cube"
+        }
+    },
+    "examples": [
+        {
+            "process_graph": {
+                "loadco1": {
+                    "process_id": "load_collection",
+                    "arguments": {
+                        "id": "S2B",
+                        "spatial_extent": null,
+                        "temporal_extent": null
+                    }
+                },
+                "aggreg1": {
+                    "process_id": "aggregate_temporal",
+                    "arguments": {
+                        "data": {
+                            "from_node": "loadco1"
+                        },
+                        "intervals": [
+                            ["2015-01-01","2016-01-01"],
+                            ["2016-01-01","2017-01-01"],
+                            ["2017-01-01","2018-01-01"],
+                            ["2018-01-01","2019-01-01"]
+                        ],
+                        "labels": [
+                            ["2015-01-01"],
+                            ["2016-01-01"],
+                            ["2017-01-01"],
+                            ["2018-01-01"]
+                        ],
+                        "reducer": {
+                            "callback": {
+                                "median1": {
+                                    "process_id": "median",
+                                    "arguments": {
+                                        "data": {
+                                            "from_argument": "data"
+                                        }
+                                    },
+                                    "result": true
+                                }
+                            }
+                        }
+                    },
+                    "result": true
+                }
+            }
+        }
+    ],
+    "exceptions": {
+        "TooManyDimensions": {
+            "message": "The number of dimensions must be reduced to three for 'aggregate_polygon'."
+        },
+        "DimensionNotAvailable": {
+            "message": "A dimension with the specified name does not exist."
+        }
+    },
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        },
+        {
+            "href": "https://open-eo.github.io/openeo-api/glossary/#aggregation-and-resampling",
+            "rel": "about",
+            "title": "Aggregation explained in the openEO glossary"
+        },
+        {
+            "rel": "about",
+            "href": "https://en.wikipedia.org/wiki/Reduction_Operator",
+            "title": "Background information on reduction operators (binary reducers) by Wikipedia"
+        }
+    ]
+}

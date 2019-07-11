@@ -1,0 +1,100 @@
+{
+    "id": "count",
+    "summary": "Count the number of elements",
+    "description": "Gives the number of elements in an array that matches a certain criterion / expression.\n\n**Remarks:**\n\n* By default counts the number of valid elements. A valid element is every element for which ``is_valid()`` returns `true`.\n* To count all elements in a list set the `expression` parameter to boolean `true`.",
+    "categories": [
+        "arrays",
+        "reducer"
+    ],
+    "parameter_order": ["data", "expression"],
+    "parameters": {
+        "data": {
+            "description": "An array with elements of any data type.",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "description": "Any data type is allowed."
+                }
+            },
+            "required": true
+        },
+        "expression": {
+            "description": "An expression that is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to count valid elements in a list (see ``is_valid()``). Setting this parameter to boolean `true` counts all elements in the list.",
+            "schema": {
+                "anyOf": [
+                    {
+                        "description": "An expression that is evaluated against each element in the array.",
+                        "type": "object",
+                        "format": "callback",
+                        "parameters": {
+                            "x": {
+                                "description": "A single value from the array. Any data type could be passed."
+                            }
+                        }
+                    },
+                    {
+                        "description": "Boolean `true` counts all elements in the list.",
+                        "type": "boolean",
+                        "const": true
+                    },
+                    {
+                        "description": "`null` counts valid elements in the list.",
+                        "type": "null"
+                    }
+                ],
+                "default": null
+            }
+        }
+    },
+    "returns": {
+        "description": "The counted number of elements.",
+        "schema": {
+            "type": "number"
+        }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": []
+            },
+            "returns": 0
+        },
+        {
+            "arguments": {
+                "data": [1,0,3,2]
+            },
+            "returns": 4
+        },
+        {
+            "arguments": {
+                "data": ["ABC",null]
+            },
+            "returns": 1
+        },
+        {
+            "arguments": {
+                "data": [false,null],
+                "expression": true
+            },
+            "returns": 2
+        },
+        {
+            "arguments": {
+                "data": [0,1,2,3,4,5,null],
+                "expression": {
+                    "gt": {
+                        "process_id": "gt",
+                        "arguments": {
+                            "x": {
+                                "from_argument": "element"
+                            },
+                            "y": 2
+                        },
+                        "result": true
+                    }
+                }
+            },
+            "returns": 3
+        }
+    ]
+}
