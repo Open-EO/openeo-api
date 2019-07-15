@@ -46,7 +46,7 @@ The openEO API usually uses the following HTTP status codes for successful reque
 - **204 No Content**:
   Indicates a successful request **without** a response body being sent.
 
-The openEO API often uses the following HTTP status codes for failed requests: 
+The openEO API has some commonly used HTTP status codes for failed requests: 
 
 - **400 Bad Request**:
   The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
@@ -63,9 +63,6 @@ The openEO API often uses the following HTTP status codes for failed requests:
 
 - **500 Internal Server Error**:
   The error has its origin on server side and no other status code in the 500 range is suitable.
-
-- **501 Not Implemented**:
-  An endpoint is specified in the openEO API, but is not supported.
 
 
 If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
