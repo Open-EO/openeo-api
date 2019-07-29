@@ -2,7 +2,7 @@
 
 openEO develops an open API to connect R, Python and JavaScript clients to big Earth observation cloud back-ends in a simple and unified way. This repository contains this API, the openEO (core) API.
 
-* **[Documentation / Specification](https://open-eo.github.io/openeo-api/v/0.4.1/index.html)**
+* **[Documentation / Specification](https://open-eo.github.io/openeo-api/v/0.4.2/index.html)**
 
 ## Versions
 
