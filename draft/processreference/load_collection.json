@@ -1,0 +1,264 @@
+{
+    "id": "load_collection",
+    "summary": "Load a collection",
+    "description": "Loads a collection from the current back-end by its id and returns it as processable data cube. The data that is added to the data cube can be restricted with the additional `spatial_extent`, `temporal_extent`, `bands` and `properties`.\n\n**Remarks:**\n\n* The bands (and all dimensions that specify nominal dimension values) are expected to be ordered as specified in the metadata if the `bands` parameter is set to `null`.\n* If no additional parameter is specified this would imply that the whole data set is expected to be loaded. Due to the large size of many data sets this is not recommended and may be optimized by back-ends to only load the data that is actually required after evaluating subsequent processes such as filters. This means that the pixel values should be processed only after the data has been limited to the required extents and as a consequence also to a manageable size.",
+    "categories": [
+        "cubes",
+        "import"
+    ],
+    "parameter_order": ["id", "spatial_extent", "temporal_extent", "bands", "properties"],
+    "parameters": {
+        "id": {
+            "description": "The collection id.",
+            "schema": {
+                "type": "string",
+                "format": "collection-id",
+                "pattern": "^[A-Za-z0-9_\\-\\.~\/]+$"
+            },
+            "required": true
+        },
+        "spatial_extent": {
+            "description": "Limits the data to load from the collection to the specified bounding box or polygons.\n\nThe process puts a pixel into the data cube if the point at the pixel center intersects with the bounding box or any of the polygons (as defined in the Simple Features standard by the OGC).\n\nThe coordinate reference system of the bounding box must be specified as [EPSG](http://www.epsg.org) code or [PROJ](https://proj4.org) definition.\n\nThe GeoJSON can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
+            "schema": {
+                "anyOf": [
+                    {
+                        "title": "Bounding Box",
+                        "type": "object",
+                        "format": "bounding-box",
+                        "required": ["west", "south", "east", "north"],
+                        "properties": {
+                            "west": {
+                                "description": "West (lower left corner, coordinate axis 1).",
+                                "type": "number"
+                            },
+                            "south": {
+                                "description": "South (lower left corner, coordinate axis 2).",
+                                "type": "number"
+                            },
+                            "east": {
+                                "description": "East (upper right corner, coordinate axis 1).",
+                                "type": "number"
+                            },
+                            "north": {
+                                "description": "North (upper right corner, coordinate axis 2).",
+                                "type": "number"
+                            },
+                            "base": {
+                                "description": "Base (optional, lower left corner, coordinate axis 3).",
+                                "type": ["number", "null"],
+                                "default": null
+                            },
+                            "height": {
+                                "description": "Height (optional, upper right corner, coordinate axis 3).",
+                                "type": ["number", "null"],
+                                "default": null
+                            },
+                            "crs": {
+                                "description": "Coordinate reference system of the extent specified as EPSG code or PROJ definition. Whenever possible, it is recommended to use EPSG codes instead of PROJ definitions. Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "title": "EPSG Code",
+                                            "type": "integer",
+                                            "format": "epsg-code",
+                                            "examples": [7099]
+                                        },
+                                        {
+                                            "title": "PROJ definition",
+                                            "type": "string",
+                                            "format": "proj-definition",
+                                            "examples": ["+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"]
+                                        }
+                                    ],
+                                    "default": 4326
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "title": "GeoJSON Polygon(s)",
+                        "type": "object",
+                        "format": "geojson"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "temporal_extent": {
+            "description": "Limits the data to load from the collection to the specified left-closed temporal interval. Applies to all temporal dimensions if there are multiple of them. The interval has to be specified as an array with exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.\n\nAlso supports open intervals by setting one of the boundaries to `null`, but never both.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
+            "schema": {
+                "anyOf":[
+                    {
+                        "type": "array",
+                        "format": "temporal-interval",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "string",
+                                    "format": "time"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "examples": [
+                            ["2015-01-01", "2016-01-01"],
+                            ["12:00:00Z", "24:00:00Z"]
+                        ]
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "required": true
+        },
+        "bands": {
+            "description": "Only adds the specified bands into the data cube so that bands that don't match the list of band names are not available. Applies to all dimensions of type `bands` if there are multiple of them.\n\nThe order of the specified array defines the order of the bands in the data cube.",
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "band-name"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": "null"
+            }
+        },
+        "properties": {
+            "description": "Limits the data by metadata properties to include only data in the data cube which all given expressions return `true` for (AND operation).\n\nSpecify key-value-pairs with the keys being the name of the metadata property, which can be retrieved with the openEO Data Discovery for Collections. The values must be expressions to be evaluated against the collection metadata, see the example.\n\n**Note:** Back-ends may not pass the actual value to the expressions, but pass a proprietary index or a placeholder so that they can use the expressions to query against another data source. So debugging on the callback parameter `value` may lead to unexpected results.",
+            "experimental": true,
+            "schema": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "format": "callback",
+                            "parameters": {
+                                "value": {
+                                    "description": "The property value. Any data type could be passed."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null
+            }
+        }
+    },
+    "returns": {
+        "description": "A data cube for further processing.",
+        "schema": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "format": "raster-cube"
+                },
+                {
+                    "type": "object",
+                    "format": "vector-cube"
+                }
+            ]
+        }
+    },
+    "examples": [
+        {
+            "description": "Loading `Sentinel-2B` data from a `Sentinel-2` collection for 2018, but only with cloud cover between 0 and 10%.",
+            "process_graph": {
+                "loadco1": {
+                    "process_id": "load_collection",
+                    "arguments": {
+                        "id": "Sentinel-2",
+                        "spatial_extent": {
+                            "west": 16.1,
+                            "east": 16.6,
+                            "north": 48.6,
+                            "south": 47.2
+                        },
+                        "temporal_extent": ["2018-01-01", "2019-01-01"],
+                        "properties": {
+                            "eo:cloud_cover": {
+                                "callback": {
+                                  "cc": {
+                                    "process_id": "between",
+                                    "arguments": {
+                                      "x": {"from_argument": "value"},
+                                      "min": 0,
+                                      "max": 10
+                                    },
+                                    "result": true
+                                  }
+                                }
+                            },
+                            "eo:platform": {
+                                "callback": {
+                                  "pf": {
+                                    "process_id": "eq",
+                                    "arguments": {
+                                      "x": {"from_argument": "value"},
+                                      "y": "Sentinel-2B",
+                                      "case_sensitive": false
+                                    },
+                                    "result": true
+                                  }
+                                }
+                            }
+                        }
+                    },
+                    "result": true
+                }
+            }
+        }
+    ],
+    "links": [
+        {
+            "rel": "about",
+            "href": "https://proj4.org/usage/projections.html",
+            "title": "PROJ parameters for cartographic projections"
+        },
+        {
+            "rel": "about",
+            "href": "http://www.epsg-registry.org",
+            "title": "Official EPSG code registry"
+        },
+        {
+            "rel": "about",
+            "href": "http://www.epsg.io",
+            "title": "Unofficial EPSG code database"
+        },
+        {
+            "href": "http://www.opengeospatial.org/standards/sfa",
+            "rel": "about",
+            "title": "Simple Features standard by the OGC"
+        },
+        {
+            "rel": "about",
+            "href": "https://open-eo.github.io/openeo-api/processes/#openeo-specific-formats",
+            "title": "Information about the supported temporal formats."
+        }
+    ]
+}
