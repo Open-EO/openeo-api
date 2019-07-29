@@ -112,6 +112,7 @@ Parameters with a leading `?` are optional.
 | List all processes available on the back-end.                | `GET /processes`                         | `listProcesses()` |
 | Authenticate with OpenID Connect (if not specified in `connect`). | `GET /credentials/oidc`             | `authenticateOIDC(?options)` |
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`                | `authenticateBasic(username, password)` |
+| Logout / Close session for the authenticated user            | *Depends on authentication method*       | `logout()` |
 | Get information about the authenticated user.                | `GET /me`                                | `describeAccount()` |
 | Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`                   | `listFiles(?userId)` |
 | Opens a (existing or non-existing) file without reading any information. Returns a `File`. | *None*     | `openFile(path, ?userId)` |
