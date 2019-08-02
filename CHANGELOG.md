@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
 - `GET /collections/{collectionId}`: Band names are required.
+- If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
 
 ## [0.4.2] - 2019-06-11
 
