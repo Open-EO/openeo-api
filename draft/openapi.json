@@ -187,8 +187,10 @@
                       ],
                       "properties": {
                         "currency": {
-                          "description": "The currency the back-end is billing in. The currency MUST be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits.",
+                          "description": "The currency the back-end is billing in. The currency MUST be either a valid currency code as defined in ISO-4217 or a proprietary currency, e.g. tiles or back-end specific credits. If set to the default value `null`, budget and costs are not supported by the back-end and users can't be charged.",
                           "type": "string",
+                          "nullable": true,
+                          "default": null,
                           "example": "USD"
                         },
                         "default_plan": {
@@ -3659,15 +3661,17 @@
         }
       },
       "money": {
-        "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`.",
+        "description": "An amount of money or credits. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST be `null`.",
         "type": "number",
-        "example": 12.98
+        "example": 12.98,
+        "nullable": true,
+        "default": null
       },
       "budget": {
         "type": "number",
         "nullable": true,
         "default": null,
-        "description": "Maximum amount of costs the user is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought. Setting the buget to `null` means there is no specified budget.",
+        "description": "Maximum amount of costs the request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST NOT be a number.\n\n\nIf possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.\n\n\nSetting the buget to `null` means there is no specified budget.",
         "example": 100
       },
       "billing_plan_defaultable": {
