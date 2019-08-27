@@ -4105,17 +4105,7 @@
             "description": "The name of the variable. Can be any valid JSON key, but it is RECOMMENDED to use snake case and limit the characters to `a-z`, `0-9` and `_`."
           },
           "type": {
-            "type": "string",
-            "description": "The value for type is the expected data type for the content of the variable. `null` is allowed for all types.",
-            "enum": [
-              "string",
-              "number",
-              "integer",
-              "boolean",
-              "array",
-              "object"
-            ],
-            "default": "string"
+            "$ref": "#/components/schemas/data_type"
           },
           "description": {
             "description": "Optional description about the variable.",
@@ -4124,31 +4114,21 @@
           },
           "default": {
             "description": "Whenever no value for the variable is defined, the default value is used.",
-            "nullable": true,
-            "anyOf": [
-              {
-                "type": "object",
-                "nullable": true
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "number"
-              },
-              {
-                "type": "array",
-                "items": {}
-              },
-              {
-                "type": "boolean"
-              },
-              {
-                "$ref": "#/components/schemas/process_graph"
-              }
-            ]
+            "nullable": true
           }
         }
+      },
+      "data_type": {
+        "type": "string",
+        "description": "The type is the expected data type for the content of the variable or parameter. `null` is allowed for all types. If no type is specified, any type is allowed to be passed.",
+        "enum": [
+          "string",
+          "number",
+          "integer",
+          "boolean",
+          "array",
+          "object"
+        ]
       },
       "process_node": {
         "title": "Process Node",
@@ -4754,6 +4734,9 @@
           "description"
         ],
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/data_type"
+          },
           "description": {
             "type": "string",
             "description": "A brief description of the argument."
@@ -4764,7 +4747,8 @@
             "default": false
           },
           "default": {
-            "description": "The default value represents what would be assumed by the consumer of the input as the value of the argument if none is provided. The value MUST conform to the defined type for the argument defined at the same level. For example, if type is string, then default can be \"foo\" but cannot be 1."
+            "description": "The default value represents what would be assumed by the consumer of the input as the value of the argument if none is provided. The value MUST conform to the defined type for the argument defined at the same level. For example, if type is string, then default can be \"foo\" but cannot be 1.",
+            "nullable": true
           },
           "minimum": {
             "type": "number",
