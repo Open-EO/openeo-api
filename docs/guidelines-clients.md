@@ -91,7 +91,7 @@ Parameters with a leading `?` are optional.
 
 | Description                                                  | Client method |
 | ------------------------------------------------------------ | ------------- |
-| Connect to a back-end, includes version discovery (`GET /well-known/openeo`), requesting capabilities and authentication where required. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
+| Connect to a back-end, includes version discovery (`GET /.well-known/openeo`), requesting capabilities and authentication where required. Returns `Connection`. | `connect(url, ?authType, ?authOptions)` |
 | Get client library version.                                  | `clientVersion()` |
 
 #### Parameters
