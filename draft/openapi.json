@@ -111,6 +111,9 @@
                       "description": "A description of the service, which allows the service provider to introduce the user to its service.\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
                       "example": "EOPS - the most advanced EO processing service - is provided to you by [Cool Cloud Corp.](http://cool-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including \n* Sentinel 1/2/3 and 5\n* Landsat 7/8\n\nA free plan is available to test the service. For further information please contact our customer service at [support@cool-cloud-corp.com](mailto:support@cool-cloud-corp.com)."
                     },
+                    "production": {
+                      "$ref": "#/components/schemas/production"
+                    },
                     "endpoints": {
                       "type": "array",
                       "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented and do not return openEO error `FeatureUnsupported` / HTTP error code 501.",
@@ -335,9 +338,7 @@
                             "example": "https://example.com/api/v0.4"
                           },
                           "production": {
-                            "type": "boolean",
-                            "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",
-                            "default": true
+                            "$ref": "#/components/schemas/production"
                           },
                           "api_version": {
                             "type": "string",
@@ -3608,6 +3609,11 @@
   },
   "components": {
     "schemas": {
+      "production": {
+        "type": "boolean",
+        "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",
+        "default": true
+      },
       "collection_links": {
         "description": "Additional links related to this collection. Could reference to other meta data formats with additional information or a preview image.",
         "type": "array",
