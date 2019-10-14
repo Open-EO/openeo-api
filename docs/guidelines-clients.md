@@ -178,12 +178,11 @@ The `Job` scope internally knows the `job_id`.
 | Calculate an time/cost estimate for a job. | `GET /jobs/{job_id}/estimate`      | `estimateJob()` |
 | Start / queue a job for processing.        | `POST /jobs/{job_id}/results`      | `startJob()` |
 | Stop / cancel job processing.              | `DELETE /jobs/{job_id}/results`    | `stopJob()` |
-| Get document with download links.          | `GET /jobs/{job_id}/results`       | `listResults(?type)` |
+| Get document with download links.          | `GET /jobs/{job_id}/results`       | `listResults()` |
 | Download job results.                      | `GET /jobs/{job_id}/results` > ... | `downloadResults(target)` |
 
 #### Parameters
 
-* **type** in `listResult`: Either `json` or `metalink` (non-exclusive). Defaults to `json`.
 * **target** in `downloadResults`: Path to a local folder.
 
 ### Scope: `ProcessGraph` (API category)
