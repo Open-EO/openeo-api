@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /collections/{collectionId}`: Band names are required.
 - If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
 - The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
+- Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 
 ### Fixed
 
