@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- Field `production` to capabilities (`GET /`) response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+
 ### Changed
 
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
@@ -20,11 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] - 2019-06-11
 
-### Changed
-- Updated the process catalog, see the separate changelog.
-
 ### Added
 - Basic JSON Schema for process graph validation.
+
+### Changed
+- Updated the process catalog, see the separate changelog.
 
 ### Removed
 - Disallowed CommonMark in descriptions of process graph variables and process graph nodes.
