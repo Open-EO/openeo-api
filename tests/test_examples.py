@@ -81,7 +81,6 @@ def test_schema_example(api_spec, path, schema_with_example):
     """
     if path[-1] == "properties":
         pytest.skip("This is probably not a schema example but an 'example' property")
-    assert "type" in schema_with_example
     assert "example" in schema_with_example
     example = schema_with_example['example']
     OpenApiValidator(api_spec=api_spec, schema=schema_with_example).validate(example)

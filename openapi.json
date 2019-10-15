@@ -3154,29 +3154,10 @@
                       "$ref": "#/components/schemas/bbox"
                     },
                     "geometry": {
-                      "title": "GeoJSON Geometry",
                       "description": "Defines the full footprint of the asset represented by this item as GeoJSON Geometry.",
-                      "oneOf": [
+                      "allOf": [
                         {
-                          "$ref": "#/components/schemas/GeoJsonPoint"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonLineString"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonPolygon"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonMultiPoint"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonMultiLineString"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonMultiPolygon"
-                        },
-                        {
-                          "$ref": "#/components/schemas/GeoJsonGeometryCollection"
+                          "$ref": "#/components/schemas/GeoJsonGeometry"
                         }
                       ],
                       "example": {
@@ -3252,12 +3233,12 @@
                       },
                       "example": {
                         "1": {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/1.tif",
-                          "type": "image/tiff"
+                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
+                          "type": "image/tiff; application=geotiff"
                         },
                         "2": {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/2.tif",
-                          "type": "image/tiff"
+                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
+                          "type": "image/tiff; application=geotiff"
                         }
                       }
                     },
@@ -3298,12 +3279,12 @@
                       },
                       "example": [
                         {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/1.tif",
-                          "type": "image/tiff"
+                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
+                          "type": "image/tiff; application=geotiff"
                         },
                         {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/2.tif",
-                          "type": "image/tiff"
+                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
+                          "type": "image/tiff; application=geotiff"
                         }
                       ]
                     }
@@ -5034,30 +5015,6 @@
           90
         ]
       },
-      "GeoJsonGeometry": {
-        "type": "object",
-        "title": "GeoJSON Geometry",
-        "discriminator": {
-          "propertyName": "type"
-        },
-        "required": [
-          "type"
-        ],
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "Point",
-              "LineString",
-              "Polygon",
-              "MultiPoint",
-              "MultiLineString",
-              "MultiPolygon"
-            ],
-            "description": "the geometry type"
-          }
-        }
-      },
       "GeoJsonPoint3D": {
         "type": "array",
         "description": "Point in 3D space",
@@ -5070,70 +5027,161 @@
       "GeoJsonPoint": {
         "type": "object",
         "title": "GeoJSON Point",
-        "allOf": [
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Point"
+            ]
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/GeoJsonPoint3D"
+          }
+        }
+      },
+      "GeoJsonGeometry": {
+        "title": "GeoJSON Geometry",
+        "oneOf": [
           {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
+            "$ref": "#/components/schemas/GeoJsonPoint"
           },
           {
-            "properties": {
-              "coordinates": {
-                "$ref": "#/components/schemas/GeoJsonPoint3D"
-              }
-            }
+            "$ref": "#/components/schemas/GeoJsonLineString"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonPolygon"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiPoint"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiLineString"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiPolygon"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometryCollection"
           }
         ]
       },
       "GeoJsonLineString": {
         "type": "object",
         "title": "GeoJSON LineString",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "LineString"
+            ]
           },
-          {
-            "properties": {
-              "coordinates": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/GeoJsonPoint3D"
-                }
-              }
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonPoint3D"
             }
           }
-        ]
+        }
       },
       "GeoJsonPolygon": {
         "type": "object",
         "title": "GeoJSON Polygon",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Polygon"
+            ]
           },
-          {
-            "properties": {
-              "coordinates": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GeoJsonPoint3D"
-                  }
-                }
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GeoJsonPoint3D"
               }
             }
           }
-        ]
+        }
       },
       "GeoJsonMultiPoint": {
         "type": "object",
         "title": "GeoJSON MultiPoint",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiPoint"
+            ]
           },
-          {
-            "properties": {
-              "coordinates": {
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonPoint3D"
+            }
+          }
+        }
+      },
+      "GeoJsonMultiLineString": {
+        "type": "object",
+        "title": "GeoJSON MultiLineString",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiLineString"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GeoJsonPoint3D"
+              }
+            }
+          }
+        }
+      },
+      "GeoJsonMultiPolygon": {
+        "type": "object",
+        "title": "GeoJSON MultiPolygon",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiPolygon"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/GeoJsonPoint3D"
@@ -5141,54 +5189,7 @@
               }
             }
           }
-        ]
-      },
-      "GeoJsonMultiLineString": {
-        "type": "object",
-        "title": "GeoJSON MultiLineString",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
-          },
-          {
-            "properties": {
-              "coordinates": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GeoJsonPoint3D"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
-      "GeoJsonMultiPolygon": {
-        "type": "object",
-        "title": "GeoJSON MultiPolygon",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/GeoJsonGeometry"
-          },
-          {
-            "properties": {
-              "coordinates": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/GeoJsonPoint3D"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ]
+        }
       },
       "GeoJsonGeometryCollection": {
         "type": "object",
