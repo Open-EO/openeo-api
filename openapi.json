@@ -382,7 +382,7 @@
     "/output_formats": {
       "get": {
         "summary": "Supported output formats",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends are MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Batch Job Management"
@@ -395,7 +395,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with containing all output format names as keys and an object that defines supported paramaters.",
+            "description": "An object with containing all output format names as keys and an object that defines supported parameters.",
             "content": {
               "application/json": {
                 "schema": {
@@ -489,7 +489,7 @@
                         {
                           "href": "https://www.gdal.org/frmt_gtiff.html",
                           "rel": "about",
-                          "title": "GDAL on the GeoTiff file format andstorage options"
+                          "title": "GDAL on the GeoTiff file format and storage options"
                         }
                       ]
                     },
@@ -1849,7 +1849,7 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph",
-        "description": "Validates a process graph without executing it. A process graph is considered valid unless the `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported by the back-end. It MUST also checks the parameter values against the schema, but checking whether the values are adequate in the context of data is OPTIONAL. For example, a non-existing band name may may get rejected only by a few back-ends.\n\nErrors that usually occure during processing MAY NOT get reported, e.g. if a referenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once they found the first error. \n\nPlease note that a validation always returns with HTTP status code 200. Error codes in the 4xx and 5xx ranges MUST be returned only when the general validation request is invalid (e.g. server is busy or no process graph parameter specified), but never if the process graph validation found an error (e.g. an unsupported process).",
+        "description": "Validates a process graph without executing it. A process graph is considered valid unless the `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported by the back-end. It MUST also checks the parameter values against the schema, but checking whether the values are adequate in the context of data is OPTIONAL. For example, a non-existing band name may may get rejected only by a few back-ends.\n\nErrors that usually occur during processing MAY NOT get reported, e.g. if a referenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once they found the first error. \n\nPlease note that a validation always returns with HTTP status code 200. Error codes in the 4xx and 5xx ranges MUST be returned only when the general validation request is invalid (e.g. server is busy or no process graph parameter specified), but never if the process graph validation found an error (e.g. an unsupported process).",
         "tags": [
           "Process Graph Management"
         ],
@@ -2230,7 +2230,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with a map containing all service names as keys and an object that defines supported paramaters and attributes.",
+            "description": "An object with a map containing all service names as keys and an object that defines supported parameters and attributes.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2302,23 +2302,23 @@
                         {
                           "variable_id": "layer",
                           "type": "string",
-                          "desctiption": "The layer name.",
+                          "description": "The layer name.",
                           "default": "roads"
                         },
                         {
-                          "variable_id": "spetial_extent_west",
+                          "variable_id": "spatial_extent_west",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_east",
+                          "variable_id": "spatial_extent_east",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_north",
+                          "variable_id": "spatial_extent_north",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_south",
+                          "variable_id": "spatial_extent_south",
                           "type": "number"
                         }
                       ],
@@ -2594,7 +2594,7 @@
               }
             }
           },
-          "description": "The data to change for the spcified secondary web service."
+          "description": "The data to change for the specified secondary web service."
         }
       },
       "get": {
@@ -2741,7 +2741,7 @@
                       "type": "array",
                       "items": {
                         "title": "Batch Job Metadata",
-                        "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
+                        "description": "Defines a metadata subset of batch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
                         "type": "object",
                         "required": [
                           "id",
@@ -2858,7 +2858,7 @@
       ],
       "patch": {
         "summary": "Modify a batch job",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with openEO error `JobLocked`.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherwise requests to this endpoint MUST be rejected with openEO error `JobLocked`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -2951,7 +2951,7 @@
                     },
                     "progress": {
                       "type": "number",
-                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job whiched errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped. Property may not be available for the status codes `submitted` and `queued`.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
+                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job which errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped. Property may not be available for the status codes `submitted` and `queued`.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
                       "minimum": 0,
                       "maximum": 100,
                       "example": 75.5
@@ -3165,7 +3165,7 @@
             }
           },
           "424": {
-            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` repoonse.",
+            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3207,7 +3207,7 @@
       },
       "delete": {
         "summary": "Cancel processing a batch job",
-        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing.\n\nA subset of processed results may be available for downloading depending on the state of the job as it was canceled. Finished results MUST NOT be deleted until the job is deleted or job processing is started again.\n\nThis endpoint only has an effect if the job status is `queued` or `running`.\n\nThe job status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
+        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing.\n\nA subset of processed results may be available for downloading depending on the state of the job as it was canceled. Finished results MUST NOT be deleted until the job is deleted or job processing is started again.\n\nThis endpoint only has an effect if the job status is `queued` or `running`.\n\nThe job status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status is set to `submitted`. ",
         "tags": [
           "Batch Job Management"
         ],
@@ -3462,7 +3462,7 @@
                       "properties": {
                         "free": {
                           "type": "integer",
-                          "description": "Free storage space in bytes, which is still availble to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
+                          "description": "Free storage space in bytes, which is still available to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
                           "example": 536870912
                         },
                         "quota": {
@@ -3521,7 +3521,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to notifications",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/draft/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occur, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/draft/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Batch Job Management",
           "File Management",
@@ -3603,7 +3603,7 @@
     "schemas": {
       "production": {
         "type": "boolean",
-        "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",
+        "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicitly confirmed to use a non-production implementation.",
         "default": true
       },
       "collection_links": {
@@ -3669,7 +3669,7 @@
         "type": "number",
         "nullable": true,
         "default": null,
-        "description": "Maximum amount of costs the request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST NOT be a number.\n\n\nIf possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.\n\n\nSetting the buget to `null` means there is no specified budget.",
+        "description": "Maximum amount of costs the request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST NOT be a number.\n\n\nIf possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.\n\n\nSetting the budget to `null` means there is no specified budget.",
         "example": 100
       },
       "billing_plan_defaultable": {
@@ -4662,7 +4662,7 @@
           "finished",
           "error"
         ],
-        "description": "The current status of a batch job.\n\nThe following status changes can occur:\n* `POST /jobs`: The status is initialized as `submitted`.\n* `POST /jobs/{job_id}/results`: The status is set to `queued`, if processing doesn't start instantly.\n    * Once the processing starts the status is set to `running`.\n    * Once the data is available to download the status is set to `finished`.\n    * Whenever an error occurs during processing, the status must be set to `error`.\n* `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
+        "description": "The current status of a batch job.\n\nThe following status changes can occur:\n* `POST /jobs`: The status is initialized as `submitted`.\n* `POST /jobs/{job_id}/results`: The status is set to `queued`, if processing doesn't start instantly.\n    * Once the processing starts the status is set to `running`.\n    * Once the data is available to download the status is set to `finished`.\n    * Whenever an error occurs during processing, the status must be set to `error`.\n* `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status is set to `submitted`. ",
         "example": "running",
         "default": "submitted"
       },
@@ -4695,7 +4695,7 @@
         "type": "string"
       },
       "service_type": {
-        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
+        "description": "Definition of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
         "type": "string",
         "example": "wms"
       },
@@ -4799,7 +4799,7 @@
       },
       "error": {
         "title": "General Error",
-        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
+        "description": "An error object declares additional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
         "type": "object",
         "required": [
           "code",
