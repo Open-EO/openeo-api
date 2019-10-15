@@ -3123,9 +3123,157 @@
               }
             },
             "content": {
+              "application/geo+json": {
+                "schema": {
+                  "title": "Batch Job Results Response as STAC Item",
+                  "type": "object",
+                  "required": [
+                    "stac_version",
+                    "id",
+                    "type",
+                    "bbox",
+                    "geometry",
+                    "properties",
+                    "assets",
+                    "links"
+                  ],
+                  "properties": {
+                    "stac_version": {
+                      "$ref": "#/components/schemas/stac_version"
+                    },
+                    "id": {
+                      "$ref": "#/components/schemas/job_id"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "Feature"
+                      ]
+                    },
+                    "bbox": {
+                      "$ref": "#/components/schemas/bbox"
+                    },
+                    "geometry": {
+                      "title": "GeoJSON Geometry",
+                      "description": "Defines the full footprint of the asset represented by this item as GeoJSON Geometry.",
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/GeoJsonPoint"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonLineString"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonPolygon"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonMultiPoint"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonMultiLineString"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonMultiPolygon"
+                        },
+                        {
+                          "$ref": "#/components/schemas/GeoJsonGeometryCollection"
+                        }
+                      ],
+                      "example": {
+                        "type": "Polygon",
+                        "coordinates": [
+                          [
+                            [
+                              -180,
+                              -90
+                            ],
+                            [
+                              180,
+                              -90
+                            ],
+                            [
+                              180,
+                              90
+                            ],
+                            [
+                              -180,
+                              90
+                            ],
+                            [
+                              -180,
+                              -90
+                            ]
+                          ]
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "type": "object",
+                      "title": "Item Properties",
+                      "description": "MAY contain any additional properties, e.g. other STAC Item properties, properties from STAC extensions or custom properties.",
+                      "required": [
+                        "datetime"
+                      ],
+                      "properties": {
+                        "datetime": {
+                          "title": "Date and Time",
+                          "description": "The searchable date/time of the assets, in UTC.",
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "title": {
+                          "$ref": "#/components/schemas/title"
+                        }
+                      }
+                    },
+                    "assets": {
+                      "type": "object",
+                      "title": "Item Assets",
+                      "description": "Dictionary of asset objects that can be downloaded, each with a unique key.",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "href"
+                        ],
+                        "properties": {
+                          "href": {
+                            "title": "Signed URL to the downloadable asset.",
+                            "type": "string"
+                          },
+                          "title": {
+                            "title": "The displayed title for clients and users.",
+                            "type": "string"
+                          },
+                          "type": {
+                            "title": "Media type of the asset.",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": {
+                        "1": {
+                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/1.tif",
+                          "type": "image/tiff"
+                        },
+                        "2": {
+                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/2.tif",
+                          "type": "image/tiff"
+                        }
+                      }
+                    },
+                    "links": {
+                      "type": "array",
+                      "description": "List of related URLs.",
+                      "items": {
+                        "$ref": "#/components/schemas/link"
+                      }
+                    }
+                  }
+                }
+              },
               "application/json": {
                 "schema": {
-                  "title": "Batch Job Results Response",
+                  "title": "Batch Job Results Response as simple JSON",
                   "type": "object",
                   "required": [
                     "links"
@@ -3995,19 +4143,7 @@
         ],
         "properties": {
           "spatial": {
-            "description": "Potential *spatial extent* covered by the collection. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- West (lower left corner, coordinate axis 1)\n- South (lower left corner, coordinate axis 2)\n- Base (optional, lower left corner, coordinate axis 3)\n- East (upper right corner, coordinate axis 1)\n- North (upper right corner, coordinate axis 2)\n- Height (optional, upper right corner, coordinate axis 3)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
-            "type": "array",
-            "minItems": 4,
-            "maxItems": 6,
-            "items": {
-              "type": "number"
-            },
-            "example": [
-              -180,
-              -90,
-              180,
-              90
-            ]
+            "$ref": "#/components/schemas/bbox"
           },
           "temporal": {
             "type": "array",
@@ -4880,6 +5016,199 @@
             "format": "date-time",
             "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
             "example": "2018-01-03T10:55:29Z"
+          }
+        }
+      },
+      "bbox": {
+        "description": "Potential *spatial extent* covered by the data. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- West (lower left corner, coordinate axis 1)\n- South (lower left corner, coordinate axis 2)\n- Base (optional, lower left corner, coordinate axis 3)\n- East (upper right corner, coordinate axis 1)\n- North (upper right corner, coordinate axis 2)\n- Height (optional, upper right corner, coordinate axis 3)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 6,
+        "items": {
+          "type": "number"
+        },
+        "example": [
+          -180,
+          -90,
+          180,
+          90
+        ]
+      },
+      "GeoJsonGeometry": {
+        "type": "object",
+        "title": "GeoJSON Geometry",
+        "discriminator": {
+          "propertyName": "type"
+        },
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Point",
+              "LineString",
+              "Polygon",
+              "MultiPoint",
+              "MultiLineString",
+              "MultiPolygon"
+            ],
+            "description": "the geometry type"
+          }
+        }
+      },
+      "GeoJsonPoint3D": {
+        "type": "array",
+        "description": "Point in 3D space",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "GeoJsonPoint": {
+        "type": "object",
+        "title": "GeoJSON Point",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "$ref": "#/components/schemas/GeoJsonPoint3D"
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonLineString": {
+        "type": "object",
+        "title": "GeoJSON LineString",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GeoJsonPoint3D"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonPolygon": {
+        "type": "object",
+        "title": "GeoJSON Polygon",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GeoJsonPoint3D"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonMultiPoint": {
+        "type": "object",
+        "title": "GeoJSON MultiPoint",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GeoJsonPoint3D"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonMultiLineString": {
+        "type": "object",
+        "title": "GeoJSON MultiLineString",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GeoJsonPoint3D"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonMultiPolygon": {
+        "type": "object",
+        "title": "GeoJSON MultiPolygon",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometry"
+          },
+          {
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/GeoJsonPoint3D"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeoJsonGeometryCollection": {
+        "type": "object",
+        "title": "GeoJSON GeometryCollection",
+        "required": [
+          "type",
+          "geometries"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "GeometryCollection"
+            ]
+          },
+          "geometries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonGeometry"
+            }
           }
         }
       }
