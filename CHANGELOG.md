@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 
+### Removed
+
+- Metalink XML encoding for job results has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+
 ### Fixed
 
 - Service parameters and attributes in `GET /service_types` and output format parameters in `GET /output_formats` now have a `type`, which was previously only mentioned in examples.
