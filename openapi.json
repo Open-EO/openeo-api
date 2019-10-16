@@ -1770,7 +1770,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token. Back-ends MAY request user information from the OpenID Connect Userinfo endpoint using the access token.",
         "tags": [
           "Account Management"
         ],
@@ -1778,14 +1778,53 @@
           {}
         ],
         "responses": {
-          "303": {
-            "description": "Specifies the location of the OpenID Connect discovery document.",
-            "headers": {
-              "Location": {
-                "required": true,
+          "200": {
+            "description": "Lists the the OpenID Connect identity providers.",
+            "content": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "https://openeo.org/.well-known/openid-configuration"
+                  "title": "OpenID Connect Identity Provider List",
+                  "type": "object",
+                  "required": [
+                    "providers"
+                  ],
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "issuer",
+                          "name"
+                        ],
+                        "properties": {
+                          "issuer": {
+                            "type": "string",
+                            "format": "url",
+                            "description": "The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), i.e. the URL of the identity provider (see endpoint description).",
+                            "example": "https://accounts.google.com"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name that is publicly shown in clients for this identity provider."
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "providers": [
+                      {
+                        "issuer": "https://accounts.google.com",
+                        "name": "Google"
+                      },
+                      {
+                        "issuer": "https://login.microsoftonline.com/example-tenant/v2.0",
+                        "name": "Microsoft"
+                      }
+                    ]
+                  }
                 }
               }
             }
