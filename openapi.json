@@ -1770,7 +1770,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token for authorization in subsequent API calls. After authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`. Back-ends MAY request user information ([]including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token. ",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. A description and related links can OPTIONALLY be added. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token for authorization in subsequent API calls. After authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`. Back-ends MAY request user information ([]including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token. ",
         "tags": [
           "Account Management"
         ],
@@ -1808,6 +1808,16 @@
                           "name": {
                             "type": "string",
                             "description": "The name that is publicly shown in clients for this identity provider."
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "links": {
+                            "type": "array",
+                            "description": "Additional links to related resources, for example help pages or a page to register a new user account.",
+                            "items": {
+                              "$ref": "#/components/schemas/link"
+                            }
                           }
                         }
                       }
@@ -2052,10 +2062,10 @@
                             "$ref": "#/components/schemas/process_graph_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           }
                         }
                       }
@@ -2109,10 +2119,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2160,10 +2170,10 @@
                       "$ref": "#/components/schemas/process_graph_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2211,10 +2221,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2459,10 +2469,10 @@
                             "$ref": "#/components/schemas/service_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "url": {
                             "$ref": "#/components/schemas/service_url"
@@ -2538,10 +2548,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2605,10 +2615,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2666,10 +2676,10 @@
                       "$ref": "#/components/schemas/service_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2788,10 +2798,10 @@
                             "$ref": "#/components/schemas/job_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "status": {
                             "$ref": "#/components/schemas/status"
@@ -2863,10 +2873,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2921,10 +2931,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2973,10 +2983,10 @@
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -3170,10 +3180,10 @@
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "updated": {
                       "$ref": "#/components/schemas/updated"
@@ -4701,13 +4711,17 @@
         "example": "running",
         "default": "submitted"
       },
-      "title": {
+      "description": {
+        "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string"
+      },
+      "eo_title": {
         "description": "A short description to easily distinguish entities.",
         "type": "string",
         "nullable": true,
         "example": "NDVI based on Sentinel 2"
       },
-      "description": {
+      "eo_description": {
         "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
         "type": "string",
         "nullable": true,

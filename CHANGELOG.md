@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Field `production` to capabilities (`GET /`) response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+- `GET /`: Field `production` added to capabilities response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
 
 ### Changed
 
@@ -17,12 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
 - The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
-- Changed response of `GET /credentials/oidc` to support multiple OpenID Connect identity providers.  [#201](https://github.com/Open-EO/openeo-api/issues/201)
+- `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
+- `GET /udf_runtimes`: `description` fields don't allow `null` values any longer.
 
 ### Removed
 
-- Metalink XML encoding for job results has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
-- `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
+- `GET /job/{job_id}/results`: Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+- `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
 
 ### Fixed
 
