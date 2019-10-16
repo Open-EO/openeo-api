@@ -1770,7 +1770,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token. Back-ends MAY request user information from the OpenID Connect Userinfo endpoint using the access token.",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token for authorization in subsequent API calls. After authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`. Back-ends MAY request user information ([]including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token. ",
         "tags": [
           "Account Management"
         ],
@@ -1841,7 +1841,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "HTTP Basic authentication",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
+        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns an access token to be used as Bearer token for authorization in subsequent API calls.\n\nIt is RECOMMENDED to implement this authentication method for non-public services only.\n\nAfter authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`.",
         "tags": [
           "Account Management"
         ],
@@ -1859,13 +1859,9 @@
                   "title": "HTTP Basic Authentication Response",
                   "type": "object",
                   "required": [
-                    "user_id",
                     "access_token"
                   ],
                   "properties": {
-                    "user_id": {
-                      "$ref": "#/components/schemas/user_id"
-                    },
                     "access_token": {
                       "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
                       "type": "string",
