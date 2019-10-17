@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Field `production` to capabilities (`GET /`) response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+- `GET /output_formats`: Each output format can have a `title`.
 
 ### Changed
 
