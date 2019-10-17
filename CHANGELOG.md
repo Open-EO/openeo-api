@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Field `production` to capabilities (`GET /`) response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
-- `GET /output_formats`: Each output format can have a `title`.
 
 ### Changed
 
@@ -18,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
 - The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
+- `GET /output_formats` renamed to `GET /file_formats` to allow listing input file formats. [#215](https://github.com/Open-EO/openeo-api/issues/215)
+    - The structure of the response has changed. The former response body for the output formas is now available in the property `output`.
+    - The input file formats are now available in the property `input` with the same schema as for output formats.
+    - Additionally, each format can have a `title`.
 
 ### Removed
 
@@ -25,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Service parameters and attributes in `GET /service_types` and output format parameters in `GET /output_formats` now have a `type`, which was previously only mentioned in examples.
+- Service parameters and attributes in `GET /service_types` and output format parameters in `GET /file_formats` (previously `GET /output_formats`) now have a `type`, which was previously only mentioned in examples.
 
 ## [0.4.2] - 2019-06-11
 

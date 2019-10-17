@@ -379,10 +379,10 @@
         }
       }
     },
-    "/output_formats": {
+    "/file_formats": {
       "get": {
-        "summary": "Supported output formats",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "summary": "Supported file formats",
+        "description": "The request will ask the back-end for supported input and output file formats. *Input* file formats specify which file a back-end can *read* from. *Output* file formats specify which file a back-end can *write* to.\n\nThe response to this request is an object listing all available input and output file formats separately with their parameters and additional data. This endpoint does not include the supported secondary web services.\n\n**Note**: Format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom file formats or parameters MAY be defined.\n\nBack-ends MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`). Also, for a better user experience the back-end can specify a `title`.\n\nFormat names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Batch Job Management"
@@ -395,149 +395,132 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with containing all output format names as keys and an object that defines supported parameters.",
+            "description": "An object with containing all input and output format separately.  For each property `input` and `output` an object is defined where the  file format names are the property keys and the property values are objects that define a title, supported parameters and related links.",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Output Formats Response",
                   "type": "object",
-                  "description": "List of supported output formats.",
-                  "additionalProperties": {
-                    "title": "Output Format",
-                    "type": "object",
-                    "description": "Describes a specific output format. The key of the entry is the output format name.",
-                    "required": [
-                      "gis_data_types"
-                    ],
-                    "properties": {
-                      "title": {
-                        "type": "string",
-                        "description": "A human-readable short title for the format to be displayed to users **in addition** to the format names specified in the keys. This property is only for better user experience so that users can understand format names better, e.g. GeoTiff for `GTiff` or GeoPackage for `GPKG`. The title is NOT meant to be used in process graphs etc."
-                      },
-                      "gis_data_types": {
-                        "type": "array",
-                        "description": "Specifies the supported GIS spatial data type for this format.",
-                        "items": {
-                          "type": "string",
-                          "enum": [
-                            "raster",
-                            "vector",
-                            "table",
-                            "other"
-                          ]
-                        }
-                      },
-                      "parameters": {
-                        "title": "Output Format Parameters",
-                        "description": "Specifies the supported parameters for this output format.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "$ref": "#/components/schemas/argument"
-                        }
-                      },
-                      "links": {
-                        "description": "Additional links related to this output format, e.g. more information about the parameters.",
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/link"
-                        }
+                  "required": [
+                    "input",
+                    "output"
+                  ],
+                  "properties": {
+                    "input": {
+                      "title": "Input Formats Response",
+                      "type": "object",
+                      "description": "List of supported input file formats, i.e. file formats a back-end can **read** from. The property keys are the file format names that are used by clients and users, for example in process graphs.",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/file_format"
+                      }
+                    },
+                    "output": {
+                      "title": "Output Formats Response",
+                      "type": "object",
+                      "description": "List of supported output file formats, i.e. file formats a back-end can **write** to. The property keys are the file format names that are used by clients and users, for example in process graphs.",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/file_format"
                       }
                     }
                   },
                   "example": {
-                    "GTiff": {
-                      "title": "GeoTiff",
-                      "gis_data_types": [
-                        "raster"
-                      ],
-                      "parameters": {
-                        "tiled": {
-                          "type": "boolean",
-                          "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
-                          "default": false
+                    "output": {
+                      "GTiff": {
+                        "title": "GeoTiff",
+                        "gis_data_types": [
+                          "raster"
+                        ],
+                        "parameters": {
+                          "tiled": {
+                            "type": "boolean",
+                            "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
+                            "default": false
+                          },
+                          "compress": {
+                            "type": "string",
+                            "description": "Set the compression to use.",
+                            "default": "none",
+                            "enum": [
+                              "JPEG",
+                              "LZW",
+                              "DEFLATE",
+                              "NONE"
+                            ]
+                          },
+                          "jpeg_quality": {
+                            "type": "integer",
+                            "description": "Set the JPEG quality when using JPEG.",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 75
+                          }
                         },
-                        "compress": {
-                          "type": "string",
-                          "description": "Set the compression to use.",
-                          "default": "none",
-                          "enum": [
-                            "JPEG",
-                            "LZW",
-                            "DEFLATE",
-                            "NONE"
-                          ]
-                        },
-                        "photometric": {
-                          "type": "string",
-                          "description": "Set the photometric interpretation tag.",
-                          "enum": [
-                            "MINISBLACK",
-                            "MINISWHIT",
-                            "RGB",
-                            "CMYK",
-                            "YCBCR",
-                            "CIELAB",
-                            "ICCLAB",
-                            "ITULAB"
-                          ],
-                          "default": "RGB"
-                        },
-                        "jpeg_quality": {
-                          "type": "integer",
-                          "description": "Set the JPEG quality when using JPEG.",
-                          "minimum": 1,
-                          "maximum": 100,
-                          "default": 75
-                        }
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/frmt_gtiff.html",
+                            "rel": "about",
+                            "title": "GDAL on the GeoTiff file format and storage options"
+                          }
+                        ]
                       },
-                      "links": [
-                        {
-                          "href": "https://www.gdal.org/frmt_gtiff.html",
-                          "rel": "about",
-                          "title": "GDAL on the GeoTiff file format and storage options"
-                        }
-                      ]
+                      "GPKG": {
+                        "title": "OGC GeoPackage",
+                        "gis_data_types": [
+                          "raster",
+                          "vector"
+                        ],
+                        "parameters": {
+                          "version": {
+                            "type": "string",
+                            "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
+                            "enum": [
+                              "auto",
+                              "1",
+                              "1.1",
+                              "1.2"
+                            ],
+                            "default": "auto"
+                          }
+                        },
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage_raster.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for raster data"
+                          },
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for vector data"
+                          }
+                        ]
+                      }
                     },
-                    "GPKG": {
-                      "title": "GeoPackage",
-                      "gis_data_types": [
-                        "raster",
-                        "vector"
-                      ],
-                      "parameters": {
-                        "version": {
-                          "type": "string",
-                          "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
-                          "enum": [
-                            "auto",
-                            "1",
-                            "1.1",
-                            "1.2"
-                          ],
-                          "default": "auto"
+                    "input": {
+                      "GPKG": {
+                        "title": "OGC GeoPackage",
+                        "gis_data_types": [
+                          "raster",
+                          "vector"
+                        ],
+                        "parameters": {
+                          "table": {
+                            "type": "string",
+                            "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
+                          }
                         },
-                        "geometry_name": {
-                          "type": "string",
-                          "description": "**VECTOR ONLY.** Column to use for the geometry column.",
-                          "default": "geom"
-                        },
-                        "table": {
-                          "type": "string",
-                          "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
-                        }
-                      },
-                      "links": [
-                        {
-                          "href": "https://www.gdal.org/drv_geopackage_raster.html",
-                          "rel": "about",
-                          "title": "GDAL on GeoPackage for raster data"
-                        },
-                        {
-                          "href": "https://www.gdal.org/drv_geopackage.html",
-                          "rel": "about",
-                          "title": "GDAL on GeoPackage for vector data"
-                        }
-                      ]
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage_raster.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for raster data"
+                          },
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for vector data"
+                          }
+                        ]
+                      }
                     }
                   }
                 }
@@ -3607,6 +3590,48 @@
   },
   "components": {
     "schemas": {
+      "file_format": {
+        "title": "File Format",
+        "type": "object",
+        "description": "Describes a specific file format.",
+        "required": [
+          "gis_data_types"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A human-readable short title for the format to be displayed to users **in addition** to the format names specified in the keys. This property is only for better user experience so that users can understand format names better, e.g. GeoTiff for `GTiff` or GeoPackage for `GPKG`. The title MUST NOT be used in communication (e.g. in process graphs), although clients MAY translate the titles into the corresponding format names."
+          },
+          "gis_data_types": {
+            "type": "array",
+            "description": "Specifies the supported GIS spatial data type for this format.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "raster",
+                "vector",
+                "table",
+                "other"
+              ]
+            }
+          },
+          "parameters": {
+            "title": "File Format Parameters",
+            "description": "Specifies the supported parameters for this file format.",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/argument"
+            }
+          },
+          "links": {
+            "description": "Additional links related to this file format, e.g. more information about the parameters.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            }
+          }
+        }
+      },
       "production": {
         "type": "boolean",
         "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicitly confirmed to use a non-production implementation.",
@@ -4529,8 +4554,7 @@
             }
           },
           "deprecated": {
-            "$ref": "#/components/schemas/process_deprecated",
-            "type": "boolean"
+            "$ref": "#/components/schemas/process_deprecated"
           },
           "experimental": {
             "$ref": "#/components/schemas/process_experimental"

@@ -104,7 +104,7 @@ Parameters with a leading `?` are optional.
 | Description                                                  | API Request                              | Client method |
 | ------------------------------------------------------------ | ---------------------------------------- | ------------- |
 | Get the capabilities of the back-end. Returns `Capabilities`. | `GET /`                                 | `capabilities()` |
-| List the supported output file formats.                      | `GET /output_formats`                    | `listFileTypes()` |
+| List the supported output file formats.                      | `GET /file_formats`                      | `listFileTypes()` |
 | List the supported secondary service types.                  | `GET /service_types`                     | `listServiceTypes()` |
 | List the supported UDF runtimes.                             | `GET /udf_runtimes`                      | `listUdfRuntimes()` |
 | List all collections available on the back-end.              | `GET /collections`                       | `listCollections()` |
