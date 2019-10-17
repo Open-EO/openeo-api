@@ -1770,7 +1770,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) identity providers. Identity providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each identity provider, a name and the issuer location MUST be listed. A description and related links can OPTIONALLY be added. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the identity provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token for authorization in subsequent API calls. After authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`. Back-ends MAY request user information ([]including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token. ",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) providers (OP). OpenID Providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each OpenID provider, a name and the issuer location MUST be listed. A description and related links can OPTIONALLY be added. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the OpenID provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\n**Important:** openEO clients MUST send the access token to back-ends as Bearer token for authorization in subsequent API calls. After authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints. Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token. In that sense both openEO client and openEO back-end are relying parties (clients) to the OpenID Provider.",
         "tags": [
           "Account Management"
         ],
@@ -1779,11 +1779,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Lists the the OpenID Connect identity providers.",
+            "description": "Lists the the OpenID Providers.",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "OpenID Connect Identity Provider List",
+                  "title": "OpenID Provider List",
                   "type": "object",
                   "required": [
                     "providers"
@@ -1802,12 +1802,12 @@
                           "issuer": {
                             "type": "string",
                             "format": "url",
-                            "description": "The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), i.e. the URL of the identity provider (see endpoint description).",
+                            "description": "The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), i.e. the URL of the OpenID provider (see endpoint description).",
                             "example": "https://accounts.google.com"
                           },
                           "name": {
                             "type": "string",
-                            "description": "The name that is publicly shown in clients for this identity provider."
+                            "description": "The name that is publicly shown in clients for this OpenID provider."
                           },
                           "description": {
                             "$ref": "#/components/schemas/description"
@@ -1851,7 +1851,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "HTTP Basic authentication",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns an access token to be used as Bearer token for authorization in subsequent API calls.\n\nIt is RECOMMENDED to implement this authentication method for non-public services only.\n\nAfter authentication, Clients SHOULD request further details about the user (e.g. the user id) from `GET /me`.",
+        "description": "This request checks whether valid credentials are provided through HTTP Basic Authentication (HTTP header `Authorization`, with type `Basic`). Returns an access token to be used as Bearer token for authorization in subsequent API calls.\n\nIt is RECOMMENDED to implement this authentication method for non-public services only.\n\nAfter authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints.",
         "tags": [
           "Account Management"
         ],
