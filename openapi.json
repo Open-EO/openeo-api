@@ -872,6 +872,7 @@
                           "description": "Uniquely named dimensions of the data cube.",
                           "type": "object",
                           "additionalProperties": {
+                            "x-additionalPropertiesName": "Dimension Name",
                             "anyOf": [
                               {
                                 "title": "Additional Dimension Object",
@@ -1592,6 +1593,7 @@
                   "type": "object",
                   "description": "List of available runtime environments. Each runtime environment has a unique name, which is used as the property key. The name is used in processes to select the runtime environment for UDFs, so the names should be stable and meaningful (see example). Runtime environments can be either a programming language environment or Docker-based.",
                   "additionalProperties": {
+                    "x-additionalPropertiesName": "UDF Runtime Name",
                     "oneOf": [
                       {
                         "title": "Programming language",
@@ -1613,6 +1615,7 @@
                             "description": "Versions available for the programming language.",
                             "type": "object",
                             "additionalProperties": {
+                              "x-additionalPropertiesName": "Programming Language Name",
                               "title": "Programming language version",
                               "type": "object",
                               "required": [
@@ -1622,6 +1625,7 @@
                                 "libraries": {
                                   "description": "List of installed libraries/modules/packages/extensions for the programming language. The names of the extension are used as the property keys.",
                                   "additionalProperties": {
+                                    "x-additionalPropertiesName": "Library Name",
                                     "title": "Programming language library",
                                     "type": "object",
                                     "required": [
@@ -2233,6 +2237,7 @@
                   "type": "object",
                   "description": "List of supported secondary web services.",
                   "additionalProperties": {
+                    "x-additionalPropertiesName": "Service Name",
                     "title": "Service Type",
                     "type": "object",
                     "properties": {
@@ -3597,6 +3602,7 @@
   "components": {
     "schemas": {
       "file_format": {
+        "x-additionalPropertiesName": "File Format Name",
         "title": "File Format",
         "type": "object",
         "description": "Describes a specific file format.",
@@ -4165,32 +4171,6 @@
           "object"
         ]
       },
-      "process_node": {
-        "title": "Process Node",
-        "type": "object",
-        "required": [
-          "process_id",
-          "arguments"
-        ],
-        "properties": {
-          "process_id": {
-            "$ref": "#/components/schemas/process_id"
-          },
-          "result": {
-            "type": "boolean",
-            "description": "Used to specify which node is the last in the chain and returns the result to return to the requesting context. This flag MUST only be set once in each list of process nodes.",
-            "default": false
-          },
-          "description": {
-            "description": "Optional description about the process and its arguments.",
-            "type": "string",
-            "nullable": true
-          },
-          "arguments": {
-            "$ref": "#/components/schemas/process_arguments"
-          }
-        }
-      },
       "process_arguments": {
         "title": "Process Arguments",
         "type": "object",
@@ -4278,10 +4258,34 @@
       },
       "process_graph": {
         "title": "Process Graph",
-        "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+        "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node ID) that is used to refer to the process in the graph.",
         "type": "object",
         "additionalProperties": {
-          "$ref": "#/components/schemas/process_node"
+          "x-additionalPropertiesName": "Node ID",
+          "title": "Process Node",
+          "type": "object",
+          "required": [
+            "process_id",
+            "arguments"
+          ],
+          "properties": {
+            "process_id": {
+              "$ref": "#/components/schemas/process_id"
+            },
+            "result": {
+              "type": "boolean",
+              "description": "Used to specify which node is the last in the chain and returns the result to return to the requesting context. This flag MUST only be set once in each list of process nodes.",
+              "default": false
+            },
+            "description": {
+              "description": "Optional description about the process and its arguments.",
+              "type": "string",
+              "nullable": true
+            },
+            "arguments": {
+              "$ref": "#/components/schemas/process_arguments"
+            }
+          }
         },
         "example": {
           "dc": {
@@ -4509,6 +4513,7 @@
             "title": "Process Parameters",
             "description": "A list of parameters that are applicable for this process. The keys of the object are the names of the parameters. They keys MUST match the following pattern: `^[A-Za-z0-9_]+$`",
             "additionalProperties": {
+              "x-additionalPropertiesName": "Parameter Name",
               "title": "Process Parameter",
               "type": "object",
               "required": [
@@ -4570,6 +4575,7 @@
             "title": "Process Exceptions",
             "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages.\n\nThe keys define the error code and MUST match the following pattern: `^[A-Za-z0-9_]+$`\n\nThis schema follows the schema of the general openEO error list (see errors.json).",
             "additionalProperties": {
+              "x-additionalPropertiesName": "Error Code",
               "title": "Process Exception",
               "type": "object",
               "required": [
@@ -4761,6 +4767,7 @@
         "example": "wms-a3cca9"
       },
       "argument": {
+        "x-additionalPropertiesName": "Parameter Name",
         "type": "object",
         "title": "Argument",
         "description": "Describes a general argument for various entities.",
