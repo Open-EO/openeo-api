@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Field `production` to capabilities (`GET /`) response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+- `GET /`: 
+    - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+    - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
 
 ### Changed
 
