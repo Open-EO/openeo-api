@@ -3095,7 +3095,7 @@
       ],
       "get": {
         "summary": "Download results for a completed batch job",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a valid [STAC Item](https://github.com/radiantearth/stac-spec/tree/master/item-spec).\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -3108,13 +3108,6 @@
           "200": {
             "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
             "headers": {
-              "Expires": {
-                "description": "Indicates the expiration time of the signed URLs contained in this document. Needs to follow the specification at https://tools.ietf.org/html/rfc2616#section-14.21",
-                "schema": {
-                  "type": "string",
-                  "example": "Wed, 21 Oct 2018 07:28:00 GMT"
-                }
-              },
               "OpenEO-Costs": {
                 "description": "Specifies the costs for fully downloading the data **once**, i.e. this header MAY change in subsequent calls. It MUST be set to `0` if the requester is the owner of the job and still has free downloads included in his processing charges estimated by `GET /jobs/{job_id}/estimate`.\n If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.",
                 "schema": {
@@ -3198,12 +3191,34 @@
                       "properties": {
                         "datetime": {
                           "title": "Date and Time",
-                          "description": "The searchable date/time of the assets, in UTC.",
+                          "description": "The searchable date/time of the data, in UTC. For timeseries: The first or start date and time for the data. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
                           "type": "string",
                           "format": "date-time"
                         },
+                        "dtr:start_datetime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "For timeseries: The first or start date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+                        },
+                        "dtr:end_datetime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "For timeseries: The last or end date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+                        },
                         "title": {
                           "$ref": "#/components/schemas/title"
+                        },
+                        "description": {
+                          "$ref": "#/components/schemas/description"
+                        },
+                        "updated": {
+                          "$ref": "#/components/schemas/updated"
+                        },
+                        "expires": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Time until which the assets are accessible, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                          "example": "2020-11-01T00:00:00Z"
                         }
                       }
                     },
@@ -3244,49 +3259,10 @@
                     },
                     "links": {
                       "type": "array",
-                      "description": "List of related URLs.",
+                      "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead.",
                       "items": {
                         "$ref": "#/components/schemas/link"
                       }
-                    }
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "title": "Batch Job Results Response as simple JSON",
-                  "type": "object",
-                  "required": [
-                    "links"
-                  ],
-                  "properties": {
-                    "id": {
-                      "$ref": "#/components/schemas/job_id"
-                    },
-                    "title": {
-                      "$ref": "#/components/schemas/title"
-                    },
-                    "description": {
-                      "$ref": "#/components/schemas/description"
-                    },
-                    "updated": {
-                      "$ref": "#/components/schemas/updated"
-                    },
-                    "links": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/link"
-                      },
-                      "example": [
-                        {
-                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
-                          "type": "image/tiff; application=geotiff"
-                        },
-                        {
-                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
-                          "type": "image/tiff; application=geotiff"
-                        }
-                      ]
                     }
                   }
                 }
