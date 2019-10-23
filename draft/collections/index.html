@@ -469,16 +469,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compatibility-with-wfs-and-stac-apis" class="md-nav__link">
-    Compatibility with WFS and STAC APIs
+  <a href="#compatibility-with-ogc-api-features-and-stac-api" class="md-nav__link">
+    Compatibility with OGC API - Features and STAC API
   </a>
   
     <nav class="md-nav">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#wfs-30-compatibility" class="md-nav__link">
-    WFS 3.0 compatibility
+  <a href="#ogc-api-features-part-1-core-compatibility" class="md-nav__link">
+    OGC API - Features: Part 1: Core compatibility
   </a>
   
 </li>
@@ -710,16 +710,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compatibility-with-wfs-and-stac-apis" class="md-nav__link">
-    Compatibility with WFS and STAC APIs
+  <a href="#compatibility-with-ogc-api-features-and-stac-api" class="md-nav__link">
+    Compatibility with OGC API - Features and STAC API
   </a>
   
     <nav class="md-nav">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#wfs-30-compatibility" class="md-nav__link">
-    WFS 3.0 compatibility
+  <a href="#ogc-api-features-part-1-core-compatibility" class="md-nav__link">
+    OGC API - Features: Part 1: Core compatibility
   </a>
   
 </li>
@@ -763,8 +763,8 @@
                 
                 
                 <h1 id="data-discovery-collections">Data Discovery (Collections)<a class="headerlink" href="#data-discovery-collections" title="Permanent link">&para;</a></h1>
-<p>openEO strives for compatibility with <a href="https://github.com/radiantearth/stac-spec">STAC</a> and <a href="https://github.com/opengeospatial/WFS_FES">OGC WFS</a> as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.6 and WFS 3.0 responses, including a partial compatibility with their APIs (see below).</p>
-<p><strong>WARNING</strong>: STAC and OGC WFS 3, as well as openEO, are still under development.
+<p>openEO strives for compatibility with the specifications <a href="https://stacspec.org/">SpatioTemporal Asset Catalog (STAC)</a> and <a href="http://docs.opengeospatial.org/is/17-069r3/17-069r3.html">OGC API - Features - Part 1: Core</a> as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.6 and OGC API- Features 1.0 responses, including a partial compatibility with their APIs (see below).</p>
+<p><strong>WARNING</strong>: STAC, as well as openEO, is still under development.
 Therefore, it is very likely that further changes and adjustments will be made in the future.</p>
 <h2 id="extensions">Extensions<a class="headerlink" href="#extensions" title="Permanent link">&para;</a></h2>
 <p>STAC has several <a href="https://github.com/radiantearth/stac-spec/tree/v0.6.2/extensions">extensions</a> that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your meta data.</p>
@@ -839,14 +839,18 @@ Therefore, it is very likely that further changes and adjustments will be made i
 </tbody>
 </table>
 <p>More relation types may be listed in the STAC documentation.</p>
-<h2 id="compatibility-with-wfs-and-stac-apis">Compatibility with WFS and STAC APIs<a class="headerlink" href="#compatibility-with-wfs-and-stac-apis" title="Permanent link">&para;</a></h2>
-<p>The data discovery endpoints <code>GET /collections</code> and <code>GET /collections/{name}</code> are compatible with WFS 3 and STAC. The only limitation with regard to response compatibility is that openEO allows open date ranges and WFS does not (see <a href="https://github.com/opengeospatial/WFS_FES/issues/155">issue WFS_FES#155</a>). Additionally, STAC and WFS define additional endpoints that need to be implemented to be fully compatible. The additional information can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.</p>
-<h3 id="wfs-30-compatibility">WFS 3.0 compatibility<a class="headerlink" href="#wfs-30-compatibility" title="Permanent link">&para;</a></h3>
-<p>As of now, WFS 3.0 requires more endpoints for full compatibility. You should make the following changes to your API to implement a valid WFS:</p>
+<h2 id="compatibility-with-ogc-api-features-and-stac-api">Compatibility with <em>OGC API - Features</em> and <em>STAC API</em><a class="headerlink" href="#compatibility-with-ogc-api-features-and-stac-api" title="Permanent link">&para;</a></h2>
+<p>The data discovery endpoints <code>GET /collections</code> and <code>GET /collections/{name}</code> are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.</p>
+<h3 id="ogc-api-features-part-1-core-compatibility">OGC API - Features: Part 1: Core compatibility<a class="headerlink" href="#ogc-api-features-part-1-core-compatibility" title="Permanent link">&para;</a></h3>
+<p>As of now, OGC API - Features requires more endpoints for full compatibility. You should add the following things to your API:</p>
 <ul>
-<li>Add a <code>links</code> property to the <code>GET /</code> request that links to the WFS endpoints.</li>
-<li>Implement <code>GET /api</code> and return the WFS OpenAPI document.</li>
-<li>Implement <code>GET /conformance</code> and specify which conformance classes your WFS conforms to.</li>
+<li>Add <a href="http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#core-overview">additional links</a> to the <code>links</code> property in the <code>GET /</code> response:<ul>
+<li>the API definition (link relations <code>service-desc</code> and <code>service-doc</code>),</li>
+<li>the Conformance declaration (path <code>/conformance</code>, link relation <code>conformance</code>), and</li>
+<li>the Collections (path <code>/collections</code>, link relation <code>data</code>).</li>
+</ul>
+</li>
+<li>Implement <code>GET /conformance</code> and specify which conformance classes the service conforms to.</li>
 <li>Implement <code>GET /collections/{collectionId}/items</code> and <code>GET /collections/{collectionId}/items/{featureId}</code> to support retrieval of individual features.</li>
 </ul>
 <h3 id="stac-compatibility">STAC compatibility<a class="headerlink" href="#stac-compatibility" title="Permanent link">&para;</a></h3>
@@ -856,7 +860,7 @@ Therefore, it is very likely that further changes and adjustments will be made i
 <li><code>POST /stac/search</code></li>
 </ul>
 <h2 id="provide-data-for-download">Provide data for download<a class="headerlink" href="#provide-data-for-download" title="Permanent link">&para;</a></h2>
-<p>If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  <code>GET /collections/{collectionId}/items</code> and <code>GET /collections/{collection-name}/items/{featureId}</code> to support retrieval of individual items. To benefit from the STAC ecosystem it is also recommended to implement the <code>GET /stac</code> endpoint. To allow searching for items you can also implement <code>POST /stac/search</code>. Further information can be found in the <a href="https://github.com/radiantearth/stac-spec/tree/v0.6.2/api-spec">STAC API respository</a> and in the corresponding <a href="https://app.swaggerhub.com/apis/cholmesgeo/STAC_WFS-example/0.6.1">OpenAPI specification</a>.</p>
+<p>If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  <code>GET /collections/{collectionId}/items</code> and <code>GET /collections/{collection-name}/items/{featureId}</code> to support retrieval of individual items. To benefit from the STAC ecosystem it is also recommended to implement the <code>GET /stac</code> endpoint. To allow searching for items you can also implement <code>POST /stac/search</code>. Further information can be found in the <a href="https://github.com/radiantearth/stac-spec/tree/v0.6.2/api-spec">STAC API respository</a> and in the corresponding <a href="https://app.swaggerhub.com/apis/cholmesgeo/STAC_WFS-example/0.6.2">OpenAPI specification</a>.</p>
                 
                   
                 
