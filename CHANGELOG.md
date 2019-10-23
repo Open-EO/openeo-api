@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Service parameters and attributes in `GET /service_types` and output format parameters in `GET /file_formats` (previously `GET /output_formats`) now have a `type`, which was previously only mentioned in examples.
+- Clarified how clients and back-ends should implement well-known discovery for `GET ./well-known/openeo`. [#202](https://github.com/Open-EO/openeo-api/issues/202)
 
 ## [0.4.2] - 2019-06-11
 
