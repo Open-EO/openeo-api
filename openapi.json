@@ -3116,155 +3116,14 @@
               }
             },
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/job_result_stac"
+                }
+              },
               "application/geo+json": {
                 "schema": {
-                  "title": "Batch Job Results Response as STAC Item",
-                  "type": "object",
-                  "required": [
-                    "stac_version",
-                    "id",
-                    "type",
-                    "bbox",
-                    "geometry",
-                    "properties",
-                    "assets",
-                    "links"
-                  ],
-                  "properties": {
-                    "stac_version": {
-                      "$ref": "#/components/schemas/stac_version"
-                    },
-                    "id": {
-                      "$ref": "#/components/schemas/job_id"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "Feature"
-                      ]
-                    },
-                    "bbox": {
-                      "$ref": "#/components/schemas/bbox"
-                    },
-                    "geometry": {
-                      "description": "Defines the full footprint of the asset represented by this item as GeoJSON Geometry.",
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/GeoJsonGeometry"
-                        }
-                      ],
-                      "example": {
-                        "type": "Polygon",
-                        "coordinates": [
-                          [
-                            [
-                              -180,
-                              -90
-                            ],
-                            [
-                              180,
-                              -90
-                            ],
-                            [
-                              180,
-                              90
-                            ],
-                            [
-                              -180,
-                              90
-                            ],
-                            [
-                              -180,
-                              -90
-                            ]
-                          ]
-                        ]
-                      }
-                    },
-                    "properties": {
-                      "type": "object",
-                      "title": "Item Properties",
-                      "description": "MAY contain any additional properties, e.g. other STAC Item properties, properties from STAC extensions or custom properties.",
-                      "required": [
-                        "datetime"
-                      ],
-                      "properties": {
-                        "datetime": {
-                          "title": "Date and Time",
-                          "description": "The searchable date/time of the data, in UTC. For timeseries: The first or start date and time for the data. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
-                          "type": "string",
-                          "format": "date-time"
-                        },
-                        "dtr:start_datetime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "description": "For timeseries: The first or start date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
-                        },
-                        "dtr:end_datetime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "description": "For timeseries: The last or end date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
-                        },
-                        "title": {
-                          "$ref": "#/components/schemas/title"
-                        },
-                        "description": {
-                          "$ref": "#/components/schemas/description"
-                        },
-                        "updated": {
-                          "$ref": "#/components/schemas/updated"
-                        },
-                        "expires": {
-                          "type": "string",
-                          "format": "date-time",
-                          "description": "Time until which the assets are accessible, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
-                          "example": "2020-11-01T00:00:00Z"
-                        }
-                      }
-                    },
-                    "assets": {
-                      "type": "object",
-                      "title": "Item Assets",
-                      "description": "Dictionary of asset objects that can be downloaded, each with a unique key.",
-                      "additionalProperties": {
-                        "type": "object",
-                        "required": [
-                          "href"
-                        ],
-                        "properties": {
-                          "href": {
-                            "title": "Signed URL to the downloadable asset.",
-                            "type": "string"
-                          },
-                          "title": {
-                            "title": "The displayed title for clients and users.",
-                            "type": "string"
-                          },
-                          "type": {
-                            "title": "Media type of the asset.",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": {
-                        "1": {
-                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
-                          "type": "image/tiff; application=geotiff"
-                        },
-                        "2": {
-                          "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
-                          "type": "image/tiff; application=geotiff"
-                        }
-                      }
-                    },
-                    "links": {
-                      "type": "array",
-                      "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead.",
-                      "items": {
-                        "$ref": "#/components/schemas/link"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/job_result_stac"
                 }
               }
             }
@@ -3706,6 +3565,155 @@
   },
   "components": {
     "schemas": {
+      "job_result_stac": {
+        "title": "Batch Job Results Response as STAC Item",
+        "type": "object",
+        "required": [
+          "stac_version",
+          "id",
+          "type",
+          "bbox",
+          "geometry",
+          "properties",
+          "assets",
+          "links"
+        ],
+        "properties": {
+          "stac_version": {
+            "$ref": "#/components/schemas/stac_version"
+          },
+          "id": {
+            "$ref": "#/components/schemas/job_id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Feature"
+            ]
+          },
+          "bbox": {
+            "$ref": "#/components/schemas/bbox"
+          },
+          "geometry": {
+            "description": "Defines the full footprint of the asset represented by this item as GeoJSON Geometry.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoJsonGeometry"
+              }
+            ],
+            "example": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -180,
+                    -90
+                  ],
+                  [
+                    180,
+                    -90
+                  ],
+                  [
+                    180,
+                    90
+                  ],
+                  [
+                    -180,
+                    90
+                  ],
+                  [
+                    -180,
+                    -90
+                  ]
+                ]
+              ]
+            }
+          },
+          "properties": {
+            "type": "object",
+            "title": "Item Properties",
+            "description": "MAY contain any additional properties, e.g. other STAC Item properties, properties from STAC extensions or custom properties.",
+            "required": [
+              "datetime"
+            ],
+            "properties": {
+              "datetime": {
+                "title": "Date and Time",
+                "description": "The searchable date/time of the data, in UTC. For timeseries: The first or start date and time for the data. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "dtr:start_datetime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "For timeseries: The first or start date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+              },
+              "dtr:end_datetime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "For timeseries: The last or end date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+              },
+              "title": {
+                "$ref": "#/components/schemas/title"
+              },
+              "description": {
+                "$ref": "#/components/schemas/description"
+              },
+              "updated": {
+                "$ref": "#/components/schemas/updated"
+              },
+              "expires": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Time until which the assets are accessible, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                "example": "2020-11-01T00:00:00Z"
+              }
+            }
+          },
+          "assets": {
+            "type": "object",
+            "title": "Item Assets",
+            "description": "Dictionary of asset objects that can be downloaded, each with a unique key.",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "href"
+              ],
+              "properties": {
+                "href": {
+                  "title": "Signed URL to the downloadable asset.",
+                  "type": "string"
+                },
+                "title": {
+                  "title": "The displayed title for clients and users.",
+                  "type": "string"
+                },
+                "type": {
+                  "title": "Media type of the asset.",
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "1": {
+                "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
+                "type": "image/tiff; application=geotiff"
+              },
+              "2": {
+                "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
+                "type": "image/tiff; application=geotiff"
+              }
+            }
+          },
+          "links": {
+            "type": "array",
+            "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead.",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            }
+          }
+        }
+      },
       "production": {
         "type": "boolean",
         "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",

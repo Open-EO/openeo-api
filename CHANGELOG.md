@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - `GET /collections/{collectionId}`: Band names are required.
-- `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, response is sent as content type `application/geo+json`.
+- `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, allows content type `application/geo+json`.
 
 ### Removed
 - `GET /jobs/{job_id}/results`: `Expires` header has been removed, use `expires` property in the response body instead.
