@@ -253,7 +253,7 @@
                       }
                     },
                     "links": {
-                      "description": "Additional links related to this service, e.g. the homepage of the service provider or the terms of service.\nIt is highly RECOMMENDED to provide at least links with the following `rel` (relation) types:\n1. `version-history`: A link back to the Well-Known URL (see `/.well-known/openeo`) to allow clients to work on the most recent version.\n2. `terms-of-service`: A link to the terms of service. If a back-end provides a link to the terms of service, the clients MUST provide a way to read the terms of service and only connect to to the back-end after the user agreed to them. The user interface MUST be designed in a way that the terms of service are not agreed to by default, i.e. the user MUST explicitly agree to them.\n3. `privacy-policy`: A link to the privacy policy (GDPR). If a back-end provides a link to a privacy policy, the clients MUST provide a way to read the privacy policy and only connect to to the back-end after the user agreed to them. The user interface MUST be designed in a way that the privacy policy is not agreed to by default, i.e. the user MUST explicitly agree to them.",
+                      "description": "Additional links related to this service, e.g. the homepage of the service provider or the terms of service.\nIt is highly RECOMMENDED to provide at least links with the following `rel` (relation) types:\n1. `version-history`: A link back to the Well-Known URL (see `/.well-known/openeo`) to allow clients to work on the most recent version.\n2. `terms-of-service`: A link to the terms of service. If a back-end provides a link to the terms of service, the clients MUST provide a way to read the terms of service and only connect to the back-end after the user agreed to them. The user interface MUST be designed in a way that the terms of service are not agreed to by default, i.e. the user MUST explicitly agree to them.\n3. `privacy-policy`: A link to the privacy policy (GDPR). If a back-end provides a link to a privacy policy, the clients MUST provide a way to read the privacy policy and only connect to the back-end after the user agreed to them. The user interface MUST be designed in a way that the privacy policy is not agreed to by default, i.e. the user MUST explicitly agree to them.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/link"
@@ -1769,7 +1769,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) providers (OP). OpenID Providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each OpenID provider, a name and the issuer location MUST be listed. A description and related links can OPTIONALLY be added. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the OpenID provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\nopenEO clients MUST use the **access token** as part of the Bearer token for authorization in subsequent API calls (see also the information about Bearer tokens in this document). Clients MUST NOT use the id token or the authorization code. The access token provided by this the OpenID Provider does not always provide information about the issuer (i.e. the OpenID provider) and therefore a prefix MUST be added to the Bearer Token sent in subsequent API calls to protected endpoints. The Bearer Token sent to protected endpoints MUST consist of the authentification method (here `oidc`), the provider ID and the access token itself. All separated by a forward slash `/`. The provider ID corresponds to the value specified for `id` for each provider in the response body of this endpoint.  The header in subsequent API calls for a provider with `id` `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN` (replace `TOKEN` with the actual access token received from the OpenID Provider).\n\nAfter authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints. Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token (without the prefix described above). Therefore, both openEO client and openEO back-end are relying parties (clients) to the OpenID Provider.",
         "tags": [
           "Account Management"
         ],
@@ -1777,14 +1777,88 @@
           {}
         ],
         "responses": {
-          "303": {
-            "description": "Specifies the location of the OpenID Connect discovery document.",
-            "headers": {
-              "Location": {
-                "required": true,
+          "200": {
+            "description": "Lists the the OpenID Providers.",
+            "content": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "https://openeo.org/.well-known/openid-configuration"
+                  "title": "OpenID Provider List",
+                  "type": "object",
+                  "required": [
+                    "providers"
+                  ],
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "issuer",
+                          "scopes",
+                          "title"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "A **unique** identifier for the OpenID Provider to be as prefix for the Bearer token.",
+                            "pattern": "[\\d\\w]{1,20}"
+                          },
+                          "issuer": {
+                            "type": "string",
+                            "format": "url",
+                            "description": "The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), i.e. the URL of the OpenID provider (see endpoint description).",
+                            "example": "https://accounts.google.com"
+                          },
+                          "scopes": {
+                            "type": "array",
+                            "description": "A list of OpenID Scopes that the client MUST use.\n\nIf empty, the default scopes of OpenID Connect MUST be used.",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "The name that is publicly shown in clients for this OpenID provider."
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "links": {
+                            "type": "array",
+                            "description": "Additional links to related resources, for example help pages or a page to register a new user account.",
+                            "items": {
+                              "$ref": "#/components/schemas/link"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "providers": [
+                      {
+                        "id": "google",
+                        "issuer": "https://accounts.google.com",
+                        "title": "Google",
+                        "description": "Login with your Google Account.",
+                        "scopes": [
+                          "oidc",
+                          "profile",
+                          "email",
+                          "earthengine"
+                        ]
+                      },
+                      {
+                        "id": "ms",
+                        "issuer": "https://login.microsoftonline.com/example-tenant/v2.0",
+                        "title": "Microsoft",
+                        "description": "Login with your Microsoft or Skype Account.",
+                        "scopes": []
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -1801,7 +1875,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "HTTP Basic authentication",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
+        "description": "This request checks the credentials provided through [HTTP Basic Authentication according to RFC 7617](https://tools.ietf.org/html/rfc7617) and returns an access token for valid credentials.\n\nThe credentials (username and password) must be sent in the HTTP header `Authorization` with type `Basic` and the Base64 encoded string consiting of username and password separated by a double colon `:`. The header would look as follows for username `user` and password `pw`: `Authorization: Basic dXNlcjpwdw==`.\n\nThe access token has to be used in the Bearer token for authorization in subsequent API calls (see also the information about Bearer tokens in this document). The access token returned by this request MUST NOT be provided with `basic//` prefix, but the Bearer Token sent in subsequent API calls to protected endpoints MUST be prefixed with `basic//`. The header in subsequent API calls would look as follows: `Authorization: Bearer basic//TOKEN` (replace `TOKEN` with the actual access token).\n\nIt is RECOMMENDED to implement this authentication method for non-public services only.\n\nAfter authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints.",
         "tags": [
           "Account Management"
         ],
@@ -1819,15 +1893,11 @@
                   "title": "HTTP Basic Authentication Response",
                   "type": "object",
                   "required": [
-                    "user_id",
                     "access_token"
                   ],
                   "properties": {
-                    "user_id": {
-                      "$ref": "#/components/schemas/user_id"
-                    },
                     "access_token": {
-                      "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
+                      "description": "The access token (without `basic//` prefix) to be used in the Bearer token for authorization in subsequent API calls.",
                       "type": "string",
                       "example": "b34ba2bdf9ac9ee1"
                     }
@@ -2016,10 +2086,10 @@
                             "$ref": "#/components/schemas/process_graph_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           }
                         }
                       }
@@ -2073,10 +2143,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2124,10 +2194,10 @@
                       "$ref": "#/components/schemas/process_graph_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2175,10 +2245,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2424,10 +2494,10 @@
                             "$ref": "#/components/schemas/service_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "url": {
                             "$ref": "#/components/schemas/service_url"
@@ -2503,10 +2573,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2570,10 +2640,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2631,10 +2701,10 @@
                       "$ref": "#/components/schemas/service_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2753,10 +2823,10 @@
                             "$ref": "#/components/schemas/job_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "status": {
                             "$ref": "#/components/schemas/status"
@@ -2828,10 +2898,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2886,10 +2956,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2938,10 +3008,10 @@
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -3135,10 +3205,10 @@
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "updated": {
                       "$ref": "#/components/schemas/updated"
@@ -4708,13 +4778,17 @@
         "example": "running",
         "default": "submitted"
       },
-      "title": {
+      "description": {
+        "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string"
+      },
+      "eo_title": {
         "description": "A short description to easily distinguish entities.",
         "type": "string",
         "nullable": true,
         "example": "NDVI based on Sentinel 2"
       },
-      "description": {
+      "eo_description": {
         "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
         "type": "string",
         "nullable": true,
@@ -5054,7 +5128,8 @@
     "securitySchemes": {
       "Bearer": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "The Bearer Token MUST consist of the authentification method, a provider ID (if available) and the token itself. All separated by a forward slash `/`. Examples (replace `TOKEN` with the actual access token): (1) Basic authentication (no provider ID available): `basic//TOKEN` (2) OpenID Connect (provider ID is `ms`): `oidc/ms/TOKEN`. For OpenID Connect, the provider ID corresponds to the value specified for `id` for each provider in `GET /credentials/oidc`."
       },
       "Basic": {
         "type": "http",
