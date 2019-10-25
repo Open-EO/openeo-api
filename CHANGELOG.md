@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: 
     - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
     - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
+- `GET /collections` and `GET /collections/{collectionId}`: New field `deprecated` can be used to indicate outdated collections. Links with relation type `successor-version` can point to a newer version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
 
 ### Changed
 
@@ -29,12 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- `GET /job/{job_id}/results`: Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+- `GET /job/{job_id}/results`: Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
 - `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
 
 ### Fixed
 
-- Service parameters and attributes in `GET /service_types` and output format parameters in `GET /file_formats` (previously `GET /output_formats`) now have a `type`, which was previously only mentioned in examples.
+- Service parameters and attributes in `GET /service_types` and output format parameters in `GET /file_formats` (previously `GET /output_formats`) now have a `type`, which was previously only mentioned in examples.
 - Clarified how clients and back-ends should implement well-known discovery for `GET ./well-known/openeo`. [#202](https://github.com/Open-EO/openeo-api/issues/202)
 
 ## [0.4.2] - 2019-06-11

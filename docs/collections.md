@@ -39,6 +39,7 @@ The following table lists relation types that are commonly used as `rel` types i
 | `about`           | A resource that is related or further explains the entity, e.g. a user guide. | Discovery +Collections |
 | `derived_from`    | Allows referencing the data this collection was derived from. | Collections |
 | `cite-as`         | For all DOI names specified, the respective DOI links SHOULD be added to the links section of the catalog with the `rel` type `cite-as`. | Collections |
+| `successor-version`| If a process or collection is deprecated, a link with this type can point to the successor of the process of collection. | Collections +Processes |
 
 More relation types may be listed in the STAC documentation.
 
