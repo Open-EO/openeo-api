@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
-- `GET /collections/{collectionId}`: Band names are required.
+- `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.8.1 ([#185](https://github.com/Open-EO/openeo-api/issues/185), [#204](https://github.com/Open-EO/openeo-api/issues/204)) and removed optional STAC extensions from the API specification ([#176](https://github.com/Open-EO/openeo-api/issues/176)).
 - If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
 - The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)

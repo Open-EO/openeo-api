@@ -7,7 +7,7 @@ Therefore, it is very likely that further changes and adjustments will be made i
 
 ## Extensions
 
-STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.6.2/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your meta data.
+STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.8.1/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your meta data.
 
 Some commonly used extensions that are integrated in the openEO API specification are:
 
@@ -67,4 +67,4 @@ As of now, STAC has two more required endpoints that need to be implemented:
 
 ## Provide data for download
 
-If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem it is also recommended to implement the `GET /stac` endpoint. To allow searching for items you can also implement `POST /stac/search`. Further information can be found in the [STAC API respository](https://github.com/radiantearth/stac-spec/tree/v0.6.2/api-spec) and in the corresponding [OpenAPI specification](https://app.swaggerhub.com/apis/cholmesgeo/STAC_WFS-example/0.6.2).
+If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem it is also recommended to implement the `GET /stac` endpoint. To allow searching for items you can also implement `POST /stac/search`. Further information can be found in the [STAC API respository](https://github.com/radiantearth/stac-spec/tree/v0.8.1/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
