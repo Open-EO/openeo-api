@@ -18,7 +18,7 @@ You can implement a back-end in iterations. It is recommended to start by implem
 For example, you could start by implementing the following endpoints in the first iteration:
 
 * Well-Known Document: `GET /.well-known/openeo`
-* Capabilities: `GET /` and `GET /output_formats`
+* Capabilities: `GET /` and `GET /file_formats`
 * Data discovery: `GET /collections` and `GET /collections/{collection_id}`
 * Process discovery: `GET /processes`
 * Data processing: `POST /result`

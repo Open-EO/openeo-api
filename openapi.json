@@ -116,7 +116,7 @@
                     },
                     "endpoints": {
                       "type": "array",
-                      "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented and do not return openEO error `FeatureUnsupported` / HTTP error code 501.",
+                      "description": "Lists all supported endpoints. Supported are all endpoints, which are implemented, return a 2XX or 3XX HTTP status code and are fully compatible to the API specification.",
                       "items": {
                         "title": "Endpoint",
                         "type": "object",
@@ -253,7 +253,7 @@
                       }
                     },
                     "links": {
-                      "description": "Additional links related to this service, e.g. the homepage of the service provider or the terms of service.\nIt is highly RECOMMENDED to provide a link back to the Well-Known URI (see `/.well-known/openeo`) with relation type `version-history` to allow clients to work on the most recent version.",
+                      "description": "Additional links related to this service, e.g. the homepage of the service provider or the terms of service.\nIt is highly RECOMMENDED to provide at least links with the following `rel` (relation) types:\n1. `version-history`: A link back to the Well-Known URL (see `/.well-known/openeo`) to allow clients to work on the most recent version.\n2. `terms-of-service`: A link to the terms of service. If a back-end provides a link to the terms of service, the clients MUST provide a way to read the terms of service and only connect to the back-end after the user agreed to them. The user interface MUST be designed in a way that the terms of service are not agreed to by default, i.e. the user MUST explicitly agree to them.\n3. `privacy-policy`: A link to the privacy policy (GDPR). If a back-end provides a link to a privacy policy, the clients MUST provide a way to read the privacy policy and only connect to the back-end after the user agreed to them. The user interface MUST be designed in a way that the privacy policy is not agreed to by default, i.e. the user MUST explicitly agree to them.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/link"
@@ -270,6 +270,12 @@
                           "rel": "terms-of-service",
                           "type": "text/html",
                           "title": "Terms of service"
+                        },
+                        {
+                          "href": "https://www.cool-cloud-corp.com/privacy",
+                          "rel": "privacy-policy",
+                          "type": "text/html",
+                          "title": "Privacy Policy"
                         },
                         {
                           "href": "http://www.cool-cloud-corp.com/.well-known/openeo",
@@ -296,7 +302,7 @@
     "/.well-known/openeo": {
       "get": {
         "summary": "Supported openEO versions",
-        "description": "Well-Known URI for openEO, listing all implemented openEO versions supported by the service provider.\nThis allows clients to easily identify the best suited openEO implementation they can use. The Well-Known URI is the entry point for clients and users, so make sure it is permanent and easy to use and remember. Please note that this URL MUST NOT be versioned as the other endpoints.\nSee [RFC 5785](https://tools.ietf.org/html/rfc5785) for more information about Well-Known URIs.",
+        "description": "Well-Known URI (see [RFC 57855](https://tools.ietf.org/html/rfc5785)) for openEO, listing all implemented openEO versions supported by the service provider.\n\nThis allows a client to easily identify the most recent openEO implementation it supports. By default, a client SHOULD connect to the most recent production-ready version it supports. Clients MAY let users choose to connect to versions that are not production-ready versions or outdated.\n\nThe Well-Known URI is the entry point for clients and users, so make sure it is permanent and easy to use and remember. Clients MUST NOT require the well-known path (`./well-known/openeo`) in the URL that is specified by a user to connect to the back-end. A client MUST request `https://example.com/.well-known/openeo` if a user tries to connect to `https://example.com`. If the request to the well-known URI fails, the client SHOULD try to request the capabilities at `/` from `https://example.com`.\n\n**This URI MUST NOT be versioned as the other endpoints.** If your API is available at `https://example.com/api/v1.0`, the Well-Known URI SHOULD be located at `https://example.com/.well-known/openeo` and the URI users connect to SHOULD be `https://example.com`.\n\nClients MAY get additional information (e.g. title or description) about a back-end from the most recent version that has the `production` flag set to `true`.",
         "tags": [
           "Capabilities"
         ],
@@ -379,10 +385,10 @@
         }
       }
     },
-    "/output_formats": {
+    "/file_formats": {
       "get": {
-        "summary": "Supported output formats",
-        "description": "The request will ask the back-end for supported output formats, e.g. PNG, GTiff and JSON. The response is an object all available output formats and their options. This does not include the supported secondary web services.\n\n**Note**: Output format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom output formats or parameters MAY be defined.\n\nBack-ends are MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`).\n\nOutput format names are allowed to be *case insensitive* throughout the API.",
+        "summary": "Supported file formats",
+        "description": "The request will ask the back-end for supported input and output file formats. *Input* file formats specify which file a back-end can *read* from. *Output* file formats specify which file a back-end can *write* to.\n\nThe response to this request is an object listing all available input and output file formats separately with their parameters and additional data. This endpoint does not include the supported secondary web services.\n\n**Note**: Format names and parameters MUST be fully aligned with the GDAL codes if available, see [GDAL Raster Formats](http://www.gdal.org/formats_list.html) and [OGR Vector Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to support all output format parameters supported by GDAL. Some file formats not available through GDAL may be defined centrally for openEO. Custom file formats or parameters MAY be defined.\n\nBack-ends MUST NOT support aliases, for example it is not allowed to support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY translate user input input for convenience (e.g. translate `geotiff` to `gtiff`). Also, for a better user experience the back-end can specify a `title`.\n\nFormat names are allowed to be *case insensitive* throughout the API.",
         "tags": [
           "Capabilities",
           "Batch Job Management"
@@ -395,143 +401,132 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with containing all output format names as keys and an object that defines supported paramaters.",
+            "description": "An object with containing all input and output format separately.  For each property `input` and `output` an object is defined where the  file format names are the property keys and the property values are objects that define a title, supported parameters and related links.",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Output Formats Response",
                   "type": "object",
-                  "description": "List of supported output formats.",
-                  "additionalProperties": {
-                    "title": "Output Format",
-                    "type": "object",
-                    "description": "Describes a specific output format. The key of the entry is the output format name.",
-                    "required": [
-                      "gis_data_types"
-                    ],
-                    "properties": {
-                      "gis_data_types": {
-                        "type": "array",
-                        "description": "Specifies the supported GIS spatial data type for this format.",
-                        "items": {
-                          "type": "string",
-                          "enum": [
-                            "raster",
-                            "vector",
-                            "table",
-                            "other"
-                          ]
-                        }
-                      },
-                      "parameters": {
-                        "title": "Output Format Parameters",
-                        "description": "Specifies the supported parameters for this output format.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "$ref": "#/components/schemas/argument"
-                        }
-                      },
-                      "links": {
-                        "description": "Additional links related to this output format, e.g. more information about the parameters.",
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/link"
-                        }
+                  "required": [
+                    "input",
+                    "output"
+                  ],
+                  "properties": {
+                    "input": {
+                      "title": "Input Formats Response",
+                      "type": "object",
+                      "description": "List of supported input file formats, i.e. file formats a back-end can **read** from. The property keys are the file format names that are used by clients and users, for example in process graphs.",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/file_format"
+                      }
+                    },
+                    "output": {
+                      "title": "Output Formats Response",
+                      "type": "object",
+                      "description": "List of supported output file formats, i.e. file formats a back-end can **write** to. The property keys are the file format names that are used by clients and users, for example in process graphs.",
+                      "additionalProperties": {
+                        "$ref": "#/components/schemas/file_format"
                       }
                     }
                   },
                   "example": {
-                    "GTiff": {
-                      "gis_data_types": [
-                        "raster"
-                      ],
-                      "parameters": {
-                        "tiled": {
-                          "type": "boolean",
-                          "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
-                          "default": false
+                    "output": {
+                      "GTiff": {
+                        "title": "GeoTiff",
+                        "gis_data_types": [
+                          "raster"
+                        ],
+                        "parameters": {
+                          "tiled": {
+                            "type": "boolean",
+                            "description": "This option can be used to force creation of tiled TIFF files [true]. By default [false] stripped TIFF files are created.",
+                            "default": false
+                          },
+                          "compress": {
+                            "type": "string",
+                            "description": "Set the compression to use.",
+                            "default": "none",
+                            "enum": [
+                              "JPEG",
+                              "LZW",
+                              "DEFLATE",
+                              "NONE"
+                            ]
+                          },
+                          "jpeg_quality": {
+                            "type": "integer",
+                            "description": "Set the JPEG quality when using JPEG.",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 75
+                          }
                         },
-                        "compress": {
-                          "type": "string",
-                          "description": "Set the compression to use.",
-                          "default": "none",
-                          "enum": [
-                            "JPEG",
-                            "LZW",
-                            "DEFLATE",
-                            "NONE"
-                          ]
-                        },
-                        "photometric": {
-                          "type": "string",
-                          "description": "Set the photometric interpretation tag.",
-                          "enum": [
-                            "MINISBLACK",
-                            "MINISWHIT",
-                            "RGB",
-                            "CMYK",
-                            "YCBCR",
-                            "CIELAB",
-                            "ICCLAB",
-                            "ITULAB"
-                          ],
-                          "default": "RGB"
-                        },
-                        "jpeg_quality": {
-                          "type": "integer",
-                          "description": "Set the JPEG quality when using JPEG.",
-                          "minimum": 1,
-                          "maximum": 100,
-                          "default": 75
-                        }
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/frmt_gtiff.html",
+                            "rel": "about",
+                            "title": "GDAL on the GeoTiff file format and storage options"
+                          }
+                        ]
                       },
-                      "links": [
-                        {
-                          "href": "https://www.gdal.org/frmt_gtiff.html",
-                          "rel": "about",
-                          "title": "GDAL on the GeoTiff file format andstorage options"
-                        }
-                      ]
+                      "GPKG": {
+                        "title": "OGC GeoPackage",
+                        "gis_data_types": [
+                          "raster",
+                          "vector"
+                        ],
+                        "parameters": {
+                          "version": {
+                            "type": "string",
+                            "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
+                            "enum": [
+                              "auto",
+                              "1",
+                              "1.1",
+                              "1.2"
+                            ],
+                            "default": "auto"
+                          }
+                        },
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage_raster.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for raster data"
+                          },
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for vector data"
+                          }
+                        ]
+                      }
                     },
-                    "GeoPackage": {
-                      "gis_data_types": [
-                        "raster",
-                        "vector"
-                      ],
-                      "parameters": {
-                        "version": {
-                          "type": "string",
-                          "description": "Set GeoPackage version. In AUTO mode, this will be equivalent to 1.2 starting with GDAL 2.3.",
-                          "enum": [
-                            "auto",
-                            "1",
-                            "1.1",
-                            "1.2"
-                          ],
-                          "default": "auto"
+                    "input": {
+                      "GPKG": {
+                        "title": "OGC GeoPackage",
+                        "gis_data_types": [
+                          "raster",
+                          "vector"
+                        ],
+                        "parameters": {
+                          "table": {
+                            "type": "string",
+                            "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
+                          }
                         },
-                        "geometry_name": {
-                          "type": "string",
-                          "description": "**VECTOR ONLY.** Column to use for the geometry column.",
-                          "default": "geom"
-                        },
-                        "table": {
-                          "type": "string",
-                          "description": "**RASTER ONLY.** Name of the table containing the tiles. If the GeoPackage dataset only contains one table, this option is not necessary. Otherwise, it is required."
-                        }
-                      },
-                      "links": [
-                        {
-                          "href": "https://www.gdal.org/drv_geopackage_raster.html",
-                          "rel": "about",
-                          "title": "GDAL on GeoPackage for raster data"
-                        },
-                        {
-                          "href": "https://www.gdal.org/drv_geopackage.html",
-                          "rel": "about",
-                          "title": "GDAL on GeoPackage for vector data"
-                        }
-                      ]
+                        "links": [
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage_raster.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for raster data"
+                          },
+                          {
+                            "href": "https://www.gdal.org/drv_geopackage.html",
+                            "rel": "about",
+                            "title": "GDAL on GeoPackage for vector data"
+                          }
+                        ]
+                      }
                     }
                   }
                 }
@@ -550,7 +545,7 @@
     "/collections": {
       "get": {
         "summary": "Basic metadata for all datasets.",
-        "description": "Lists available collections with basic information. To retrieve domain specific information (e.g. SAR) request all information for a specific collection using `GET /collections/{collection_id}`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/draft/collections/), including common relation types for links, are available in the documentation.",
+        "description": "Lists available collections with basic information. To retrieve domain specific information (e.g. SAR) request all information for a specific collection using `GET /collections/{collection_id}`.\n\nThis endpoint is compatible with [STAC 0.8.0](https://stacspec.org) and [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html). [STAC API](https://github.com/radiantearth/stac-spec/tree/master/api-spec) features / extensions and [STAC content extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions) can be implemented in addition to what is documented here.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/draft/collections/), including common relation types for links, are available in the documentation.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -604,6 +599,9 @@
                           },
                           "version": {
                             "$ref": "#/components/schemas/collection_version"
+                          },
+                          "deprecated": {
+                            "$ref": "#/components/schemas/collection_deprecated"
                           },
                           "license": {
                             "$ref": "#/components/schemas/collection_license"
@@ -751,7 +749,7 @@
       ],
       "get": {
         "summary": "Full metadata for a specific dataset",
-        "description": "Lists all information about a specific collection specified by the identifier `collection_id`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC WFS 3](https://github.com/opengeospatial/WFS_FES) as far as possible. Both standards, as well as openEO, are still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/draft/collections/), including common relation types for links, are available in the documentation.",
+        "description": "Lists all information about a specific collection specified by the identifier `collection_id`.\n\nThis endpoint is compatible with STAC 0.6.2 and all features and extensions of [STAC](https://github.com/radiantearth/stac-spec) can be used here.\n\n**Note:** openEO strives for compatibility with [STAC](https://github.com/radiantearth/stac-spec) and [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. STAC, as well as openEO, is still under development. Therefore, it is likely that further changes and adjustments will be made in the future.\n\nMore information on [data discovery](https://open-eo.github.io/openeo-api/draft/collections/), including common relation types for links, are available in the documentation.",
         "tags": [
           "EO Data Discovery"
         ],
@@ -797,6 +795,9 @@
                     },
                     "version": {
                       "$ref": "#/components/schemas/collection_version"
+                    },
+                    "deprecated": {
+                      "$ref": "#/components/schemas/collection_deprecated"
                     },
                     "license": {
                       "$ref": "#/components/schemas/collection_license"
@@ -877,6 +878,7 @@
                           "description": "Uniquely named dimensions of the data cube.",
                           "type": "object",
                           "additionalProperties": {
+                            "x-additionalPropertiesName": "Dimension Name",
                             "anyOf": [
                               {
                                 "title": "Additional Dimension Object",
@@ -1597,6 +1599,7 @@
                   "type": "object",
                   "description": "List of available runtime environments. Each runtime environment has a unique name, which is used as the property key. The name is used in processes to select the runtime environment for UDFs, so the names should be stable and meaningful (see example). Runtime environments can be either a programming language environment or Docker-based.",
                   "additionalProperties": {
+                    "x-additionalPropertiesName": "UDF Runtime Name",
                     "oneOf": [
                       {
                         "title": "Programming language",
@@ -1618,6 +1621,7 @@
                             "description": "Versions available for the programming language.",
                             "type": "object",
                             "additionalProperties": {
+                              "x-additionalPropertiesName": "Programming Language Name",
                               "title": "Programming language version",
                               "type": "object",
                               "required": [
@@ -1627,6 +1631,7 @@
                                 "libraries": {
                                   "description": "List of installed libraries/modules/packages/extensions for the programming language. The names of the extension are used as the property keys.",
                                   "additionalProperties": {
+                                    "x-additionalPropertiesName": "Library Name",
                                     "title": "Programming language library",
                                     "type": "object",
                                     "required": [
@@ -1770,7 +1775,7 @@
     "/credentials/oidc": {
       "get": {
         "summary": "OpenID Connect authentication",
-        "description": "This endpoint redirects to the [OpenID Connect discovery](http://openid.net/specs/openid-connect-discovery-1_0.html) document, which is usually located at `https://{{domain}}/.well-known/openid-configuration` and provides all information required to authenticate using [OpenID Connect](http://openid.net/connect/). It is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.",
+        "description": "This endpoint lists the supported [OpenID Connect](http://openid.net/connect/) providers (OP). OpenID Providers MUST support [OpenID Connect Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).\n\nFor each OpenID provider, a name and the issuer location MUST be listed. A description and related links can OPTIONALLY be added. The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig) (also referred to as 'authority' in client libraries) is the URL of the OpenID provider, which conforms to a set of rules:\n1. After appending `/.well-known/openid-configuration` to the URL, a [HTTP/1.1 GET request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest) to the concatenated URL must return a [OpenID Discovery Configuration Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse). The response provides all information required to authenticate using OpenID Connect.\n2. The URL MUST NOT contain a terminating forward slash `/`.\n\nIt is highly RECOMMENDED to implement OpenID Connect for public services in favor of Basic authentication.\n\nopenEO clients MUST use the **access token** as part of the Bearer token for authorization in subsequent API calls (see also the information about Bearer tokens in this document). Clients MUST NOT use the id token or the authorization code. The access token provided by this the OpenID Provider does not always provide information about the issuer (i.e. the OpenID provider) and therefore a prefix MUST be added to the Bearer Token sent in subsequent API calls to protected endpoints. The Bearer Token sent to protected endpoints MUST consist of the authentification method (here `oidc`), the provider ID and the access token itself. All separated by a forward slash `/`. The provider ID corresponds to the value specified for `id` for each provider in the response body of this endpoint.  The header in subsequent API calls for a provider with `id` `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN` (replace `TOKEN` with the actual access token received from the OpenID Provider).\n\nAfter authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints. Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims)) from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo) using the access token (without the prefix described above). Therefore, both openEO client and openEO back-end are relying parties (clients) to the OpenID Provider.",
         "tags": [
           "Account Management"
         ],
@@ -1778,14 +1783,88 @@
           {}
         ],
         "responses": {
-          "303": {
-            "description": "Specifies the location of the OpenID Connect discovery document.",
-            "headers": {
-              "Location": {
-                "required": true,
+          "200": {
+            "description": "Lists the the OpenID Providers.",
+            "content": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "https://openeo.org/.well-known/openid-configuration"
+                  "title": "OpenID Provider List",
+                  "type": "object",
+                  "required": [
+                    "providers"
+                  ],
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "issuer",
+                          "scopes",
+                          "title"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "A **unique** identifier for the OpenID Provider to be as prefix for the Bearer token.",
+                            "pattern": "[\\d\\w]{1,20}"
+                          },
+                          "issuer": {
+                            "type": "string",
+                            "format": "url",
+                            "description": "The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig), i.e. the URL of the OpenID provider (see endpoint description).",
+                            "example": "https://accounts.google.com"
+                          },
+                          "scopes": {
+                            "type": "array",
+                            "description": "A list of OpenID Scopes that the client MUST use.\n\nIf empty, the default scopes of OpenID Connect MUST be used.",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "The name that is publicly shown in clients for this OpenID provider."
+                          },
+                          "description": {
+                            "$ref": "#/components/schemas/description"
+                          },
+                          "links": {
+                            "type": "array",
+                            "description": "Additional links to related resources, for example help pages or a page to register a new user account.",
+                            "items": {
+                              "$ref": "#/components/schemas/link"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "providers": [
+                      {
+                        "id": "google",
+                        "issuer": "https://accounts.google.com",
+                        "title": "Google",
+                        "description": "Login with your Google Account.",
+                        "scopes": [
+                          "oidc",
+                          "profile",
+                          "email",
+                          "earthengine"
+                        ]
+                      },
+                      {
+                        "id": "ms",
+                        "issuer": "https://login.microsoftonline.com/example-tenant/v2.0",
+                        "title": "Microsoft",
+                        "description": "Login with your Microsoft or Skype Account.",
+                        "scopes": []
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -1802,7 +1881,7 @@
     "/credentials/basic": {
       "get": {
         "summary": "HTTP Basic authentication",
-        "description": "This request checks whether the credentials provided in the HTTP Basic header are valid. Returns the user ID and a bearer token for authorization in subsequent API calls. It is RECOMMENDED to implement this authentication method for non-public services only.",
+        "description": "This request checks the credentials provided through [HTTP Basic Authentication according to RFC 7617](https://tools.ietf.org/html/rfc7617) and returns an access token for valid credentials.\n\nThe credentials (username and password) must be sent in the HTTP header `Authorization` with type `Basic` and the Base64 encoded string consiting of username and password separated by a double colon `:`. The header would look as follows for username `user` and password `pw`: `Authorization: Basic dXNlcjpwdw==`.\n\nThe access token has to be used in the Bearer token for authorization in subsequent API calls (see also the information about Bearer tokens in this document). The access token returned by this request MUST NOT be provided with `basic//` prefix, but the Bearer Token sent in subsequent API calls to protected endpoints MUST be prefixed with `basic//`. The header in subsequent API calls would look as follows: `Authorization: Bearer basic//TOKEN` (replace `TOKEN` with the actual access token).\n\nIt is RECOMMENDED to implement this authentication method for non-public services only.\n\nAfter authentication, Clients SHOULD request further details about the user from `GET /me` so that they can make requests to the `/files/{user_id}` endpoints.",
         "tags": [
           "Account Management"
         ],
@@ -1820,15 +1899,11 @@
                   "title": "HTTP Basic Authentication Response",
                   "type": "object",
                   "required": [
-                    "user_id",
                     "access_token"
                   ],
                   "properties": {
-                    "user_id": {
-                      "$ref": "#/components/schemas/user_id"
-                    },
                     "access_token": {
-                      "description": "An access token that is used for subsequent calls to the API as Bearer token in the `Authorization` header.",
+                      "description": "The access token (without `basic//` prefix) to be used in the Bearer token for authorization in subsequent API calls.",
                       "type": "string",
                       "example": "b34ba2bdf9ac9ee1"
                     }
@@ -1849,7 +1924,7 @@
     "/validation": {
       "post": {
         "summary": "Validate a process graph",
-        "description": "Validates a process graph without executing it. A process graph is considered valid unless the `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported by the back-end. It MUST also checks the parameter values against the schema, but checking whether the values are adequate in the context of data is OPTIONAL. For example, a non-existing band name may may get rejected only by a few back-ends.\n\nErrors that usually occure during processing MAY NOT get reported, e.g. if a referenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once they found the first error. \n\nPlease note that a validation always returns with HTTP status code 200. Error codes in the 4xx and 5xx ranges MUST be returned only when the general validation request is invalid (e.g. server is busy or no process graph parameter specified), but never if the process graph validation found an error (e.g. an unsupported process).",
+        "description": "Validates a process graph without executing it. A process graph is considered valid unless the `errors` array in the response contains at least one error.\n\nChecks whether the process graph is schematically correct and the processes are supported by the back-end. It MUST also checks the parameter values against the schema, but checking whether the values are adequate in the context of data is OPTIONAL. For example, a non-existing band name may may get rejected only by a few back-ends.\n\nErrors that usually occur during processing MAY NOT get reported, e.g. if a referenced file is accessible at the time of execution.\n\nBack-ends can either report all errors at once or stop the validation once they found the first error. \n\nPlease note that a validation always returns with HTTP status code 200. Error codes in the 4xx and 5xx ranges MUST be returned only when the general validation request is invalid (e.g. server is busy or no process graph parameter specified), but never if the process graph validation found an error (e.g. an unsupported process).",
         "tags": [
           "Process Graph Management"
         ],
@@ -2017,10 +2092,10 @@
                             "$ref": "#/components/schemas/process_graph_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           }
                         }
                       }
@@ -2074,10 +2149,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2125,10 +2200,10 @@
                       "$ref": "#/components/schemas/process_graph_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2176,10 +2251,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2230,7 +2305,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An object with a map containing all service names as keys and an object that defines supported paramaters and attributes.",
+            "description": "An object with a map containing all service names as keys and an object that defines supported parameters and attributes.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2238,6 +2313,7 @@
                   "type": "object",
                   "description": "List of supported secondary web services.",
                   "additionalProperties": {
+                    "x-additionalPropertiesName": "Service Name",
                     "title": "Service Type",
                     "type": "object",
                     "properties": {
@@ -2302,23 +2378,23 @@
                         {
                           "variable_id": "layer",
                           "type": "string",
-                          "desctiption": "The layer name.",
+                          "description": "The layer name.",
                           "default": "roads"
                         },
                         {
-                          "variable_id": "spetial_extent_west",
+                          "variable_id": "spatial_extent_west",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_east",
+                          "variable_id": "spatial_extent_east",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_north",
+                          "variable_id": "spatial_extent_north",
                           "type": "number"
                         },
                         {
-                          "variable_id": "spetial_extent_south",
+                          "variable_id": "spatial_extent_south",
                           "type": "number"
                         }
                       ],
@@ -2424,10 +2500,10 @@
                             "$ref": "#/components/schemas/service_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "url": {
                             "$ref": "#/components/schemas/service_url"
@@ -2503,10 +2579,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2570,10 +2646,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2594,7 +2670,7 @@
               }
             }
           },
-          "description": "The data to change for the spcified secondary web service."
+          "description": "The data to change for the specified secondary web service."
         }
       },
       "get": {
@@ -2631,10 +2707,10 @@
                       "$ref": "#/components/schemas/service_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2741,7 +2817,7 @@
                       "type": "array",
                       "items": {
                         "title": "Batch Job Metadata",
-                        "description": "Defines a metadata subset of betch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
+                        "description": "Defines a metadata subset of batch jobs that have been submitted by users. To get the full metadata for a job including a process graph call `GET /jobs/{job_id}`",
                         "type": "object",
                         "required": [
                           "id",
@@ -2753,10 +2829,10 @@
                             "$ref": "#/components/schemas/job_id"
                           },
                           "title": {
-                            "$ref": "#/components/schemas/title"
+                            "$ref": "#/components/schemas/eo_title"
                           },
                           "description": {
-                            "$ref": "#/components/schemas/description"
+                            "$ref": "#/components/schemas/eo_description"
                           },
                           "status": {
                             "$ref": "#/components/schemas/status"
@@ -2828,10 +2904,10 @@
                 ],
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2858,7 +2934,7 @@
       ],
       "patch": {
         "summary": "Modify a batch job",
-        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherweise requests to this endpoint MUST be rejected with openEO error `JobLocked`.",
+        "description": "Modifies an existing job at the back-end but maintains the identifier. Changes can be grouped in a single request.\n\nJobs can only be modified when the job is not queued or running. Otherwise requests to this endpoint MUST be rejected with openEO error `JobLocked`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -2886,10 +2962,10 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "#/components/schemas/title"
+                    "$ref": "#/components/schemas/eo_title"
                   },
                   "description": {
-                    "$ref": "#/components/schemas/description"
+                    "$ref": "#/components/schemas/eo_description"
                   },
                   "process_graph": {
                     "$ref": "#/components/schemas/process_graph"
@@ -2938,10 +3014,10 @@
                       "$ref": "#/components/schemas/job_id"
                     },
                     "title": {
-                      "$ref": "#/components/schemas/title"
+                      "$ref": "#/components/schemas/eo_title"
                     },
                     "description": {
-                      "$ref": "#/components/schemas/description"
+                      "$ref": "#/components/schemas/eo_description"
                     },
                     "process_graph": {
                       "$ref": "#/components/schemas/process_graph"
@@ -2951,7 +3027,7 @@
                     },
                     "progress": {
                       "type": "number",
-                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job whiched errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped. Property may not be available for the status codes `submitted` and `queued`.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
+                      "description": "Indicates the process of a running batch job in percent.\nCan also be set for a job which errored out or was canceled by the user. In this case, the value indicates the progress at which the job stopped. Property may not be available for the status codes `submitted` and `queued`.\nSubmitted and queued jobs only allow the value `0`, finished jobs only allow the value `100`.",
                       "minimum": 0,
                       "maximum": 100,
                       "example": 75.5
@@ -3129,7 +3205,7 @@
             }
           },
           "424": {
-            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` repoonse.",
+            "description": "The request can't be fulfilled as the batch job failed. This request will deliver the error message that was produced by the batch job.\n\nThis HTTP code MUST be sent only when the job `status` is `error`. The response to this error mirrors the `error` field in the `GET /jobs/{job_id}` response.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3171,7 +3247,7 @@
       },
       "delete": {
         "summary": "Cancel processing a batch job",
-        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing.\n\nA subset of processed results may be available for downloading depending on the state of the job as it was canceled. Finished results MUST NOT be deleted until the job is deleted or job processing is started again.\n\nThis endpoint only has an effect if the job status is `queued` or `running`.\n\nThe job status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
+        "description": "Cancels all related computations for this job at the back-end. It will stop generating additional costs for processing.\n\nA subset of processed results may be available for downloading depending on the state of the job as it was canceled. Finished results MUST NOT be deleted until the job is deleted or job processing is started again.\n\nThis endpoint only has an effect if the job status is `queued` or `running`.\n\nThe job status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status is set to `submitted`. ",
         "tags": [
           "Batch Job Management"
         ],
@@ -3426,7 +3502,7 @@
                       "properties": {
                         "free": {
                           "type": "integer",
-                          "description": "Free storage space in bytes, which is still availble to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
+                          "description": "Free storage space in bytes, which is still available to the user. Effectively, this is the disk quota minus the used space by the user, e.g. user-uploaded files and job results.",
                           "example": 536870912
                         },
                         "quota": {
@@ -3485,7 +3561,7 @@
     "/subscription": {
       "get": {
         "summary": "Subscribe to notifications",
-        "description": "Get notified when execution updates occure, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/draft/apireference-subscriptions/) applies for requests and responses.",
+        "description": "Get notified when execution updates occur, e.g. status updates for a job, recently updated EO collections or added/deleted resources like files and process graphs.\n\n**Note:** There are two main differences for this request compared to regular API requests:\n\n1. WebSockets use the `wss://` protocol instead of `https://` - `ws://` is not allowed!\n2. The authorization token is sent in the web socket requests, not as HTTP header. See the `authorization` field in the openEO API for Subscriptions for more details.\n\nAfter upgrading from HTTP to the WebSockets protocol, the [openEO API for Subscriptions](https://open-eo.github.io/openeo-api/draft/apireference-subscriptions/) applies for requests and responses.",
         "tags": [
           "Batch Job Management",
           "File Management",
@@ -3654,10 +3730,10 @@
                 "description": "For timeseries: The last or end date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
               },
               "title": {
-                "$ref": "#/components/schemas/title"
+                "$ref": "#/components/schemas/eo_title"
               },
               "description": {
-                "$ref": "#/components/schemas/description"
+                "$ref": "#/components/schemas/eo_description"
               },
               "updated": {
                 "$ref": "#/components/schemas/updated"
@@ -3714,9 +3790,52 @@
           }
         }
       },
+      "file_format": {
+        "x-additionalPropertiesName": "File Format Name",
+        "title": "File Format",
+        "type": "object",
+        "description": "Describes a specific file format.",
+        "required": [
+          "gis_data_types"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A human-readable short title for the format to be displayed to users **in addition** to the format names specified in the keys. This property is only for better user experience so that users can understand format names better, e.g. GeoTiff for `GTiff` or GeoPackage for `GPKG`. The title MUST NOT be used in communication (e.g. in process graphs), although clients MAY translate the titles into the corresponding format names."
+          },
+          "gis_data_types": {
+            "type": "array",
+            "description": "Specifies the supported GIS spatial data type for this format.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "raster",
+                "vector",
+                "table",
+                "other"
+              ]
+            }
+          },
+          "parameters": {
+            "title": "File Format Parameters",
+            "description": "Specifies the supported parameters for this file format.",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/argument"
+            }
+          },
+          "links": {
+            "type": "array",
+            "description": "Additional links related to this file format, e.g. more information about the parameters.",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            }
+          }
+        }
+      },
       "production": {
         "type": "boolean",
-        "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicetly confirmed to use a non-production implementation.",
+        "description": "Specifies whether the implementation is ready to be used in production use (`true`) or not (`false`).\nClients SHOULD only connect to non-production implementations if the user explicitly confirmed to use a non-production implementation.",
         "default": true
       },
       "collection_links": {
@@ -3782,7 +3901,7 @@
         "type": "number",
         "nullable": true,
         "default": null,
-        "description": "Maximum amount of costs the request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST NOT be a number.\n\n\nIf possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.\n\n\nSetting the buget to `null` means there is no specified budget.",
+        "description": "Maximum amount of costs the request is allowed to produce. The value MUST be specified in the currency the back-end is working with. The currency can be retrieved by calling `GET /`. If no currency is set, this field MUST NOT be a number.\n\n\nIf possible, back-ends SHOULD reject jobs with openEO error `PaymentRequired` if the budget is too low to process the request completely. Otherwise, when reaching the budget jobs MAY try to return partial results if possible. Otherwise the request and results are discarded. Users SHOULD be warned by clients that reaching the budget MAY discard the results and that setting this value should be well-wrought.\n\n\nSetting the budget to `null` means there is no specified budget.",
         "example": 100
       },
       "billing_plan_defaultable": {
@@ -4056,6 +4175,11 @@
         "type": "string",
         "description": "Version of the collection."
       },
+      "collection_deprecated": {
+        "type": "boolean",
+        "description": "Specifies that the collection is deprecated with the potential to be removed in any of the next versions. It should be transitioned out of usage as soon as possible and users should refrain from using it in new implementations.\n\nA link with relation type `successor-version` SHOULD be added to the `links` and MUST refer to the collection that can be used instead.",
+        "default": false
+      },
       "collection_providers": {
         "type": "array",
         "description": "A list of providers, which may include all organizations capturing or processing the data or the hosting provider. Providers should be listed in chronological order with the most recent provider being the last element of the list.",
@@ -4229,32 +4353,6 @@
           "object"
         ]
       },
-      "process_node": {
-        "title": "Process Node",
-        "type": "object",
-        "required": [
-          "process_id",
-          "arguments"
-        ],
-        "properties": {
-          "process_id": {
-            "$ref": "#/components/schemas/process_id"
-          },
-          "result": {
-            "type": "boolean",
-            "description": "Used to specify which node is the last in the chain and returns the result to return to the requesting context. This flag MUST only be set once in each list of process nodes.",
-            "default": false
-          },
-          "description": {
-            "description": "Optional description about the process and its arguments.",
-            "type": "string",
-            "nullable": true
-          },
-          "arguments": {
-            "$ref": "#/components/schemas/process_arguments"
-          }
-        }
-      },
       "process_arguments": {
         "title": "Process Arguments",
         "type": "object",
@@ -4342,10 +4440,34 @@
       },
       "process_graph": {
         "title": "Process Graph",
-        "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+        "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node ID) that is used to refer to the process in the graph.",
         "type": "object",
         "additionalProperties": {
-          "$ref": "#/components/schemas/process_node"
+          "x-additionalPropertiesName": "Node ID",
+          "title": "Process Node",
+          "type": "object",
+          "required": [
+            "process_id",
+            "arguments"
+          ],
+          "properties": {
+            "process_id": {
+              "$ref": "#/components/schemas/process_id"
+            },
+            "result": {
+              "type": "boolean",
+              "description": "Used to specify which node is the last in the chain and returns the result to return to the requesting context. This flag MUST only be set once in each list of process nodes.",
+              "default": false
+            },
+            "description": {
+              "description": "Optional description about the process and its arguments.",
+              "type": "string",
+              "nullable": true
+            },
+            "arguments": {
+              "$ref": "#/components/schemas/process_arguments"
+            }
+          }
         },
         "example": {
           "dc": {
@@ -4573,6 +4695,7 @@
             "title": "Process Parameters",
             "description": "A list of parameters that are applicable for this process. The keys of the object are the names of the parameters. They keys MUST match the following pattern: `^[A-Za-z0-9_]+$`",
             "additionalProperties": {
+              "x-additionalPropertiesName": "Parameter Name",
               "title": "Process Parameter",
               "type": "object",
               "required": [
@@ -4624,8 +4747,7 @@
             }
           },
           "deprecated": {
-            "$ref": "#/components/schemas/process_deprecated",
-            "type": "boolean"
+            "$ref": "#/components/schemas/process_deprecated"
           },
           "experimental": {
             "$ref": "#/components/schemas/process_experimental"
@@ -4635,6 +4757,7 @@
             "title": "Process Exceptions",
             "description": "Declares any exceptions (errors) that might occur during execution of this process. MUST be used only for exceptions that stop the execution of a process and are therefore not to be used for warnings, or notices or debugging messages.\n\nThe keys define the error code and MUST match the following pattern: `^[A-Za-z0-9_]+$`\n\nThis schema follows the schema of the general openEO error list (see errors.json).",
             "additionalProperties": {
+              "x-additionalPropertiesName": "Error Code",
               "title": "Process Exception",
               "type": "object",
               "required": [
@@ -4715,12 +4838,12 @@
       },
       "process_experimental": {
         "type": "boolean",
-        "description": "Declares the process or parameter to be experimental, which means that it\n  is likely to change or may produce unpredictable behaviour.\n  Users should refrain from using it in production,\n  but still feel encouraged to try it out and give feedback.",
+        "description": "Declares the process or parameter to be experimental, which means that it is likely to change or may produce unpredictable behaviour. Users should refrain from using it in production,  but still feel encouraged to try it out and give feedback.",
         "default": false
       },
       "process_deprecated": {
         "type": "boolean",
-        "description": "Specifies that the process or parameter is deprecated with the potential to\n  be removed in any of the next versions. It should\n  be transitioned out of usage as soon as possible and users\n  should refrain from using it in new implementations.",
+        "description": "Specifies that the process or parameter is deprecated with the potential to be removed in any of the next versions. It should be transitioned out of usage as soon as possible and users should refrain from using it in new implementations.\n\nFor processes a link with relation type `successor-version` SHOULD be added to the `links` and MUST refer to the process that can be used instead.",
         "default": false
       },
       "process_graph_id": {
@@ -4763,17 +4886,21 @@
           "finished",
           "error"
         ],
-        "description": "The current status of a batch job.\n\nThe following status changes can occur:\n* `POST /jobs`: The status is initialized as `submitted`.\n* `POST /jobs/{job_id}/results`: The status is set to `queued`, if processing doesn't start instantly.\n    * Once the processing starts the status is set to `running`.\n    * Once the data is available to download the status is set to `finished`.\n    * Whenever an error occurs during processing, the status must be set to `error`.\n* `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status ist set to `submitted`. ",
+        "description": "The current status of a batch job.\n\nThe following status changes can occur:\n* `POST /jobs`: The status is initialized as `submitted`.\n* `POST /jobs/{job_id}/results`: The status is set to `queued`, if processing doesn't start instantly.\n    * Once the processing starts the status is set to `running`.\n    * Once the data is available to download the status is set to `finished`.\n    * Whenever an error occurs during processing, the status must be set to `error`.\n* `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if the status was `running` beforehand and partial or preliminary results are available to be downloaded. Otherwise the status is set to `submitted`. ",
         "example": "running",
         "default": "submitted"
       },
-      "title": {
+      "description": {
+        "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
+        "type": "string"
+      },
+      "eo_title": {
         "description": "A short description to easily distinguish entities.",
         "type": "string",
         "nullable": true,
         "example": "NDVI based on Sentinel 2"
       },
-      "description": {
+      "eo_description": {
         "description": "Detailed description to fully explain the entity.\n\n[CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.",
         "type": "string",
         "nullable": true,
@@ -4796,7 +4923,7 @@
         "type": "string"
       },
       "service_type": {
-        "description": "Definintion of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
+        "description": "Definition of the service type to access result data. All available service types can be retrieved via `GET /service_types`. Service types MUST be accepted *case insensitive*.",
         "type": "string",
         "example": "wms"
       },
@@ -4826,6 +4953,7 @@
         "example": "wms-a3cca9"
       },
       "argument": {
+        "x-additionalPropertiesName": "Parameter Name",
         "type": "object",
         "title": "Argument",
         "description": "Describes a general argument for various entities.",
@@ -4900,7 +5028,7 @@
       },
       "error": {
         "title": "General Error",
-        "description": "An error object declares addtional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
+        "description": "An error object declares additional information about a client-side or server-side error. The [openEO documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html) provides additional information regarding error handling and a list of potential error codes.",
         "type": "object",
         "required": [
           "code",
@@ -5325,7 +5453,8 @@
     "securitySchemes": {
       "Bearer": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "The Bearer Token MUST consist of the authentification method, a provider ID (if available) and the token itself. All separated by a forward slash `/`. Examples (replace `TOKEN` with the actual access token): (1) Basic authentication (no provider ID available): `basic//TOKEN` (2) OpenID Connect (provider ID is `ms`): `oidc/ms/TOKEN`. For OpenID Connect, the provider ID corresponds to the value specified for `id` for each provider in `GET /credentials/oidc`."
       },
       "Basic": {
         "type": "http",
