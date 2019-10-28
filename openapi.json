@@ -3171,7 +3171,7 @@
       ],
       "get": {
         "summary": "Download results for a completed batch job",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a valid [STAC Item](https://github.com/radiantearth/stac-spec/tree/master/item-spec).\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a [STAC Item (version 0.6.2)](https://github.com/radiantearth/stac-spec/tree/master/item-spec) if it has spatial and temporal references.\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -3194,12 +3194,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/job_result_stac"
+                  "$ref": "#/components/schemas/job_result"
                 }
               },
               "application/geo+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/job_result_stac"
+                  "$ref": "#/components/schemas/job_result"
                 }
               }
             }
@@ -3641,7 +3641,7 @@
   },
   "components": {
     "schemas": {
-      "job_result_stac": {
+      "job_result": {
         "title": "Batch Job Results Response as STAC Item",
         "type": "object",
         "required": [
@@ -3715,9 +3715,10 @@
             "properties": {
               "datetime": {
                 "title": "Date and Time",
-                "description": "The searchable date/time of the data, in UTC. For timeseries: The first or start date and time for the data. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                "description": "The searchable date/time of the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. For timeseries: The center date and time for the data.\n\nIt is NOT RECOMMENDED to set this field to `null` as this field is required in a STAC Item.",
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "nullable": true
               },
               "dtr:start_datetime": {
                 "type": "string",
