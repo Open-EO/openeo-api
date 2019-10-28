@@ -16,9 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
+
 - `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.8.1 ([#185](https://github.com/Open-EO/openeo-api/issues/185), [#204](https://github.com/Open-EO/openeo-api/issues/204)) and removed optional STAC extensions from the API specification ([#176](https://github.com/Open-EO/openeo-api/issues/176)).
-- If `currency` returned by `GET /` is null, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to null (default).
-- The default type for Process Graph Variables is not string, but any data type. Default values can be of any type.
+- If `currency` returned by `GET /` is `null`, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to `null` (default).
+- The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
@@ -27,10 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - The structure of the response has changed. The former response body for the output formas is now available in the property `output`.
     - The input file formats are now available in the property `input` with the same schema as for output formats.
     - Additionally, each format can have a `title`.
+- `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, allows content type `application/geo+json`.
 
 ### Removed
 
-- `GET /job/{job_id}/results`: Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+- `GET /job/{job_id}/results`:
+    - Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+    - `Expires` header has been removed, use `expires` property in the response body instead.
 - `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
 
 ### Fixed

@@ -3030,7 +3030,7 @@
       ],
       "get": {
         "summary": "Download results for a completed batch job",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job.\n\nTitle, description and the date and time of the last update from the job SHOULD be included in the response.\n\nURL signing is a way to protect files from unauthorized access with a key instead of HTTP header based authorization. The URL signing key is similar to a password and it's inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and their appropriate expiration. The back-end MAY indicate an expiration time by sending an `Expires` header.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.\n\nA header named `OpenEO-Costs` MAY be sent with all responses to indicate the costs for downloading the data.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a [STAC Item (version 0.6.2)](https://github.com/radiantearth/stac-spec/tree/master/item-spec) if it has spatial and temporal references.\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -3043,13 +3043,6 @@
           "200": {
             "description": "Valid download links have been returned. The download links doesn't necessarily need to be located under the API base url.",
             "headers": {
-              "Expires": {
-                "description": "Indicates the expiration time of the signed URLs contained in this document. Needs to follow the specification at https://tools.ietf.org/html/rfc2616#section-14.21",
-                "schema": {
-                  "type": "string",
-                  "example": "Wed, 21 Oct 2018 07:28:00 GMT"
-                }
-              },
               "OpenEO-Costs": {
                 "description": "Specifies the costs for fully downloading the data **once**, i.e. this header MAY change in subsequent calls. It MUST be set to `0` if the requester is the owner of the job and still has free downloads included in his processing charges estimated by `GET /jobs/{job_id}/estimate`.\n If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.",
                 "schema": {
@@ -3060,41 +3053,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "Batch Job Results Response",
-                  "type": "object",
-                  "required": [
-                    "links"
-                  ],
-                  "properties": {
-                    "id": {
-                      "$ref": "#/components/schemas/job_id"
-                    },
-                    "title": {
-                      "$ref": "#/components/schemas/eo_title"
-                    },
-                    "description": {
-                      "$ref": "#/components/schemas/eo_description"
-                    },
-                    "updated": {
-                      "$ref": "#/components/schemas/updated"
-                    },
-                    "links": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/link"
-                      },
-                      "example": [
-                        {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/1.tif",
-                          "type": "image/tiff"
-                        },
-                        {
-                          "href": "https://openeo.org/api/v0.4/download/583fba8b2ce/2.tif",
-                          "type": "image/tiff"
-                        }
-                      ]
-                    }
-                  }
+                  "$ref": "#/components/schemas/job_result"
+                }
+              },
+              "application/geo+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/job_result"
                 }
               }
             }
@@ -3536,6 +3500,156 @@
   },
   "components": {
     "schemas": {
+      "job_result": {
+        "title": "Batch Job Results Response as STAC Item",
+        "type": "object",
+        "required": [
+          "stac_version",
+          "id",
+          "type",
+          "bbox",
+          "geometry",
+          "properties",
+          "assets",
+          "links"
+        ],
+        "properties": {
+          "stac_version": {
+            "$ref": "#/components/schemas/stac_version"
+          },
+          "id": {
+            "$ref": "#/components/schemas/job_id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Feature"
+            ]
+          },
+          "bbox": {
+            "$ref": "#/components/schemas/bbox"
+          },
+          "geometry": {
+            "description": "Defines the full footprint of the asset represented by this item as GeoJSON Geometry.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GeoJsonGeometry"
+              }
+            ],
+            "example": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [
+                    -180,
+                    -90
+                  ],
+                  [
+                    180,
+                    -90
+                  ],
+                  [
+                    180,
+                    90
+                  ],
+                  [
+                    -180,
+                    90
+                  ],
+                  [
+                    -180,
+                    -90
+                  ]
+                ]
+              ]
+            }
+          },
+          "properties": {
+            "type": "object",
+            "title": "Item Properties",
+            "description": "MAY contain any additional properties, e.g. other STAC Item properties, properties from STAC extensions or custom properties.",
+            "required": [
+              "datetime"
+            ],
+            "properties": {
+              "datetime": {
+                "title": "Date and Time",
+                "description": "The searchable date/time of the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. For timeseries: The center date and time for the data.\n\nIt is NOT RECOMMENDED to set this field to `null` as this field is required in a STAC Item.",
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "dtr:start_datetime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "For timeseries: The first or start date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+              },
+              "dtr:end_datetime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "For timeseries: The last or end date and time for the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time."
+              },
+              "title": {
+                "$ref": "#/components/schemas/eo_title"
+              },
+              "description": {
+                "$ref": "#/components/schemas/eo_description"
+              },
+              "updated": {
+                "$ref": "#/components/schemas/updated"
+              },
+              "expires": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Time until which the assets are accessible, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
+                "example": "2020-11-01T00:00:00Z"
+              }
+            }
+          },
+          "assets": {
+            "type": "object",
+            "title": "Item Assets",
+            "description": "Dictionary of asset objects that can be downloaded, each with a unique key.",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "href"
+              ],
+              "properties": {
+                "href": {
+                  "title": "Signed URL to the downloadable asset.",
+                  "type": "string"
+                },
+                "title": {
+                  "title": "The displayed title for clients and users.",
+                  "type": "string"
+                },
+                "type": {
+                  "title": "Media type of the asset.",
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "1": {
+                "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
+                "type": "image/tiff; application=geotiff"
+              },
+              "2": {
+                "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
+                "type": "image/tiff; application=geotiff"
+              }
+            }
+          },
+          "links": {
+            "type": "array",
+            "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead.",
+            "items": {
+              "$ref": "#/components/schemas/link"
+            }
+          }
+        }
+      },
       "file_format": {
         "x-additionalPropertiesName": "File Format Name",
         "title": "File Format",
@@ -3571,8 +3685,8 @@
             }
           },
           "links": {
-            "description": "Additional links related to this file format, e.g. more information about the parameters.",
             "type": "array",
+            "description": "Additional links related to this file format, e.g. more information about the parameters.",
             "items": {
               "$ref": "#/components/schemas/link"
             }
@@ -4689,6 +4803,219 @@
             "format": "date-time",
             "description": "Date and time the file has lastly been modified, formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.",
             "example": "2018-01-03T10:55:29Z"
+          }
+        }
+      },
+      "bbox": {
+        "description": "Potential *spatial extent* covered by the data. The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):\n\n- West (lower left corner, coordinate axis 1)\n- South (lower left corner, coordinate axis 2)\n- Base (optional, lower left corner, coordinate axis 3)\n- East (upper right corner, coordinate axis 1)\n- North (upper right corner, coordinate axis 2)\n- Height (optional, upper right corner, coordinate axis 3)\n\nThe coordinate reference system of the values is WGS84 longitude/latitude.",
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 6,
+        "items": {
+          "type": "number"
+        },
+        "example": [
+          -180,
+          -90,
+          180,
+          90
+        ]
+      },
+      "GeoJsonPoint3D": {
+        "type": "array",
+        "description": "Point in 3D space",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "GeoJsonPoint": {
+        "type": "object",
+        "title": "GeoJSON Point",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Point"
+            ]
+          },
+          "coordinates": {
+            "$ref": "#/components/schemas/GeoJsonPoint3D"
+          }
+        }
+      },
+      "GeoJsonGeometry": {
+        "title": "GeoJSON Geometry",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/GeoJsonPoint"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonLineString"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonPolygon"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiPoint"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiLineString"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonMultiPolygon"
+          },
+          {
+            "$ref": "#/components/schemas/GeoJsonGeometryCollection"
+          }
+        ]
+      },
+      "GeoJsonLineString": {
+        "type": "object",
+        "title": "GeoJSON LineString",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "LineString"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonPoint3D"
+            }
+          }
+        }
+      },
+      "GeoJsonPolygon": {
+        "type": "object",
+        "title": "GeoJSON Polygon",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Polygon"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GeoJsonPoint3D"
+              }
+            }
+          }
+        }
+      },
+      "GeoJsonMultiPoint": {
+        "type": "object",
+        "title": "GeoJSON MultiPoint",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiPoint"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonPoint3D"
+            }
+          }
+        }
+      },
+      "GeoJsonMultiLineString": {
+        "type": "object",
+        "title": "GeoJSON MultiLineString",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiLineString"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GeoJsonPoint3D"
+              }
+            }
+          }
+        }
+      },
+      "GeoJsonMultiPolygon": {
+        "type": "object",
+        "title": "GeoJSON MultiPolygon",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "MultiPolygon"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GeoJsonPoint3D"
+                }
+              }
+            }
+          }
+        }
+      },
+      "GeoJsonGeometryCollection": {
+        "type": "object",
+        "title": "GeoJSON GeometryCollection",
+        "required": [
+          "type",
+          "geometries"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "GeometryCollection"
+            ]
+          },
+          "geometries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeoJsonGeometry"
+            }
           }
         }
       }
