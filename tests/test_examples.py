@@ -1,12 +1,12 @@
 """
 
-DIY validation of openapi.json examples against their corresponding schema (PR#194).
+DIY validation of openapi.yaml examples against their corresponding schema (PR#194).
 Currently implemented as pytest based test suite due to lack of this
 validation feature in speccy itself (see https://github.com/wework/speccy/issues/287)
 
 """
 
-import json
+import yaml
 from pathlib import Path
 
 import _pytest
@@ -18,8 +18,8 @@ _PROJECT_ROOT = Path(__file__).parent.parent
 
 
 def get_api_spec() -> dict:
-    with (_PROJECT_ROOT / 'openapi.json').open() as f:
-        return json.load(f)
+    with (_PROJECT_ROOT / 'openapi.yaml').open() as f:
+        return yaml.load(f)
 
 
 class OpenApiValidator:

@@ -29,6 +29,6 @@ This repository contains a set of files formally and technically describing the 
 
 * [docs/](docs/) ([browseable version](https://open-eo.github.io/openeo-api/draft/)) contains all additional written documentation, including 'getting started' guides, the architecture, feature descriptions, development guidelines and more.
 * [processes/](processes/) ([browseable version](https://open-eo.github.io/openeo-api/draft/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
-* [openapi.json](openapi.json) ([browseable version](https://open-eo.github.io/openeo-api/draft/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
+* [openapi.yaml](openapi.yaml) ([browseable version](https://open-eo.github.io/openeo-api/draft/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
 * [subscriptions.json](subscriptions.json) ([browseable version](https://open-eo.github.io/openeo-api/draft/apireference-subscriptions/)) provides the [AsyncAPI](https://www.asyncapi.com/) 1.2 definitions for the WebSocket-based subscriptions and notifications API for openEO.
 * [errors.json](errors.json) ([browseable version](https://open-eo.github.io/openeo-api/draft/errors/#openeo-error-codes)) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
