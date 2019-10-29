@@ -46,4 +46,4 @@ Repositories containing running software shall use an appropriate continuous int
 
 ## Additional guidelines
 
-There a specific guidelines for [client library development](guidelines-clients.md) and [API development](guidelines-api.md).
+There is specific guideline for [client library development](guidelines-clients.md).

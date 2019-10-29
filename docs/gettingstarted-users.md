@@ -16,6 +16,6 @@ Follow the links above to find usage instructions for each of the client librari
 
 Didn't find your programming language? You can also access the [openEO API](apireference.md) implementations directly or start [implementing your own client library](gettingstarted-clients.md).
 
-If you are missing any functionality in the API feel free to [open an issue](https://github.com/Open-EO/openeo-api/issues) or actively start proposing API changes as Pull Requests. Make sure to read the [API Development Guidelines](guidelines-api.md) before.
+If you are missing any functionality in the API feel free to [open an issue](https://github.com/Open-EO/openeo-api/issues) or actively start proposing API changes as Pull Requests.
 
 Feel free to contact us for further assistance.

@@ -6,14 +6,14 @@ This page gives a detailed description of the openEO proof of concept use cases.
 2. [Create a monthly aggregated Sentinel 1 product from a custom Python script](#use-case-2)
 3. [Compute time series of zonal (regional) statistics of Sentinel 2 imagery over user-specified polygons](#use-case-3)
 
-**Note**: [CORS](cors.md) and authentication is not included in these examples for simplicity.
+**Note**: [CORS](apireference.md#section/Cross-Origin-Resource-Sharing-(CORS)) and authentication is not included in these examples for simplicity.
 Repeating calls are also not included as it would not make much sense to list the same discovery requests (see Use Case 1, requests 1 to 6) for each use case individually.
 
 ## Use Case 1
 
 Deriving minimum NDVI measurements over pixel time series of Sentinel 2 imagery.
 
-[A similar example (computing an EVI) is also available.](processgraphs.md#example)
+[A similar example (computing an EVI) is also available.](apireference.md#section/Example)
 
 1. **Requesting the API versions available at the back-end**
 
