@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: 
     - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
     - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
-- `GET /collections` and `GET /collections/{collectionId}`: New field `deprecated` can be used to indicate outdated collections. Links with relation type `successor-version` can point to a newer version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
+- `GET /collections` and `GET /collections/{collectionId}`:
+    - New field `deprecated` can be used to indicate outdated collections. Links with relation type `successor-version` can point to a newer version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
+    - Added a Data Cube Dimension of type `bands` to the `cube:dimensions` property. [#208](https://github.com/Open-EO/openeo-api/issues/208)
 
 ### Changed
 
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - If `currency` returned by `GET /` is `null`, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to `null` (default).
 - The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
+- `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.8.1. [#185](https://github.com/Open-EO/openeo-api/issues/185), [#204](https://github.com/Open-EO/openeo-api/issues/204).
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
 - `GET /udf_runtimes`: `description` fields don't allow `null` values any longer.
@@ -34,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
     - `Expires` header has been removed, use `expires` property in the response body instead.
 - `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
+- `GET /collections/{collectionId}`: Removed optional STAC extensions from the API specification. Inform yourself about useful [STAC extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions) instead. [#176](https://github.com/Open-EO/openeo-api/issues/176)
 
 ### Fixed
 
