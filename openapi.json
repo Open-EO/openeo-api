@@ -762,7 +762,7 @@
                             "x-additionalPropertiesName": "Dimension Name",
                             "anyOf": [
                               {
-                                "title": "Additional Dimension Object",
+                                "title": "Additional Dimension",
                                 "description": "An additional dimension that is not `spatial`.",
                                 "type": "object",
                                 "required": [
@@ -782,27 +782,10 @@
                                     ]
                                   }
                                 ],
-                                "not": {
-                                  "required": [
-                                    "axis"
-                                  ]
-                                },
                                 "properties": {
                                   "type": {
-                                    "description": "Custom type of the dimension, never `spatial`.",
-                                    "allOf": [
-                                      {
-                                        "type": "string"
-                                      },
-                                      {
-                                        "not": {
-                                          "type": "string",
-                                          "enum": [
-                                            "spatial"
-                                          ]
-                                        }
-                                      }
-                                    ]
+                                    "description": "Custom type of the dimension, MUST NOT be `spatial`.",
+                                    "type": "string"
                                   },
                                   "extent": {
                                     "$ref": "#/components/schemas/collection_dimension_extent_open"
@@ -823,7 +806,28 @@
                                 }
                               },
                               {
-                                "title": "Horizontal Spatial Dimension Object",
+                                "title": "Band Dimension",
+                                "description": "A dimension for the bands.\n\nThe band dimension only specifies the band names as  dimension values. Further information to the bands are available in either `sar:bands` or `eo:bands` in the `summaries` property.",
+                                "type": "object",
+                                "required": [
+                                  "type",
+                                  "values"
+                                ],
+                                "properties": {
+                                  "type": {
+                                    "description": "Type of the dimension, always `bands`.",
+                                    "type": "string",
+                                    "enum": [
+                                      "bands"
+                                    ]
+                                  },
+                                  "values": {
+                                    "$ref": "#/components/schemas/collection_dimension_values"
+                                  }
+                                }
+                              },
+                              {
+                                "title": "Horizontal Spatial Dimension",
                                 "description": "A spatial dimension in one of the horizontal (x or y) directions.",
                                 "type": "object",
                                 "required": [
@@ -869,7 +873,7 @@
                                 }
                               },
                               {
-                                "title": "Vertical Spatial Dimension Object",
+                                "title": "Vertical Spatial Dimension",
                                 "description": "A spatial dimension in vertical (z) direction.",
                                 "type": "object",
                                 "required": [
@@ -919,18 +923,13 @@
                                 }
                               },
                               {
-                                "title": "Temporal Dimension Object",
+                                "title": "Temporal Dimension",
                                 "description": "A temporal dimension based on the ISO 8601 standard. The temporal reference system for the data is expected to be ISO 8601 compliant (Gregorian calendar / UTC). Data not compliant with ISO 8601 can be represented as an *Additional Dimension Object* with `type` set to `temporal`.",
                                 "type": "object",
                                 "required": [
                                   "type",
                                   "extent"
                                 ],
-                                "not": {
-                                  "required": [
-                                    "axis"
-                                  ]
-                                },
                                 "properties": {
                                   "type": {
                                     "description": "Type of the dimension, always `temporal`.",
@@ -3030,7 +3029,7 @@
       ],
       "get": {
         "summary": "Download results for a completed batch job",
-        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a [STAC Item (version 0.6.2)](https://github.com/radiantearth/stac-spec/tree/master/item-spec) if it has spatial and temporal references.\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
+        "description": "After finishing processing, this request will provide signed URLs to the processed files of the batch job with some additional metadata. The response is a [STAC Item (version 0.8.1)](https://github.com/radiantearth/stac-spec/tree/master/item-spec) if it has spatial and temporal references included.\n\nURL signing is a way to protect files from unauthorized access with a key in the URL instead of HTTP header based authorization. The URL signing key is similar to a password and its inclusion in the URL allows to download files using simple GET requests supported by a wide range of programs, e.g. web browsers or download managers. Back-ends are responsible to generate the URL signing keys and to manage their appropriate expiration. The back-end MAY indicate an expiration time by setting the `expires` property.\n\nIf processing has not finished yet requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.",
         "tags": [
           "Batch Job Management"
         ],
@@ -3574,7 +3573,7 @@
             "properties": {
               "datetime": {
                 "title": "Date and Time",
-                "description": "The searchable date/time of the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. For timeseries: The center date and time for the data.\n\nIt is NOT RECOMMENDED to set this field to `null` as this field is required in a STAC Item.",
+                "description": "The searchable date/time of the data, in UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. For timeseries: The center date and time for the data.\n\nIt is NOT RECOMMENDED to set this field to `null` as this field is required for the answer to be a valid STAC Item.",
                 "type": "string",
                 "format": "date-time",
                 "nullable": true
@@ -3609,7 +3608,7 @@
           "assets": {
             "type": "object",
             "title": "Item Assets",
-            "description": "Dictionary of asset objects that can be downloaded, each with a unique key.",
+            "description": "Dictionary of asset objects that can be downloaded, each with a unique key. The keys MAY be used by clients as file names.",
             "additionalProperties": {
               "type": "object",
               "required": [
@@ -3631,11 +3630,11 @@
               }
             },
             "example": {
-              "1": {
+              "1.tif": {
                 "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif",
                 "type": "image/tiff; application=geotiff"
               },
-              "2": {
+              "2.tif": {
                 "href": "https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif",
                 "type": "image/tiff; application=geotiff"
               }
@@ -3643,7 +3642,7 @@
           },
           "links": {
             "type": "array",
-            "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead.",
+            "description": "List of related URLs. This MUST NOT be the processed and downloadable data, specify it in the `assets` property instead. Clients MUST NOT download the data referenced in the links by default.",
             "items": {
               "$ref": "#/components/schemas/link"
             }
