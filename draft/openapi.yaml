@@ -2344,13 +2344,8 @@ paths:
         Provider).
 
 
-        After authentication, Clients SHOULD request further details about the
-        user from `GET /me` so that they can make requests to the
-        `/files/{user_id}` endpoints. Back-ends MAY request user information
-        ([including
-        Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
-        from the [OpenID Connect Userinfo
-        endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
+        Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
+        from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
         using the access token (without the prefix described above). Therefore,
         both openEO client and openEO back-end are relying parties (clients) to
         the OpenID Provider.
@@ -2467,11 +2462,6 @@ paths:
 
         It is RECOMMENDED to implement this authentication method for non-public
         services only.
-
-
-        After authentication, Clients SHOULD request further details about the
-        user from `GET /me` so that they can make requests to the
-        `/files/{user_id}` endpoints.
       tags:
         - Account Management
       security:
@@ -3582,9 +3572,7 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-  '/files/{user_id}':
-    parameters:
-      - $ref: '#/components/parameters/user_id'
+  '/files':
     get:
       summary: List all files in the workspace
       description: >-
@@ -3634,9 +3622,8 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-  '/files/{user_id}/{path}':
+  '/files/{path}':
     parameters:
-      - $ref: '#/components/parameters/user_id'
       - $ref: '#/components/parameters/file_path'
     get:
       summary: Download a file from the workspace
@@ -3675,7 +3662,6 @@ paths:
       security:
         - Bearer: []
       parameters:
-        - $ref: '#/components/parameters/user_id'
         - $ref: '#/components/parameters/file_path'
       responses:
         '200':
@@ -3709,7 +3695,6 @@ paths:
       security:
         - Bearer: []
       parameters:
-        - $ref: '#/components/parameters/user_id'
         - $ref: '#/components/parameters/file_path'
       responses:
         '204':
@@ -5432,13 +5417,6 @@ components:
           schema:
             $ref: '#/components/schemas/error'
   parameters:
-    user_id:
-      name: user_id
-      in: path
-      description: Unique user identifier.
-      required: true
-      schema:
-        $ref: '#/components/schemas/user_id'
     process_graph_id:
       name: process_graph_id
       in: path
