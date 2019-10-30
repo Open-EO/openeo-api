@@ -83,7 +83,7 @@ createJob({...}, [budget => 123])
 
 ## Method mappings
 
-**Note:** Subscriptions and some scopes for response JSON objects are still missing. We are open for proposals.
+**Note:** Some scopes for response JSON objects are still missing. We are open for proposals.
 
 Parameters with a leading `?` are optional.
 
