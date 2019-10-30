@@ -114,8 +114,8 @@ Parameters with a leading `?` are optional.
 | Authenticate with HTTP Basic (if not specified in `connect`). | `GET /credentials/basic`                | `authenticateBasic(username, password)` |
 | Logout / Close session for the authenticated user            | *Depends on authentication method*       | `logout()` |
 | Get information about the authenticated user.                | `GET /me`                                | `describeAccount()` |
-| Lists all files from a user. Returns a list of `File`.       | `GET /files/{user_id}`                   | `listFiles(?userId)` |
-| Opens a (existing or non-existing) file without reading any information. Returns a `File`. | *None*     | `openFile(path, ?userId)` |
+| Lists all files from a user. Returns a list of `File`.       | `GET /files`                             | `listFiles()` |
+| Opens a (existing or non-existing) file without reading any information. Returns a `File`. | *None*     | `openFile(path)` |
 | Validates a process graph.                                   | `POST /validation`                       | `validateProcessGraph(processGraph)` |
 | Lists all process graphs of the authenticated user. Returns a list of `ProcessGraph`. | `GET /process_graphs` | `listProcessGraphs()` |
 | Creates a new stored process graph. Returns a `ProcessGraph`. | `POST /process_graphs`                  | `createProcessGraph(processGraph, ?title, ?description)` |
@@ -130,7 +130,6 @@ Parameters with a leading `?` are optional.
 
 #### Parameters
 
-* **userId** in `listFiles` and `createFile`: Defaults to the user id of the authenticated user.
 * **options** in `authenticateOIDC`: May hold additional data required for OpenID connect authentication.
 
 ### Scope `Capabilities` (Content category)
@@ -156,11 +155,11 @@ Should be prefixed with `Capabilities` if collisions of names between different 
 
 The `File` scope internally knows the `user_id` and the `path`.
 
-| Description           | API Request                      | Client method |
-| --------------------- | -------------------------------- | ------------- |
-| Download a user file. | `GET /files/{user_id}/{path}`    | `downloadFile(target)` |
-| Upload a user file.   | `PUT /files/{user_id}/{path}`    | `uploadFile(source)` |
-| Delete a user file.   | `DELETE /files/{user_id}/{path}` | `deleteFile()` |
+| Description           | API Request            | Client method |
+| --------------------- | ---------------------- | ------------- |
+| Download a user file. | `GET /files/{path}`    | `downloadFile(target)` |
+| Upload a user file.   | `PUT /files/{path}`    | `uploadFile(source)` |
+| Delete a user file.   | `DELETE /files/{path}` | `deleteFile()` |
 
 #### Parameters
 

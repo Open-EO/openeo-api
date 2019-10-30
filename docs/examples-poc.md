@@ -154,7 +154,7 @@ Create a monthly aggregated Sentinel 1 product from a custom Python script.
     *Request*
 
     ``` http
-    PUT /files/john_doe/s1_aggregate.py HTTP/1.1
+    PUT /files/s1_aggregate.py HTTP/1.1
     Content-Type: application/octet-stream
     
     <File content>
