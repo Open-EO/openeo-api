@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Additionally, each format can have a `title`.
 - `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, allows content type `application/geo+json`.
 
+### Deprecated
+
+- PROJ definitions are deprecated in favor of EPSG codes, WKT2 and PROJJSON. (#58)[https://github.com/Open-EO/openeo-processes/issues/58]
+
 ### Removed
 
 - `GET /job/{job_id}/results`:
