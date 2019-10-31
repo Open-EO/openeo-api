@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
     - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
 - `GET /collections` and `GET /collections/{collectionId}`:
-    - New field `deprecated` can be used to indicate outdated collections. Links with relation type `successor-version` can point to a newer version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
+    - New field `deprecated` can be used to indicate outdated collections. Links with relation type `latest-version` can point to the latest version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
     - Added a Data Cube Dimension of type `bands` to the `cube:dimensions` property. [#208](https://github.com/Open-EO/openeo-api/issues/208)
 
 ### Changed
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
 - `GET /udf_runtimes`: `description` fields don't allow `null` values any longer.
 - `GET /output_formats` renamed to `GET /file_formats` to allow listing input file formats. [#215](https://github.com/Open-EO/openeo-api/issues/215)
-    - The structure of the response has changed. The former response body for the output formas is now available in the property `output`.
+    - The structure of the response has changed. The former response body for the output formats is now available in the property `output`.
     - The input file formats are now available in the property `input` with the same schema as for output formats.
     - Additionally, each format can have a `title`.
 - `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, allows content type `application/geo+json`.
