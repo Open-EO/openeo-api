@@ -1,12 +1,12 @@
 {
     "id": "debug",
     "summary": "Publish debugging information",
-    "description": "Sends debugging information about the data to the log output.",
+    "description": "Sends debugging information about the data to the log output. Passes the data through.",
     "categories": [
         "development"
     ],
     "experimental": true,
-    "parameter_order": ["data", "id"],
+    "parameter_order": ["data", "code", "level", "message"],
     "parameters": {
         "data": {
             "description": "Data to publish.",
@@ -15,8 +15,28 @@
             },
             "required": true
         },
-        "id": {
-            "description": "An identifier to help identify the message in a bunch of other messages.",
+        "code": {
+            "description": "An identifier to help identify the log entry in a bunch of other log entries.",
+            "schema": {
+                "type": "string",
+                "default": ""
+            }
+        },
+        "level": {
+            "description": "The severity level of this message. Note that the level `error` forces the computation to be stopped!",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "error",
+                    "warning",
+                    "info",
+                    "debug"
+                ],
+                "default": "debug"
+            }
+        },
+        "message": {
+            "description": "A message to send in addition to the data.",
             "schema": {
                 "type": "string",
                 "default": ""
@@ -24,9 +44,9 @@
         }
     },
     "returns": {
-        "description": "`false` if the information could not be sent, `true` otherwise.",
+        "description": "Returns the data as passed to the `data` parameter.",
         "schema": {
-            "type": "boolean"
+            "description": "Any data type is allowed."
         }
     }
 }
