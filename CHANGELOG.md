@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /collections` and `GET /collections/{collectionId}`:
     - New field `deprecated` can be used to indicate outdated collections. Links with relation type `latest-version` can point to the latest version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
     - Added a Data Cube Dimension of type `bands` to the `cube:dimensions` property. [#208](https://github.com/Open-EO/openeo-api/issues/208)
+- `POST /result`: May add a link to a log file in the header. [#214](https://github.com/Open-EO/openeo-api/issues/214)
+- `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Endpoints that publish logging information. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 
 ### Changed
 
@@ -30,7 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - The structure of the response has changed. The former response body for the output formats is now available in the property `output`.
     - The input file formats are now available in the property `input` with the same schema as for output formats.
     - Additionally, each format can have a `title`.
-- `GET /jobs/{job_id}/results`: Response body has changed to be a valid STAC Item, allows content type `application/geo+json`.
+- `GET /jobs/{job_id}/results`:
+    - Response body for status code 200 has changed to be a valid STAC Item, allows content type `application/geo+json`.
+    - Response body for status code 424 has been extended.
 
 ### Deprecated
 
@@ -38,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `GET /job/{job_id}`: Removed property `error`. Request information from `GET /job/{job_id}/logs` instead.
 - `GET /job/{job_id}/results`:
     - Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
     - `Expires` header has been removed, use `expires` property in the response body instead.
