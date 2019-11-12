@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The concept of callbacks has been renamed. Schema format `callback` has been renamed to `process-graph`. [#216](https://github.com/Open-EO/openeo-api/issues/216)
+- The concept of callbacks has been renamed. Schema format/subtype `callback` has been renamed to `process-graph`. [#216](https://github.com/Open-EO/openeo-api/issues/216)
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
 - If `currency` returned by `GET /` is `null`, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to `null` (default).
 - The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
@@ -39,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- PROJ definitions are deprecated in favor of EPSG codes, WKT2 and PROJJSON. (#58)[https://github.com/Open-EO/openeo-processes/issues/58]
+- The processes should not use the JSON Schema keyword `format` any longer. Instead use the custom keyword `subtype`. [#233](https://github.com/Open-EO/openeo-processes/issues/233)
+- PROJ definitions are deprecated in favor of EPSG codes, WKT2 and PROJJSON. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
 
 ### Removed
 
