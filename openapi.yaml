@@ -286,7 +286,6 @@ tags:
       | ------------------------- | --------- | ----------- |
       | `band-name`               | string    | A band name available in the data cube. |
       | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code, a WKT2:2018 string, PROJJSON or a PROJ definition (deprecated). |
-      | `callback`                | object    | An openEO process graph that is passed as an argument and is expected to be executed by the process. Callback parameters are specified in a `parameters` property (see chapter "Callbacks" below). |
       | `collection-id`           | string    | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
       | `date`                    | string    | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
       | `date-time`               | string    | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
@@ -296,6 +295,7 @@ tags:
       | `kernel`                  | array     | Image kernel, a multi-dimensional array of numbers. |
       | `output-format`           | string    | An output format supported by the back-end. |
       | `output-format-options`   | object    | Key-value-pairs with arguments for the output format options supported by the back-end. |
+      | `process-graph`           | object    | An parametrized process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in a `parameters` property (see chapter "Parametrized Process Graphs" below). |
       | `process-graph-id`        | string    | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
       | `process-graph-variables` | object    | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
       | `proj-definition`         | string    | **DEPRECATED.** Specifies details about cartographic projections as [PROJ](https://proj.org/usage/quickstart.html) definition. |
@@ -307,16 +307,18 @@ tags:
       | `vector-cube`             | object    | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
       | `wkt2-definition`         | string    | Specifies details about cartographic projections as WKT2 string. Refers to the latest WKT2 version (currently [WKT2:2018](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) / ISO 19162:2018) unless otherwise stated by the process. |
 
-      ## Callbacks
+      ## Parametrized Process Graphs
 
-      A callback is defined by setting the `type` to `object` and the `format` to `callback`. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the callback parameter names and the values being a valid JSON Schema again.
+      A parametrized process graph is a process graph that is passed as an argument to a process parameter and is expected to be executed by the process.
 
-      A schema for a callback with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
+      In a process definition, a parameter that accepts a parametrized process graph is defined by setting the `type` to `object` and the `format` to `process-graph` in the parameter schema. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the parameter names and the values being a valid JSON Schema again.
+
+      A schema for a process parameter that accepts a parametrized process graph with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
 
       ```json
       {
         "type": "object",
-        "format": "callback",
+        "format": "process-graph",
         "parameters": {
           "dimension": {
             "description": "Name of the dimension",
@@ -357,7 +359,7 @@ tags:
     description: |-
       These endpoints allow to store and manage process graphs at the back-end.
 
-      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be process graphs (callbacks), scalar values, arrays, objects or variables.
+      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be parametrized process graphs, scalar values, arrays, objects or variables.
 
       # Definition
 
@@ -388,7 +390,7 @@ tags:
       ```
       A process node MUST always contain key-value-pairs named `process_id` and `arguments` (see the next section). It MAY contain a `description`.
 
-      One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`.  This is important as multiple end nodes are possible, but in most use cases it is important to have exactly one end node, which can be referenced and the return value be used by other processes. Please note each callback also has a result node similar to the "main" process graph.
+      One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`.  This is important as multiple end nodes are possible, but in most use cases it is important to have exactly one end node, which can be referenced and the return value be used by other processes. Please note each parametrized sub process graph also has a result node similar to the "main" process graph.
 
       `process_id` can contain any of the process names defined by a back-end, which are all listed at `GET /processes`, e.g. `load_collection` to retrieve data from a specific collection for processing.
 
@@ -416,7 +418,7 @@ tags:
       - Object-type values are not allowed to have keys with the following names:
 
           * `variable_id`, except for objects of type `Variable`
-          * `from_argument`, except for objects of type `CallbackParameter`
+          * `from_argument`, except for objects of type `PGParameter`
           * `from_node`, except for objects of type `Result`
 
       - A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
@@ -435,35 +437,38 @@ tags:
       **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
 
-      ## Callbacks
+      ## Parametrized Process Graphs
 
-      A callback is a "child" process graph to be evaluated as part of another process.
-      A callback object (given as argument to its "parent" process) is a simple object with a single property `callback` that specifies a process graph:
+      A parametrized process graph is a child process graph to be evaluated as part of a parent process graph.
+      The child process graph is passed as argument of one of the processes in the parent process graph.
+      It is called parametrized process graph as the parent process can pass parameters to the child process graph.
+      The child process graph must be wrapped in an object with a single key `callback`.
 
       ```
-      <Callback> := {
+      <ParametrizedProcessGraph> := {
         "callback": <ProcessGraph>
       }
       ```
 
       For example, you want to iterate over an array and calculate the absolute value of each value in the array.
-      You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass the `absolute` process as callback, wrapped in a process graph.
+      You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass a process graph containing a single process `absolute`.
 
-      The values passed from the "parent" process (`apply` in the example) to the "child" process (`absolute` in the example) are the *callback parameters*. 
-      You link them to the desired arguments of the child process through the `CallbackParameter` value type (similar to the `Result` type discussed above).
-      It is a simple object with key `from_argument` specifying the callback parameter name: 
+      The parameters made available by the "parent" process (`apply` in the example) to the "child" process graph are the *process graph parameters*. 
+      Processes in the parametrized process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the parametrized process graph (similar to the `Result` type discussed above).
+      It is a simple object with key `from_argument` specifying the name of the process graph parameter: 
 
       ```
-      <CallbackParameter> := {
-        "from_argument": <CallbackParameterName>
+      <PGParameter> := {
+        "from_argument": <PGParameterName>
       }
       ```
 
-      The available callback parameter names (`<CallbackParameterName>`) are defined by the processes.
-      See the [`parameters` property](#section/Additional-data-types-for-schemas/Callbacks) in the documentation or JSON schema of the callback argument of the process.
+      The available parameter names (`<PGParameterName>`) are defined by the processes.
+      A process parameter has a [`parameters` property](#section/Additional-data-types-for-schemas/Parametrized-Process-Graphs)
+      in the JSON Schema, which defines the parameters made available to the child process graph.
 
-      In case of the `apply-absolute` example, `apply` provides a callback parameter named `x` 
-      and `absolute` expects an argument with the same name coincidentally.
+      In case of the `apply-absolute` example, the parameter `process` in the process `apply` provides a process graph parameter named `x` 
+      and `absolute` expects an argument with the same name.
       `loadcollection1` would be a result from another process (not defined in this example):
 
       ```
@@ -486,7 +491,7 @@ tags:
       }
       ```
 
-      Please note that the `<CallbackParameterName>` is also strictly scoped within the callback process graph and can not be referenced from other process graphs. 
+      Please note that the `<PGParameterName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
 
       ## Variables
 
@@ -722,7 +727,7 @@ tags:
 
       # Example
 
-      Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process chain in blue, callbacks in yellow:
+      Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
 
       ![Graph with processing instructions](img/pg-example.png)
 
@@ -4564,22 +4569,22 @@ components:
               type: string
           additionalProperties: false
         - type: object
-          title: Callback Parameter
+          title: Parameter in a Parametrized Process Graph
           description: >-
-            Data that is expected to be passed to a callback from a calling
-            process.
+            Data that is expected to be passed to a parametrized process graph from the process
+            that is executing the parametrized process graph.
           required:
             - from_argument
           properties:
             from_argument:
               description: >-
-                The name of the parameter that is made available to a callback
+                The name of the parameter that is made available to a parametrized process graph
                 by a calling process.
               type: string
           additionalProperties: false
         - type: object
-          title: Callback
-          description: Process graph to be executed as callback from withing the process.
+          title: Parametrized Process Graph
+          description: Process graph with parameters, which is executed from withing another process.
           required:
             - callback
           properties:
