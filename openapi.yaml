@@ -278,11 +278,14 @@ tags:
 
       Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on JSON Schema.
 
-      ## Custom Formats
+      ## Subtypes
 
-      In addition to the native data formats specified by JSON schema, openEO defines a set of specific formats that should be re-used in process schema definitions:
+      JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
+      To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
+      It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
+      These should be re-used in process schema definitions whenever suitable.
 
-      | Format Name               | Data type | Description |
+      | Subtype                   | Data type | Description |
       | ------------------------- | --------- | ----------- |
       | `band-name`               | string    | A band name available in the data cube. |
       | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code, a WKT2:2018 string, PROJJSON or a PROJ definition (deprecated). |
@@ -299,11 +302,12 @@ tags:
       | `process-graph-id`        | string    | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
       | `process-graph-variables` | object    | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
       | `proj-definition`         | string    | **DEPRECATED.** Specifies details about cartographic projections as [PROJ](https://proj.org/usage/quickstart.html) definition. |
-      | `projjson-definition`     | string    | Specifies details about cartographic projections as [PROJJSON](https://proj.org/projjson.html) definition. |
+      | `projjson-definition`     | object    | Specifies details about cartographic projections as [PROJJSON](https://proj.org/projjson.html) definition. |
       | `raster-cube`             | object    | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
-      | `temporal-interval`       | array     | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the formats `date-time`, `date` (see above) and `time` (see below). |
-      | `temporal-intervals`      | array     | An array of two-element arrays, each being an array with format `temporal-interval` (see above). |
+      | `temporal-interval`       | array     | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the subtypes `date-time`, `date` (see above) and `time` (see below). |
+      | `temporal-intervals`      | array     | An array of two-element arrays, each being an array with subtype `temporal-interval` (see above). |
       | `time`                    | string    | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), this definition allows the value '24' for the hour as end time in an interval in order to make it possible that left-closed time intervals can fully cover the day. |
+      | `uri`                     | string    | A valid URI according to [RFC3986](https://tools.ietf.org/html/rfc3986). |
       | `vector-cube`             | object    | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
       | `wkt2-definition`         | string    | Specifies details about cartographic projections as WKT2 string. Refers to the latest WKT2 version (currently [WKT2:2018](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) / ISO 19162:2018) unless otherwise stated by the process. |
 
@@ -311,14 +315,14 @@ tags:
 
       A parametrized process graph is a process graph that is passed as an argument to a process parameter and is expected to be executed by the process.
 
-      In a process definition, a parameter that accepts a parametrized process graph is defined by setting the `type` to `object` and the `format` to `process-graph` in the parameter schema. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the parameter names and the values being a valid JSON Schema again.
+      In a process definition, a parameter that accepts a parametrized process graph is defined by setting the `type` to `object` and the `subtype` to `process-graph` in the parameter schema. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the parameter names and the values being a valid JSON Schema again.
 
       A schema for a process parameter that accepts a parametrized process graph with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
 
       ```json
       {
         "type": "object",
-        "format": "process-graph",
+        "subtype": "process-graph",
         "parameters": {
           "dimension": {
             "description": "Name of the dimension",
@@ -710,7 +714,7 @@ tags:
           },
           "process_id":{
             "type":"string",
-            "format":"process-id",
+            "subtype":"process-id",
             "pattern":"^[A-Za-z0-9_]+$"
           }
         }
