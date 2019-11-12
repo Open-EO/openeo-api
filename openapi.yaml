@@ -2570,13 +2570,18 @@ paths:
       summary: Process and download data synchronously
       description: >-
         Process graphs will be executed directly and the result will be
-        downloaded in the format specified in the process graph. To specify the
-        format use a process such as `save_result`. Requests might time-out
-        after a certain amount of time by sending openEO error `RequestTimeout`.
-        A header named `OpenEO-Costs` MAY be sent with all responses, which MUST
-        include the costs for processing and downloading the data. This endpoint
+        downloaded in the format specified in the process graph. This endpoint
         can be used to generate small previews or test process graphs before
         starting a batch job.
+        
+        Timeouts on either client- or server-side are to be expected for complex
+        computations. Back-ends MAY send the openEO error `ProcessGraphComplexity`
+        immediately if the computation is expected to time out. Otherwise requests
+        MAY time-out after a certain amount of time by sending openEO error `RequestTimeout`.
+        
+        A header named `OpenEO-Costs` MAY be sent with all responses, which MUST
+        include the costs for processing and downloading the data. Additionally, 
+        a link to a log file MAY be sent in the header.
       tags:
         - Process Graphs
         - Batch Jobs
