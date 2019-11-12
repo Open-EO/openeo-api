@@ -11,7 +11,7 @@
             "description": "A data cube.",
             "schema": {
                 "type": "object",
-                "format": "raster-cube"
+                "subtype": "raster-cube"
             },
             "required": true
         },
@@ -19,22 +19,25 @@
             "description": "Left-closed temporal interval, i.e. an array with exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.\n\nAlso supports open intervals by setting one of the boundaries to `null`, but never both.",
             "schema": {
                 "type": "array",
-                "format": "temporal-interval",
+                "subtype": "temporal-interval",
                 "minItems": 2,
                 "maxItems": 2,
                 "items": {
                     "anyOf": [
                         {
                             "type": "string",
-                            "format": "date-time"
+                            "format": "date-time",
+                            "subtype": "date-time"
                         },
                         {
                             "type": "string",
-                            "format": "date"
+                            "format": "date",
+                            "subtype": "date"
                         },
                         {
                             "type": "string",
-                            "format": "time"
+                            "format": "time",
+                            "subtype": "time"
                         },
                         {
                             "type": "null"
@@ -63,7 +66,7 @@
         "description": "A data cube restricted to the specified temporal extent. Therefore, the cardinality is potentially lower, but the resolution and the number of dimensions are the same as for the original data cube.",
         "schema": {
             "type": "object",
-            "format": "raster-cube"
+            "subtype": "raster-cube"
         }
     },
     "exceptions": {
@@ -73,12 +76,5 @@
         "TooManyDimensions": {
             "message": "The number of temporal dimensions must be reduced to one for 'filter_temporal'."
         }
-    },
-    "links": [
-        {
-            "rel": "about",
-            "href": "https://open-eo.github.io/openeo-api/processes/#openeo-specific-formats",
-            "title": "Information about the supported temporal formats."
-        }
-    ]
+    }
 }

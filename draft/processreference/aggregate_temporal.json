@@ -13,7 +13,7 @@
             "description": "A data cube.",
             "schema": {
                 "type": "object",
-                "format": "raster-cube"
+                "subtype": "raster-cube"
             },
             "required": true
         },
@@ -21,25 +21,28 @@
             "description": "Left-closed temporal intervals, which are allowed to overlap. Each temporal interval in the array has exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.",
             "schema": {
                 "type": "array",
-                "format": "temporal-intervals",
+                "subtype": "temporal-intervals",
                 "items": {
                     "type": "array",
-                    "format": "temporal-interval",
+                    "subtype": "temporal-interval",
                     "minItems": 2,
                     "maxItems": 2,
                     "items": {
                         "anyOf": [
                             {
                                 "type": "string",
-                                "format": "date-time"
+                                "format": "date-time",
+                                "subtype": "date-time"
                             },
                             {
                                 "type": "string",
-                                "format": "date"
+                                "format": "date",
+                                "subtype": "date"
                             },
                             {
                                 "type": "string",
-                                "format": "time"
+                                "format": "time",
+                                "subtype": "time"
                             },
                             {
                                 "type": "null"
@@ -62,15 +65,18 @@
                     "anyOf": [
                         {
                             "type": "string",
-                            "format": "date-time"
+                            "format": "date-time",
+                            "subtype": "date-time"
                         },
                         {
                             "type": "string",
-                            "format": "date"
+                            "format": "date",
+                            "subtype": "date"
                         },
                         {
                             "type": "string",
-                            "format": "time"
+                            "format": "time",
+                            "subtype": "time"
                         },
                         {
                             "type": "string"
@@ -88,7 +94,7 @@
                         "title": "Unary behaviour",
                         "description": "Passes an array to the reducer.",
                         "type": "object",
-                        "format": "process-graph",
+                        "subtype": "process-graph",
                         "parameters": {
                             "data": {
                                 "description": "An array with elements of any data type.",
@@ -103,7 +109,7 @@
                         "title": "Binary behaviour",
                         "description": "Passes two values to the reducer.",
                         "type": "object",
-                        "format": "process-graph",
+                        "subtype": "process-graph",
                         "parameters": {
                             "x": {
                                 "description": "The first value. Any data type could be passed."
@@ -139,7 +145,7 @@
         "description": "A data cube with potentially lower resolution and potentially lower cardinality, but the same number of dimensions as the original data cube.",
         "schema": {
             "type": "object",
-            "format": "raster-cube"
+            "subtype": "raster-cube"
         }
     },
     "examples": [
@@ -199,11 +205,6 @@
         }
     },
     "links": [
-        {
-            "rel": "about",
-            "href": "https://open-eo.github.io/openeo-api/processes/#openeo-specific-formats",
-            "title": "Information about the supported temporal formats."
-        },
         {
             "href": "https://open-eo.github.io/openeo-api/glossary/#aggregation-and-resampling",
             "rel": "about",
