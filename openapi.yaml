@@ -252,31 +252,27 @@ tags:
     description: |-
       These endpoints allow to the processes that are available at the back-end.
 
-      # Processes
-
       A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#tag/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
-      ## Core processes
+      There are some processes that we define to be core processes that are pre-defined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](processreference.md)** for pre-defined processes.
 
-      There are some processes that we define to be core processes that are pre-defined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends.
-
-      See the **[process reference](processreference.md)** for pre-defined processes.
-
-      ## Custom processes
-
-      Any back-end provider can either implement a set of pre-defined processes (STRONGLY RECOMMENDED) or define new processes for their domain.
-
-      To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
+      In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
 
       * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
-      * Defining the parameters and their exacts (JSON) schemes.
+      * Defining the parameters and their exact (JSON) schemes.
       * Specifying the return value of a process also with a (JSON) schema.
       * Providing examples or compliance tests.
       * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
 
+      If the process is potentially useful for other back-ends, the new process can be proposed to be included in the pre-defined processes.
+
       # Schemas
 
-      Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on JSON Schema.
+      Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
+
+      Two custom keywords have been defined:
+      * `subtype` for more fine-grained data-types than JSON Schema supports (see chapter 'Subtypes' below).
+      * `parameters` to specify parameters that process parameters can pass to parametrized process graphs (see chapter 'Parametrized Process Graphs' below).
 
       ## Subtypes
 
@@ -2012,8 +2008,6 @@ paths:
       description: >-
         The request asks the back-end for available processes and returns
         detailed process descriptions, including parameters and return values.
-        Processes are described using the Functio specification for
-        language-agnostic process descriptions.
       tags:
         - Process Discovery
       security:
@@ -2081,7 +2075,7 @@ paths:
                             to *0*.
                           schema:
                             type: integer
-                            default: 0
+                          default: 0
                       returns:
                         description: The rounded number.
                         schema:
@@ -4804,8 +4798,13 @@ components:
                 $ref: '#/components/schemas/process_experimental'
               media_type:
                 $ref: '#/components/schemas/process_media_type'
+              default:
+                description: >-
+                  The default value for this parameter.
+                  Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
+                nullable: true
               schema:
-                $ref: '#/components/schemas/json_schema'
+                $ref: '#/components/schemas/process_schema'
         returns:
           type: object
           title: Process Return Value
@@ -4819,7 +4818,7 @@ components:
             media_type:
               $ref: '#/components/schemas/process_media_type'
             schema:
-              $ref: '#/components/schemas/json_schema'
+              $ref: '#/components/schemas/process_schema'
         deprecated:
           $ref: '#/components/schemas/process_deprecated'
         experimental:
@@ -5171,16 +5170,90 @@ components:
       example:
         - href: 'http://www.openeo.org/docs/errors/SampleError'
           rel: about
-    json_schema:
-      type: object
-      title: JSON Schema
+    process_schema:
+      title: Supported Data Type(s)
       description: >-
-        A schema object according to the specification of [JSON Schema
-        draft-07](http://json-schema.org/). Additional values for `format` are
-        defined [centrally in the API
-        documentation](https://open-eo.github.io/openeo-api/draft/processes/index.html),
-        e.g. bbox or crs. Callback parameters are defined with the custom schema
-        keyword `parameters`.
+        Either a single data type or a list of data types.
+      oneOf:
+        - $ref: '#/components/schemas/process_json_schema'
+        - title: Multiple data types
+          description: |-
+            A list of data types this parameter or return value supports, specified as JSON Schemas.
+
+            Note: To validate the list of JSON Schemas using a JSON Schema validator, wrap the list of schemas in an object with a property `anyOf`: `{"anyOf": ...}`
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/process_json_schema'
+    process_json_schema:
+      type: object
+      title: Single data type
+      description: |-
+        Specifies a data type supported by a parameter or return value.
+
+        The data types are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
+        See the chapter [Schemas in Process Discovery](#section/Schemas) for more information.
+
+        It is discouraged to specify JSON Schemas with `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
+        Instead specify each data type in a seperate array element.
+
+        It is recommended to refrain from using the following more complex JSON Schema keywords:
+        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
+
+        Clients are not expected to support dereferencing `$refs`.
+
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
+      properties:
+        type:
+          oneOf:
+            - $ref: '#/components/schemas/json_schema_type'
+            - type: array
+              minItems: 1
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/json_schema_type'
+        subtype:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/process_json_schema'
+        pattern:
+          type: "string"
+          format: "regex"
+        enum:
+          type: array
+          items: {}
+        minimum:
+          type: number
+        maximum:
+          type: number
+        minItems:
+          type: number
+          minimum: 0
+          default: 0
+        maxItems:
+          type: number
+          minimum: 0
+        items:
+          anyOf:
+            - type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/process_json_schema'
+            - $ref: '#/components/schemas/process_json_schema'
+      additionalProperties: true
+    json_schema_type:
+      type: string
+      enum:
+        - array
+        - boolean
+        - integer
+        - 'null'
+        - number
+        - object
+        - string
     process_media_type:
       type: string
       description: The media (MIME) type that the value is encoded in.
