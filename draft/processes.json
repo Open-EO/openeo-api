@@ -186,14 +186,14 @@
         "required": true
       },
       "reducer": {
-        "description": "A reducer to be applied on all values of each geometry. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+        "description": "A reducer to be applied on all values of each geometry. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
           "anyOf": [
             {
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "data": {
                   "description": "An array with elements of any data type.",
@@ -208,7 +208,7 @@
               "title": "Binary behaviour",
               "description": "Passes two values to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
@@ -392,14 +392,14 @@
         "required": true
       },
       "reducer": {
-        "description": "A reducer to be applied on all values along the specified dimension. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+        "description": "A reducer to be applied on all values along the specified dimension. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
           "anyOf": [
             {
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "data": {
                   "description": "An array with elements of any data type.",
@@ -414,7 +414,7 @@
               "title": "Binary behaviour",
               "description": "Passes two values to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
@@ -696,10 +696,10 @@
         "required": true
       },
       "process": {
-        "description": "A process (callback) to be applied on each dimension. The specified process needs to accept an array as parameter and must return as many elements in the returned array as there are in the input array.",
+        "description": "Process to be applied on each dimension. The specified process needs to accept an array as parameter and must return as many elements in the returned array as there are in the input array. A process may consist of multiple sub-processes.",
         "schema": {
           "type": "object",
-          "format": "callback",
+          "format": "process-graph",
           "parameters": {
             "data": {
               "description": "An array with elements of any data type.",
@@ -732,7 +732,7 @@
     },
     "exceptions": {
       "CardinalityChanged": {
-        "message": "The callback returned less or more elements than it received."
+        "message": "The process specified for parameter 'process' returned less or more elements than it received."
       },
       "DimensionNotAvailable": {
         "message": "A dimension with the specified name does not exist."
@@ -809,10 +809,10 @@
         "required": true
       },
       "process": {
-        "description": "A process (callback) to be applied on each value. The specified process must be unary meaning that it must work on a single value.",
+        "description": "A process to be applied on each value, may consist of multiple sub-processes. The specified process must be unary meaning that it must work on a single value.",
         "schema": {
           "type": "object",
-          "format": "callback",
+          "format": "process-graph",
           "parameters": {
             "x": {
               "description": "A value of any type could be passed."
@@ -1952,13 +1952,13 @@
         "required": true
       },
       "expression": {
-        "description": "An expression that is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to count valid elements in a list (see ``is_valid()``). Setting this parameter to boolean `true` counts all elements in the list.",
+        "description": "An expression consists of one ore more processes, which in the end return a boolean value. It is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to count valid elements in a list (see ``is_valid()``). Setting this parameter to boolean `true` counts all elements in the list.",
         "schema": {
           "anyOf": [
             {
               "description": "An expression that is evaluated against each element in the array.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "A single value from the array. Any data type could be passed."
@@ -3445,7 +3445,7 @@
         "description": "An expression that is evaluated against each dimension value in the specified dimension. A dimension value is dropped from the data cube if the expression returns `false`. The data type of the parameter depends on the dimension values stored for the dimension.",
         "schema": {
           "type": "object",
-          "format": "callback",
+          "format": "process-graph",
           "parameters": {
             "value": {
               "description": "A single dimension value to compare against.",
@@ -3492,45 +3492,6 @@
     "exceptions": {
       "DimensionNotAvailable": {
         "message": "A dimension with the specified name does not exist."
-      }
-    }
-  },
-  {
-    "id": "find_collections",
-    "summary": "Search for collections by metadata properties",
-    "description": "Searches for collections available on the current back-end by metadata properties and returns ids of collections that match all criteria. ``property()`` can be used to get metadata properties.\n\nA single collection can be selected using array operations such as ``first()``, ``last()`` and ``array_element()`` and afterwards be loaded using ``load_collection()``.",
-    "categories": [
-      "cubes",
-      "import"
-    ],
-    "experimental": true,
-    "parameters": {
-      "expression": {
-        "description": "An expression that is evaluated against each collection the back-end offers. The expression filters the collections to include only collection ids which the given expression returns `true` for. ``property()`` can be used to retrieve metadata properties.",
-        "schema": {
-          "type": "object",
-          "format": "callback",
-          "parameters": {
-            "id": {
-              "description": "The collection id.",
-              "type": "string",
-              "format": "collection-id",
-              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
-            }
-          }
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "An array of collection ids.",
-      "schema": {
-        "type": "array",
-        "items": {
-          "type": "string",
-          "format": "collection-id",
-          "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
-        }
       }
     }
   },
@@ -4657,7 +4618,7 @@
         }
       },
       "properties": {
-        "description": "Limits the data by metadata properties to include only data in the data cube which all given expressions return `true` for (AND operation).\n\nSpecify key-value-pairs with the keys being the name of the metadata property, which can be retrieved with the openEO Data Discovery for Collections. The values must be expressions to be evaluated against the collection metadata, see the example.\n\n**Note:** Back-ends may not pass the actual value to the expressions, but pass a proprietary index or a placeholder so that they can use the expressions to query against another data source. So debugging on the callback parameter `value` may lead to unexpected results.",
+        "description": "Limits the data by metadata properties to include only data in the data cube which all given expressions return `true` for (AND operation).\n\nSpecify key-value-pairs with the keys being the name of the metadata property, which can be retrieved with the openEO Data Discovery for Collections. The values must be expressions to be evaluated against the collection metadata, see the example.\n\n**Note:** Back-ends may not pass the actual value to the expressions, but pass a proprietary index or a placeholder so that they can use the expressions to query against another data source. So debugging on the process parameter `value` may lead to unexpected results.",
         "experimental": true,
         "schema": {
           "anyOf": [
@@ -4665,7 +4626,7 @@
               "type": "object",
               "additionalProperties": {
                 "type": "object",
-                "format": "callback",
+                "format": "process-graph",
                 "parameters": {
                   "value": {
                     "description": "The property value. Any data type could be passed."
@@ -5565,14 +5526,14 @@
         "required": true
       },
       "overlap_resolver": {
-        "description": "A reducer that resolves the conflict if the data overlaps. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
+        "description": "A reducer that resolves the conflict if the data overlaps. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
         "schema": {
           "anyOf": [
             {
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "data": {
                   "description": "An array with elements of any data type.",
@@ -5587,7 +5548,7 @@
               "title": "Binary behaviour",
               "description": "Passes two values to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
@@ -7209,7 +7170,7 @@
   {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a reducer such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
       "cubes",
       "reducer"
@@ -7238,7 +7199,7 @@
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "data": {
                   "description": "An array with elements of any data type.",
@@ -7253,7 +7214,7 @@
               "title": "Binary behaviour",
               "description": "Passes two values to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
@@ -7298,7 +7259,7 @@
       }
     },
     "returns": {
-      "description": "A data cube with the newly computed values. The number of dimensions is reduced for callbacks returning a single value or doesn't change if the callback returns multiple values. The resolution and cardinality are the same as for the original data cube.",
+      "description": "A data cube with the newly computed values. The number of dimensions is reduced by one for reducers returning a single value or doesn't change if the reducer returns multiple values. The resolution and cardinality are the same as for the original data cube.",
       "schema": {
         "type": "object",
         "format": "raster-cube"
@@ -7488,14 +7449,14 @@
         "required": true
       },
       "method": {
-        "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+        "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
         "schema": {
           "anyOf": [
             {
               "title": "Unary behaviour",
               "description": "Passes an array to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "data": {
                   "description": "An array with elements of any data type.",
@@ -7510,7 +7471,7 @@
               "title": "Binary behaviour",
               "description": "Passes two values to the reducer.",
               "type": "object",
-              "format": "callback",
+              "format": "process-graph",
               "parameters": {
                 "x": {
                   "description": "The first value. Any data type could be passed."
@@ -7869,7 +7830,7 @@
   {
     "id": "run_udf_externally",
     "summary": "Run an externally hosted UDF container",
-    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/).\n\nThe referenced UDF service can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. In this case an array is passed instead of a raster data cube. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
+    "description": "Runs a compatible UDF container that is either externally hosted by a service provider or running on a local machine of the user. The UDF container must follow the [openEO UDF specification](https://open-eo.github.io/openeo-udf/).\n\nThe referenced UDF service can be executed in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. In this case an array is passed instead of a raster data cube. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
       "import",
       "udf"
@@ -7949,7 +7910,7 @@
   {
     "id": "run_udf",
     "summary": "Run an UDF",
-    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed as callback in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. In this case an array is passed instead of a raster data cube. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
+    "description": "Runs an UDF in one of the supported runtime environments.\n\nThe process can either:\n\n1. load and run a locally stored UDF from a file in the workspace of the authenticated user. The path to the UDF file must be relative to the root directory of the user's workspace.\n2. fetch and run a remotely stored and published UDF by absolute URI, for example from [openEO Hub](https://hub.openeo.org)).\n3. run the source code specified inline as string.\n\nThe loaded UDF can be executed in several processes such as ``aggregate_temporal()``, ``apply()``, ``apply_dimension()``, ``filter()`` and ``reduce()``. In this case an array is passed instead of a raster data cube. The user must ensure that the data is properly passed as an array so that the UDF can make sense of it.",
     "categories": [
       "import",
       "udf"

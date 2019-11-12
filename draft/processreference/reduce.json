@@ -1,7 +1,7 @@
 {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer must be a callable process (or a set of processes as process graph) that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a callback such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a reducer such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension value left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
     "categories": [
         "cubes",
         "reducer"
@@ -24,7 +24,7 @@
                         "title": "Unary behaviour",
                         "description": "Passes an array to the reducer.",
                         "type": "object",
-                        "format": "callback",
+                        "format": "process-graph",
                         "parameters": {
                             "data": {
                                 "description": "An array with elements of any data type.",
@@ -39,7 +39,7 @@
                         "title": "Binary behaviour",
                         "description": "Passes two values to the reducer.",
                         "type": "object",
-                        "format": "callback",
+                        "format": "process-graph",
                         "parameters": {
                             "x": {
                                 "description": "The first value. Any data type could be passed."
@@ -81,7 +81,7 @@
         }
     },
     "returns": {
-        "description": "A data cube with the newly computed values. The number of dimensions is reduced for callbacks returning a single value or doesn't change if the callback returns multiple values. The resolution and cardinality are the same as for the original data cube.",
+        "description": "A data cube with the newly computed values. The number of dimensions is reduced by one for reducers returning a single value or doesn't change if the reducer returns multiple values. The resolution and cardinality are the same as for the original data cube.",
         "schema": {
             "type": "object",
             "format": "raster-cube"

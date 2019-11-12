@@ -24,14 +24,14 @@
             "required": true
         },
         "overlap_resolver": {
-            "description": "A reducer that resolves the conflict if the data overlaps. The reducer must be a callable process (or a set of processes as process graph) such as ``mean()`` that accepts by default array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
+            "description": "A reducer that resolves the conflict if the data overlaps. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
             "schema": {
                 "anyOf": [
                     {
                         "title": "Unary behaviour",
                         "description": "Passes an array to the reducer.",
                         "type": "object",
-                        "format": "callback",
+                        "format": "process-graph",
                         "parameters": {
                             "data": {
                                 "description": "An array with elements of any data type.",
@@ -46,7 +46,7 @@
                         "title": "Binary behaviour",
                         "description": "Passes two values to the reducer.",
                         "type": "object",
-                        "format": "callback",
+                        "format": "process-graph",
                         "parameters": {
                             "x": {
                                 "description": "The first value. Any data type could be passed."
