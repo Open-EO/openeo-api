@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - The parameter `user_id ` has been removed from the endpoints to manage user files (`/files/{user_id}`). [#218](https://github.com/Open-EO/openeo-api/issues/218)
 - `GET /`: Property `links` is required.
+- `GET /processes`:
+    - Default values are now specified on the parameter-level, not in the JSON schemas.
+    - Multiple data types in parameters or return values are supported as arrays. Using `anyOf` is discouraged.
 - `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.8.1. [#185](https://github.com/Open-EO/openeo-api/issues/185), [#204](https://github.com/Open-EO/openeo-api/issues/204).
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
