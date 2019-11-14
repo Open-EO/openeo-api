@@ -5,7 +5,12 @@
     "categories": [
         "cubes"
     ],
-    "parameter_order": ["cube1", "cube2", "overlap_resolver", "binary"],
+    "parameter_order": [
+        "cube1",
+        "cube2",
+        "overlap_resolver",
+        "binary"
+    ],
     "parameters": {
         "cube1": {
             "description": "The first data cube.",
@@ -25,51 +30,49 @@
         },
         "overlap_resolver": {
             "description": "A reducer that resolves the conflict if the data overlaps. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "title": "Unary behaviour",
-                        "description": "Passes an array to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "data": {
-                                "description": "An array with elements of any data type.",
-                                "type": "array",
-                                "items": {
-                                    "description": "Any data type."
-                                }
+            "schema": [
+                {
+                    "title": "Unary behaviour",
+                    "description": "Passes an array to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "data": {
+                            "description": "An array with elements of any data type.",
+                            "type": "array",
+                            "items": {
+                                "description": "Any data type."
                             }
-                        } 
-                    },
-                    {
-                        "title": "Binary behaviour",
-                        "description": "Passes two values to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "x": {
-                                "description": "The first value. Any data type could be passed."
-                            },
-                            "y": {
-                                "description": "The second value. Any data type could be passed."
-                            }
-                        } 
-                    },
-                    {
-                        "title": "No overlap resolver",
-                        "type": "null"
+                        }
                     }
-                ],
-                "default": null
-            }
+                },
+                {
+                    "title": "Binary behaviour",
+                    "description": "Passes two values to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "x": {
+                            "description": "The first value. Any data type could be passed."
+                        },
+                        "y": {
+                            "description": "The second value. Any data type could be passed."
+                        }
+                    }
+                },
+                {
+                    "title": "No overlap resolver",
+                    "type": "null"
+                }
+            ],
+            "default": null
         },
         "binary": {
             "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
             "schema": {
-                "type": "boolean",
-                "default": false
-            }
+                "type": "boolean"
+            },
+            "default": false
         }
     },
     "returns": {

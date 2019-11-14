@@ -93,31 +93,29 @@
       },
       "value": {
         "description": "A dimension value (**not** a pixel value).",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "type": {
@@ -129,9 +127,9 @@
             "temporal",
             "bands",
             "other"
-          ],
-          "default": "other"
-        }
+          ]
+        },
+        "default": "other"
       }
     },
     "returns": {
@@ -174,76 +172,7 @@
       },
       "polygons": {
         "description": "One or more polygons to calculate zonal statistics for. Either specified as GeoJSON or vector data cube.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "geojson"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            }
-          ]
-        },
-        "required": true
-      },
-      "reducer": {
-        "description": "A reducer to be applied on all values of each geometry. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Unary behaviour",
-              "description": "Passes an array to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "data": {
-                  "description": "An array with elements of any data type.",
-                  "type": "array",
-                  "items": {
-                    "description": "Any data type."
-                  }
-                }
-              }
-            },
-            {
-              "title": "Binary behaviour",
-              "description": "Passes two values to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "The first value. Any data type could be passed."
-                },
-                "y": {
-                  "description": "The second value. Any data type could be passed."
-                }
-              }
-            }
-          ]
-        },
-        "required": true
-      },
-      "name": {
-        "description": "The property name (for GeoJSON) or the new dimension name (for vector cubes) to be used for storing the results. Defaults to `result`.",
-        "schema": {
-          "type": "string",
-          "default": "result"
-        }
-      },
-      "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
-        "schema": {
-          "type": "boolean",
-          "default": false
-        }
-      }
-    },
-    "returns": {
-      "description": "A vector data cube or a GeoJSON object, depending on the input of the `polygons` parameter.\n\nThe computed value is stored in a property (GeoJSON) or dimension (vector cube) with the name that was specified in the parameter `name`.\n\nThe computation also stores information about the total count of pixels (valid + invalid pixels) and the number of valid pixels (see ``is_valid()``) in each geometry. In GeoJSON these are stored as properties with the names `{name}_total_count` and `{name}_valid_count` (replace `{name}` with the value of the `name` parameter). In a vector data cube, these values are stored as attributes of the result value with the attribute names `total_count` and `valid_count`.\n\nIf the input was GeoJSON and the therefore the return value is also a GeoJSON object, the geometries (`Polygon` or `GeometryCollection`) get wrapped in a `Feature` or `FeatureCollection` respectively. The results of the computations are stored in the `properties` of each GeoJSON `Feature`.",
-      "schema": {
-        "anyOf": [
+        "schema": [
           {
             "type": "object",
             "subtype": "geojson"
@@ -252,8 +181,71 @@
             "type": "object",
             "subtype": "vector-cube"
           }
-        ]
+        ],
+        "required": true
+      },
+      "reducer": {
+        "description": "A reducer to be applied on all values of each geometry. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+        "schema": [
+          {
+            "title": "Unary behaviour",
+            "description": "Passes an array to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "data": {
+                "description": "An array with elements of any data type.",
+                "type": "array",
+                "items": {
+                  "description": "Any data type."
+                }
+              }
+            }
+          },
+          {
+            "title": "Binary behaviour",
+            "description": "Passes two values to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "The first value. Any data type could be passed."
+              },
+              "y": {
+                "description": "The second value. Any data type could be passed."
+              }
+            }
+          }
+        ],
+        "required": true
+      },
+      "name": {
+        "description": "The property name (for GeoJSON) or the new dimension name (for vector cubes) to be used for storing the results. Defaults to `result`.",
+        "schema": {
+          "type": "string"
+        },
+        "default": "result"
+      },
+      "binary": {
+        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+        "schema": {
+          "type": "boolean"
+        },
+        "default": false
       }
+    },
+    "returns": {
+      "description": "A vector data cube or a GeoJSON object, depending on the input of the `polygons` parameter.\n\nThe computed value is stored in a property (GeoJSON) or dimension (vector cube) with the name that was specified in the parameter `name`.\n\nThe computation also stores information about the total count of pixels (valid + invalid pixels) and the number of valid pixels (see ``is_valid()``) in each geometry. In GeoJSON these are stored as properties with the names `{name}_total_count` and `{name}_valid_count` (replace `{name}` with the value of the `name` parameter). In a vector data cube, these values are stored as attributes of the result value with the attribute names `total_count` and `valid_count`.\n\nIf the input was GeoJSON and the therefore the return value is also a GeoJSON object, the geometries (`Polygon` or `GeometryCollection`) get wrapped in a `Feature` or `FeatureCollection` respectively. The results of the computations are stored in the `properties` of each GeoJSON `Feature`.",
+      "schema": [
+        {
+          "type": "object",
+          "subtype": "geojson"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
+        }
+      ]
     },
     "exceptions": {
       "TooManyDimensions": {
@@ -402,39 +394,37 @@
       },
       "reducer": {
         "description": "A reducer to be applied on all values along the specified dimension. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Unary behaviour",
-              "description": "Passes an array to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "data": {
-                  "description": "An array with elements of any data type.",
-                  "type": "array",
-                  "items": {
-                    "description": "Any data type."
-                  }
-                }
-              }
-            },
-            {
-              "title": "Binary behaviour",
-              "description": "Passes two values to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "The first value. Any data type could be passed."
-                },
-                "y": {
-                  "description": "The second value. Any data type could be passed."
+        "schema": [
+          {
+            "title": "Unary behaviour",
+            "description": "Passes an array to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "data": {
+                "description": "An array with elements of any data type.",
+                "type": "array",
+                "items": {
+                  "description": "Any data type."
                 }
               }
             }
-          ]
-        },
+          },
+          {
+            "title": "Binary behaviour",
+            "description": "Passes two values to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "The first value. Any data type could be passed."
+              },
+              "y": {
+                "description": "The second value. Any data type could be passed."
+              }
+            }
+          }
+        ],
         "required": true
       },
       "dimension": {
@@ -443,16 +433,16 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "binary": {
         "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -580,9 +570,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -722,9 +712,9 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -779,9 +769,9 @@
       "factor": {
         "description": "A factor that is multiplied to each value computed by the focal operation.\n\nThis is basically a shortcut for explicitly multiplying each value by a factor afterwards, which is often required for some kernel-based algorithms such as the Gaussian blur.",
         "schema": {
-          "type": "number",
-          "default": 1
-        }
+          "type": "number"
+        },
+        "default": 1
       }
     },
     "returns": {
@@ -1335,9 +1325,9 @@
       "return_nodata": {
         "description": "By default this process throws an `IndexOutOfBounds` exception if the index is invalid. If you want to return `null` instead, set this flag to `true`.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -1530,91 +1520,85 @@
     "parameters": {
       "x": {
         "description": "",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "min": {
         "description": "Lower boundary (inclusive) to check against.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "max": {
         "description": "Upper boundary (inclusive) to check against.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "exclude_max": {
         "description": "Exclude the upper boundary `max` if set to `true`. Defaults to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -1966,30 +1950,28 @@
       },
       "expression": {
         "description": "An expression consists of one ore more processes, which in the end return a boolean value. It is evaluated against each element in the array. An element is counted only if the expression returns `true`. Defaults to count valid elements in a list (see ``is_valid()``). Setting this parameter to boolean `true` counts all elements in the list.",
-        "schema": {
-          "anyOf": [
-            {
-              "description": "An expression that is evaluated against each element in the array.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "A single value from the array. Any data type could be passed."
-                }
+        "schema": [
+          {
+            "description": "An expression that is evaluated against each element in the array.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "A single value from the array. Any data type could be passed."
               }
-            },
-            {
-              "description": "Boolean `true` counts all elements in the list.",
-              "type": "boolean",
-              "const": true
-            },
-            {
-              "description": "`null` counts valid elements in the list.",
-              "type": "null"
             }
-          ],
-          "default": null
-        }
+          },
+          {
+            "description": "Boolean `true` counts all elements in the list.",
+            "type": "boolean",
+            "const": true
+          },
+          {
+            "description": "`null` counts valid elements in the list.",
+            "type": "null"
+          }
+        ],
+        "default": null
       }
     },
     "returns": {
@@ -2107,9 +2089,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2210,9 +2192,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2313,9 +2295,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2420,9 +2402,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is set for all the following elements.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2520,9 +2502,9 @@
       "code": {
         "description": "An identifier to help identify the log entry in a bunch of other log entries.",
         "schema": {
-          "type": "string",
-          "default": ""
-        }
+          "type": "string"
+        },
+        "default": ""
       },
       "level": {
         "description": "The severity level of this message. Note that the level `error` forces the computation to be stopped!",
@@ -2533,16 +2515,16 @@
             "warning",
             "info",
             "debug"
-          ],
-          "default": "debug"
-        }
+          ]
+        },
+        "default": "debug"
       },
       "message": {
         "description": "A message to send in addition to the data.",
         "schema": {
-          "type": "string",
-          "default": ""
-        }
+          "type": "string"
+        },
+        "default": ""
       }
     },
     "returns": {
@@ -2582,9 +2564,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2706,72 +2688,68 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "delta": {
@@ -2780,16 +2758,16 @@
           "type": [
             "number",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "case_sensitive": {
         "description": "Only applicable for comparing two strings. Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -2974,37 +2952,35 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with two `null` values is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
       "description": "An array containing the minimum and maximum values for the specified numbers. The first element is the minimum, the second element is the maximum. If the input array is empty both elements are set to `null`.",
-      "schema": {
-        "anyOf": [
-          {
-            "type": "array",
-            "minItems": 2,
-            "maxItems": 2,
-            "items": {
-              "type": [
-                "number"
-              ]
-            }
-          },
-          {
-            "type": "array",
-            "minItems": 2,
-            "maxItems": 2,
-            "items": {
-              "type": [
-                "null"
-              ]
-            }
+      "schema": [
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": [
+              "number"
+            ]
           }
-        ]
-      }
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": [
+              "null"
+            ]
+          }
+        }
+      ]
     },
     "examples": [
       {
@@ -3093,7 +3069,8 @@
             "type": "string",
             "subtype": "band-name"
           }
-        }
+        },
+        "default": []
       },
       "common_names": {
         "description": "A list of common band names.\n\nThe order of the specified array defines the order of the bands in the data cube.",
@@ -3102,7 +3079,8 @@
           "items": {
             "type": "string"
           }
-        }
+        },
+        "default": []
       },
       "wavelengths": {
         "description": "A list of sub-lists with each sub-list consisting of two elements. The first element is the minimum wavelength and the second element is the maximum wavelength. Wavelengths are specified in micrometres (μm).\n\nThe order of the specified array defines the order of the bands in the data cube.",
@@ -3128,7 +3106,8 @@
               ]
             ]
           }
-        }
+        },
+        "default": []
       }
     },
     "returns": {
@@ -3221,35 +3200,33 @@
             },
             "crs": {
               "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
-              "schema": {
-                "anyOf": [
-                  {
-                    "title": "EPSG Code",
-                    "type": "integer",
-                    "subtype": "epsg-code",
-                    "examples": [
-                      7099
-                    ]
-                  },
-                  {
-                    "title": "WKT2",
-                    "type": "string",
-                    "subtype": "wkt2-definition"
-                  },
-                  {
-                    "title": "PROJ definition",
-                    "type": "string",
-                    "subtype": "proj-definition",
-                    "deprecated": true
-                  },
-                  {
-                    "title": "PROJJSON",
-                    "type": "object",
-                    "subtype": "projjson-definition"
-                  }
-                ],
-                "default": 4326
-              }
+              "anyOf": [
+                {
+                  "title": "EPSG Code",
+                  "type": "integer",
+                  "subtype": "epsg-code",
+                  "examples": [
+                    7099
+                  ]
+                },
+                {
+                  "title": "WKT2",
+                  "type": "string",
+                  "subtype": "wkt2-definition"
+                },
+                {
+                  "title": "PROJ definition",
+                  "type": "string",
+                  "subtype": "proj-definition",
+                  "deprecated": true
+                },
+                {
+                  "title": "PROJJSON",
+                  "type": "object",
+                  "subtype": "projjson-definition"
+                }
+              ],
+              "default": 4326
             }
           }
         }
@@ -3307,18 +3284,16 @@
       },
       "polygons": {
         "description": "One or more polygons used for filtering, either specified as GeoJSON or vector data cube.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "geojson"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "geojson"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
+          }
+        ],
         "required": true
       }
     },
@@ -3406,9 +3381,9 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -3532,9 +3507,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if the first value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -3661,60 +3636,56 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       }
     },
@@ -3793,60 +3764,56 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       }
     },
@@ -3939,16 +3906,16 @@
       "accept": {
         "description": "A value that is returned if the boolean expression is `true`. Defaults to `true`.",
         "schema": {
-          "description": "Any data type is allowed.",
-          "default": true
-        }
+          "description": "Any data type is allowed."
+        },
+        "default": true
       },
       "reject": {
         "description": "A value that is returned if the boolean expression is `false`. Defaults to `false`.",
         "schema": {
-          "description": "Any data type is allowed.",
-          "default": false
-        }
+          "description": "Any data type is allowed."
+        },
+        "default": false
       }
     },
     "returns": {
@@ -4231,9 +4198,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if the last value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -4326,16 +4293,16 @@
       "outputMin": {
         "description": "Minimum value of the desired output range.",
         "schema": {
-          "type": "number",
-          "default": 0
-        }
+          "type": "number"
+        },
+        "default": 0
       },
       "outputMax": {
         "description": "Maximum value of the desired output range.",
         "schema": {
-          "type": "number",
-          "default": 1
-        }
+          "type": "number"
+        },
+        "default": 1
       }
     },
     "returns": {
@@ -4471,203 +4438,191 @@
       },
       "spatial_extent": {
         "description": "Limits the data to load from the collection to the specified bounding box or polygons.\n\nThe process puts a pixel into the data cube if the point at the pixel center intersects with the bounding box or any of the polygons (as defined in the Simple Features standard by the OGC).\n\nThe GeoJSON can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Bounding Box",
-              "type": "object",
-              "subtype": "bounding-box",
-              "required": [
-                "west",
-                "south",
-                "east",
-                "north"
-              ],
-              "properties": {
-                "west": {
-                  "description": "West (lower left corner, coordinate axis 1).",
-                  "type": "number"
-                },
-                "south": {
-                  "description": "South (lower left corner, coordinate axis 2).",
-                  "type": "number"
-                },
-                "east": {
-                  "description": "East (upper right corner, coordinate axis 1).",
-                  "type": "number"
-                },
-                "north": {
-                  "description": "North (upper right corner, coordinate axis 2).",
-                  "type": "number"
-                },
-                "base": {
-                  "description": "Base (optional, lower left corner, coordinate axis 3).",
-                  "type": [
-                    "number",
-                    "null"
-                  ],
-                  "default": null
-                },
-                "height": {
-                  "description": "Height (optional, upper right corner, coordinate axis 3).",
-                  "type": [
-                    "number",
-                    "null"
-                  ],
-                  "default": null
-                },
-                "crs": {
-                  "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
-                  "schema": {
-                    "anyOf": [
-                      {
-                        "title": "EPSG Code",
-                        "type": "integer",
-                        "subtype": "epsg-code",
-                        "examples": [
-                          7099
-                        ]
-                      },
-                      {
-                        "title": "WKT2",
-                        "type": "string",
-                        "subtype": "wkt2-definition"
-                      },
-                      {
-                        "title": "PROJ definition",
-                        "type": "string",
-                        "subtype": "proj-definition",
-                        "deprecated": true
-                      },
-                      {
-                        "title": "PROJJSON",
-                        "type": "object",
-                        "subtype": "projjson-definition"
-                      }
-                    ],
-                    "default": 4326
+        "schema": [
+          {
+            "title": "Bounding Box",
+            "type": "object",
+            "subtype": "bounding-box",
+            "required": [
+              "west",
+              "south",
+              "east",
+              "north"
+            ],
+            "properties": {
+              "west": {
+                "description": "West (lower left corner, coordinate axis 1).",
+                "type": "number"
+              },
+              "south": {
+                "description": "South (lower left corner, coordinate axis 2).",
+                "type": "number"
+              },
+              "east": {
+                "description": "East (upper right corner, coordinate axis 1).",
+                "type": "number"
+              },
+              "north": {
+                "description": "North (upper right corner, coordinate axis 2).",
+                "type": "number"
+              },
+              "base": {
+                "description": "Base (optional, lower left corner, coordinate axis 3).",
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "default": null
+              },
+              "height": {
+                "description": "Height (optional, upper right corner, coordinate axis 3).",
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "default": null
+              },
+              "crs": {
+                "description": "Coordinate reference system of the extent, specified as as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to `4326` (EPSG code 4326) unless the client explicitly requests a different coordinate reference system.",
+                "anyOf": [
+                  {
+                    "title": "EPSG Code",
+                    "type": "integer",
+                    "subtype": "epsg-code",
+                    "examples": [
+                      7099
+                    ]
+                  },
+                  {
+                    "title": "WKT2",
+                    "type": "string",
+                    "subtype": "wkt2-definition"
+                  },
+                  {
+                    "title": "PROJ definition",
+                    "type": "string",
+                    "subtype": "proj-definition",
+                    "deprecated": true
+                  },
+                  {
+                    "title": "PROJJSON",
+                    "type": "object",
+                    "subtype": "projjson-definition"
                   }
-                }
+                ],
+                "default": 4326
               }
-            },
-            {
-              "title": "GeoJSON Polygon(s)",
-              "type": "object",
-              "subtype": "geojson"
-            },
-            {
-              "type": "null"
             }
-          ]
-        },
+          },
+          {
+            "title": "GeoJSON Polygon(s)",
+            "type": "object",
+            "subtype": "geojson"
+          },
+          {
+            "type": "null"
+          }
+        ],
         "required": true
       },
       "temporal_extent": {
         "description": "Limits the data to load from the collection to the specified left-closed temporal interval. Applies to all temporal dimensions if there are multiple of them. The interval has to be specified as an array with exactly two elements:\n\n1. The first element is the start of the date and/or time interval. The specified instance in time is **included** in the interval.\n2. The second element is the end of the date and/or time interval. The specified instance in time is **excluded** from the interval.\n\nThe specified temporal strings follow [RFC 3339](https://tools.ietf.org/html/rfc3339). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), **this process allows the value '24' for the hour** of an end time in order to make it possible that left-closed time intervals can fully cover the day.\n\nAlso supports open intervals by setting one of the boundaries to `null`, but never both.\n\nSet this parameter to `null` to set no limit for the spatial extent. Be careful with this when loading large datasets!",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "array",
-              "subtype": "temporal-interval",
-              "minItems": 2,
-              "maxItems": 2,
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time",
-                    "subtype": "date-time"
-                  },
-                  {
-                    "type": "string",
-                    "format": "date",
-                    "subtype": "date"
-                  },
-                  {
-                    "type": "string",
-                    "format": "time",
-                    "subtype": "time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "examples": [
-                [
-                  "2015-01-01",
-                  "2016-01-01"
-                ],
-                [
-                  "12:00:00Z",
-                  "24:00:00Z"
-                ]
+        "schema": [
+          {
+            "type": "array",
+            "subtype": "temporal-interval",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "subtype": "date-time"
+                },
+                {
+                  "type": "string",
+                  "format": "date",
+                  "subtype": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "time",
+                  "subtype": "time"
+                },
+                {
+                  "type": "null"
+                }
               ]
             },
-            {
-              "type": "null"
-            }
-          ]
-        },
+            "examples": [
+              [
+                "2015-01-01",
+                "2016-01-01"
+              ],
+              [
+                "12:00:00Z",
+                "24:00:00Z"
+              ]
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ],
         "required": true
       },
       "bands": {
         "description": "Only adds the specified bands into the data cube so that bands that don't match the list of band names are not available. Applies to all dimensions of type `bands` if there are multiple of them.\n\nThe order of the specified array defines the order of the bands in the data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "subtype": "band-name"
-              }
-            },
-            {
-              "type": "null"
+        "schema": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "subtype": "band-name"
             }
-          ],
-          "default": "null"
-        }
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
       },
       "properties": {
         "description": "Limits the data by metadata properties to include only data in the data cube which all given expressions return `true` for (AND operation).\n\nSpecify key-value-pairs with the keys being the name of the metadata property, which can be retrieved with the openEO Data Discovery for Collections. The values must be expressions to be evaluated against the collection metadata, see the example.\n\n**Note:** Back-ends may not pass the actual value to the expressions, but pass a proprietary index or a placeholder so that they can use the expressions to query against another data source. So debugging on the process parameter `value` may lead to unexpected results.",
         "experimental": true,
-        "schema": {
-          "anyOf": [
-            {
+        "schema": [
+          {
+            "type": "object",
+            "additionalProperties": {
               "type": "object",
-              "additionalProperties": {
-                "type": "object",
-                "subtype": "process-graph",
-                "parameters": {
-                  "value": {
-                    "description": "The property value. Any data type could be passed."
-                  }
+              "subtype": "process-graph",
+              "parameters": {
+                "value": {
+                  "description": "The property value. Any data type could be passed."
                 }
               }
-            },
-            {
-              "type": "null"
             }
-          ],
-          "default": null
-        }
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
       }
     },
     "returns": {
       "description": "A data cube for further processing.",
-      "schema": {
-        "anyOf": [
-          {
-            "type": "object",
-            "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
-          }
-        ]
-      }
+      "schema": [
+        {
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
+        }
+      ]
     },
     "examples": [
       {
@@ -4769,18 +4724,16 @@
     },
     "returns": {
       "description": "A data cube for further processing.",
-      "schema": {
-        "anyOf": [
-          {
-            "type": "object",
-            "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
-          }
-        ]
-      }
+      "schema": [
+        {
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
+        }
+      ]
     }
   },
   {
@@ -4882,60 +4835,56 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       }
     },
@@ -5014,60 +4963,56 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       }
     },
@@ -5155,22 +5100,20 @@
       },
       "mask": {
         "description": "Either a raster data cube, a GeoJSON object or a vector data cube.\n\nFor **raster data cubes**, both data cubes must be compatible so that every pixel in `data` has a parallel element in `mask`.\n\nFor **GeoJSON** the provided types can be one of the following:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "geojson"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            },
-            {
-              "type": "object",
-              "subtype": "raster-cube"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "geojson"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "raster-cube"
+          }
+        ],
         "required": true
       },
       "replacement": {
@@ -5181,9 +5124,9 @@
             "boolean",
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -5230,9 +5173,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -5325,9 +5268,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -5417,9 +5360,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -5532,51 +5475,49 @@
       },
       "overlap_resolver": {
         "description": "A reducer that resolves the conflict if the data overlaps. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must return a value of the same data type as the input values in the array. `null` (default) can be specified if no overlap resolver is required.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Unary behaviour",
-              "description": "Passes an array to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "data": {
-                  "description": "An array with elements of any data type.",
-                  "type": "array",
-                  "items": {
-                    "description": "Any data type."
-                  }
+        "schema": [
+          {
+            "title": "Unary behaviour",
+            "description": "Passes an array to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "data": {
+                "description": "An array with elements of any data type.",
+                "type": "array",
+                "items": {
+                  "description": "Any data type."
                 }
               }
-            },
-            {
-              "title": "Binary behaviour",
-              "description": "Passes two values to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "The first value. Any data type could be passed."
-                },
-                "y": {
-                  "description": "The second value. Any data type could be passed."
-                }
-              }
-            },
-            {
-              "title": "No overlap resolver",
-              "type": "null"
             }
-          ],
-          "default": null
-        }
+          },
+          {
+            "title": "Binary behaviour",
+            "description": "Passes two values to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "The first value. Any data type could be passed."
+              },
+              "y": {
+                "description": "The second value. Any data type could be passed."
+              }
+            }
+          },
+          {
+            "title": "No overlap resolver",
+            "type": "null"
+          }
+        ],
+        "default": null
       },
       "binary": {
         "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -5628,9 +5569,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -5817,9 +5758,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -5905,9 +5846,9 @@
         "description": "Name of the newly created band with the computed values. Defaults to `ndvi`.",
         "schema": {
           "type": "string",
-          "default": "ndvi",
           "pattern": "^[A-Za-z0-9_]+$"
-        }
+        },
+        "default": "ndvi"
       }
     },
     "returns": {
@@ -5947,72 +5888,68 @@
     "parameters": {
       "x": {
         "description": "First operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "y": {
         "description": "Second operand.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "string",
-              "format": "date-time",
-              "subtype": "date-time"
-            },
-            {
-              "type": "string",
-              "format": "date",
-              "subtype": "date"
-            },
-            {
-              "type": "string",
-              "format": "time",
-              "subtype": "time"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "subtype": "date-time"
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "subtype": "date"
+          },
+          {
+            "type": "string",
+            "format": "time",
+            "subtype": "time"
+          }
+        ],
         "required": true
       },
       "delta": {
@@ -6021,16 +5958,16 @@
           "type": [
             "number",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "case_sensitive": {
         "description": "Only applicable for comparing two strings. Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -6170,9 +6107,9 @@
         "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
         "schema": {
           "type": "string",
-          "default": "normalized_difference",
           "pattern": "^[A-Za-z0-9_]+$"
-        }
+        },
+        "default": "normalized_difference"
       }
     },
     "returns": {
@@ -6278,9 +6215,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -6425,9 +6362,9 @@
       "asc": {
         "description": "The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, set this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       },
       "nodata": {
         "description": "Controls the handling of no-data values (`null`). By default they are removed. If `true`, missing values in the data are put last; if `false`, they are put first.",
@@ -6435,9 +6372,9 @@
           "type": [
             "boolean",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -6758,9 +6695,9 @@
       "ignore_nodata": {
         "description": "See ``multiply()`` for more information.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -6824,24 +6761,22 @@
     "parameters": {
       "data": {
         "description": "A data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "raster-cube"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            },
-            {
-              "description": "A collection id.",
-              "type": "string",
-              "subtype": "collection-id",
-              "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
+          },
+          {
+            "description": "A collection id.",
+            "type": "string",
+            "subtype": "collection-id",
+            "pattern": "^[A-Za-z0-9_\\-\\.~/]+$"
+          }
+        ],
         "required": true
       },
       "name": {
@@ -6857,9 +6792,9 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -6923,9 +6858,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that an array with `null` values is returned if any element is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -7195,45 +7130,43 @@
       },
       "reducer": {
         "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Unary behaviour",
-              "description": "Passes an array to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "data": {
-                  "description": "An array with elements of any data type.",
-                  "type": "array",
-                  "items": {
-                    "description": "Any data type."
-                  }
+        "schema": [
+          {
+            "title": "Unary behaviour",
+            "description": "Passes an array to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "data": {
+                "description": "An array with elements of any data type.",
+                "type": "array",
+                "items": {
+                  "description": "Any data type."
                 }
               }
-            },
-            {
-              "title": "Binary behaviour",
-              "description": "Passes two values to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "The first value. Any data type could be passed."
-                },
-                "y": {
-                  "description": "The second value. Any data type could be passed."
-                }
-              }
-            },
-            {
-              "title": "No operation behaviour",
-              "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
-              "type": "null"
             }
-          ],
-          "default": null
-        }
+          },
+          {
+            "title": "Binary behaviour",
+            "description": "Passes two values to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "The first value. Any data type could be passed."
+              },
+              "y": {
+                "description": "The second value. Any data type could be passed."
+              }
+            }
+          },
+          {
+            "title": "No operation behaviour",
+            "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
+            "type": "null"
+          }
+        ],
+        "default": null
       },
       "dimension": {
         "description": "The dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
@@ -7248,16 +7181,16 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "binary": {
         "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -7298,18 +7231,16 @@
     "parameters": {
       "data": {
         "description": "The data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "raster-cube"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
+          }
+        ],
         "required": true
       },
       "old": {
@@ -7329,18 +7260,16 @@
     },
     "returns": {
       "description": "The data cube with the renamed dimension. The old name can not be referenced any longer.",
-      "schema": {
-        "anyOf": [
-          {
-            "type": "object",
-            "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
-          }
-        ]
-      }
+      "schema": [
+        {
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
+        }
+      ]
     },
     "exceptions": {
       "DimensionNotAvailable": {
@@ -7385,7 +7314,6 @@
         "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
         "schema": {
           "type": "string",
-          "default": "near",
           "enum": [
             "near",
             "bilinear",
@@ -7400,7 +7328,8 @@
             "q1",
             "q3"
           ]
-        }
+        },
+        "default": "near"
       }
     },
     "returns": {
@@ -7452,39 +7381,37 @@
       },
       "method": {
         "description": "A resampling method to be applied, could be a reducer for downsampling or other methods for upsampling. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Unary behaviour",
-              "description": "Passes an array to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "data": {
-                  "description": "An array with elements of any data type.",
-                  "type": "array",
-                  "items": {
-                    "description": "Any data type."
-                  }
-                }
-              }
-            },
-            {
-              "title": "Binary behaviour",
-              "description": "Passes two values to the reducer.",
-              "type": "object",
-              "subtype": "process-graph",
-              "parameters": {
-                "x": {
-                  "description": "The first value. Any data type could be passed."
-                },
-                "y": {
-                  "description": "The second value. Any data type could be passed."
+        "schema": [
+          {
+            "title": "Unary behaviour",
+            "description": "Passes an array to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "data": {
+                "description": "An array with elements of any data type.",
+                "type": "array",
+                "items": {
+                  "description": "Any data type."
                 }
               }
             }
-          ]
-        },
+          },
+          {
+            "title": "Binary behaviour",
+            "description": "Passes two values to the reducer.",
+            "type": "object",
+            "subtype": "process-graph",
+            "parameters": {
+              "x": {
+                "description": "The first value. Any data type could be passed."
+              },
+              "y": {
+                "description": "The second value. Any data type could be passed."
+              }
+            }
+          }
+        ],
         "required": true
       },
       "dimension": {
@@ -7493,16 +7420,16 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "binary": {
         "description": "Specifies whether the process should pass two values to the reducer specified as resampling method or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
-          "type": "boolean",
-          "default": false
-        }
+          "type": "boolean"
+        },
+        "default": false
       }
     },
     "returns": {
@@ -7559,68 +7486,63 @@
       },
       "resolution": {
         "description": "Resamples the data cube to the target resolution, which can be specified either as separate values for x and y or as a single value for both axes. Specified in the units of the target projection. Doesn't change the resolution by default (`0`).",
-        "schema": {
-          "anyOf": [
-            {
-              "description": "A single number used as resolution for both x and y.",
+        "schema": [
+          {
+            "description": "A single number used as resolution for both x and y.",
+            "type": "number",
+            "minimum": 0
+          },
+          {
+            "description": "A two-element array to specify separate resolutions for x (first element) and y (second element).",
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
               "type": "number",
               "minimum": 0
-            },
-            {
-              "description": "A two-element array to specify separate resolutions for x (first element) and y (second element).",
-              "type": "array",
-              "minItems": 2,
-              "maxItems": 2,
-              "items": {
-                "type": "number",
-                "minimum": 0
-              }
             }
-          ],
-          "default": 0
-        }
+          }
+        ],
+        "default": 0
       },
       "projection": {
         "description": "Warps the data cube to the target projection, specified as as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). By default (`null`), the projection is not changed.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "EPSG Code",
-              "type": "integer",
-              "subtype": "epsg-code",
-              "examples": [
-                7099
-              ]
-            },
-            {
-              "title": "WKT2",
-              "type": "string",
-              "subtype": "wkt2-definition"
-            },
-            {
-              "title": "PROJ definition",
-              "type": "string",
-              "subtype": "proj-definition",
-              "deprecated": true
-            },
-            {
-              "title": "PROJJSON",
-              "type": "object",
-              "subtype": "projjson-definition"
-            },
-            {
-              "title": "Don't change projection",
-              "type": "null"
-            }
-          ],
-          "default": null
-        }
+        "schema": [
+          {
+            "title": "EPSG Code",
+            "type": "integer",
+            "subtype": "epsg-code",
+            "examples": [
+              7099
+            ]
+          },
+          {
+            "title": "WKT2",
+            "type": "string",
+            "subtype": "wkt2-definition"
+          },
+          {
+            "title": "PROJ definition",
+            "type": "string",
+            "subtype": "proj-definition",
+            "deprecated": true
+          },
+          {
+            "title": "PROJJSON",
+            "type": "object",
+            "subtype": "projjson-definition"
+          },
+          {
+            "title": "Don't change projection",
+            "type": "null"
+          }
+        ],
+        "default": null
       },
       "method": {
         "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
         "schema": {
           "type": "string",
-          "default": "near",
           "enum": [
             "near",
             "bilinear",
@@ -7635,7 +7557,8 @@
             "q1",
             "q3"
           ]
-        }
+        },
+        "default": "near"
       },
       "align": {
         "description": "Specifies to which corner of the spatial extent the new resampled data is aligned to.",
@@ -7646,9 +7569,9 @@
             "upper-left",
             "lower-right",
             "upper-right"
-          ],
-          "default": "lower-left"
-        }
+          ]
+        },
+        "default": "lower-left"
       }
     },
     "returns": {
@@ -7701,9 +7624,9 @@
       "p": {
         "description": "A positive number specifies the number of digits after the decimal point to round to. A negative number means rounding to a power of ten, so for example *-2* rounds to the nearest hundred. Defaults to *0*.",
         "schema": {
-          "type": "integer",
-          "default": 0
-        }
+          "type": "integer"
+        },
+        "default": 0
       }
     },
     "returns": {
@@ -7784,31 +7707,29 @@
     "parameters": {
       "id": {
         "description": "A process graph id or an absolute URI to an externally hosted process graph.",
-        "schema": {
-          "anyOf": [
-            {
-              "description": "URI",
-              "type": "string",
-              "format": "uri",
-              "subtype": "uri"
-            },
-            {
-              "description": "Process graph id",
-              "type": "string",
-              "subtype": "process-graph-id",
-              "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "description": "URI",
+            "type": "string",
+            "format": "uri",
+            "subtype": "uri"
+          },
+          {
+            "description": "Process graph id",
+            "type": "string",
+            "subtype": "process-graph-id",
+            "pattern": "^[A-Za-z0-9_\\-\\.~]+$"
+          }
+        ],
         "required": true
       },
       "variables": {
         "description": "Key-value-pairs with values for variables that are defined by the process graph. The key of the pair has to be the corresponding `variable_id` for the value specified. The replacement for the variable is the value of the pair.",
         "schema": {
           "type": "object",
-          "subtype": "process-graph-variables",
-          "default": {}
-        }
+          "subtype": "process-graph-variables"
+        },
+        "default": {}
       }
     },
     "returns": {
@@ -7841,23 +7762,21 @@
     "parameters": {
       "data": {
         "description": "The data to be passed to the UDF as array or raster data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Raster data cube",
-              "type": "object",
-              "subtype": "raster-cube"
-            },
-            {
-              "title": "Array",
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "description": "Any data type."
-              }
+        "schema": [
+          {
+            "title": "Raster data cube",
+            "type": "object",
+            "subtype": "raster-cube"
+          },
+          {
+            "title": "Array",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "description": "Any data type."
             }
-          ]
-        },
+          }
+        ],
         "required": true
       },
       "url": {
@@ -7872,26 +7791,24 @@
       "context": {
         "description": "Additional data such as configuration options that should be passed to the UDF.",
         "schema": {
-          "type": "object",
-          "default": {}
-        }
+          "type": "object"
+        },
+        "default": {}
       }
     },
     "returns": {
       "description": "The data processed by the UDF service. Returns a raster data cube if a raster data cube was passed for `data`. If an array was passed for `data`, the returned value is defined by the context and is exactly what the UDF returned.",
-      "schema": {
-        "anyOf": [
-          {
-            "title": "Raster data cube",
-            "type": "object",
-            "subtype": "raster-cube"
-          },
-          {
-            "title": "Any",
-            "description": "Any data type."
-          }
-        ]
-      }
+      "schema": [
+        {
+          "title": "Raster data cube",
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        {
+          "title": "Any",
+          "description": "Any data type."
+        }
+      ]
     },
     "links": [
       {
@@ -7924,41 +7841,37 @@
     "parameters": {
       "data": {
         "description": "The data to be passed to the UDF as array or raster data cube.",
-        "schema": {
-          "anyOf": [
-            {
-              "title": "Raster data cube",
-              "type": "object",
-              "subtype": "raster-cube"
-            },
-            {
-              "title": "Array",
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "description": "Any data type."
-              }
+        "schema": [
+          {
+            "title": "Raster data cube",
+            "type": "object",
+            "subtype": "raster-cube"
+          },
+          {
+            "title": "Array",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "description": "Any data type."
             }
-          ]
-        },
+          }
+        ],
         "required": true
       },
       "udf": {
         "description": "Either source code, an absolute URL or a path to an UDF script.",
-        "schema": {
-          "anyOf": [
-            {
-              "description": "URI to an UDF",
-              "type": "string",
-              "format": "uri",
-              "subtype": "uri"
-            },
-            {
-              "description": "Source code as string",
-              "type": "string"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "description": "URI to an UDF",
+            "type": "string",
+            "format": "uri",
+            "subtype": "uri"
+          },
+          {
+            "description": "Source code as string",
+            "type": "string"
+          }
+        ],
         "required": true
       },
       "runtime": {
@@ -7974,16 +7887,16 @@
           "type": [
             "string",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       },
       "context": {
         "description": "Additional data such as configuration options that should be passed to the UDF.",
         "schema": {
-          "type": "object",
-          "default": {}
-        }
+          "type": "object"
+        },
+        "default": {}
       }
     },
     "exceptions": {
@@ -7993,19 +7906,17 @@
     },
     "returns": {
       "description": "The data processed by the UDF. Returns a raster data cube if a raster data cube was passed for `data`. If an array was passed for `data`, the returned value is defined by the context and is exactly what the UDF returned.",
-      "schema": {
-        "anyOf": [
-          {
-            "title": "Raster data cube",
-            "type": "object",
-            "subtype": "raster-cube"
-          },
-          {
-            "title": "Any",
-            "description": "Any data type."
-          }
-        ]
-      }
+      "schema": [
+        {
+          "title": "Raster data cube",
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        {
+          "title": "Any",
+          "description": "Any data type."
+        }
+      ]
     }
   },
   {
@@ -8024,18 +7935,16 @@
     "parameters": {
       "data": {
         "description": "The data to save.",
-        "schema": {
-          "anyOf": [
-            {
-              "type": "object",
-              "subtype": "raster-cube"
-            },
-            {
-              "type": "object",
-              "subtype": "vector-cube"
-            }
-          ]
-        },
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
+          }
+        ],
         "required": true
       },
       "subtype": {
@@ -8050,9 +7959,9 @@
         "description": "The file format options to be used to create the file(s). Must correspond to the options that the server reports as supported options for the chosen `format`. The option names and valid values usually correspond to the GDAL/OGR format options.",
         "schema": {
           "type": "object",
-          "subtype": "output-format-options",
-          "default": {}
-        }
+          "subtype": "output-format-options"
+        },
+        "default": {}
       }
     },
     "returns": {
@@ -8103,9 +8012,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -8356,9 +8265,9 @@
       "asc": {
         "description": "The default sort order is ascending, with smallest values first. To sort in reverse (descending) order, set this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       },
       "nodata": {
         "description": "Controls the handling of no-data values (`null`). By default they are removed. If `true`, missing values in the data are put last; if `false`, they are put first.",
@@ -8366,9 +8275,9 @@
           "type": [
             "boolean",
             "null"
-          ],
-          "default": null
-        }
+          ]
+        },
+        "default": null
       }
     },
     "returns": {
@@ -8558,9 +8467,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -8651,9 +8560,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -8833,9 +8742,9 @@
       "case_sensitive": {
         "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -8915,9 +8824,9 @@
       "case_sensitive": {
         "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -8997,9 +8906,9 @@
       "case_sensitive": {
         "description": "Case sensitive comparison can be disabled by setting this parameter to `false`.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -9083,9 +8992,9 @@
             "number",
             "boolean",
             "null"
-          ],
-          "default": ""
-        }
+          ]
+        },
+        "default": ""
       }
     },
     "returns": {
@@ -9208,9 +9117,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {
@@ -9304,9 +9213,9 @@
       "ignore_nodata": {
         "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
         "schema": {
-          "type": "boolean",
-          "default": true
-        }
+          "type": "boolean"
+        },
+        "default": true
       }
     },
     "returns": {

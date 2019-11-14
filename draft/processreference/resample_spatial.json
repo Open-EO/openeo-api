@@ -6,7 +6,13 @@
         "cubes",
         "aggregate & resample"
     ],
-    "parameter_order": ["data", "resolution", "projection", "method", "align"],
+    "parameter_order": [
+        "data",
+        "resolution",
+        "projection",
+        "method",
+        "align"
+    ],
     "parameters": {
         "data": {
             "description": "A raster data cube.",
@@ -18,81 +24,79 @@
         },
         "resolution": {
             "description": "Resamples the data cube to the target resolution, which can be specified either as separate values for x and y or as a single value for both axes. Specified in the units of the target projection. Doesn't change the resolution by default (`0`).",
-            "schema": {
-                "anyOf": [
-                    {
-                        "description": "A single number used as resolution for both x and y.",
+            "schema": [
+                {
+                    "description": "A single number used as resolution for both x and y.",
+                    "type": "number",
+                    "minimum": 0
+                },
+                {
+                    "description": "A two-element array to specify separate resolutions for x (first element) and y (second element).",
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
                         "type": "number",
                         "minimum": 0
-                    },
-                    {
-                        "description": "A two-element array to specify separate resolutions for x (first element) and y (second element).",
-                        "type": "array",
-                        "minItems": 2,
-                        "maxItems": 2,
-                        "items": {
-                            "type": "number",
-                            "minimum": 0
-                        }
                     }
-                ],
-                "default": 0
-            }
+                }
+            ],
+            "default": 0
         },
         "projection": {
             "description": "Warps the data cube to the target projection, specified as as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). By default (`null`), the projection is not changed.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "title": "EPSG Code",
-                        "type": "integer",
-                        "subtype": "epsg-code",
-                        "examples": [7099]
-                    },
-                    {
-                        "title": "WKT2",
-                        "type": "string",
-                        "subtype": "wkt2-definition"
-                    },
-                    {
-                        "title": "PROJ definition",
-                        "type": "string",
-                        "subtype": "proj-definition",
-                        "deprecated": true
-                    },
-                    {
-                        "title": "PROJJSON",
-                        "type": "object",
-                        "subtype": "projjson-definition"
-                    },
-                    {
-                        "title": "Don't change projection",
-                        "type": "null"
-                    }
-                ],
-                "default": null
-            }
+            "schema": [
+                {
+                    "title": "EPSG Code",
+                    "type": "integer",
+                    "subtype": "epsg-code",
+                    "examples": [
+                        7099
+                    ]
+                },
+                {
+                    "title": "WKT2",
+                    "type": "string",
+                    "subtype": "wkt2-definition"
+                },
+                {
+                    "title": "PROJ definition",
+                    "type": "string",
+                    "subtype": "proj-definition",
+                    "deprecated": true
+                },
+                {
+                    "title": "PROJJSON",
+                    "type": "object",
+                    "subtype": "projjson-definition"
+                },
+                {
+                    "title": "Don't change projection",
+                    "type": "null"
+                }
+            ],
+            "default": null
         },
         "method": {
-          "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
-          "schema": {
-            "type": "string",
-            "default": "near",
-            "enum": [
-              "near",
-              "bilinear",
-              "cubic",
-              "cubicspline",
-              "lanczos",
-              "average",
-              "mode",
-              "max",
-              "min",
-              "med",
-              "q1",
-              "q3"
-            ]
-          }
+            "description": "Resampling method. Methods are inspired by GDAL, see [gdalwarp](https://www.gdal.org/gdalwarp.html) for more information.",
+            "schema": {
+                "type": "string",
+                "enum": [
+                    "near",
+                    "bilinear",
+                    "cubic",
+                    "cubicspline",
+                    "lanczos",
+                    "average",
+                    "mode",
+                    "max",
+                    "min",
+                    "med",
+                    "q1",
+                    "q3"
+                ]
+            },
+            "default": "near"
         },
         "align": {
             "description": "Specifies to which corner of the spatial extent the new resampled data is aligned to.",
@@ -103,9 +107,9 @@
                     "upper-left",
                     "lower-right",
                     "upper-right"
-                ],
-                "default": "lower-left"
-            }
+                ]
+            },
+            "default": "lower-left"
         }
     },
     "returns": {

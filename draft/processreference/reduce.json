@@ -6,7 +6,13 @@
         "cubes",
         "reducer"
     ],
-    "parameter_order": ["data", "reducer", "dimension", "target_dimension", "binary"],
+    "parameter_order": [
+        "data",
+        "reducer",
+        "dimension",
+        "target_dimension",
+        "binary"
+    ],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -18,45 +24,43 @@
         },
         "reducer": {
             "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
-            "schema": {
-                "anyOf": [
-                    {
-                        "title": "Unary behaviour",
-                        "description": "Passes an array to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "data": {
-                                "description": "An array with elements of any data type.",
-                                "type": "array",
-                                "items": {
-                                    "description": "Any data type."
-                                }
+            "schema": [
+                {
+                    "title": "Unary behaviour",
+                    "description": "Passes an array to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "data": {
+                            "description": "An array with elements of any data type.",
+                            "type": "array",
+                            "items": {
+                                "description": "Any data type."
                             }
-                        } 
-                    },
-                    {
-                        "title": "Binary behaviour",
-                        "description": "Passes two values to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "x": {
-                                "description": "The first value. Any data type could be passed."
-                            },
-                            "y": {
-                                "description": "The second value. Any data type could be passed."
-                            }
-                        } 
-                    },
-                    {
-                        "title": "No operation behaviour",
-                        "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
-                        "type": "null"
+                        }
                     }
-                ],
-                "default": null
-            }
+                },
+                {
+                    "title": "Binary behaviour",
+                    "description": "Passes two values to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "x": {
+                            "description": "The first value. Any data type could be passed."
+                        },
+                        "y": {
+                            "description": "The second value. Any data type could be passed."
+                        }
+                    }
+                },
+                {
+                    "title": "No operation behaviour",
+                    "description": "Specifying `null` works only on dimensions with a single dimension value left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
+                    "type": "null"
+                }
+            ],
+            "default": null
         },
         "dimension": {
             "description": "The dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
@@ -68,16 +72,19 @@
         "target_dimension": {
             "description": "The name of the target dimension. Only required if the reducer returns multiple values, otherwise ignored. By default creates a new dimension with the specified name and the type `other` (see ``add_dimension()``). If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.",
             "schema": {
-                "type": ["string", "null"],
-                "default": null
-            }
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "default": null
         },
         "binary": {
             "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
             "schema": {
-                "type": "boolean",
-                "default": false
-            }
+                "type": "boolean"
+            },
+            "default": false
         }
     },
     "returns": {

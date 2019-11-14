@@ -7,7 +7,13 @@
         "aggregate & resample"
     ],
     "experimental": true,
-    "parameter_order": ["data", "polygons", "reducer", "name", "binary"],
+    "parameter_order": [
+        "data",
+        "polygons",
+        "reducer",
+        "name",
+        "binary"
+    ],
     "parameters": {
         "data": {
             "description": "A data cube.",
@@ -19,76 +25,7 @@
         },
         "polygons": {
             "description": "One or more polygons to calculate zonal statistics for. Either specified as GeoJSON or vector data cube.\n\nFor GeoJSON this can be one of the following GeoJSON types:\n\n* A `Polygon` geometry,\n* a `GeometryCollection` containing Polygons,\n* a `Feature` with a `Polygon` geometry or\n* a `FeatureCollection` containing `Feature`s with a `Polygon` geometry.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "subtype": "geojson"
-                    },
-                    {
-                        "type": "object",
-                        "subtype": "vector-cube"
-                    }
-                ]
-            },
-            "required": true
-        },
-        "reducer": {
-            "description": "A reducer to be applied on all values of each geometry. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "title": "Unary behaviour",
-                        "description": "Passes an array to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "data": {
-                                "description": "An array with elements of any data type.",
-                                "type": "array",
-                                "items": {
-                                    "description": "Any data type."
-                                }
-                            }
-                        } 
-                    },
-                    {
-                        "title": "Binary behaviour",
-                        "description": "Passes two values to the reducer.",
-                        "type": "object",
-                        "subtype": "process-graph",
-                        "parameters": {
-                            "x": {
-                                "description": "The first value. Any data type could be passed."
-                            },
-                            "y": {
-                                "description": "The second value. Any data type could be passed."
-                            }
-                        } 
-                    }
-                ]
-            },
-            "required": true
-        },
-        "name": {
-            "description": "The property name (for GeoJSON) or the new dimension name (for vector cubes) to be used for storing the results. Defaults to `result`.",
-            "schema": {
-                "type": "string",
-                "default": "result"
-            }
-        },
-        "binary": {
-            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
-            "schema": {
-                "type": "boolean",
-                "default": false
-            }
-        }
-    },
-    "returns": {
-        "description": "A vector data cube or a GeoJSON object, depending on the input of the `polygons` parameter.\n\nThe computed value is stored in a property (GeoJSON) or dimension (vector cube) with the name that was specified in the parameter `name`.\n\nThe computation also stores information about the total count of pixels (valid + invalid pixels) and the number of valid pixels (see ``is_valid()``) in each geometry. In GeoJSON these are stored as properties with the names `{name}_total_count` and `{name}_valid_count` (replace `{name}` with the value of the `name` parameter). In a vector data cube, these values are stored as attributes of the result value with the attribute names `total_count` and `valid_count`.\n\nIf the input was GeoJSON and the therefore the return value is also a GeoJSON object, the geometries (`Polygon` or `GeometryCollection`) get wrapped in a `Feature` or `FeatureCollection` respectively. The results of the computations are stored in the `properties` of each GeoJSON `Feature`.",
-        "schema": {
-            "anyOf": [
+            "schema": [
                 {
                     "type": "object",
                     "subtype": "geojson"
@@ -97,8 +34,71 @@
                     "type": "object",
                     "subtype": "vector-cube"
                 }
-            ]
+            ],
+            "required": true
+        },
+        "reducer": {
+            "description": "A reducer to be applied on all values of each geometry. The reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`.",
+            "schema": [
+                {
+                    "title": "Unary behaviour",
+                    "description": "Passes an array to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "data": {
+                            "description": "An array with elements of any data type.",
+                            "type": "array",
+                            "items": {
+                                "description": "Any data type."
+                            }
+                        }
+                    }
+                },
+                {
+                    "title": "Binary behaviour",
+                    "description": "Passes two values to the reducer.",
+                    "type": "object",
+                    "subtype": "process-graph",
+                    "parameters": {
+                        "x": {
+                            "description": "The first value. Any data type could be passed."
+                        },
+                        "y": {
+                            "description": "The second value. Any data type could be passed."
+                        }
+                    }
+                }
+            ],
+            "required": true
+        },
+        "name": {
+            "description": "The property name (for GeoJSON) or the new dimension name (for vector cubes) to be used for storing the results. Defaults to `result`.",
+            "schema": {
+                "type": "string"
+            },
+            "default": "result"
+        },
+        "binary": {
+            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
+            "schema": {
+                "type": "boolean"
+            },
+            "default": false
         }
+    },
+    "returns": {
+        "description": "A vector data cube or a GeoJSON object, depending on the input of the `polygons` parameter.\n\nThe computed value is stored in a property (GeoJSON) or dimension (vector cube) with the name that was specified in the parameter `name`.\n\nThe computation also stores information about the total count of pixels (valid + invalid pixels) and the number of valid pixels (see ``is_valid()``) in each geometry. In GeoJSON these are stored as properties with the names `{name}_total_count` and `{name}_valid_count` (replace `{name}` with the value of the `name` parameter). In a vector data cube, these values are stored as attributes of the result value with the attribute names `total_count` and `valid_count`.\n\nIf the input was GeoJSON and the therefore the return value is also a GeoJSON object, the geometries (`Polygon` or `GeometryCollection`) get wrapped in a `Feature` or `FeatureCollection` respectively. The results of the computations are stored in the `properties` of each GeoJSON `Feature`.",
+        "schema": [
+            {
+                "type": "object",
+                "subtype": "geojson"
+            },
+            {
+                "type": "object",
+                "subtype": "vector-cube"
+            }
+        ]
     },
     "exceptions": {
         "TooManyDimensions": {

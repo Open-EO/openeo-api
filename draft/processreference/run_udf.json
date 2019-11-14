@@ -6,45 +6,47 @@
         "import",
         "udf"
     ],
-    "parameter_order": ["data", "udf", "runtime", "version", "context"],
+    "parameter_order": [
+        "data",
+        "udf",
+        "runtime",
+        "version",
+        "context"
+    ],
     "parameters": {
         "data": {
             "description": "The data to be passed to the UDF as array or raster data cube.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "title": "Raster data cube",
-                        "type": "object",
-                        "subtype": "raster-cube"
-                    },
-                    {
-                        "title": "Array",
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                            "description": "Any data type."
-                        }
+            "schema": [
+                {
+                    "title": "Raster data cube",
+                    "type": "object",
+                    "subtype": "raster-cube"
+                },
+                {
+                    "title": "Array",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "description": "Any data type."
                     }
-                ]
-            },
+                }
+            ],
             "required": true
         },
         "udf": {
             "description": "Either source code, an absolute URL or a path to an UDF script.",
-            "schema": {
-                "anyOf": [
-                    {
-                        "description": "URI to an UDF",
-                        "type": "string",
-                        "format": "uri",
-                        "subtype": "uri"
-                    },
-                    {
-                        "description": "Source code as string",
-                        "type": "string"
-                    }
-                ]
-            },
+            "schema": [
+                {
+                    "description": "URI to an UDF",
+                    "type": "string",
+                    "format": "uri",
+                    "subtype": "uri"
+                },
+                {
+                    "description": "Source code as string",
+                    "type": "string"
+                }
+            ],
             "required": true
         },
         "runtime": {
@@ -60,16 +62,16 @@
                 "type": [
                     "string",
                     "null"
-                ],
-                "default": null
-            }
+                ]
+            },
+            "default": null
         },
         "context": {
             "description": "Additional data such as configuration options that should be passed to the UDF.",
             "schema": {
-                "type": "object",
-                "default": {}
-            }
+                "type": "object"
+            },
+            "default": {}
         }
     },
     "exceptions": {
@@ -79,18 +81,16 @@
     },
     "returns": {
         "description": "The data processed by the UDF. Returns a raster data cube if a raster data cube was passed for `data`. If an array was passed for `data`, the returned value is defined by the context and is exactly what the UDF returned.",
-        "schema": {
-            "anyOf": [
-                {
-                    "title": "Raster data cube",
-                    "type": "object",
-                    "subtype": "raster-cube"
-                },
-                {
-                    "title": "Any",
-                    "description": "Any data type."
-                }
-            ]
-        }
+        "schema": [
+            {
+                "title": "Raster data cube",
+                "type": "object",
+                "subtype": "raster-cube"
+            },
+            {
+                "title": "Any",
+                "description": "Any data type."
+            }
+        ]
     }
 }
