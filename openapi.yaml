@@ -175,26 +175,18 @@ info:
 
     # Web Linking
     
-    The API is designed in a way that to most entities (e.g. collections and processes) a set of additional links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more.
+    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
+
+    Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
+    A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
+
+    Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
     
-    ### Common link relation types
-    
-    The following table lists relation types that are commonly used as `rel` types in the links. The scope 'Collections' refers to the links that are related to a specific collection, 'Discovery' refers to links that are related to data discovery in general and are not about a specific collection.
-    
-    | Type              | Description                                                  | Scope |
-    | ----------------- | ------------------------------------------------------------ | ----- |
-    | `self`            | Absolute URL to the data discovery endpoint or the collection itself. | Discovery +Collections |
-    | `root` / `parent` | URL to the data discovery endpoint.                          | Collections |
-    | `child`           | URL to a child STAC Catalog or STAC Dataset.                 | Collections |
-    | `item`            | URL to a STAC Item.                                          | Collections |
-    | `license`         | The license URL for the dataset SHOULD be specified if the `license` field is set to `proprietary`. If there is no public license URL available, it is RECOMMENDED to supplement the collection with the license text in a separate file and link to this file. | Collections |
-    | `alternate`       | An alternative representation of the metadata. This could be a secondary web service such as OGC WCS or OGC CSW or a metadata document following another standard such as ISO 19115, INSPIRE or DCAT. | Discovery +Collections |
-    | `about`           | A resource that is related or further explains the entity, e.g. a user guide. | Discovery +Collections |
-    | `derived_from`    | Allows referencing the data this collection was derived from. | Collections |
-    | `cite-as`         | For all DOI names specified, the respective DOI links SHOULD be added to the links section of the catalog with the `rel` type `cite-as`. | Collections |
-    | `latest-version`  | If a process or collection is deprecated, a link with this type can point to the latest version of the process of collection. | Collections +Processes |
-    
-    More relation types may be listed in the STAC documentation.
+    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
+
+    2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
+
+    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
   contact:
     name: openEO Consortium
     url: 'http://www.openeo.org'
@@ -900,6 +892,7 @@ paths:
                   - api_version
                   - backend_version
                   - endpoints
+                  - links
                 properties:
                   api_version:
                     type: string
@@ -1085,12 +1078,12 @@ paths:
                             url: 'http://cool-cloud-corp.com/plans/premium-plan'
                             paid: true
                   links:
-                    description: >-
-                      Additional links related to this service, e.g. the
-                      homepage of the service provider or the terms of service.
+                    description: |-
+                      Links related to this service, e.g. the homepage of
+                      the service provider or the terms of service.
 
-                      It is highly RECOMMENDED to provide at least links with
-                      the following `rel` (relation) types:
+                      It is highly RECOMMENDED to provide links with the
+                      following `rel` (relation) types:
 
                       1. `version-history`: A link back to the Well-Known URL
                       (see `/.well-known/openeo`) to allow clients to work on
@@ -1111,6 +1104,13 @@ paths:
                       them. The user interface MUST be designed in a way that
                       the privacy policy is not agreed to by default, i.e. the
                       user MUST explicitly agree to them.
+
+                      4. `service-desc` or `service-doc`: A link to the API definition.
+                      Use `service-desc` for machine-readable API definition and 
+                      `service-doc` for human-readable API definition.
+
+                      For additional relation types see also the lists of
+                      [common relation types in openEO](#section/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -1433,13 +1433,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/collection'
                   links:
-                    description: >-
-                      General links related to the data discovery service, for
-                      example  another service such as a OGC WCS that describes
-                      all the collections.
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/link'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   collections:
                     - stac_version: 0.8.1
@@ -1483,8 +1477,6 @@ paths:
                           url: >-
                             https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2
                       links:
-                        - rel: self
-                          href: 'https://openeo.org/api/collections/Sentinel-2A'
                         - rel: license
                           href: >-
                             https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
@@ -1522,13 +1514,9 @@ paths:
                             - - '2000-02-01T00:00:00Z'
                               - null
                       links:
-                        - rel: self
-                          href: 'https://openeo.org/api/collections/MOD09Q1'
                         - rel: license
                           href: 'https://openeo.org/api/collections/MOD09Q1/license'
                   links:
-                    - rel: self
-                      href: 'https://openeo.org/api/collections'
                     - rel: alternate
                       href: 'https://openeo.org/csw'
                       title: openEO catalog (OGC Catalogue Services 3.0)
@@ -1890,8 +1878,6 @@ paths:
                         - - '2015-06-23T00:00:00Z'
                           - null
                   links:
-                    - rel: self
-                      href: 'https://openeo.org/api/collections/Sentinel-2A'
                     - rel: license
                       href: >-
                         https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
@@ -2030,7 +2016,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/process'
                   links:
-                    $ref: '#/components/schemas/list_links'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   processes:
                     - id: round
@@ -2221,11 +2207,36 @@ paths:
                                     version:
                                       type: string
                                       description: Version number of the library.
+                                    deprecated:
+                                      type: boolean
+                                      default: false
+                                      description: |-
+                                        Specifies that the library is deprecated with the potential to be
+                                        removed in any of the next versions. It should be transitioned out
+                                        of usage as soon as possible and users should refrain from using it
+                                        in new implementations.
+
+                                        A link with relation type `latest-version` SHOULD be added to the
+                                        `links` and MUST refer to the library or library version that can be
+                                        used instead.
                                     links:
                                       type: array
-                                      description: >-
-                                        Related links, e.g. additional external
-                                        documentation for this library.
+                                      description: |-
+                                        Additional links related to this library,
+                                        e.g. external documentation for this library.
+
+                                        It is highly RECOMMENDED to provide links with
+                                        the following `rel` (relation) types:
+
+                                        1. `about`: A resource that further explains the library,
+                                        e.g. a user guide or the documentation.
+
+                                        2. `latest-version`: If a library has been marked as deprecated,
+                                        a link should point to either a new library replacing the deprecated
+                                        library or a latest version of the library available at the back-end.
+
+                                        For additional relation types see also the lists of
+                                        [common relation types in openEO](#section/Web-Linking).
                                       items:
                                         $ref: '#/components/schemas/link'
                         links:
@@ -2267,6 +2278,7 @@ paths:
                       - '7.2'
                     links:
                       - href: 'https://hub.docker.com/openeo/udf-php7/'
+                        rel: about
                   R:
                     description: R programming language with Rcpp and rmarkdown.
                     default: 3.5.2
@@ -2278,11 +2290,13 @@ paths:
                             links:
                               - href: >-
                                   https://cran.r-project.org/web/packages/Rcpp/index.html
+                                rel: about
                           rmarkdown:
                             version: 1.7.0
                             links:
                               - href: >-
                                   https://cran.r-project.org/web/packages/rmarkdown/index.html
+                                rel: about
                       3.5.2:
                         libraries:
                           Rcpp:
@@ -2290,11 +2304,13 @@ paths:
                             links:
                               - href: >-
                                   https://cran.r-project.org/web/packages/Rcpp/index.html
+                                rel: about
                           rmarkdown:
                             version: 1.7.0
                             links:
                               - href: >-
                                   https://cran.r-project.org/web/packages/rmarkdown/index.html
+                                rel: about
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2412,9 +2428,12 @@ paths:
                           $ref: '#/components/schemas/description'
                         links:
                           type: array
-                          description: >-
-                            Additional links to related resources, for example
-                            help pages or a page to register a new user account.
+                          description: |-
+                            Links related to this provider, for example a
+                            help page or a page to register a new user account.
+
+                            For relation types see the lists of
+                            [common relation types in openEO](#section/Web-Linking).
                           items:
                             $ref: '#/components/schemas/link'
                 example:
@@ -2664,7 +2683,7 @@ paths:
                         description:
                           $ref: '#/components/schemas/eo_description'
                   links:
-                    $ref: '#/components/schemas/list_links'
+                    $ref: '#/components/schemas/links_pagination'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2850,10 +2869,13 @@ paths:
                       items:
                         $ref: '#/components/schemas/variable'
                     links:
-                      description: >-
-                        Additional links related to this service type, e.g. more
+                      description: |-
+                        Links related to this service type, e.g. more
                         information about the parameters, attributes or options
-                        to access the created services.
+                        to access the created services
+
+                        For relation types see the lists of
+                        [common relation types in openEO](#section/Web-Linking).
                       type: array
                       items:
                         $ref: '#/components/schemas/link'
@@ -2978,7 +3000,7 @@ paths:
                         budget:
                           $ref: '#/components/schemas/budget'
                   links:
-                    $ref: '#/components/schemas/list_links'
+                    $ref: '#/components/schemas/links_pagination'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3234,7 +3256,7 @@ paths:
                         budget:
                           $ref: '#/components/schemas/budget'
                   links:
-                    $ref: '#/components/schemas/list_links'
+                    $ref: '#/components/schemas/links_pagination'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3649,7 +3671,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/file'
                   links:
-                    $ref: '#/components/schemas/list_links'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   files:
                     - path: test.txt
@@ -3753,9 +3775,9 @@ paths:
       summary: Information about the authenticated user
       description: >-
         This endpoint always returns the user id and MAY return the disk quota
-        available to the user. It MAY also return additional links related to
-        the user, e.g. where payments are handled or the user profile could be
-        changed.
+        available to the user. It MAY also return links related to user management
+        and the user profile, e.g. where payments are handled or the user profile
+        could be edited.
 
         For back-ends that involve accounting, this service MAY also return the
         currently available money or credits in the currency the back-end is
@@ -3811,9 +3833,18 @@ paths:
                   budget:
                     $ref: '#/components/schemas/budget'
                   links:
-                    description: >-
-                      Additional links related to the user, e.g. where payments
-                      are handled or the user profile could be changed.
+                    description: |-
+                      Links related to the user profile, e.g. where payments
+                      are handled or the user profile could be edited.
+
+                      It is RECOMMENDED to provide links with the following `rel` (relation) types:
+
+                      1. `payment`: A page where users can recharge their user account with money or credits.
+
+                      2. `edit-form`: Points to a page where the user can edit his user profile.
+
+                      For additional relation types see also the lists of
+                      [common relation types in openEO](#section/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -3821,15 +3852,15 @@ paths:
                       - href: 'http://www.openeo.org/john_doe/payment/'
                         rel: payment
                       - href: 'http://www.openeo.org/john_doe/edit/'
-                        rel: edit
+                        rel: edit-form
                       - href: 'http://www.openeo.org/john_doe/'
-                        rel: about
+                        rel: alternate
                         type: text/html
                         title: User profile
                       - href: 'http://www.openeo.org/john_doe.vcf'
-                        rel: about
+                        rel: alternate
                         type: text/vcard
-                        title: vCard of the user
+                        title: vCard of John Doe
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3957,10 +3988,16 @@ components:
         links:
           type: array
           description: >-
-            List of related URLs. This MUST NOT be the processed and
-            downloadable data, specify it in the `assets` property instead.
+            Links related to this batch job result, e.g. a link to an 
+            invoice, additional log files or external documentation.
+
+            The links MUST NOT contain links to the processed and
+            downloadable data. Instead specify these in the `assets` property.
             Clients MUST NOT download the data referenced in the links by
             default.
+
+            For relation types see the lists of
+            [common relation types in openEO](#section/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     file_format:
@@ -3999,9 +4036,11 @@ components:
             $ref: '#/components/schemas/argument'
         links:
           type: array
-          description: >-
-            Additional links related to this file format, e.g. more information
-            about the parameters.
+          description: |-
+            Links related to this file format, e.g. external documentation.
+
+            For relation types see the lists of
+            [common relation types in openEO](#section/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     production:
@@ -4013,23 +4052,42 @@ components:
         Clients SHOULD only connect to non-production implementations if the
         user explicitly confirmed to use a non-production implementation.
       default: true
-    list_links:
-      description: >-
-        Additional links related to this list of resources. Could reference to
-        alternative formats such as a rendered HTML version.
+    links_pagination:
+      description: |-
+        Links related to this list of resources, for example links for pagination
+        or alternative formats such as a human-readable HTML version.
 
+        Pagination is currently OPTIONAL and back-ends and clients may not support it.
+        Therefore it MUST be implemented in a way that clients not supporting
+        pagination get all resources regardless. The links array MUST NOT be paginated.
+        If pagination is implemented, the following `rel` (relation) types apply:
 
-        The links could also be used for pagination using the [rel
-        types](https://www.iana.org/assignments/link-relations/link-relations.xhtml)
-        `first`, `prev`, `next` and `last`. Pagination is currently OPTIONAL and
-        clients may not support it. Therefore it MUST be implemented in a way
-        that clients not supporting pagination get all resources regardless.
+        1. `next` (REQUIRED): A link to the next page.
+
+        2. `prev` (OPTIONAL): A link to the previous page.
+
+        3. `first` (OPTIONAL): A link to the first page.
+
+        4. `last` (OPTIONAL): A link to the last page.
+
+        For additional relation types see also the lists of
+        [common relation types in openEO](#section/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
     udf_links:
       type: array
-      description: 'Related links, e.g. additional external documentation for this runtime.'
+      description: |-
+        Links related to this runtime, e.g. external documentation.
+
+        It is highly RECOMMENDED to provide at least links with
+        the following `rel` (relation) types:
+
+        1. `about`: A resource that further explains the runtime,
+        e.g. a user guide or the documentation.
+
+        For additional relation types see also the lists of
+        [common relation types in openEO](#section/Web-Linking).
       items:
         $ref: '#/components/schemas/link'
     link:
@@ -4164,6 +4222,7 @@ components:
           description: Version of the collection.
         deprecated:
           type: boolean
+          default: false
           description: >-
             Specifies that the collection is deprecated with the potential to be
             removed in any of the next versions. It should be transitioned out
@@ -4173,7 +4232,6 @@ components:
 
             A link with relation type `latest-version` SHOULD be added to the
             `links` and MUST refer to the collection that can be used instead.
-          default: false
         license:
           $ref: '#/components/schemas/stac_license'
         providers:
@@ -4201,20 +4259,14 @@ components:
                     of the dataset.
 
                     If multiple areas are provided, the union of the bounding
-
                     boxes describes the spatial extent.
                   type: array
                   minItems: 1
                   items:
                     description: >-
                       Each bounding box is provided as four or six numbers,
-                      depending on
-
-                      whether the coordinate reference system includes a
-                      vertical axis
-
-                      (height or depth):
-
+                      depending on whether the coordinate reference system
+                      includes a vertical axis (height or depth):
 
                       * West (lower left corner, coordinate axis 1)
 
@@ -4230,37 +4282,22 @@ components:
 
 
                       The coordinate reference system of the values is WGS 84
-                      longitude/latitude
-
-                      (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
-
+                      longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
 
                       For WGS 84 longitude/latitude the values are in most cases
-                      the sequence of
-
-                      minimum longitude, minimum latitude, maximum longitude and
-                      maximum latitude.
+                      the sequence of minimum longitude, minimum latitude, maximum
+                      longitude and maximum latitude.
 
                       However, in cases where the box spans the antimeridian the
-                      first value
-
-                      (west-most box edge) is larger than the third value
+                      first value (west-most box edge) is larger than the third value
                       (east-most box edge).
 
-
                       If the vertical axis is included, the third and the sixth
-                      number are
-
-                      the bottom and the top of the 3-dimensional bounding box.
-
+                      number are the bottom and the top of the 3-dimensional bounding box.
 
                       If a feature has multiple spatial geometry properties, it
-                      is the decision of the
-
-                      server whether only a single spatial geometry property is
-                      used to determine
-
-                      the extent or all relevant geometries.
+                      is the decision of the server whether only a single spatial geometry
+                      property is used to determine the extent or all relevant geometries.
                     type: array
                     minItems: 4
                     maxItems: 6
@@ -4310,9 +4347,34 @@ components:
                       - null
         links:
           description: >-
-            Additional links related to this collection. Could reference to
-            other meta data formats with additional information or a preview
-            image.
+            Links related to this collection.
+            Could reference to licensing information, other meta data formats with
+            additional information or a preview image.
+
+            It is RECOMMENDED to provide links with the following
+            `rel` (relation) types:
+
+            1. `root` and `parent`: URL to the data discovery endpoint at `/collections`.
+
+            2. `license`: A link to the license(s) should be specified if the `license`
+            field is set to `proprietary` or `various`.
+
+            3. `derived_from`: Allows linking to the data this collection was derived from.
+
+            4. `cite-as`: For all DOI names specified in the collection, the respective DOI
+            links should be added.
+
+            5. `latest-version`: If a collection has been marked as deprecated, a link should
+            point to the latest version of the collection.
+
+            6. `alternate`: An alternative representation of the collection.
+            For example, this could be the collection available through another
+            catalog service such as OGC CSW, a human-readable HTML version or a
+            metadata document following another standard such as ISO 19115 or DCAT.
+
+            For additional relation types see also the lists of
+            [common relation types in openEO](#section/Web-Linking)
+            and the STAC specification for Collections.
           type: array
           items:
             $ref: '#/components/schemas/link'
@@ -4908,8 +4970,18 @@ components:
         links:
           type: array
           description: >-
-            Related links, e.g. additional external documentation for this
-            process.
+            Links related to this process, e.g. additional external documentation.
+
+            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+
+            1. `latest-version`: If a process has been marked as deprecated, a link should
+            point to the preferred version of the process.
+
+            2. `cite-as`: For all DOIs associated with the process, the respective DOI
+            links should be added.
+
+            For additional relation types see also the lists of
+            [common relation types in openEO](#section/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     process_id:
@@ -5161,9 +5233,12 @@ components:
         for example specified by a user in the `debug` process.
       example: SampleError
     log_links:
-      description: >-
-        Additional links related to this error or log entry, e.g. a resource that
+      description: |-
+        Links related to this log entry / error, e.g. to a resource that
         provides further explanations.
+
+        For relation types see the lists of
+        [common relation types in openEO](#section/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
@@ -5524,8 +5599,13 @@ components:
                   $ref: '#/components/schemas/log_entry'
               links:
                 type: array
-                description: >-
-                  Related links, e.g. a page to the customer support. 
+                description: |-
+                  Links related to this log file, e.g. a link to the
+                  customer support, external documentation or an
+                  alternative version of the log file.
+
+                  For relation types see the lists of
+                  [common relation types in openEO](#section/Web-Linking).
                 items:
                   $ref: '#/components/schemas/link'
     created:
