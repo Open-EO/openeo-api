@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `GET /processes`: `media_type` removed from parameters and return values. Use `contentMediaType` in the JSON Schema instead.
 - `GET /job/{job_id}`: Removed property `error`. Request information from `GET /job/{job_id}/logs` instead.
 - `GET /job/{job_id}/results`:
     - Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
