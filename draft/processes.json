@@ -176,10 +176,6 @@
           {
             "type": "object",
             "subtype": "geojson"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -240,10 +236,6 @@
         {
           "type": "object",
           "subtype": "geojson"
-        },
-        {
-          "type": "object",
-          "subtype": "vector-cube"
         }
       ]
     },
@@ -428,7 +420,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The name of the temporal dimension for aggregation. All data along the dimension will be passed through the specified reducer. If the dimension is not set or set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -3042,7 +3034,7 @@
   {
     "id": "filter_bands",
     "summary": "Filter the bands by name",
-    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`. Fails with a `DimensionMissing` error if no such dimension exists.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nTo keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered alphabetically by band names. Bands without names have an arbitrary order.",
+    "description": "Filters the bands in the data cube so that bands that don't match any of the criteria are dropped from the data cube. The data cube is expected to have only one dimension of type `bands`. Fails with a `DimensionMissing` error if no such dimension exists.\n\nThe following criteria can be used to select bands:\n\n* `bands`: band name (e.g. `B01` or `B8A`)\n* `common_names`: common band names (e.g. `red` or `nir`)\n* `wavelengths`: ranges of wavelengths in micrometres (μm) (e.g. 0.5 - 0.6)\n\nAll these information are exposed in the band metadata of the collection. To keep algorithms interoperable it is recommended to prefer the common bands names or the wavelengths over collection and/or back-end specific band names.\n\nIf multiple criteria are specified, any of them must match and not all of them, i.e. they are combined with an OR-operation. If no criteria is specified, the `BandFilterParameterMissing` exception must be thrown.\n\n**Important:** The order of the specified array defines the order of the bands in the data cube, which can be important for subsequent processes. If multiple bands are matched by a single criterion (e.g. a range of wavelengths), they are ordered as specified in the collection metadata.",
     "categories": [
       "filter"
     ],
@@ -3288,10 +3280,6 @@
           {
             "type": "object",
             "subtype": "geojson"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -3376,7 +3364,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The name of the temporal dimension to filter on. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -3461,7 +3449,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The dimension to filter on. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "description": "The name of the dimension to filter on. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
         "schema": {
           "type": "string"
         },
@@ -4617,10 +4605,6 @@
         {
           "type": "object",
           "subtype": "raster-cube"
-        },
-        {
-          "type": "object",
-          "subtype": "vector-cube"
         }
       ]
     },
@@ -4728,10 +4712,6 @@
         {
           "type": "object",
           "subtype": "raster-cube"
-        },
-        {
-          "type": "object",
-          "subtype": "vector-cube"
         }
       ]
     }
@@ -5104,10 +5084,6 @@
           {
             "type": "object",
             "subtype": "geojson"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           },
           {
             "type": "object",
@@ -5824,7 +5800,7 @@
   {
     "id": "ndvi",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with two bands that have the common names `red` and `nir` assigned. The process returns a raster data cube with two bands being replaced with a new band that holds the computed values. The newly created band is named `ndvi` by default. This name can be changed with the `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common name (`red`/`nir`) specified in the metadata.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with a dimension of type `bands`, which has at least two bands with the common names `red` and `nir`. The common names for each band are specified in the collection's band metadata and are *not* equal to the band names. The process returns a raster data cube an additional band that holds the computed values. The newly created band is named `ndvi` by default, but the name can be changed with the `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common names (`red`/`nir`) specified in the metadata.",
     "categories": [
       "math > indices",
       "vegetation indices"
@@ -5868,6 +5844,11 @@
         "rel": "about",
         "href": "https://earthobservatory.nasa.gov/features/MeasuringVegetation/measuring_vegetation_2.php",
         "title": "NDVI explained by NASA"
+      },
+      {
+        "rel": "about",
+        "href": "https://github.com/radiantearth/stac-spec/tree/master/extensions/eo#common-band-names",
+        "title": "List of common band names as specified by the STAC specification"
       }
     ]
   },
@@ -6749,7 +6730,7 @@
   {
     "id": "property",
     "summary": "Get metadata for data cubes or collections",
-    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed). Properties for a single dimension can be queried with the `dimension` parameter.\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
+    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` is passed) or a collection (if a collection id is passed). Properties for a single dimension can be queried with the `dimension` parameter.\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
     "categories": [
       "cubes"
     ],
@@ -6765,10 +6746,6 @@
           {
             "type": "object",
             "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           },
           {
             "description": "A collection id.",
@@ -6787,7 +6764,7 @@
         "required": true
       },
       "dimension": {
-        "description": "Optionally, a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
+        "description": "Optionally, the name of a dimension to get the property for. `null` by default, which gets a property globally for the collection/data cube. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.",
         "schema": {
           "type": [
             "string",
@@ -7114,8 +7091,8 @@
     ],
     "parameter_order": [
       "data",
-      "reducer",
       "dimension",
+      "reducer",
       "target_dimension",
       "binary"
     ],
@@ -7125,6 +7102,13 @@
         "schema": {
           "type": "object",
           "subtype": "raster-cube"
+        },
+        "required": true
+      },
+      "dimension": {
+        "description": "The name of the dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "schema": {
+          "type": "string"
         },
         "required": true
       },
@@ -7167,13 +7151,6 @@
           }
         ],
         "default": null
-      },
-      "dimension": {
-        "description": "The dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
       },
       "target_dimension": {
         "description": "The name of the target dimension. Only required if the reducer returns multiple values, otherwise ignored. By default creates a new dimension with the specified name and the type `other` (see ``add_dimension()``). If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.",
@@ -7235,10 +7212,6 @@
           {
             "type": "object",
             "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -7264,10 +7237,6 @@
         {
           "type": "object",
           "subtype": "raster-cube"
-        },
-        {
-          "type": "object",
-          "subtype": "vector-cube"
         }
       ]
     },
@@ -7415,7 +7384,7 @@
         "required": true
       },
       "dimension": {
-        "description": "The temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
+        "description": "The name of the temporal dimension to resample, which must exist with this name in both data cubes. If the dimension is not set or is set to `null`, the data cube is expected to only have one temporal dimension. Fails with a `TooManyDimensions` error if it has more dimensions. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Note:** The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.",
         "schema": {
           "type": [
             "string",
@@ -7775,6 +7744,10 @@
             "items": {
               "description": "Any data type."
             }
+          },
+          {
+            "title": "Single Value",
+            "description": "A single value of any data type."
           }
         ],
         "required": true
@@ -7854,6 +7827,10 @@
             "items": {
               "description": "Any data type."
             }
+          },
+          {
+            "title": "Single Value",
+            "description": "A single value of any data type."
           }
         ],
         "required": true
@@ -7939,10 +7916,6 @@
           {
             "type": "object",
             "subtype": "raster-cube"
-          },
-          {
-            "type": "object",
-            "subtype": "vector-cube"
           }
         ],
         "required": true
