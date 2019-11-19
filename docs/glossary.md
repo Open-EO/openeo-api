@@ -86,7 +86,7 @@ An example of `apply_dimension` to the spatial dimensions
 is to do a historgram stretch for every spatial (grayscale) image
 of an image time series.
 
-### `filter`: subsetting dimensions by dimension value selection
+### `filter`: subsetting dimensions by dimension label selection
 
 The `filter` process makes a cube smaller by selecting specific
 value ranges for a particular dimension.
