@@ -37,9 +37,9 @@ Special cases are raster and vector data cubes.
 
 The figure below shows the data of
 a four-dimensional (8 x 8 x 2 x 2) raster data cube, with dimension names
-and values:
+and labels:
 
-| #    | dimension name | dimension values |
+| #    | dimension name | dimension labels |
 | ---- | -------------- | ---------------- |
 | 1    | x              | 288790.5, 288819, 288847.5, 288876, 288904.5, 288933, 288961.5, 288990 |
 | 2    | y              | 9120747, 9120718, 9120690, 9120661, 9120633, 9120604, 9120576, 9120547 |
@@ -51,7 +51,7 @@ dimensions x and time are aligned along the x-axis; y and band are aligned along
 ![Data cube example](img/datacube-example.png)
 
 Data cubes as defined here have a _single value_ (scalar) for each
-unique combination of dimension values.  The value pointed to by
+unique combination of dimension labels.  The value pointed to by
 arrows corresponds to the combination of x=288847.5 (red arrow),
 y=9120661 (yellow arrow), band=red (blue arrow), time=2018-02-17 (green arrow),
 and its value is 84 (brown arrow).
@@ -67,7 +67,7 @@ A data cube stores some additional properties per dimension such as:
 * name
 * axis / number
 * type
-* extents *or* nominal dimension values
+* extents *or* nominal dimension labels
 * reference systems / projections
 * resolutions
 
