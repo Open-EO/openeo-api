@@ -23,7 +23,6 @@ install:
 - pip install mkdocs-macros-plugin
 - pip install pymdown-extensions
 - pip install pygments
-- npm install -g concat-json-files
 
 script:
 - mv CHANGELOG.md docs/changelog.md
@@ -31,9 +30,6 @@ script:
 - cp errors.json site/
 - cp openapi.yaml site/
 - \mv -f docs/apireference.html site/apireference/index.html
-- \mv -f docs/processreference.html site/processreference/index.html
-- concat-json-files "processes/*.json" -t "site/processes.json"
-- cp processes/*.json site/processreference/
 
 before_deploy:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
@@ -49,5 +45,6 @@ deploy:
   keep-history: true
   committer-from-gh: true
   local-dir: gh-pages
+  verbose: true
   on:
     all_branches: true
