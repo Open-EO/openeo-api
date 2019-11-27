@@ -1,15 +1,15 @@
 {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a reducer such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension label left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nBy default the dimension is dropped, but this behaviour can be influenced with the parameter `target_dimension` The parameter must be specified, if a reducer such as ``extrema()`` returns multiple values.\n\nBy default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer doesn't get executed on a single value.",
     "categories": [
         "cubes",
         "reducer"
     ],
     "parameter_order": [
         "data",
-        "dimension",
         "reducer",
+        "dimension",
         "target_dimension",
         "binary"
     ],
@@ -22,15 +22,9 @@
             },
             "required": true
         },
-        "dimension": {
-            "description": "The name of the dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
-            "schema": {
-                "type": "string"
-            },
-            "required": true
-        },
         "reducer": {
-            "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
+            "description": "A reducer to apply on the specified dimension.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input, but the reducer can also work on two values by setting the parameter `binary` to `true`.\n\nThe reducer must compute either a single value or multiple return values. Multiple values returned by a reducer must be wrapped in an array and will result in as many enumerated dimension labels as array elements are available. Enumerated dimension labels start from zero.",
+            "required": true,
             "schema": [
                 {
                     "title": "Unary behaviour",
@@ -60,17 +54,18 @@
                             "description": "The second value. Any data type could be passed."
                         }
                     }
-                },
-                {
-                    "title": "No operation behaviour",
-                    "description": "Specifying `null` works only on dimensions with a single dimension label left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
-                    "type": "null"
                 }
-            ],
-            "default": null
+            ]
+        },
+        "dimension": {
+            "description": "The name of the dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+            "schema": {
+                "type": "string"
+            },
+            "required": true
         },
         "target_dimension": {
-            "description": "The name of the target dimension. Only required if the reducer returns multiple values, otherwise ignored. By default creates a new dimension with the specified name and the type `other` (see ``add_dimension()``). If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.",
+            "description": "The name of the target dimension or `null` to drop the dimension (default).\n\nIf a target dimension is specified, a new dimension with the specified name and the type `other` (see ``add_dimension()``) is created and the old dimension is dropped. If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.\n\nThe resulting target dimension has as many dimension labels as the reducer returned values. For example, a reducer returning a single scalar results in a dimension with a single label, a reducer returning an array with four elements results in a dimension with four labels.\n\nIf a reducer returns multiple values, this parameter is required to be a string. Otherwise the process produces the error `TargetDimensionMissing`.",
             "schema": {
                 "type": [
                     "string",
@@ -80,7 +75,7 @@
             "default": null
         },
         "binary": {
-            "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
+            "description": "Specifies whether the process should pass two values to the reducer (binary mode) or a list of values (default).\n\nIf the process passes two values to the reducer, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
             "schema": {
                 "type": "boolean"
             },
@@ -88,18 +83,18 @@
         }
     },
     "returns": {
-        "description": "A data cube with the newly computed values. The number of dimensions is reduced by one for reducers returning a single value or doesn't change if the reducer returns multiple values. The resolution and cardinality are the same as for the original data cube.",
+        "description": "A data cube with the newly computed values. The number of dimensions is reduced by one, except if a target dimension is specified. The resolution and cardinality are the same as for the original data cube.",
         "schema": {
             "type": "object",
             "subtype": "raster-cube"
         }
     },
     "exceptions": {
-        "TooManyDimensionValues": {
-            "message": "The number of dimension labels exceeds one, which requires a reducer."
-        },
         "DimensionNotAvailable": {
             "message": "A dimension with the specified name does not exist."
+        },
+        "TargetDimensionMissing": {
+            "message": "The reducer returned multiple values. A target dimension must be specified."
         }
     },
     "links": [

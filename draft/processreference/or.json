@@ -1,39 +1,38 @@
 {
     "id": "or",
-    "summary": "Is at least one value true?",
-    "description": "Checks if **at least one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
+    "summary": "Logical OR",
+    "description": "Checks if **at least one** of the values is true. Evaluates parameter `x` before `y` and stops once the outcome is unambiguous. If a component is `null`, the result will be `null` if the outcome is ambiguous.\n\n**Truth table:**\n\n```\na \\ b || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
     "categories": [
-        "logic",
-        "reducer"
+        "logic"
     ],
     "parameter_order": [
-        "expressions",
-        "ignore_nodata"
+        "x",
+        "y"
     ],
     "parameters": {
-        "expressions": {
-            "description": "A set of boolean values.",
+        "x": {
+            "description": "A boolean value.",
             "schema": {
-                "type": "array",
-                "items": {
-                    "type": [
-                        "boolean",
-                        "null"
-                    ]
-                }
+                "type": [
+                    "boolean",
+                    "null"
+                ]
             },
             "required": true
         },
-        "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
+        "y": {
+            "description": "A boolean value.",
             "schema": {
-                "type": "boolean"
+                "type": [
+                    "boolean",
+                    "null"
+                ]
             },
-            "default": true
+            "required": true
         }
     },
     "returns": {
-        "description": "Boolean result of the logical expressions.",
+        "description": "Boolean result of the logical OR.",
         "schema": {
             "type": [
                 "boolean",
@@ -44,82 +43,36 @@
     "examples": [
         {
             "arguments": {
-                "expressions": [
-                    false,
-                    null
-                ]
+                "x": true,
+                "y": true
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "x": false,
+                "y": false
             },
             "returns": false
         },
         {
             "arguments": {
-                "expressions": [
-                    true,
-                    null
-                ]
+                "x": true,
+                "y": null
             },
             "returns": true
         },
         {
             "arguments": {
-                "expressions": [
-                    false,
-                    null
-                ],
-                "ignore_nodata": false
-            },
-            "returns": null
-        },
-        {
-            "arguments": {
-                "expressions": [
-                    true,
-                    null
-                ],
-                "ignore_nodata": false
+                "x": null,
+                "y": true
             },
             "returns": true
         },
         {
             "arguments": {
-                "expressions": [
-                    true,
-                    false,
-                    true,
-                    false
-                ]
-            },
-            "returns": true
-        },
-        {
-            "arguments": {
-                "expressions": [
-                    true,
-                    false
-                ]
-            },
-            "returns": true
-        },
-        {
-            "arguments": {
-                "expressions": [
-                    false,
-                    false
-                ]
-            },
-            "returns": false
-        },
-        {
-            "arguments": {
-                "expressions": [
-                    true
-                ]
-            },
-            "returns": true
-        },
-        {
-            "arguments": {
-                "expressions": []
+                "x": false,
+                "y": null
             },
             "returns": null
         }

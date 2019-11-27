@@ -1,14 +1,16 @@
 {
     "id": "ndvi",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with a dimension of type `bands`, which has at least two bands with the common names `red` and `nir`. The common names for each band are specified in the collection's band metadata and are *not* equal to the band names. The process returns a raster data cube an additional band that holds the computed values. The newly created band is named `ndvi` by default, but the name can be changed with the `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common names (`red`/`nir`) specified in the metadata.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with a dimension of type `bands` or a `DimensionAmbiguous` error is thrown otherwise. By default, the dimension must have at least two bands with the common names `red` and `nir` assigned or the user need to specify the parameters `nir` and `red`. Otherwise either the error `NirBandAmbiguous` or `RedBandAmbiguous` is thrown. The common names for each band are specified in the collection's band metadata and are *not* equal to the band names.\n\nBy default, the dimension of type `bands` is dropped by this process. To keep the dimension specify a new band name in the parameter `target_band`. This adds a new dimension label with the specified name to the dimension, which can be used to access the computed values. If a band with the specified name exists, a `BandExists` is thrown.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common names (`red`/`nir`) specified in the metadata.",
     "categories": [
         "math > indices",
         "vegetation indices"
     ],
     "parameter_order": [
         "data",
-        "name"
+        "nir",
+        "red",
+        "target_band"
     ],
     "parameters": {
         "data": {
@@ -19,20 +21,69 @@
             },
             "required": true
         },
-        "name": {
-            "description": "Name of the newly created band with the computed values. Defaults to `ndvi`.",
-            "schema": {
-                "type": "string",
-                "pattern": "^[A-Za-z0-9_]+$"
-            },
-            "default": "ndvi"
+        "nir": {
+            "description": "The name of the NIR band. Defaults to the band that has the common name `nir` assigned.",
+            "schema": [
+                {
+                    "type": "string",
+                    "subtype": "band-name"
+                },
+                {
+                    "title": "Default NIR band",
+                    "description": "Use the band that has the common name `nir` assigned in the collection metadata.",
+                    "type": "null"
+                }
+            ],
+            "default": null
+        },
+        "red": {
+            "description": "The name of the red band. Defaults to the band that has the common name `red` assigned.",
+            "schema": [
+                {
+                    "type": "string",
+                    "subtype": "band-name"
+                },
+                {
+                    "title": "Default red band",
+                    "description": "Use the band that has the common name `red` assigned in the collection metadata.",
+                    "type": "null"
+                }
+            ],
+            "default": null
+        },
+        "target_band": {
+            "description": "By default, the dimension of type `bands` is dropped. To keep the dimension specify a new band name in this parameter so that a new dimension label with the specified name will be added for the computed values.",
+            "schema": [
+                {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]+$"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null
         }
     },
     "returns": {
-        "description": "A raster data cube with the two bands being replaced with a new band that holds the computed values.",
+        "description": "A raster data cube containing the computed NDVI values.",
         "schema": {
             "type": "object",
             "subtype": "raster-cube"
+        }
+    },
+    "exceptions": {
+        "NirBandAmbiguous": {
+            "message": "The NIR band can't be resolved, please specify a band name."
+        },
+        "RedBandAmbiguous": {
+            "message": "The red band can't be resolved, please specify a band name."
+        },
+        "DimensionAmbiguous": {
+            "message": "dimension of type `bands` is not available or is ambiguous.."
+        },
+        "BandExists": {
+            "message": "A band with the specified target name exists."
         }
     },
     "links": [

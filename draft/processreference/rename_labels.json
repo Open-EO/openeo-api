@@ -1,0 +1,161 @@
+{
+    "id": "rename_labels",
+    "summary": "Rename dimension labels",
+    "description": "Renames the labels of a dimension in the data cube.",
+    "categories": [
+        "cubes"
+    ],
+    "parameter_order": [
+        "data",
+        "dimension",
+        "labels"
+    ],
+    "parameters": {
+        "data": {
+            "description": "The data cube.",
+            "schema": [
+                {
+                    "type": "object",
+                    "subtype": "raster-cube"
+                }
+            ],
+            "required": true
+        },
+        "dimension": {
+            "description": "The name of the dimension to rename the labels for.",
+            "schema": {
+                "type": "string"
+            },
+            "required": true
+        },
+        "labels": {
+            "description": "The new names for the labels.\n\nIf an **array** is passed, the dimension labels in the data cube are expected to be enumerated with zero-based numbering (0,1,2,3,...) so that the dimension labels map to the array indices and get replaced. If the dimension labels are not enumerated, a `LabelsNotEnumerated` is thrown. The number of dimension labels must be equal to the number of array elements, otherwise the error `LabelMismatch` is thrown.\n\nIf an **object** is passed, the object defines a (potentially incomplete) mapping of the source dimension labels to the target dimension labels. If one of the source dimension labels doesn't exist, a `LabelNotAvailable` error is thrown. If a target dimension label already exists in the data cube, a `LabelExists` error is thrown.",
+            "schema": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "required": true
+        }
+    },
+    "returns": {
+        "description": "The data cube with the renamed labels. The old labels can not be referenced any longer.",
+        "schema": [
+            {
+                "type": "object",
+                "subtype": "raster-cube"
+            }
+        ]
+    },
+    "exceptions": {
+        "LabelsNotEnumerated": {
+            "message": "The dimension labels are not enumerated."
+        },
+        "LabelMismatch": {
+            "message": "The number of labels specified doesn't match the actual number of labels."
+        },
+        "LabelNotAvailable": {
+            "message": "A label with the specified name does not exist."
+        },
+        "LabelExists": {
+            "message": "A label with the specified name already exists."
+        }
+    },
+    "examples": [
+        {
+            "title": "Rename named labels",
+            "description": "Renaming the bands from `B1` to `red`, from `B2` to `green` and from `B3` to `blue`. Doesn't rename the band `QA`.",
+            "process_graph": {
+                "loadco1": {
+                    "process_id": "load_collection",
+                    "arguments": {
+                        "id": "S2-RGB",
+                        "spatial_extent": null,
+                        "temporal_extent": null,
+                        "bands": [
+                            "B1",
+                            "B2",
+                            "B3",
+                            "QA"
+                        ]
+                    }
+                },
+                "rename1": {
+                    "process_id": "rename_labels",
+                    "arguments": {
+                        "data": {
+                            "from_node": "loadco1"
+                        },
+                        "dimension": "bands",
+                        "labels": {
+                            "B1": "red",
+                            "B2": "green",
+                            "B3": "blue"
+                        }
+                    },
+                    "result": true
+                }
+            }
+        },
+        {
+            "title": "Rename enumerated labels",
+            "description": "The reducer creates a new dimension `min_max` with enumerated labels. The first label refers to the minimum values, the second label refers to the maximum values. After the reducer, the dimension labels are renamed to `min` and `max` respectively.",
+            "process_graph": {
+                "loadco1": {
+                    "process_id": "load_collection",
+                    "arguments": {
+                        "id": "S2-RGB",
+                        "spatial_extent": null,
+                        "temporal_extent": null
+                    }
+                },
+                "reduce1": {
+                    "process_id": "reduce",
+                    "arguments": {
+                        "data": {
+                            "from_node": "loadco1"
+                        },
+                        "reducer": {
+                            "callback": {
+                                "extrem1": {
+                                    "process_id": "extrema",
+                                    "arguments": {
+                                        "data": {
+                                            "from_argument": "data"
+                                        }
+                                    },
+                                    "result": true
+                                }
+                            }
+                        },
+                        "dimension": "temporal",
+                        "target_dimension": "min_max"
+                    }
+                },
+                "rename1": {
+                    "process_id": "rename_labels",
+                    "arguments": {
+                        "data": {
+                            "from_node": "reduce1"
+                        },
+                        "dimension": "bands",
+                        "labels": [
+                            "min",
+                            "max"
+                        ]
+                    },
+                    "result": true
+                }
+            }
+        }
+    ]
+}

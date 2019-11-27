@@ -1,18 +1,17 @@
 {
-    "id": "array_contains",
-    "summary": "List contains an element",
-    "description": "Checks whether the list (also known as *array*) specified for `data` contains the value specified in `element`.\n\n**Remarks:**\n\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
+    "id": "array_find",
+    "summary": "Get the index of an element in an array",
+    "description": "Checks whether the array specified for `data` contains the value specified in `value` and returns the zero-based index for the first match. If there's no match, `-1` is returned.\n\n**Remarks:**\n\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
     "categories": [
-        "arrays",
-        "comparison"
+        "arrays"
     ],
     "parameter_order": [
         "data",
-        "element"
+        "value"
     ],
     "parameters": {
         "data": {
-            "description": "List in which to find a value in.",
+            "description": "List to find the value in.",
             "schema": {
                 "type": "array",
                 "items": {
@@ -21,7 +20,7 @@
             },
             "required": true
         },
-        "element": {
+        "value": {
             "description": "Value to find in `data`.",
             "schema": {
                 "description": "Any data type is allowed."
@@ -30,9 +29,10 @@
         }
     },
     "returns": {
-        "description": "Returns `true` if the list contains the value, false` otherwise.",
+        "description": "Returns the index of the first element with the specified value. If no element was found, `-1` is returned.",
         "schema": {
-            "type": "boolean"
+            "type": "integer",
+            "minimum": -1
         }
     },
     "examples": [
@@ -43,9 +43,9 @@
                     2,
                     3
                 ],
-                "element": 2
+                "value": 2
             },
-            "returns": true
+            "returns": 1
         },
         {
             "arguments": {
@@ -54,9 +54,9 @@
                     "B",
                     "C"
                 ],
-                "element": "b"
+                "value": "b"
             },
-            "returns": false
+            "returns": -1
         },
         {
             "arguments": {
@@ -65,31 +65,21 @@
                     2,
                     3
                 ],
-                "element": "2"
+                "value": "2"
             },
-            "returns": false
+            "returns": -1
         },
         {
             "arguments": {
                 "data": [
                     1,
-                    2,
-                    3
-                ],
-                "element": 2
-            },
-            "returns": true
-        },
-        {
-            "arguments": {
-                "data": [
-                    1,
+                    null,
                     2,
                     null
                 ],
-                "element": null
+                "value": null
             },
-            "returns": true
+            "returns": 1
         },
         {
             "arguments": {
@@ -103,12 +93,12 @@
                         4
                     ]
                 ],
-                "element": [
+                "value": [
                     1,
                     2
                 ]
             },
-            "returns": true
+            "returns": 0
         },
         {
             "arguments": {
@@ -122,9 +112,9 @@
                         4
                     ]
                 ],
-                "element": 2
+                "value": 2
             },
-            "returns": false
+            "returns": -1
         },
         {
             "arguments": {
@@ -136,11 +126,11 @@
                         "c": "d"
                     }
                 ],
-                "element": {
+                "value": {
                     "a": "b"
                 }
             },
-            "returns": true
+            "returns": 0
         }
     ]
 }

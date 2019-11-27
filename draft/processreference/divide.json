@@ -1,40 +1,38 @@
 {
     "id": "divide",
-    "summary": "Division of a sequence of numbers",
-    "description": "Divides the first element in a sequential array of numbers by all other elements.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example a division by zero should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "summary": "Division of two numbers",
+    "description": "Divides argument `x` by the argument `y` (*x / y*) and returns the computed result.\n\nNo-data values are taken into account so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it. Therefore, a division by zero results in ±infinity if the processing environment supports it. Otherwise a `DivisionByZero` error must the thrown.",
     "categories": [
-        "math",
-        "reducer"
+        "math"
     ],
     "parameter_order": [
-        "data",
-        "ignore_nodata"
+        "x",
+        "y"
     ],
     "parameters": {
-        "data": {
-            "description": "An array of numbers with at least two elements.",
+        "x": {
+            "description": "The dividend.",
             "schema": {
-                "type": "array",
-                "items": {
-                    "type": [
-                        "number",
-                        "null"
-                    ]
-                },
-                "minItems": 2
+                "type": [
+                    "number",
+                    "null"
+                ]
             },
             "required": true
         },
-        "ignore_nodata": {
-            "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+        "y": {
+            "description": "The divisor.",
             "schema": {
-                "type": "boolean"
+                "type": [
+                    "number",
+                    "null"
+                ]
             },
-            "default": true
+            "required": true
         }
     },
     "returns": {
-        "description": "The computed result of the sequence of numbers.",
+        "description": "The computed result.",
         "schema": {
             "type": [
                 "number",
@@ -43,37 +41,29 @@
         }
     },
     "exceptions": {
-        "DivisorMissing": {
-            "message": "Division requires at least two numbers (a dividend and one or more divisors)."
+        "DivisionByZero": {
+            "message": "Division by zero is not supported."
         }
     },
     "examples": [
         {
             "arguments": {
-                "data": [
-                    15,
-                    5
-                ]
+                "x": 5,
+                "y": 2.5
             },
-            "returns": 3
+            "returns": 2
         },
         {
             "arguments": {
-                "data": [
-                    -2,
-                    4,
-                    2.5
-                ]
+                "x": -2,
+                "y": 4
             },
-            "returns": -0.2
+            "returns": -0.5
         },
         {
             "arguments": {
-                "data": [
-                    1,
-                    null
-                ],
-                "ignore_nodata": false
+                "x": 1,
+                "y": null
             },
             "returns": null
         }
@@ -86,8 +76,8 @@
         },
         {
             "rel": "about",
-            "href": "https://ieeexplore.ieee.org/document/4610935",
-            "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+            "href": "https://ieeexplore.ieee.org/document/8766229",
+            "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
         }
     ]
 }

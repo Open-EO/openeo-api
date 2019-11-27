@@ -146,6 +146,84 @@
     }
   },
   {
+    "id": "add",
+    "summary": "Addition of two numbers",
+    "description": "Sums up the two numbers `x` and `y` (*x + y*) and returns the computed sum.\n\nNo-data values are taken into account so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.",
+    "categories": [
+      "math"
+    ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
+    "parameters": {
+      "x": {
+        "description": "The first summand.",
+        "schema": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "required": true
+      },
+      "y": {
+        "description": "The second summand.",
+        "schema": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "The computed sum of the two numbers.",
+      "schema": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": 5,
+          "y": 2.5
+        },
+        "returns": 7.5
+      },
+      {
+        "arguments": {
+          "x": -2,
+          "y": -4
+        },
+        "returns": -6
+      },
+      {
+        "arguments": {
+          "x": 1,
+          "y": null
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Sum.html",
+        "title": "Sum explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
+      }
+    ]
+  },
+  {
     "id": "aggregate_polygon",
     "summary": "Compute zonal statistics for polygons",
     "description": "Aggregates zonal statistics for one or multiple polygons over the spatial dimensions.\n\nThe process considers all pixels for which the point at the pixel center intersects with the corresponding polygon (as defined in the Simple Features standard by the OGC).\n\nThe data cube must have been reduced to only contain two raster dimensions and a third dimension the values are aggregated for, for example the temporal dimension to get a time series. Otherwise this process fails with the `TooManyDimensions` error.\n\nThe number of total and valid pixels is returned together with the calculated values.",
@@ -176,6 +254,10 @@
           {
             "type": "object",
             "subtype": "geojson"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -236,6 +318,10 @@
         {
           "type": "object",
           "subtype": "geojson"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
         }
       ]
     },
@@ -534,9 +620,9 @@
     ]
   },
   {
-    "id": "and",
+    "id": "all",
     "summary": "Are all of the values true?",
-    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if all other values are true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
+    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given, the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `null` if all values are no-data, `true` if all other values are true and `false` otherwise. Setting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
     "categories": [
       "logic",
       "reducer"
@@ -651,6 +737,231 @@
           ]
         },
         "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expressions": []
+        },
+        "returns": null
+      }
+    ]
+  },
+  {
+    "id": "and",
+    "summary": "Logical AND",
+    "description": "Checks if **both** values are true.\n\nEvaluates parameter `x` before `y` and stops once the outcome is unambiguous. If any argument is `null`, the result will be `null` if the outcome is ambiguous.\n\n**Truth table:**\n\n```\na \\ b || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
+    "categories": [
+      "logic"
+    ],
+    "parameter_order": [
+      "x",
+      "y"
+    ],
+    "parameters": {
+      "x": {
+        "description": "A boolean value.",
+        "schema": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "required": true
+      },
+      "y": {
+        "description": "A boolean value.",
+        "schema": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "Boolean result of the logical AND.",
+      "schema": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "x": true,
+          "y": true
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": true,
+          "y": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": false,
+          "y": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": false,
+          "y": null
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": true,
+          "y": null
+        },
+        "returns": null
+      }
+    ]
+  },
+  {
+    "id": "any",
+    "summary": "Is at least one value true?",
+    "description": "Checks if **any** (i.e. at least one) value is `true`. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given, the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `null` if all values are no-data, `true` if at least one of the other values is true and `false` otherwise. Setting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
+    "categories": [
+      "logic",
+      "reducer"
+    ],
+    "parameter_order": [
+      "expressions",
+      "ignore_nodata"
+    ],
+    "parameters": {
+      "expressions": {
+        "description": "A set of boolean values.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": true
+      },
+      "ignore_nodata": {
+        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
+        "schema": {
+          "type": "boolean"
+        },
+        "default": true
+      }
+    },
+    "returns": {
+      "description": "Boolean result of the logical expressions.",
+      "schema": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "expressions": [
+            false,
+            null
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            false,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true,
+            false
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            false,
+            false
+          ]
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "expressions": [
+            true
+          ]
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "expressions": [
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
       },
       {
         "arguments": {
@@ -1139,155 +1450,9 @@
     ]
   },
   {
-    "id": "array_contains",
-    "summary": "List contains an element",
-    "description": "Checks whether the list (also known as *array*) specified for `data` contains the value specified in `element`.\n\n**Remarks:**\n\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
-    "categories": [
-      "arrays",
-      "comparison"
-    ],
-    "parameter_order": [
-      "data",
-      "element"
-    ],
-    "parameters": {
-      "data": {
-        "description": "List in which to find a value in.",
-        "schema": {
-          "type": "array",
-          "items": {
-            "description": "Any data type is allowed."
-          }
-        },
-        "required": true
-      },
-      "element": {
-        "description": "Value to find in `data`.",
-        "schema": {
-          "description": "Any data type is allowed."
-        },
-        "required": true
-      }
-    },
-    "returns": {
-      "description": "Returns `true` if the list contains the value, false` otherwise.",
-      "schema": {
-        "type": "boolean"
-      }
-    },
-    "examples": [
-      {
-        "arguments": {
-          "data": [
-            1,
-            2,
-            3
-          ],
-          "element": 2
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "data": [
-            "A",
-            "B",
-            "C"
-          ],
-          "element": "b"
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "data": [
-            1,
-            2,
-            3
-          ],
-          "element": "2"
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "data": [
-            1,
-            2,
-            3
-          ],
-          "element": 2
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "data": [
-            1,
-            2,
-            null
-          ],
-          "element": null
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "data": [
-            [
-              1,
-              2
-            ],
-            [
-              3,
-              4
-            ]
-          ],
-          "element": [
-            1,
-            2
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "data": [
-            [
-              1,
-              2
-            ],
-            [
-              3,
-              4
-            ]
-          ],
-          "element": 2
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "data": [
-            {
-              "a": "b"
-            },
-            {
-              "c": "d"
-            }
-          ],
-          "element": {
-            "a": "b"
-          }
-        },
-        "returns": true
-      }
-    ]
-  },
-  {
     "id": "array_element",
     "summary": "Get an element from an array",
-    "description": "Returns the element at the specified index from the array.",
+    "description": "Returns the element at the specified zero-based index from the array.",
     "categories": [
       "arrays"
     ],
@@ -1365,6 +1530,142 @@
           "return_nodata": true
         },
         "returns": null
+      }
+    ]
+  },
+  {
+    "id": "array_find",
+    "summary": "Get the index of an element in an array",
+    "description": "Checks whether the array specified for `data` contains the value specified in `value` and returns the zero-based index for the first match. If there's no match, `-1` is returned.\n\n**Remarks:**\n\n* Data types MUST be checked strictly, for example a string with the content *1* is not equal to the number *1*.\n* An integer *1* is equal to a floating point number *1.0* as `integer` is a sub-type of `number`. Still, this process may return unexpectedly `false` when comparing floating point numbers due to floating point inaccuracy in machine-based computation.\n* Temporal strings are treated as normal strings and MUST NOT be interpreted.",
+    "categories": [
+      "arrays"
+    ],
+    "parameter_order": [
+      "data",
+      "value"
+    ],
+    "parameters": {
+      "data": {
+        "description": "List to find the value in.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "description": "Any data type is allowed."
+          }
+        },
+        "required": true
+      },
+      "value": {
+        "description": "Value to find in `data`.",
+        "schema": {
+          "description": "Any data type is allowed."
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "Returns the index of the first element with the specified value. If no element was found, `-1` is returned.",
+      "schema": {
+        "type": "integer",
+        "minimum": -1
+      }
+    },
+    "examples": [
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3
+          ],
+          "value": 2
+        },
+        "returns": 1
+      },
+      {
+        "arguments": {
+          "data": [
+            "A",
+            "B",
+            "C"
+          ],
+          "value": "b"
+        },
+        "returns": -1
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            2,
+            3
+          ],
+          "value": "2"
+        },
+        "returns": -1
+      },
+      {
+        "arguments": {
+          "data": [
+            1,
+            null,
+            2,
+            null
+          ],
+          "value": null
+        },
+        "returns": 1
+      },
+      {
+        "arguments": {
+          "data": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "value": [
+            1,
+            2
+          ]
+        },
+        "returns": 0
+      },
+      {
+        "arguments": {
+          "data": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "value": 2
+        },
+        "returns": -1
+      },
+      {
+        "arguments": {
+          "data": [
+            {
+              "a": "b"
+            },
+            {
+              "c": "d"
+            }
+          ],
+          "value": {
+            "a": "b"
+          }
+        },
+        "returns": 0
       }
     ]
   },
@@ -2501,7 +2802,7 @@
         "default": ""
       },
       "level": {
-        "description": "The severity level of this message. Note that the level `error` forces the computation to be stopped!",
+        "description": "The severity level of this message, defaults to `info`. Note that the level `error` forces the computation to be stopped!",
         "schema": {
           "type": "string",
           "enum": [
@@ -2511,7 +2812,7 @@
             "debug"
           ]
         },
-        "default": "debug"
+        "default": "info"
       },
       "message": {
         "description": "A message to send in addition to the data.",
@@ -2530,41 +2831,39 @@
   },
   {
     "id": "divide",
-    "summary": "Division of a sequence of numbers",
-    "description": "Divides the first element in a sequential array of numbers by all other elements.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example a division by zero should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "summary": "Division of two numbers",
+    "description": "Divides argument `x` by the argument `y` (*x / y*) and returns the computed result.\n\nNo-data values are taken into account so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it. Therefore, a division by zero results in ±infinity if the processing environment supports it. Otherwise a `DivisionByZero` error must the thrown.",
     "categories": [
-      "math",
-      "reducer"
+      "math"
     ],
     "parameter_order": [
-      "data",
-      "ignore_nodata"
+      "x",
+      "y"
     ],
     "parameters": {
-      "data": {
-        "description": "An array of numbers with at least two elements.",
+      "x": {
+        "description": "The dividend.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "number",
-              "null"
-            ]
-          },
-          "minItems": 2
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+      "y": {
+        "description": "The divisor.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "number",
+            "null"
+          ]
         },
-        "default": true
+        "required": true
       }
     },
     "returns": {
-      "description": "The computed result of the sequence of numbers.",
+      "description": "The computed result.",
       "schema": {
         "type": [
           "number",
@@ -2573,37 +2872,29 @@
       }
     },
     "exceptions": {
-      "DivisorMissing": {
-        "message": "Division requires at least two numbers (a dividend and one or more divisors)."
+      "DivisionByZero": {
+        "message": "Division by zero is not supported."
       }
     },
     "examples": [
       {
         "arguments": {
-          "data": [
-            15,
-            5
-          ]
+          "x": 5,
+          "y": 2.5
         },
-        "returns": 3
+        "returns": 2
       },
       {
         "arguments": {
-          "data": [
-            -2,
-            4,
-            2.5
-          ]
+          "x": -2,
+          "y": 4
         },
-        "returns": -0.2
+        "returns": -0.5
       },
       {
         "arguments": {
-          "data": [
-            1,
-            null
-          ],
-          "ignore_nodata": false
+          "x": 1,
+          "y": null
         },
         "returns": null
       }
@@ -2616,10 +2907,54 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
+  },
+  {
+    "id": "drop_dimension",
+    "summary": "Removes a dimension",
+    "description": "Drops a dimension from the data cube.\n\nDropping a dimension only works on dimensions with a single dimension label left, otherwise the process fails with a `DimensionLabelCountMismatch` error. Dimension values can be reduced to a single value with a filter such as ``filter_bands()`` or the ``reduce()`` process. If a dimension with the specified name does not exist, the process fails with a `DimensionNotAvailable` error.",
+    "categories": [
+      "cubes"
+    ],
+    "parameter_order": [
+      "data",
+      "name"
+    ],
+    "parameters": {
+      "data": {
+        "description": "The data cube to drop a dimension from.",
+        "schema": {
+          "type": "object",
+          "subtype": "raster-cube"
+        },
+        "required": true
+      },
+      "name": {
+        "description": "Name of the dimension to drop.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "The data cube with one dimension less.",
+      "schema": {
+        "type": "object",
+        "subtype": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "DimensionLabelCountMismatch": {
+        "message": "The number of dimension labels exceeds one, which requires a reducer."
+      },
+      "DimensionNotAvailable": {
+        "message": "A dimension with the specified name does not exist."
+      }
+    }
   },
   {
     "id": "e",
@@ -3282,6 +3617,10 @@
           {
             "type": "object",
             "subtype": "geojson"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -4028,7 +4367,7 @@
   {
     "id": "is_nan",
     "summary": "Value is not a number",
-    "description": "Checks whether the specified value `x` is not a number (often abbreviated as `NaN`). The definition of `NaN` follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). All non-numeric data types MUST also return `true`.",
+    "description": "Checks whether the specified value `x` is not a number (often abbreviated as `NaN`). The definition of `NaN` follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229). All non-numeric data types MUST also return `true`.",
     "categories": [
       "comparison"
     ],
@@ -4064,8 +4403,8 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -4115,7 +4454,7 @@
   {
     "id": "is_valid",
     "summary": "Value is valid data",
-    "description": "Checks whether the specified value `x` is valid. A value is considered valid if it is\n\n1. not a no-data value (`null`) and\n2. a finite number (only if `x` is a number). The definition of finite and infinite numbers follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935).",
+    "description": "Checks whether the specified value `x` is valid. A value is considered valid if it is\n\n1. not a no-data value (`null`) and\n2. a finite number (only if `x` is a number). The definition of finite and infinite numbers follows the [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229).",
     "categories": [
       "comparison"
     ],
@@ -4157,8 +4496,8 @@
     "links": [
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -4244,7 +4583,7 @@
   {
     "id": "linear_scale_range",
     "summary": "Linear transformation between two ranges",
-    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: `((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin`.\n\nPotential use case include\n\n* scaling values to the 8-bit range (0 - 255) often used for numeric representation of values in one of the channels of the [RGB colour model](https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Performs a linear transformation between the input and output range.\n\nThe underlying formula is: *((x - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin*.\n\nPotential use case include\n\n* scaling values to the 8-bit range (0 - 255) often used for numeric representation of values in one of the channels of the [RGB colour model](https://en.wikipedia.org/wiki/RGB_color_model#Numeric_representations) or\n* calculating percentages (0 - 100).\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math"
     ],
@@ -4336,7 +4675,7 @@
   {
     "id": "ln",
     "summary": "Natural logarithm",
-    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example `ln(0)` should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "The natural logarithm is the logarithm to the base *e* of the number `x`. This process is an alias for the *log* process with the base set to *e*: `log(x, e())`. The natural logarithm is the inverse function of taking *e* to the power x.\n\nThe no-data value `null` is passed through.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it. Therefore, `ln(0)` results in ±infinity if the processing environment supports it or otherwise an error is thrown.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -4396,8 +4735,8 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -4615,6 +4954,10 @@
         {
           "type": "object",
           "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
         }
       ]
     },
@@ -4722,6 +5065,10 @@
         {
           "type": "object",
           "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
         }
       ]
     }
@@ -4729,7 +5076,7 @@
   {
     "id": "log",
     "summary": "Logarithm to a base",
-    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) so that for example `log(0, 2)` should result in ±infinity if the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.",
+    "description": "Logarithm to the base `base` of the number `x` is defined to be the inverse function of taking b to the power of x.\n\nThe no-data value `null` is passed through and therefore gets propagated if any of the arguments is `null`.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it. Therefore, `log(0, 2)` results in ±infinity if the processing environment supports it or otherwise an error is thrown.",
     "categories": [
       "math > exponential & logarithmic"
     ],
@@ -4806,8 +5153,8 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -5094,6 +5441,10 @@
           {
             "type": "object",
             "subtype": "geojson"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           },
           {
             "type": "object",
@@ -5716,41 +6067,39 @@
   },
   {
     "id": "multiply",
-    "summary": "Multiplication of a sequence of numbers",
-    "description": "Multiplies all elements in a sequential array of numbers and returns the computed product.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "summary": "Multiplication of two numbers",
+    "description": "Multiplies the two numbers `x` and `y` (*x * y*) and returns the computed product.\n\nNo-data values are taken into account so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.",
     "categories": [
-      "math",
-      "reducer"
+      "math"
     ],
     "parameter_order": [
-      "data",
-      "ignore_nodata"
+      "x",
+      "y"
     ],
     "parameters": {
-      "data": {
-        "description": "An array of numbers with at least two elements.",
+      "x": {
+        "description": "The multiplier.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "number",
-              "null"
-            ]
-          },
-          "minItems": 2
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+      "y": {
+        "description": "The multiplicand.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "number",
+            "null"
+          ]
         },
-        "default": true
+        "required": true
       }
     },
     "returns": {
-      "description": "The computed product of the sequence of numbers.",
+      "description": "The computed product of the two numbers.",
       "schema": {
         "type": [
           "number",
@@ -5766,30 +6115,22 @@
     "examples": [
       {
         "arguments": {
-          "data": [
-            5,
-            0
-          ]
+          "x": 5,
+          "y": 2.5
         },
-        "returns": 0
+        "returns": 12.5
       },
       {
         "arguments": {
-          "data": [
-            -2,
-            4,
-            2.5
-          ]
+          "x": -2,
+          "y": -4
         },
-        "returns": -20
+        "returns": 8
       },
       {
         "arguments": {
-          "data": [
-            1,
-            null
-          ],
-          "ignore_nodata": false
+          "x": 1,
+          "y": null
         },
         "returns": null
       }
@@ -5802,22 +6143,24 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
   {
     "id": "ndvi",
     "summary": "Normalized Difference Vegetation Index",
-    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with a dimension of type `bands`, which has at least two bands with the common names `red` and `nir`. The common names for each band are specified in the collection's band metadata and are *not* equal to the band names. The process returns a raster data cube an additional band that holds the computed values. The newly created band is named `ndvi` by default, but the name can be changed with the `name` parameter.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common names (`red`/`nir`) specified in the metadata.",
+    "description": "Computes the Normalized Difference Vegetation Index (NDVI). The NDVI is computed as *(nir - red) / (nir + red)*.\n\nThe `data` parameter expects a raster data cube with a dimension of type `bands` or a `DimensionAmbiguous` error is thrown otherwise. By default, the dimension must have at least two bands with the common names `red` and `nir` assigned or the user need to specify the parameters `nir` and `red`. Otherwise either the error `NirBandAmbiguous` or `RedBandAmbiguous` is thrown. The common names for each band are specified in the collection's band metadata and are *not* equal to the band names.\n\nBy default, the dimension of type `bands` is dropped by this process. To keep the dimension specify a new band name in the parameter `target_band`. This adds a new dimension label with the specified name to the dimension, which can be used to access the computed values. If a band with the specified name exists, a `BandExists` is thrown.\n\nThis process is very similar to the process ``normalized_difference()``, but determines the bands automatically based on the common names (`red`/`nir`) specified in the metadata.",
     "categories": [
       "math > indices",
       "vegetation indices"
     ],
     "parameter_order": [
       "data",
-      "name"
+      "nir",
+      "red",
+      "target_band"
     ],
     "parameters": {
       "data": {
@@ -5828,20 +6171,69 @@
         },
         "required": true
       },
-      "name": {
-        "description": "Name of the newly created band with the computed values. Defaults to `ndvi`.",
-        "schema": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_]+$"
-        },
-        "default": "ndvi"
+      "nir": {
+        "description": "The name of the NIR band. Defaults to the band that has the common name `nir` assigned.",
+        "schema": [
+          {
+            "type": "string",
+            "subtype": "band-name"
+          },
+          {
+            "title": "Default NIR band",
+            "description": "Use the band that has the common name `nir` assigned in the collection metadata.",
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "red": {
+        "description": "The name of the red band. Defaults to the band that has the common name `red` assigned.",
+        "schema": [
+          {
+            "type": "string",
+            "subtype": "band-name"
+          },
+          {
+            "title": "Default red band",
+            "description": "Use the band that has the common name `red` assigned in the collection metadata.",
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "target_band": {
+        "description": "By default, the dimension of type `bands` is dropped. To keep the dimension specify a new band name in this parameter so that a new dimension label with the specified name will be added for the computed values.",
+        "schema": [
+          {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_]+$"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
       }
     },
     "returns": {
-      "description": "A raster data cube with the two bands being replaced with a new band that holds the computed values.",
+      "description": "A raster data cube containing the computed NDVI values.",
       "schema": {
         "type": "object",
         "subtype": "raster-cube"
+      }
+    },
+    "exceptions": {
+      "NirBandAmbiguous": {
+        "message": "The NIR band can't be resolved, please specify a band name."
+      },
+      "RedBandAmbiguous": {
+        "message": "The red band can't be resolved, please specify a band name."
+      },
+      "DimensionAmbiguous": {
+        "message": "dimension of type `bands` is not available or is ambiguous.."
+      },
+      "BandExists": {
+        "message": "A band with the specified target name exists."
       }
     },
     "links": [
@@ -6066,48 +6458,38 @@
   },
   {
     "id": "normalized_difference",
-    "summary": "Normalized difference for two bands",
-    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. The newly created band is named `normalized_difference` by default. This name can be changed with the `name` parameter.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes available for convenience such as the ``ndvi()``.",
+    "summary": "Normalized difference",
+    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(x - y) / (x + y)*.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/): `x` = NIR band, `y` = red band\n* [NDWI](https://eos.com/ndwi/): `x` = NIR band, `y` = SWIR band\n* [NDSI](https://eos.com/ndsi/): `x` = green band, `y` = SWIR band\n\nSome back-ends may have native processes such as ``ndvi()`` available for convenience.",
     "categories": [
       "math > indices",
       "vegetation indices"
     ],
     "parameter_order": [
-      "band1",
-      "band2",
-      "name"
+      "x",
+      "y"
     ],
     "parameters": {
-      "band1": {
-        "description": "A raster data cube with exactly one band to be used as first band.",
+      "x": {
+        "description": "The value for the first band.",
         "schema": {
-          "type": "object",
-          "subtype": "raster-cube"
+          "type": "number"
         },
         "required": true
       },
-      "band2": {
-        "description": "A raster data cube with exactly one band to be used as second band.",
+      "y": {
+        "description": "The value for the second band.",
         "schema": {
-          "type": "object",
-          "subtype": "raster-cube"
+          "type": "number"
         },
         "required": true
-      },
-      "name": {
-        "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
-        "schema": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_]+$"
-        },
-        "default": "normalized_difference"
       }
     },
     "returns": {
-      "description": "A raster data cube with exactly one band that holds the computed values.",
+      "description": "The computed normalized difference.",
       "schema": {
-        "type": "object",
-        "subtype": "raster-cube"
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
       }
     },
     "links": [
@@ -6130,8 +6512,8 @@
   },
   {
     "id": "not",
-    "summary": "Inverting a boolean",
-    "description": "Inverts a single boolean so that `true` gets `false` and `false` gets `true`.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "summary": "Logical negation (NOT)",
+    "description": "Inverts a single boolean value so that `true` gets `false` and `false` gets `true`. The no-data value `null` is passed through.",
     "categories": [
       "logic"
     ],
@@ -6179,40 +6561,39 @@
   },
   {
     "id": "or",
-    "summary": "Is at least one value true?",
-    "description": "Checks if **at least one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if at least one of the other values is true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
+    "summary": "Logical OR",
+    "description": "Checks if **at least one** of the values is true. Evaluates parameter `x` before `y` and stops once the outcome is unambiguous. If a component is `null`, the result will be `null` if the outcome is ambiguous.\n\n**Truth table:**\n\n```\na \\ b || null | false | true\n----- || ---- | ----- | ----\nnull  || null | null  | true\nfalse || null | false | true\ntrue  || true | true  | true\n```",
     "categories": [
-      "logic",
-      "reducer"
+      "logic"
     ],
     "parameter_order": [
-      "expressions",
-      "ignore_nodata"
+      "x",
+      "y"
     ],
     "parameters": {
-      "expressions": {
-        "description": "A set of boolean values.",
+      "x": {
+        "description": "A boolean value.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          }
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
+      "y": {
+        "description": "A boolean value.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
-        "default": true
+        "required": true
       }
     },
     "returns": {
-      "description": "Boolean result of the logical expressions.",
+      "description": "Boolean result of the logical OR.",
       "schema": {
         "type": [
           "boolean",
@@ -6223,82 +6604,36 @@
     "examples": [
       {
         "arguments": {
-          "expressions": [
-            false,
-            null
-          ]
+          "x": true,
+          "y": true
+        },
+        "returns": true
+      },
+      {
+        "arguments": {
+          "x": false,
+          "y": false
         },
         "returns": false
       },
       {
         "arguments": {
-          "expressions": [
-            true,
-            null
-          ]
+          "x": true,
+          "y": null
         },
         "returns": true
       },
       {
         "arguments": {
-          "expressions": [
-            false,
-            null
-          ],
-          "ignore_nodata": false
-        },
-        "returns": null
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true,
-            null
-          ],
-          "ignore_nodata": false
+          "x": null,
+          "y": true
         },
         "returns": true
       },
       {
         "arguments": {
-          "expressions": [
-            true,
-            false,
-            true,
-            false
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true,
-            false
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "expressions": [
-            false,
-            false
-          ]
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "expressions": []
+          "x": false,
+          "y": null
         },
         "returns": null
       }
@@ -6659,8 +6994,8 @@
   },
   {
     "id": "product",
-    "summary": "Multiplication of a sequence of numbers",
-    "description": "This process is an exact alias for the `multiply` process. See ``multiply()`` for more information.",
+    "summary": "Compute the product by multiplying a sequence of numbers",
+    "description": "Multiplies all elements in a sequential array of numbers and returns the computed product.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.",
     "categories": [
       "math",
       "reducer"
@@ -6671,7 +7006,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "See ``multiply()`` for more information.",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -6684,7 +7019,7 @@
         "required": true
       },
       "ignore_nodata": {
-        "description": "See ``multiply()`` for more information.",
+        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
         "schema": {
           "type": "boolean"
         },
@@ -6692,17 +7027,12 @@
       }
     },
     "returns": {
-      "description": "See ``multiply()`` for more information.",
+      "description": "The computed product of the sequence of numbers.",
       "schema": {
         "type": [
           "number",
           "null"
         ]
-      }
-    },
-    "exceptions": {
-      "MultiplicandMissing": {
-        "message": "Multiplication requires at least two numbers."
       }
     },
     "examples": [
@@ -6734,13 +7064,48 @@
           "ignore_nodata": false
         },
         "returns": null
+      },
+      {
+        "arguments": {
+          "data": [
+            -1
+          ]
+        },
+        "returns": -1
+      },
+      {
+        "arguments": {
+          "data": [
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "data": []
+        },
+        "returns": null
+      }
+    ],
+    "links": [
+      {
+        "rel": "about",
+        "href": "http://mathworld.wolfram.com/Product.html",
+        "title": "Product explained by Wolfram MathWorld"
+      },
+      {
+        "rel": "about",
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
   {
     "id": "property",
     "summary": "Get metadata for data cubes or collections",
-    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` is passed) or a collection (if a collection id is passed). Properties for a single dimension can be queried with the `dimension` parameter.\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
+    "description": "Retrieves metadata properties for a data cube (if a `raster-cube` or `vector-cube` is passed) or a collection (if a collection id is passed). Properties for a single dimension can be queried with the `dimension` parameter.\n\nAvailable metadata properties can be retrieved with the openEO Data Discovery for Collections, but for data cubes only a subset may be available after processing.",
     "categories": [
       "cubes"
     ],
@@ -6756,6 +7121,10 @@
           {
             "type": "object",
             "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           },
           {
             "description": "A collection id.",
@@ -7094,15 +7463,15 @@
   {
     "id": "reduce",
     "summary": "Reduce dimensions",
-    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer must compute a single or multiple return values of the same type as the input values were. Multiple values must be wrapped in an array. An example for a process returning a single value is ``median()``. In this case the specified dimension would be removed. If a reducer such as ``extrema()`` returns multiple values, a new dimension with the specified name in `target_dimension` is created (see the description of the parameter for more information).\n\nA special case is that the reducer can be set to `null`, which is the default if no reducer is specified. It acts as a no-operation reducer so that the remaining value is treated like a reduction result and the dimension gets dropped. This only works on dimensions with a single dimension label left (e.g. after filtering for a single band), otherwise the process fails with a `TooManyDimensionValues` error.\n\nNominal values can be reduced too, but need to be mapped. For example date strings to numeric timestamps since 1970 etc.",
+    "description": "Applies a reducer to a data cube dimension by collapsing all the input values along the specified dimension into an output value computed by the reducer.\n\nBy default the dimension is dropped, but this behaviour can be influenced with the parameter `target_dimension` The parameter must be specified, if a reducer such as ``extrema()`` returns multiple values.\n\nBy default, a reducer must accept an array as input. The process can also work on two values by setting the parameter `binary` to `true`. The reducer doesn't get executed on a single value.",
     "categories": [
       "cubes",
       "reducer"
     ],
     "parameter_order": [
       "data",
-      "dimension",
       "reducer",
+      "dimension",
       "target_dimension",
       "binary"
     ],
@@ -7115,15 +7484,9 @@
         },
         "required": true
       },
-      "dimension": {
-        "description": "The name of the dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
-        "schema": {
-          "type": "string"
-        },
-        "required": true
-      },
       "reducer": {
-        "description": "A reducer to be applied on the specified dimension (see the process description for more details).",
+        "description": "A reducer to apply on the specified dimension.\n\nThe reducer may be a single process such as ``mean()`` or consist of multiple sub-processes. By default, a reducer must accept an array as input, but the reducer can also work on two values by setting the parameter `binary` to `true`.\n\nThe reducer must compute either a single value or multiple return values. Multiple values returned by a reducer must be wrapped in an array and will result in as many enumerated dimension labels as array elements are available. Enumerated dimension labels start from zero.",
+        "required": true,
         "schema": [
           {
             "title": "Unary behaviour",
@@ -7153,17 +7516,18 @@
                 "description": "The second value. Any data type could be passed."
               }
             }
-          },
-          {
-            "title": "No operation behaviour",
-            "description": "Specifying `null` works only on dimensions with a single dimension label left. In this case the remaining value is treated like a reduction result and the dimension gets dropped.",
-            "type": "null"
           }
-        ],
-        "default": null
+        ]
+      },
+      "dimension": {
+        "description": "The name of the dimension over which to reduce. Fails with a `DimensionNotAvailable` error if the specified dimension does not exist.\n\n**Remarks:**\n\n* The default dimensions a data cube provides are described in the collection's metadata field `cube:dimensions`.\n* There could be multiple spatial dimensions such as `x`, `y` or `z`.\n* For multi-spectral imagery there is usually a separate dimension of type `bands` for the bands.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
       },
       "target_dimension": {
-        "description": "The name of the target dimension. Only required if the reducer returns multiple values, otherwise ignored. By default creates a new dimension with the specified name and the type `other` (see ``add_dimension()``). If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.",
+        "description": "The name of the target dimension or `null` to drop the dimension (default).\n\nIf a target dimension is specified, a new dimension with the specified name and the type `other` (see ``add_dimension()``) is created and the old dimension is dropped. If a dimension with the specified name exists, the dimension is replaced, but keeps the original type.\n\nThe resulting target dimension has as many dimension labels as the reducer returned values. For example, a reducer returning a single scalar results in a dimension with a single label, a reducer returning an array with four elements results in a dimension with four labels.\n\nIf a reducer returns multiple values, this parameter is required to be a string. Otherwise the process produces the error `TargetDimensionMissing`.",
         "schema": {
           "type": [
             "string",
@@ -7173,7 +7537,7 @@
         "default": null
       },
       "binary": {
-        "description": "Specifies whether the process should pass two values to the reducer or a list of values (default).\n\nIf the process passes two values, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.\n\nThis parameter can't be used with the reducer set to `null`. If a reducer is specified but only a single value is available, the reducer doesn't get executed.",
+        "description": "Specifies whether the process should pass two values to the reducer (binary mode) or a list of values (default).\n\nIf the process passes two values to the reducer, the reducer must be both associative and commutative as the execution may be executed in parallel and therefore the order of execution is arbitrary.\n\nThis parameter is especially useful for UDFs passed as reducers. Back-ends may still optimize and parallelize processes that work on list of values.",
         "schema": {
           "type": "boolean"
         },
@@ -7181,18 +7545,18 @@
       }
     },
     "returns": {
-      "description": "A data cube with the newly computed values. The number of dimensions is reduced by one for reducers returning a single value or doesn't change if the reducer returns multiple values. The resolution and cardinality are the same as for the original data cube.",
+      "description": "A data cube with the newly computed values. The number of dimensions is reduced by one, except if a target dimension is specified. The resolution and cardinality are the same as for the original data cube.",
       "schema": {
         "type": "object",
         "subtype": "raster-cube"
       }
     },
     "exceptions": {
-      "TooManyDimensionValues": {
-        "message": "The number of dimension labels exceeds one, which requires a reducer."
-      },
       "DimensionNotAvailable": {
         "message": "A dimension with the specified name does not exist."
+      },
+      "TargetDimensionMissing": {
+        "message": "The reducer returned multiple values. A target dimension must be specified."
       }
     },
     "links": [
@@ -7206,7 +7570,7 @@
   {
     "id": "rename_dimension",
     "summary": "Renames a dimension",
-    "description": "Renames a dimension in the data cube. Afterwards, the dimension can be referenced with the new name.",
+    "description": "Renames a dimension in the data cube.",
     "categories": [
       "cubes"
     ],
@@ -7222,6 +7586,10 @@
           {
             "type": "object",
             "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -7247,6 +7615,10 @@
         {
           "type": "object",
           "subtype": "raster-cube"
+        },
+        {
+          "type": "object",
+          "subtype": "vector-cube"
         }
       ]
     },
@@ -7258,6 +7630,167 @@
         "message": "A dimension with the specified name already exists."
       }
     }
+  },
+  {
+    "id": "rename_labels",
+    "summary": "Rename dimension labels",
+    "description": "Renames the labels of a dimension in the data cube.",
+    "categories": [
+      "cubes"
+    ],
+    "parameter_order": [
+      "data",
+      "dimension",
+      "labels"
+    ],
+    "parameters": {
+      "data": {
+        "description": "The data cube.",
+        "schema": [
+          {
+            "type": "object",
+            "subtype": "raster-cube"
+          }
+        ],
+        "required": true
+      },
+      "dimension": {
+        "description": "The name of the dimension to rename the labels for.",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "labels": {
+        "description": "The new names for the labels.\n\nIf an **array** is passed, the dimension labels in the data cube are expected to be enumerated with zero-based numbering (0,1,2,3,...) so that the dimension labels map to the array indices and get replaced. If the dimension labels are not enumerated, a `LabelsNotEnumerated` is thrown. The number of dimension labels must be equal to the number of array elements, otherwise the error `LabelMismatch` is thrown.\n\nIf an **object** is passed, the object defines a (potentially incomplete) mapping of the source dimension labels to the target dimension labels. If one of the source dimension labels doesn't exist, a `LabelNotAvailable` error is thrown. If a target dimension label already exists in the data cube, a `LabelExists` error is thrown.",
+        "schema": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        ],
+        "required": true
+      }
+    },
+    "returns": {
+      "description": "The data cube with the renamed labels. The old labels can not be referenced any longer.",
+      "schema": [
+        {
+          "type": "object",
+          "subtype": "raster-cube"
+        }
+      ]
+    },
+    "exceptions": {
+      "LabelsNotEnumerated": {
+        "message": "The dimension labels are not enumerated."
+      },
+      "LabelMismatch": {
+        "message": "The number of labels specified doesn't match the actual number of labels."
+      },
+      "LabelNotAvailable": {
+        "message": "A label with the specified name does not exist."
+      },
+      "LabelExists": {
+        "message": "A label with the specified name already exists."
+      }
+    },
+    "examples": [
+      {
+        "title": "Rename named labels",
+        "description": "Renaming the bands from `B1` to `red`, from `B2` to `green` and from `B3` to `blue`. Doesn't rename the band `QA`.",
+        "process_graph": {
+          "loadco1": {
+            "process_id": "load_collection",
+            "arguments": {
+              "id": "S2-RGB",
+              "spatial_extent": null,
+              "temporal_extent": null,
+              "bands": [
+                "B1",
+                "B2",
+                "B3",
+                "QA"
+              ]
+            }
+          },
+          "rename1": {
+            "process_id": "rename_labels",
+            "arguments": {
+              "data": {
+                "from_node": "loadco1"
+              },
+              "dimension": "bands",
+              "labels": {
+                "B1": "red",
+                "B2": "green",
+                "B3": "blue"
+              }
+            },
+            "result": true
+          }
+        }
+      },
+      {
+        "title": "Rename enumerated labels",
+        "description": "The reducer creates a new dimension `min_max` with enumerated labels. The first label refers to the minimum values, the second label refers to the maximum values. After the reducer, the dimension labels are renamed to `min` and `max` respectively.",
+        "process_graph": {
+          "loadco1": {
+            "process_id": "load_collection",
+            "arguments": {
+              "id": "S2-RGB",
+              "spatial_extent": null,
+              "temporal_extent": null
+            }
+          },
+          "reduce1": {
+            "process_id": "reduce",
+            "arguments": {
+              "data": {
+                "from_node": "loadco1"
+              },
+              "reducer": {
+                "callback": {
+                  "extrem1": {
+                    "process_id": "extrema",
+                    "arguments": {
+                      "data": {
+                        "from_argument": "data"
+                      }
+                    },
+                    "result": true
+                  }
+                }
+              },
+              "dimension": "temporal",
+              "target_dimension": "min_max"
+            }
+          },
+          "rename1": {
+            "process_id": "rename_labels",
+            "arguments": {
+              "data": {
+                "from_node": "reduce1"
+              },
+              "dimension": "bands",
+              "labels": [
+                "min",
+                "max"
+              ]
+            },
+            "result": true
+          }
+        }
+      }
+    ]
   },
   {
     "id": "resample_cube_spatial",
@@ -7581,7 +8114,7 @@
   {
     "id": "round",
     "summary": "Rounds to a specified precision",
-    "description": "Rounds a real number `x` to specified precision `p`.\n\nIf the fractional part of `x` is halfway between two integers, one of which is even and the other odd, then the even number is returned.\nThis behaviour follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935). This kind of rounding is also called \"rounding to nearest\" or \"banker's rounding\". It minimizes rounding errors that result from consistently rounding a midpoint value in a single direction.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
+    "description": "Rounds a real number `x` to specified precision `p`.\n\nIf the fractional part of `x` is halfway between two integers, one of which is even and the other odd, then the even number is returned.\nThis behaviour follows [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229). This kind of rounding is also called \"rounding to nearest\" or \"banker's rounding\". It minimizes rounding errors that result from consistently rounding a midpoint value in a single direction.\n\nThe no-data value `null` is passed through and therefore gets propagated.",
     "categories": [
       "math > rounding"
     ],
@@ -7666,8 +8199,8 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -7933,6 +8466,10 @@
           {
             "type": "object",
             "subtype": "raster-cube"
+          },
+          {
+            "type": "object",
+            "subtype": "vector-cube"
           }
         ],
         "required": true
@@ -8429,41 +8966,39 @@
   },
   {
     "id": "subtract",
-    "summary": "Subtraction of a sequence of numbers",
-    "description": "Takes the first element of a sequential array of numbers and subtracts all other elements from it.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "summary": "Subtraction of two numbers",
+    "description": "Subtracts argument `y` from the argument `x` (*x - y*) and returns the computed result.\n\nNo-data values are taken into account so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.",
     "categories": [
-      "math",
-      "reducer"
+      "math"
     ],
     "parameter_order": [
-      "data",
-      "ignore_nodata"
+      "x",
+      "y"
     ],
     "parameters": {
-      "data": {
-        "description": "An array of numbers with at least two elements.",
+      "x": {
+        "description": "The minuend.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "number",
-              "null"
-            ]
-          },
-          "minItems": 2
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not. Ignores them by default. Setting this flag to `false` considers no-data values so that `null` is returned if any value is such a value.",
+      "y": {
+        "description": "The subtrahend.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "number",
+            "null"
+          ]
         },
-        "default": true
+        "required": true
       }
     },
     "returns": {
-      "description": "The computed result of the sequence of numbers.",
+      "description": "The computed result.",
       "schema": {
         "type": [
           "number",
@@ -8471,38 +9006,25 @@
         ]
       }
     },
-    "exceptions": {
-      "SubtrahendMissing": {
-        "message": "Subtraction requires at least two numbers (a minuend and one or more subtrahends)."
-      }
-    },
     "examples": [
       {
         "arguments": {
-          "data": [
-            5,
-            10
-          ]
+          "x": 5,
+          "y": 2.5
         },
-        "returns": -5
+        "returns": 2.5
       },
       {
         "arguments": {
-          "data": [
-            -2,
-            4,
-            -2
-          ]
+          "x": -2,
+          "y": 4
         },
-        "returns": -4
+        "returns": -6
       },
       {
         "arguments": {
-          "data": [
-            1,
-            null
-          ],
-          "ignore_nodata": false
+          "x": 1,
+          "y": null
         },
         "returns": null
       }
@@ -8515,15 +9037,15 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
   {
     "id": "sum",
-    "summary": "Addition of a sequence of numbers",
-    "description": "Sums up all elements in a sequential array of numbers and returns the computed sum.\n\nThe computations should follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/4610935) whenever the processing environment supports it. Otherwise an exception must the thrown for incomputable results.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.",
+    "summary": "Compute the sum by adding up a sequence of numbers",
+    "description": "Sums up all elements in a sequential array of numbers and returns the computed sum.\n\nBy default no-data values are ignored. Setting `ignore_nodata` to `false` considers no-data values so that `null` is returned if any element is such a value.\n\nThe computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.",
     "categories": [
       "math",
       "reducer"
@@ -8534,7 +9056,7 @@
     ],
     "parameters": {
       "data": {
-        "description": "An array of numbers with at least two elements.",
+        "description": "An array of numbers.",
         "schema": {
           "type": "array",
           "items": {
@@ -8542,8 +9064,7 @@
               "number",
               "null"
             ]
-          },
-          "minItems": 2
+          }
         },
         "required": true
       },
@@ -8562,11 +9083,6 @@
           "number",
           "null"
         ]
-      }
-    },
-    "exceptions": {
-      "SummandMissing": {
-        "message": "Addition requires at least two numbers."
       }
     },
     "examples": [
@@ -8598,6 +9114,29 @@
           "ignore_nodata": false
         },
         "returns": null
+      },
+      {
+        "arguments": {
+          "data": [
+            100
+          ]
+        },
+        "returns": 100
+      },
+      {
+        "arguments": {
+          "data": [
+            null
+          ],
+          "ignore_nodata": false
+        },
+        "returns": null
+      },
+      {
+        "arguments": {
+          "data": []
+        },
+        "returns": null
       }
     ],
     "links": [
@@ -8608,8 +9147,8 @@
       },
       {
         "rel": "about",
-        "href": "https://ieeexplore.ieee.org/document/4610935",
-        "title": "IEEE Standard 754-2008 for Floating-Point Arithmetic"
+        "href": "https://ieeexplore.ieee.org/document/8766229",
+        "title": "IEEE Standard 754-2019 for Floating-Point Arithmetic"
       }
     ]
   },
@@ -9176,40 +9715,39 @@
   },
   {
     "id": "xor",
-    "summary": "Is exactly one value true?",
-    "description": "Checks if **exactly one** of the values is true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `true` if exactly one of the other values is true and otherwise returns `false`.\nSetting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null | false | true\n----- || ---- | ----- | -----\nnull  || null | null  | null\nfalse || null | false | true\ntrue  || null | true  | false\n```",
+    "summary": "Logical XOR (exclusive or)",
+    "description": "Checks if **exactly one** of the values is true. If a component is `null`, the result will be `null` if the outcome is ambiguous.\n\n**Truth table:**\n\n```\na \\ b || null | false | true\n----- || ---- | ----- | -----\nnull  || null | null  | null\nfalse || null | false | true\ntrue  || null | true  | false\n```",
     "categories": [
-      "logic",
-      "reducer"
+      "logic"
     ],
     "parameter_order": [
-      "expressions",
-      "ignore_nodata"
+      "x",
+      "y"
     ],
     "parameters": {
-      "expressions": {
-        "description": "A set of boolean values.",
+      "x": {
+        "description": "A boolean value.",
         "schema": {
-          "type": "array",
-          "items": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          }
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "required": true
       },
-      "ignore_nodata": {
-        "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
+      "y": {
+        "description": "A boolean value.",
         "schema": {
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
-        "default": true
+        "required": true
       }
     },
     "returns": {
-      "description": "Boolean result of the logical expressions.",
+      "description": "Boolean result of the logical XOR.",
       "schema": {
         "type": [
           "boolean",
@@ -9220,82 +9758,36 @@
     "examples": [
       {
         "arguments": {
-          "expressions": [
-            false,
-            null
-          ]
+          "x": true,
+          "y": true
         },
         "returns": false
       },
       {
         "arguments": {
-          "expressions": [
-            true,
-            null
-          ]
+          "x": false,
+          "y": false
+        },
+        "returns": false
+      },
+      {
+        "arguments": {
+          "x": true,
+          "y": false
         },
         "returns": true
       },
       {
         "arguments": {
-          "expressions": [
-            false,
-            null
-          ],
-          "ignore_nodata": false
+          "x": true,
+          "y": null
         },
         "returns": null
       },
       {
         "arguments": {
-          "expressions": [
-            true,
-            null
-          ],
-          "ignore_nodata": false
-        },
-        "returns": null
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true,
-            false,
-            true,
-            false
-          ]
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true,
-            false
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "expressions": [
-            false,
-            false
-          ]
-        },
-        "returns": false
-      },
-      {
-        "arguments": {
-          "expressions": [
-            true
-          ]
-        },
-        "returns": true
-      },
-      {
-        "arguments": {
-          "expressions": []
+          "x": false,
+          "y": null
         },
         "returns": null
       }

@@ -1,47 +1,37 @@
 {
     "id": "normalized_difference",
-    "summary": "Normalized difference for two bands",
-    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(band1 - band2) / (band1 + band2)*.\n\nEach of the parameters expects a raster data cube with exactly one band. The process returns a raster data cube with exactly one band that holds the computed values. The newly created band is named `normalized_difference` by default. This name can be changed with the `name` parameter.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/)\n* [NDWI](https://eos.com/ndwi/)\n* [NDSI](https://eos.com/ndsi/)\n\nPlease note that some back-ends may have native processes available for convenience such as the ``ndvi()``.",
+    "summary": "Normalized difference",
+    "description": "Computes the normalized difference for two bands. The normalized difference is computed as *(x - y) / (x + y)*.\n\nThis process could be used for a number of remote sensing indices such as:\n\n* [NDVI](https://eos.com/ndvi/): `x` = NIR band, `y` = red band\n* [NDWI](https://eos.com/ndwi/): `x` = NIR band, `y` = SWIR band\n* [NDSI](https://eos.com/ndsi/): `x` = green band, `y` = SWIR band\n\nSome back-ends may have native processes such as ``ndvi()`` available for convenience.",
     "categories": [
         "math > indices",
         "vegetation indices"
     ],
     "parameter_order": [
-        "band1",
-        "band2",
-        "name"
+        "x",
+        "y"
     ],
     "parameters": {
-        "band1": {
-            "description": "A raster data cube with exactly one band to be used as first band.",
+        "x": {
+            "description": "The value for the first band.",
             "schema": {
-                "type": "object",
-                "subtype": "raster-cube"
+                "type": "number"
             },
             "required": true
         },
-        "band2": {
-            "description": "A raster data cube with exactly one band to be used as second band.",
+        "y": {
+            "description": "The value for the second band.",
             "schema": {
-                "type": "object",
-                "subtype": "raster-cube"
+                "type": "number"
             },
             "required": true
-        },
-        "name": {
-            "description": "Name of the newly created band with the computed values. Defaults to `normalized_difference`.",
-            "schema": {
-                "type": "string",
-                "pattern": "^[A-Za-z0-9_]+$"
-            },
-            "default": "normalized_difference"
         }
     },
     "returns": {
-        "description": "A raster data cube with exactly one band that holds the computed values.",
+        "description": "The computed normalized difference.",
         "schema": {
-            "type": "object",
-            "subtype": "raster-cube"
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
         }
     },
     "links": [

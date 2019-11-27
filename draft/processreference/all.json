@@ -1,0 +1,136 @@
+{
+    "id": "all",
+    "summary": "Are all of the values true?",
+    "description": "Checks if **all** of the values are true. Evaluates each expression from the first to the last element and stops once the outcome is unambiguous.\n\nIf only one value is given, the process evaluates to the given value. If no value is given (i.e. the array is empty) the process returns `null`.\n\nBy default all no-data values are ignored so that the process returns `null` if all values are no-data, `true` if all other values are true and `false` otherwise. Setting the `ignore_nodata` flag to `false` considers no-data values so that `null` is a valid logical object. If a component is `null`, the result will be `null` if the outcome is ambiguous. See the following truth table:\n\n```\n      || null  | false | true\n----- || ----- | ----- | -----\nnull  || null  | false | null\nfalse || false | false | false\ntrue  || null  | false | true\n```",
+    "categories": [
+        "logic",
+        "reducer"
+    ],
+    "parameter_order": [
+        "expressions",
+        "ignore_nodata"
+    ],
+    "parameters": {
+        "expressions": {
+            "description": "A set of boolean values.",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                }
+            },
+            "required": true
+        },
+        "ignore_nodata": {
+            "description": "Indicates whether no-data values are ignored or not and ignores them by default.",
+            "schema": {
+                "type": "boolean"
+            },
+            "default": true
+        }
+    },
+    "returns": {
+        "description": "Boolean result of the logical expressions.",
+        "schema": {
+            "type": [
+                "boolean",
+                "null"
+            ]
+        }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "expressions": [
+                    false,
+                    null
+                ]
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true,
+                    null
+                ]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    false,
+                    null
+                ],
+                "ignore_nodata": false
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true,
+                    null
+                ],
+                "ignore_nodata": false
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true,
+                    false,
+                    true,
+                    false
+                ]
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true,
+                    false
+                ]
+            },
+            "returns": false
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true,
+                    true
+                ]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    true
+                ]
+            },
+            "returns": true
+        },
+        {
+            "arguments": {
+                "expressions": [
+                    null
+                ],
+                "ignore_nodata": false
+            },
+            "returns": null
+        },
+        {
+            "arguments": {
+                "expressions": []
+            },
+            "returns": null
+        }
+    ]
+}
