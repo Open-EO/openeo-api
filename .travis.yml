@@ -9,8 +9,10 @@ node_js:
 sudo: required
 
 before_install:
+# Speccy
 - npm install -g speccy
-- speccy lint openapi.yaml -r "speccy.yml"
+- speccy lint openapi.yaml -r tests/speccy.yml
+# OpenAPI Spec Validator
 - pip install openapi-spec-validator
 - openapi-spec-validator openapi.yaml
 # DIY example validation (PR#194)
@@ -18,33 +20,46 @@ before_install:
 - pytest tests
 
 install:
-- pip install mkdocs
-- pip install mkdocs-material
-- pip install mkdocs-macros-plugin
-- pip install pymdown-extensions
-- pip install pygments
+- npm install
 
 script:
-- mv CHANGELOG.md docs/changelog.md
-- mkdocs build --clean
-- cp errors.json site/
-- cp openapi.yaml site/
-- \mv -f docs/apireference.html site/apireference/index.html
+- npm run build
 
 before_deploy:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
 - cd gh-pages
-- if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v|draft) && cp -R ../site/* ./ ; fi
-- if [[ $TRAVIS_BRANCH == 'draft' ]] ; then rm -rf draft/ && mkdir -p draft/ && cp -R ../site/* draft/ ; fi
-- if [[ $TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then rm -rf v/$TRAVIS_BRANCH/ && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
+- |
+  if [[ $TRAVIS_BRANCH == 'master' ]] ; then
+    cp ../redoc.html index.html
+  fi
+- |
+  if [[ $TRAVIS_BRANCH == 'draft' ]] ; then
+    rm -rf draft
+    mkdir -p draft
+    cp ../redoc.html draft/index.html
+  fi
+- |
+  if [ -n "$TRAVIS_TAG" ] ; then
+    rm -rf $TRAVIS_TAG
+    mkdir -p $TRAVIS_TAG
+    cp ../redoc.html $TRAVIS_TAG/index.html
+  fi
 
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  committer-from-gh: true
-  local-dir: gh-pages
-  verbose: true
-  on:
-    all_branches: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: gh-pages
+    keep-history: true
+    committer-from-gh: true
+    on:
+      tags: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: gh-pages
+    keep-history: true
+    committer-from-gh: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH =~ ^(master|draft)$

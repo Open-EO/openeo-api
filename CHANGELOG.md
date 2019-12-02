@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+**Note:** The user and developer documentation has been moved to [openeo.org](https://openeo.org/documentation).
+
 ### Added
 
 - `GET /`: 
