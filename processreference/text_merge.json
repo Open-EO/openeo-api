@@ -1,0 +1,79 @@
+{
+    "id": "text_merge",
+    "summary": "Concatenate elements to a string",
+    "description": "Merges string representations of a set of elements together to a single string, with the separator between each element.",
+    "categories": [
+        "texts"
+    ],
+    "parameter_order": ["data", "separator"],
+    "parameters": {
+        "data": {
+            "description": "A set of elements. Numbers, boolean values and null values get converted to their (lower case) string representation. For example: `1` (integer), `-1.5` (number), `true` / `false` (boolean values)",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "type": [
+                        "string",
+                        "number",
+                        "boolean",
+                        "null"
+                    ]
+                }
+            },
+            "required": true
+        },
+        "separator": {
+            "description": "A separator to put between each of the individual texts. Defaults to an empty string.",
+            "schema": {
+                "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                ],
+                "default": ""
+            }
+        }
+    },
+    "returns": {
+        "description": "Returns a string containing a string representation of all the array elements in the same order, with the separator between each element.",
+        "schema": {
+            "type": "string"
+        }
+    },
+    "examples": [
+        {
+            "arguments": {
+                "data": ["Hello", "World"],
+                "separator": " "
+            },
+            "returns": "Hello World"
+        },
+        {
+            "arguments": {
+                "data": [1,2,3,4,5,6,7,8,9,0]
+            },
+            "returns": "1234567890"
+        },
+        {
+            "arguments": {
+                "data": [null, true, false, 1, -1.5, "ß"],
+                "separator": "\n"
+            },
+            "returns": "null\ntrue\nfalse\n1\n-1.5\nß"
+        },
+        {
+            "arguments": {
+                "data": [2,0],
+                "separator": 1
+            },
+            "returns": "210"
+        },
+        {
+            "arguments": {
+                "data": []
+            },
+            "returns": ""
+        }
+    ]
+}
