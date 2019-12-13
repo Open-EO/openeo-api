@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - The parameter `user_id ` has been removed from the endpoints to manage user files (`/files/{user_id}`). [#218](https://github.com/Open-EO/openeo-api/issues/218)
+- Schema subtype `band-name` allows common band names, too. [Processes#77]( https://github.com/Open-EO/openeo-processes/issues/77)
 - `GET /`: Property `links` is required.
 - `GET /processes`:
     - Default values are now specified on the parameter-level, not in the JSON schemas.
