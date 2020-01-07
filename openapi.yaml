@@ -875,6 +875,7 @@ paths:
   /:
     get:
       summary: Information about the back-end
+      operationId: capabilities
       description: >-
         Returns general information about the back-end, including which version
         and endpoints of the openEO API are supported. May also include billing
@@ -1145,6 +1146,7 @@ paths:
   /.well-known/openeo:
     get:
       summary: Supported openEO versions
+      operationId: connect
       description: >-
         Well-Known URI (see [RFC 57855](https://tools.ietf.org/html/rfc5785))
         for openEO, listing all implemented openEO versions supported by the
@@ -1239,6 +1241,7 @@ paths:
   /file_formats:
     get:
       summary: Supported file formats
+      operationId: list-file-types
       description: >-
         The request will ask the back-end for supported input and output file
         formats. *Input* file formats specify which file a back-end can *read*
@@ -1402,7 +1405,8 @@ paths:
           $ref: '#/components/responses/server_error'
   /collections:
     get:
-      summary: Basic metadata for all datasets.
+      summary: Basic metadata for all datasets
+      operationId: list-collections
       description: >-
         Lists available collections with basic information. To retrieve data
         cube (property `cube:dimensions`) and domain specific information
@@ -1548,6 +1552,7 @@ paths:
           $ref: '#/components/schemas/collection_id'
     get:
       summary: Full metadata for a specific dataset
+      operationId: describe-collection
       description: >-
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
@@ -2005,6 +2010,7 @@ paths:
   /processes:
     get:
       summary: Supported processes
+      operationId: list-processes
       description: >-
         The request asks the back-end for available processes and returns
         detailed process descriptions, including parameters and return values.
@@ -2155,6 +2161,7 @@ paths:
   /udf_runtimes:
     get:
       summary: Supported UDF runtimes
+      operationId: list-udf-runtimes
       description: >-
         Returns a list of supported runtimes for user-defined functions (UDFs),
         which includes either the programming languages including version
@@ -2332,6 +2339,7 @@ paths:
   /credentials/oidc:
     get:
       summary: OpenID Connect authentication
+      operationId: authenticate-oidc
       description: >-
         This endpoint lists the supported [OpenID
         Connect](http://openid.net/connect/) providers (OP). OpenID Providers
@@ -2473,6 +2481,7 @@ paths:
   /credentials/basic:
     get:
       summary: HTTP Basic authentication
+      operationId: authenticate-basic
       description: >-
         This request checks the credentials provided through [HTTP Basic
         Authentication according to RFC
@@ -2527,6 +2536,7 @@ paths:
   /validation:
     post:
       summary: Validate a process graph
+      operationId: validate-process-graph
       description: >-
         Validates a process graph without executing it. A process graph is
         considered valid unless the `errors` array in the response contains at
@@ -2595,6 +2605,7 @@ paths:
   /result:
     post:
       summary: Process and download data synchronously
+      operationId: compute-result
       description: >-
         Process graphs will be executed directly and the result will be
         downloaded in the format specified in the process graph. This endpoint
@@ -2659,6 +2670,7 @@ paths:
   /process_graphs:
     get:
       summary: List all stored process graphs
+      operationId: list-process-graphs
       description: >-
         This service lists all process graphs of the authenticated user that are
         stored at the back-end.
@@ -2704,6 +2716,7 @@ paths:
           $ref: '#/components/responses/server_error'
     post:
       summary: Store a process graph
+      operationId: create-process-graph
       description: >-
         Creates a unique resource for a provided process graph that can be
         reused in other process graphs.
@@ -2739,6 +2752,7 @@ paths:
       - $ref: '#/components/parameters/process_graph_id'
     get:
       summary: Full metadata for a stored process graph
+      operationId: describe-process-graph
       description: Returns all information about a process graph.
       tags:
         - Process Graphs
@@ -2773,6 +2787,7 @@ paths:
           $ref: '#/components/responses/server_error'
     patch:
       summary: Modify a stored process graph
+      operationId: update-process-graph
       description: >-
         Replaces a process graph or modifies the metadata, but maintains the
         identifier.
@@ -2803,6 +2818,11 @@ paths:
         description: Specifies the process graph details to update.
     delete:
       summary: Delete a stored process graph
+      operationId: delete-process-graph
+      description: >-
+        Deletes the data related to this stored process graph.
+
+        Does NOT delete jobs or services that reference this process graph.
       tags:
         - Process Graphs
       security:
@@ -2817,6 +2837,7 @@ paths:
   /service_types:
     get:
       summary: Supported secondary web service protocols
+      operationId: list-service-types
       description: >-
         The request will ask the back-end for supported secondary web service
         protocols, e.g. WMS or WCS. The response is an object of all available
@@ -2962,6 +2983,7 @@ paths:
   /services:
     get:
       summary: List all web services
+      operationId: list-services
       description: >-
         Requests to this endpoint will list all running secondary web services
         submitted by a user with given id.
@@ -3021,6 +3043,7 @@ paths:
           $ref: '#/components/responses/server_error'
     post:
       summary: Publish a new service
+      operationId: create-service
       description: >-
         Calling this endpoint will create a secondary web service such as WMTS,
         TMS or WCS. The underlying data is processes on-demand, but a process
@@ -3075,6 +3098,7 @@ paths:
       - $ref: '#/components/parameters/service_id'
     patch:
       summary: Modify a service
+      operationId: update-service
       description: >-
         Calling this endpoint will change the specified secondary web service,
         but maintain its identifier. Changes can be grouped in a single request.
@@ -3114,6 +3138,7 @@ paths:
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
+      operationId: describe-service
       description: >-
         Requests to this endpoint will return JSON description of the secondary
         web service.
@@ -3181,6 +3206,7 @@ paths:
           $ref: '#/components/responses/server_error'
     delete:
       summary: Delete a service
+      operationId: delete-service
       description: >-
         Calling this endpoint will stop a given secondary web service to access
         result data.
@@ -3198,6 +3224,7 @@ paths:
   '/services/{service_id}/logs':
     get:
       summary: Logs for a secondary service
+      operationId: debug-service
       description: Logs for the secondary service.
       tags:
         - Secondary Services
@@ -3217,6 +3244,7 @@ paths:
   /jobs:
     get:
       summary: List all batch jobs
+      operationId: list-jobs
       description: >-
         Requests to this endpoint will list all batch jobs submitted by a user
         with given id.
@@ -3277,6 +3305,7 @@ paths:
           $ref: '#/components/responses/server_error'
     post:
       summary: Create a new batch job
+      operationId: create-job
       description: >-
         Creates a new batch processing task (job) from one or more (chained)
         processes at the back-end.
@@ -3320,6 +3349,7 @@ paths:
       - $ref: '#/components/parameters/job_id'
     patch:
       summary: Modify a batch job
+      operationId: update-job
       description: >-
         Modifies an existing job at the back-end but maintains the identifier.
         Changes can be grouped in a single request.
@@ -3359,6 +3389,7 @@ paths:
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
+      operationId: describe-job
       description: Returns detailed information about a submitted batch job.
       tags:
         - Batch Jobs
@@ -3422,6 +3453,7 @@ paths:
           $ref: '#/components/responses/server_error'
     delete:
       summary: Delete a batch job
+      operationId: delete-job
       description: >-
         Deletes all data related to this job. Computations are stopped and
         computed results are deleted. This job won't generate additional costs
@@ -3440,6 +3472,7 @@ paths:
   '/jobs/{job_id}/estimate':
     get:
       summary: Get an estimate for a batch job
+      operationId: estimate-job
       description: >-
         Clients can ask for an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
@@ -3504,6 +3537,7 @@ paths:
   '/jobs/{job_id}/logs':
     get:
       summary: Logs for a batch job
+      operationId: debug-job
       description: Logs for the batch job.
       tags:
         - Batch Jobs
@@ -3525,6 +3559,7 @@ paths:
       - $ref: '#/components/parameters/job_id'
     get:
       summary: Download results for a completed batch job
+      operationId: list-results
       description: >-
         After finishing processing, this request will provide signed URLs to the
         processed files of the batch job with some additional metadata. The
@@ -3589,6 +3624,7 @@ paths:
           $ref: '#/components/responses/server_error'
     post:
       summary: Start processing a batch job
+      operationId: start-job
       description: >-
         Adds a batch job to the processing queue to compute the results.
 
@@ -3625,6 +3661,7 @@ paths:
           $ref: '#/components/responses/server_error'
     delete:
       summary: Cancel processing a batch job
+      operationId: stop-job
       description: >-
         Cancels all related computations for this job at the back-end. It will
         stop generating additional costs for processing.
@@ -3656,6 +3693,7 @@ paths:
   '/files':
     get:
       summary: List all files in the workspace
+      operationId: list-files
       description: >-
         This service lists all user-uploaded files that are stored at the
         back-end.
@@ -3708,6 +3746,7 @@ paths:
       - $ref: '#/components/parameters/file_path'
     get:
       summary: Download a file from the workspace
+      operationId: download-file
       description: >-
         This service downloads a user files identified by its path relative to
         the user's root directory.
@@ -3732,6 +3771,7 @@ paths:
           $ref: '#/components/responses/server_error'
     put:
       summary: Upload a file to the workspace
+      operationId: upload-file
       description: >-
         This service uploads a new or updates an existing file at a given path.
 
@@ -3763,6 +3803,7 @@ paths:
               format: binary
     delete:
       summary: Delete a file from the workspace
+      operationId: delete-file
       description: >-
         This service deletes an existing user-uploaded file specified by its
         path. Resulting empty folders MUST be deleted automatically.
@@ -3787,6 +3828,7 @@ paths:
   /me:
     get:
       summary: Information about the authenticated user
+      operationId: describe-account
       description: >-
         This endpoint always returns the user id and MAY return the disk quota
         available to the user. It MAY also return links related to user management
