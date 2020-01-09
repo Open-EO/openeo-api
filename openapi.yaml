@@ -202,7 +202,7 @@ tags:
     description: General information about the API implementation and other supported capabilities at the back-end.
   - name: EO Data Discovery
     description: |-      
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.8.1 and OGC API - Features 1.0 responses, including a partial compatibility with their APIs.
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
       
@@ -210,36 +210,19 @@ tags:
       
       # Content Extensions
       
-      STAC has several [content extensions](https://github.com/radiantearth/stac-spec/tree/v0.8.1/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
       
       Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
       
       - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.8.1/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.8.1/extensions/sar)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.8.1/extensions/scientific)
+      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
+      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
+      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
+      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
       
       # Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem it is also recommended to implement the `GET /stac` endpoint. To allow searching for items you can also implement `POST /stac/search`. Further information can be found in the [STAC API respository](https://github.com/radiantearth/stac-spec/tree/v0.8.1/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
-      
-      # OGC API - Features: Part 1: Core compatibility
-      
-      As of now, OGC API - Features requires more endpoints for full compatibility. You should add the following things to your API:
-      
-      * Add [additional links](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#core-overview) to the `links` property in the `GET /` response:
-        * the API definition (link relations `service-desc` and `service-doc`),
-        * the Conformance declaration (path `/conformance`, link relation `conformance`), and
-        * the Collections (path `/collections`, link relation `data`).
-      * Implement `GET /conformance` and specify which conformance classes the service conforms to.
-      * Implement `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual features.
-      
-      # STAC compatibility
-      
-      As of now, STAC has two more required endpoints that need to be implemented:
-      
-      * `GET /stac`
-      * `POST /stac/search`
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API respository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
   - name: Process Discovery
     description: |-
       These endpoints allow to the processes that are available at the back-end.
@@ -275,7 +258,7 @@ tags:
 
       | Subtype                   | Data type | Description |
       | ------------------------- | --------- | ----------- |
-      | `band-name`               | string    | Either a unique band name (metadata field `name`) or a [common band name](https://github.com/radiantearth/stac-spec/tree/master/extensions/eo#common-band-names) (metadata field `common_name`) available in the data cube. If unique band name and common name conflict, the unique band name has higher priority. |
+      | `band-name`               | string    | Either a unique band name (metadata field `name`) or a [common band name](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions/eo#common-band-names) (metadata field `common_name`) available in the data cube. If unique band name and common name conflict, the unique band name has higher priority. |
       | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code, a WKT2:2018 string, PROJJSON or a PROJ definition (deprecated). |
       | `collection-id`           | string    | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
       | `date`                    | string    | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
@@ -899,6 +882,7 @@ paths:
                   - description
                   - api_version
                   - backend_version
+                  - stac_version
                   - endpoints
                   - links
                 properties:
@@ -916,6 +900,14 @@ paths:
                       Every change on back-end side MUST cause a change of the
                       version number.
                     example: 1.1.2
+                  stac_version:
+                    $ref: '#/components/schemas/stac_version'
+                  id: 
+                    type: string
+                    description: >-
+                      Identifier for the service.
+
+                      This field originates from STAC and is used as unique identifier for the STAC catalog available at `/collections`.
                   title:
                     type: string
                     description: The name of the service.
@@ -1070,7 +1062,7 @@ paths:
                               description: >-
                                 URL to a web page with more details about the
                                 plan.
-                              format: url
+                              format: uri
                               example: 'http://cool-cloud-corp.com/plans/free-plan'
                         example:
                           - name: free
@@ -1116,6 +1108,14 @@ paths:
                       4. `service-desc` or `service-doc`: A link to the API definition.
                       Use `service-desc` for machine-readable API definition and 
                       `service-doc` for human-readable API definition.
+                      Required if full OGC API compatibility is desired.
+
+                      5. `conformance`: A link to the Conformance declaration
+                      (see `/conformance`). 
+                      Required if full OGC API compatibility is desired.
+
+                      6. `data`: A link to the collections (see `/collections`).
+                      Required if full OGC API compatibility is desired.
 
                       For additional relation types see also the lists of
                       [common relation types in openEO](#section/Web-Linking).
@@ -1214,7 +1214,7 @@ paths:
                       properties:
                         url:
                           type: string
-                          format: url
+                          format: uri
                           description: '*Absolute* URLs to the service.'
                           example: 'https://example.com/api/v0.4'
                         production:
@@ -1403,32 +1403,62 @@ paths:
           $ref: '#/components/responses/client_error'
         5XX:
           $ref: '#/components/responses/server_error'
+  /conformance:
+    get:
+      summary: OGC specifications this API conforms to
+      operationId: conformance
+      description: >-
+        A list of all conformance classes specified in OGC standards that the
+        server conforms to.
+
+        This endpoint is only required if full compliance with OGC API standards is desired.
+        Therefore, openEO back-ends may implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+      tags:
+        - Capabilities
+      responses:
+        '200':
+          description: The URIs of all conformance classes supported by the server.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - conformsTo
+                properties:
+                  conformsTo:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                      example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
+              example:
+                conformsTo:
+                  - 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core'
+        5XX:
+          $ref: '#/components/responses/server_error'
   /collections:
     get:
       summary: Basic metadata for all datasets
       operationId: list-collections
       description: >-
-        Lists available collections with basic information. To retrieve data
-        cube (property `cube:dimensions`) and domain specific information
-        (property `summaries`, e.g. SAR-specific information) request all
-        information for a specific collection using `GET
-        /collections/{collection_id}`.
+        Lists available collections with at least the required information.
+        
+        
+        Back-ends can choose which optional information are not send, but should ensure the responses don't get overly large.
+        To retrieve all information clients must make a request to `GET /collections/{collection_id}`.
 
 
-        This endpoint is compatible with [STAC 0.8.1](https://stacspec.org) and
-        [OGC API -
-        Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC
-        API](https://github.com/radiantearth/stac-spec/tree/master/api-spec)
-        features / extensions and [STAC content
-        extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions)
+        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API](https://github.com/radiantearth/stac-spec/tree/0.9.0/api-spec)
+        features / extensions and
+        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
 
 
-        More information on [data
-        discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the
-        documentation.
+        More information on
+        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
+        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
@@ -1454,9 +1484,7 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
                 example:
                   collections:
-                    - stac_version: 0.8.1
-                      stac_extensions:
-                        - datacube
+                    - stac_version: 0.9.0
                       id: Sentinel-2A
                       title: Sentinel-2A MSI L1C
                       description: >-
@@ -1498,9 +1526,7 @@ paths:
                         - rel: license
                           href: >-
                             https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
-                    - stac_version: 0.8.1
-                      stac_extensions:
-                        - datacube
+                    - stac_version: 0.9.0
                       id: MOD09Q1
                       title: >-
                         MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN
@@ -1558,20 +1584,17 @@ paths:
         identifier `collection_id`.
 
 
-        This endpoint is compatible with [STAC 0.8.1](https://stacspec.org) and
-        [OGC API -
-        Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC
-        API](https://github.com/radiantearth/stac-spec/tree/master/api-spec)
-        features / extensions and [STAC content
-        extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions)
+        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API](https://github.com/radiantearth/stac-spec/tree/0.9.0/api-spec)
+        features / extensions and
+        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
 
 
-        More information on [data
-        discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the
-        documentation.
+        More information on
+        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
+        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
@@ -1639,6 +1662,8 @@ paths:
                                     Custom type of the dimension, MUST NOT be
                                     `spatial`.
                                   type: string
+                                description:
+                                  $ref: '#/components/schemas/description'
                                 extent:
                                   $ref: >-
                                     #/components/schemas/collection_dimension_extent_open
@@ -1673,6 +1698,8 @@ paths:
                                   type: string
                                   enum:
                                     - bands
+                                description:
+                                  $ref: '#/components/schemas/description'
                                 values:
                                   $ref: >-
                                     #/components/schemas/collection_dimension_values
@@ -1695,6 +1722,8 @@ paths:
                                   enum:
                                     - x
                                     - 'y'
+                                description:
+                                  $ref: '#/components/schemas/description'
                                 extent:
                                   description: >-
                                     Extent (lower and upper bounds) of the
@@ -1739,6 +1768,8 @@ paths:
                                   type: string
                                   enum:
                                     - z
+                                description:
+                                  $ref: '#/components/schemas/description'
                                 extent:
                                   $ref: >-
                                     #/components/schemas/collection_dimension_extent_open
@@ -1773,6 +1804,8 @@ paths:
                                   type: string
                                   enum:
                                     - temporal
+                                description:
+                                  $ref: '#/components/schemas/description'
                                 values:
                                   description: >-
                                     If the dimension consists of set of specific
@@ -1811,7 +1844,7 @@ paths:
                         title: STAC Summaries (Collection Properties)
                         description: >-
                           Collection properties from STAC extensions (e.g. EO,
-                          SAR or Scientific) or even custom extensions.
+                          SAR, Satellite or Scientific) or even custom extensions.
 
 
                           Summaries are either a unique set of all available
@@ -1828,6 +1861,15 @@ paths:
                           covered by the Collection specification (e.g.
                           `providers` and `license`) may not be repeated in the
                           summaries.
+
+
+                          Potential fields for the summaries can be found here:
+                          * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/0.9.0/item-spec/common-metadata.md)**:
+                            A list of commonly used fields throughout all domains
+                          * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions/README.md#list-of-content-extensions)**:
+                            Domain-specific fields for domains such as EO, SAR and point clouds.
+                          * **Custom Properties**:
+                            It is generally allowed to add custom fields.
                         type: object
                         additionalProperties:
                           oneOf:
@@ -1860,7 +1902,11 @@ paths:
                                     - type: string
                                     - type: number
                 example:
-                  stac_version: 0.8.1
+                  stac_version: 0.9.0
+                  stac_extensions:
+                   - datacube
+                   - scientific
+                   - version
                   id: Sentinel-2
                   title: Sentinel-2 MSI L2A
                   description: >-
@@ -1873,6 +1919,7 @@ paths:
                     - esa
                     - msi
                     - sentinel
+                  version: 20200106A
                   providers:
                     - name: European Space Agency (ESA)
                       roles:
@@ -1943,66 +1990,76 @@ paths:
                         - B12
                   'sci:citation': 'Copernicus Sentinel data [Year]'
                   summaries:
-                    'eo:constellation':
+                    'constellation':
                       - Sentinel-2
-                    'eo:instrument':
-                      - MSI
-                    'eo:bands':
-                      - - name: B1
-                          common_name: coastal
-                          center_wavelength: 0.4439
-                          gsd: 60
-                        - name: B2
-                          common_name: blue
-                          center_wavelength: 0.4966
-                          gsd: 10
-                        - name: B3
-                          common_name: green
-                          center_wavelength: 0.56
-                          gsd: 10
-                        - name: B4
-                          common_name: red
-                          center_wavelength: 0.6645
-                          gsd: 10
-                        - name: B5
-                          center_wavelength: 0.7039
-                          gsd: 20
-                        - name: B6
-                          center_wavelength: 0.7402
-                          gsd: 20
-                        - name: B7
-                          center_wavelength: 0.7825
-                          gsd: 20
-                        - name: B8
-                          common_name: nir
-                          center_wavelength: 0.8351
-                          gsd: 10
-                        - name: B8A
-                          center_wavelength: 0.8648
-                          gsd: 20
-                        - name: B9
-                          center_wavelength: 0.945
-                          gsd: 60
-                        - name: B10
-                          center_wavelength: 1.3735
-                          gsd: 60
-                        - name: B11
-                          common_name: swir16
-                          center_wavelength: 1.6137
-                          gsd: 20
-                        - name: B12
-                          common_name: swir22
-                          center_wavelength: 2.2024
-                          gsd: 20
-                    'eo:platform':
+                    'platform':
                       - Sentinel-2A
                       - Sentinel-2B
-                    'eo:epsg':
+                    'instruments':
+                      - MSI
+                    'sat:cloud_cover':
+                      min: 0
+                      max: 75
+                    'sat:orbit_state':
+                      - ascending
+                      - descending
+                    'eo:gsd':
+                      - 10
+                      - 20
+                      - 60
+                    'eo:bands':
+                      - name: B1
+                        common_name: coastal
+                        center_wavelength: 0.4439
+                        gsd: 60
+                      - name: B2
+                        common_name: blue
+                        center_wavelength: 0.4966
+                        gsd: 10
+                      - name: B3
+                        common_name: green
+                        center_wavelength: 0.56
+                        gsd: 10
+                      - name: B4
+                        common_name: red
+                        center_wavelength: 0.6645
+                        gsd: 10
+                      - name: B5
+                        center_wavelength: 0.7039
+                        gsd: 20
+                      - name: B6
+                        center_wavelength: 0.7402
+                        gsd: 20
+                      - name: B7
+                        center_wavelength: 0.7825
+                        gsd: 20
+                      - name: B8
+                        common_name: nir
+                        center_wavelength: 0.8351
+                        gsd: 10
+                      - name: B8A
+                        common_name: nir08
+                        center_wavelength: 0.8648
+                        gsd: 20
+                      - name: B9
+                        common_name: nir09
+                        center_wavelength: 0.945
+                        gsd: 60
+                      - name: B10
+                        common_name: cirrus
+                        center_wavelength: 1.3735
+                        gsd: 60
+                      - name: B11
+                        common_name: swir16
+                        center_wavelength: 1.6137
+                        gsd: 20
+                      - name: B12
+                        common_name: swir22
+                        center_wavelength: 2.2024
+                        gsd: 20
+                    'proj:epsg':
                       min: 32601
                       max: 32660
-                    'eo:cloud_cover':
-                      min: 0
-                      max: 100
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2424,7 +2481,7 @@ paths:
                           pattern: '[\d\w]{1,20}'
                         issuer:
                           type: string
-                          format: url
+                          format: uri
                           description: >-
                             The [issuer
                             location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig),
@@ -3027,8 +3084,8 @@ paths:
                           $ref: '#/components/schemas/service_type'
                         enabled:
                           $ref: '#/components/schemas/service_enabled'
-                        submitted:
-                          $ref: '#/components/schemas/submitted'
+                        created:
+                          $ref: '#/components/schemas/created'
                         plan:
                           $ref: '#/components/schemas/billing_plan'
                         costs:
@@ -3192,8 +3249,8 @@ paths:
                       layers:
                         - ndvi
                         - evi
-                  submitted:
-                    $ref: '#/components/schemas/submitted'
+                  created:
+                    $ref: '#/components/schemas/created'
                   plan:
                     $ref: '#/components/schemas/billing_plan'
                   costs:
@@ -3277,7 +3334,7 @@ paths:
                       required:
                         - id
                         - status
-                        - submitted
+                        - created
                       properties:
                         id:
                           $ref: '#/components/schemas/job_id'
@@ -3287,8 +3344,8 @@ paths:
                           $ref: '#/components/schemas/eo_description'
                         status:
                           $ref: '#/components/schemas/status'
-                        submitted:
-                          $ref: '#/components/schemas/submitted'
+                        created:
+                          $ref: '#/components/schemas/created'
                         updated:
                           $ref: '#/components/schemas/updated'
                         plan:
@@ -3312,7 +3369,7 @@ paths:
 
 
         Processing the data doesn't start yet. The job status gets initialized
-        as `submitted` by default.
+        as `created` by default.
       tags:
         - Batch Jobs
       security:
@@ -3410,7 +3467,7 @@ paths:
                   - id
                   - process_graph
                   - status
-                  - submitted
+                  - created
                 properties:
                   id:
                     $ref: '#/components/schemas/job_id'
@@ -3430,15 +3487,15 @@ paths:
                       Can also be set for a job which errored out or was
                       canceled by the user. In this case, the value indicates
                       the progress at which the job stopped. Property may not be
-                      available for the status codes `submitted` and `queued`.
+                      available for the status codes `created` and `queued`.
 
                       Submitted and queued jobs only allow the value `0`,
                       finished jobs only allow the value `100`.
                     minimum: 0
                     maximum: 100
                     example: 75.5
-                  submitted:
-                    $ref: '#/components/schemas/submitted'
+                  created:
+                    $ref: '#/components/schemas/created'
                   updated:
                     $ref: '#/components/schemas/updated'
                   plan:
@@ -3564,7 +3621,7 @@ paths:
         After finishing processing, this request will provide signed URLs to the
         processed files of the batch job with some additional metadata. The
         response is a [STAC Item (version
-        0.8.1)](https://github.com/radiantearth/stac-spec/tree/master/item-spec)
+        0.9.0)](https://github.com/radiantearth/stac-spec/tree/0.9.0/item-spec)
         if it has spatial and temporal references included.
 
 
@@ -3678,7 +3735,7 @@ paths:
 
         The job status is set to `canceled` if the status was `running`
         beforehand and partial or preliminary results are available to be
-        downloaded. Otherwise the status is set to `submitted`. 
+        downloaded. Otherwise the status is set to `created`. 
       tags:
         - Batch Jobs
       security:
@@ -3938,6 +3995,8 @@ components:
       properties:
         stac_version:
           $ref: '#/components/schemas/stac_version'
+        stac_extensions:
+          $ref: '#/components/schemas/stac_extensions'
         id:
           $ref: '#/components/schemas/job_id'
         type:
@@ -3973,6 +4032,7 @@ components:
             properties, properties from STAC extensions or custom properties.
           required:
             - datetime
+          additionalProperties: true
           properties:
             datetime:
               title: Date and Time
@@ -3982,29 +4042,35 @@ components:
                 timeseries: The center date and time for the data.
 
 
-                It is NOT RECOMMENDED to set this field to `null` as this field
+                Although possible, it is NOT RECOMMENDED to set this field to `null` as this field
                 is required for the answer to be a valid STAC Item.
               type: string
               format: date-time
               nullable: true
-            'dtr:start_datetime':
+            start_datetime:
               type: string
               format: date-time
               description: >-
-                For timeseries: The first or start date and time for the data,
+                For time series: The first or start date and time for the data,
                 in UTC. Formatted as a [RFC
                 3339](https://www.ietf.org/rfc/rfc3339) date-time.
-            'dtr:end_datetime':
+            end_datetime:
               type: string
               format: date-time
               description: >-
-                For timeseries: The last or end date and time for the data, in
+                For time series: The last or end date and time for the data, in
                 UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339)
                 date-time.
             title:
               $ref: '#/components/schemas/eo_title'
             description:
               $ref: '#/components/schemas/eo_description'
+            license:
+              $ref: '#/components/schemas/stac_license'
+            providers:
+              $ref: '#/components/schemas/stac_providers'
+            created:
+              $ref: '#/components/schemas/created'
             updated:
               $ref: '#/components/schemas/updated'
             expires:
@@ -4031,16 +4097,51 @@ components:
               title:
                 title: The displayed title for clients and users.
                 type: string
+              description:
+                type: string
+                description: >-
+                  Multi-line description to explain the asset.
+          
+          
+                  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+                  text representation.
               type:
                 title: Media type of the asset.
                 type: string
+                example: image/tiff; application=geotiff
+              roles:
+                type: array
+                items:
+                  type: string
+                description: Purposes of the asset. Can be any value, but common examples are `data`, `metadata`, `thumbnail` and `overview`.
+                example:
+                  - data
           example:
+            preview.png:
+              href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+              type: image/png
+              title: Thumbnail
+              roles:
+                - thumbnail
             1.tif:
               href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
               type: image/tiff; application=geotiff
+              title: Band 1
+              roles:
+                - data
             2.tif:
               href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
               type: image/tiff; application=geotiff
+              title: Band 2
+              roles:
+                - data
+            inspire.xml:
+              href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+              type: application/xml
+              title: INSPIRE metadata
+              description: INSPIRE compliant XML metadata
+              roles:
+                - metadata
         links:
           type: array
           description: >-
@@ -4154,6 +4255,7 @@ components:
       type: object
       required:
         - href
+        - rel
       properties:
         rel:
           type: string
@@ -4165,8 +4267,8 @@ components:
           example: related
         href:
           type: string
-          description: The value MUST be a dereferenceable URL.
-          format: url
+          description: The value MUST be a valid URL.
+          format: uri
           example: 'http://www.openeo.org'
         type:
           type: string
@@ -4263,7 +4365,7 @@ components:
         description:
           type: string
           description: >-
-            Detailed multi-line description to fully explain the collection.
+            Detailed multi-line description to explain the collection.
 
 
             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for
@@ -4280,14 +4382,13 @@ components:
           type: boolean
           default: false
           description: >-
-            Specifies that the collection is deprecated with the potential to be
-            removed in any of the next versions. It should be transitioned out
-            of usage as soon as possible and users should refrain from using it
-            in new implementations.
-
-
+            Specifies that the collection is deprecated with the potential to
+            be removed. It should be transitioned out of usage as soon as
+            possible and users should refrain from using it in new projects.
+            
+            
             A link with relation type `latest-version` SHOULD be added to the
-            `links` and MUST refer to the collection that can be used instead.
+            links and MUST refer to the collection that can be used instead.
         license:
           $ref: '#/components/schemas/stac_license'
         providers:
@@ -4417,11 +4518,15 @@ components:
 
             3. `derived_from`: Allows linking to the data this collection was derived from.
 
-            4. `cite-as`: For all DOI names specified in the collection, the respective DOI
-            links should be added.
+            4. `cite-as`: [DOI](https://www.doi.org/) links should be added. DOIs can also be 
+            listed in the STAC fields `sci:doi` and `sci:publications`, see the [STAC scientific
+            extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
+            for more details.
 
             5. `latest-version`: If a collection has been marked as deprecated, a link should
-            point to the latest version of the collection.
+            point to the latest version of the collection. The relation types `predecessor-version`
+            (link to older version) and `successor-version` (link to newer version) can also be used
+            to show the relation between versions.
 
             6. `alternate`: An alternative representation of the collection.
             For example, this could be the collection available through another
@@ -4438,7 +4543,7 @@ components:
       type: string
       description: The STAC version implemented.
       enum:
-        - 0.8.1
+        - 0.9.0
     stac_extensions:
       type: array
       description: >-
@@ -4457,7 +4562,7 @@ components:
             example: 'https://www.example.com/stac/custom-extemsion/v1.0/schema.json'
           - title: Reference to a core extension
             type: string
-            example: eo
+            example: datacube
     stac_license:
       type: string
       description: >-
@@ -4534,7 +4639,7 @@ components:
               Homepage on which the provider describes the dataset and publishes
               contact information.
             type: string
-            format: url
+            format: uri
     collection_id:
       type: string
       description: >-
@@ -4963,7 +5068,7 @@ components:
               description:
                 type: string
                 description: >-
-                  Detailed description to fully explain the error to client
+                  Detailed description to explain the error to client
                   users and back-end developers. This should not be shown in the
                   clients directly, but may be linked to in the errors `url`
                   property.
@@ -5027,7 +5132,9 @@ components:
             It is RECOMMENDED to provide links with the following `rel` (relation) types:
 
             1. `latest-version`: If a process has been marked as deprecated, a link should
-            point to the preferred version of the process.
+            point to the preferred version of the process. The relation types `predecessor-version`
+            (link to older version) and `successor-version` (link to newer version) can also be used
+            to show the relation between versions.
 
             2. `cite-as`: For all DOIs associated with the process, the respective DOI
             links should be added.
@@ -5076,7 +5183,7 @@ components:
         submission. MUST match the specified pattern.
       pattern: '^[A-Za-z0-9_\-\.~]+$'
       example: a3cca2b2aa1e3b5b
-    submitted:
+    created:
       type: string
       format: date-time
       description: >-
@@ -5101,7 +5208,7 @@ components:
     status:
       type: string
       enum:
-        - submitted
+        - created
         - queued
         - running
         - canceled
@@ -5113,7 +5220,7 @@ components:
 
         The following status changes can occur:
 
-        * `POST /jobs`: The status is initialized as `submitted`.
+        * `POST /jobs`: The status is initialized as `created`.
 
         * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
         processing doesn't start instantly.
@@ -5123,12 +5230,12 @@ components:
         * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
         the status was `running` beforehand and partial or preliminary results
         are available to be downloaded. Otherwise the status is set to
-        `submitted`. 
+        `created`. 
       example: running
-      default: submitted
+      default: created
     description:
       description: >-
-        Detailed description to fully explain the entity.
+        Detailed description to explain the entity.
 
 
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
@@ -5141,7 +5248,7 @@ components:
       example: NDVI based on Sentinel 2
     eo_description:
       description: >-
-        Detailed description to fully explain the entity.
+        Detailed multi-line description to explain the entity.
 
 
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
@@ -5151,7 +5258,7 @@ components:
       example: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
     process_description:
       description: >-
-        Detailed description to fully explain the entity.
+        Detailed description to explain the entity.
 
 
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
@@ -5186,7 +5293,7 @@ components:
       default: true
     service_url:
       type: string
-      format: url
+      format: uri
       description: >-
         URL at which the secondary web service is accessible. Doesn't
         necessarily need to be located within the API.
@@ -5676,7 +5783,7 @@ components:
           required: true
           schema:
             description: URL to the newly created resource.
-            format: url
+            format: uri
             type: string
             example: 'https://openeo.org/api/v0.4/resource/123'
         OpenEO-Identifier:

@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `GET /`: 
     - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+    - Fields `stac_version` and `id` added to response for STAC compatibility. [#247](https://github.com/Open-EO/openeo-api/issues/247)
     - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
 - `GET /collections` and `GET /collections/{collectionId}`:
     - New field `deprecated` can be used to indicate outdated collections. Links with relation type `latest-version` can point to the latest version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
     - Added a Data Cube Dimension of type `bands` to the `cube:dimensions` property. [#208](https://github.com/Open-EO/openeo-api/issues/208)
+- `GET /conformance` has been added for OCG API compliance. Back-ends may implement it for compatibility with OGC API clients. 
 - `POST /result`: May add a link to a log file in the header. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 - `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Endpoints that publish logging information. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 
@@ -27,12 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - The parameter `user_id ` has been removed from the endpoints to manage user files (`/files/{user_id}`). [#218](https://github.com/Open-EO/openeo-api/issues/218)
-- Schema subtype `band-name` allows common band names, too. [Processes#77]( https://github.com/Open-EO/openeo-processes/issues/77)
+- Schema subtype `band-name` allows common band names, too. [Processes#77](https://github.com/Open-EO/openeo-processes/issues/77)
+- Link property `rel` is required.
+- OpenAPI string format `url` has been replaced with `uri`.
+- `GET /jobs`, `GET /jobs/{job_id}`, `GET /services` and `GET /services/{service_id}`: Renamed field `submitted` to `created` for consistency with STAC job results.
 - `GET /`: Property `links` is required.
 - `GET /processes`:
     - Default values are now specified on the parameter-level, not in the JSON schemas.
     - Multiple data types in parameters or return values are supported as arrays. Using `anyOf` is discouraged.
-- `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.8.1. [#185](https://github.com/Open-EO/openeo-api/issues/185), [#204](https://github.com/Open-EO/openeo-api/issues/204).
+- `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.9.0. See the [STAC Changelog](https://github.com/radiantearth/stac-spec/blob/master/CHANGELOG.md) for more details. [#247](https://github.com/Open-EO/openeo-api/issues/247), [#204](https://github.com/Open-EO/openeo-api/issues/204).
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
 - `GET /udf_runtimes`: `description` fields don't allow `null` values any longer.
