@@ -18,6 +18,7 @@ before_install:
 # DIY example validation (PR#194)
 - pip install -r tests/requirements.txt
 - pytest tests
+# ToDo: Check assets/pg-evi-example.json against the schema in pg-schema.json
 
 install:
 - npm install
@@ -31,18 +32,21 @@ before_deploy:
 - |
   if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     cp ../redoc.html index.html
+    cp -r ../assets assets
   fi
 - |
   if [[ $TRAVIS_BRANCH == 'draft' ]] ; then
     rm -rf draft
     mkdir -p draft
     cp ../redoc.html draft/index.html
+    cp -r ../assets draft/assets
   fi
 - |
   if [ -n "$TRAVIS_TAG" ] ; then
     rm -rf $TRAVIS_TAG
     mkdir -p $TRAVIS_TAG
     cp ../redoc.html $TRAVIS_TAG/index.html
+    cp -r ../assets $TRAVIS_TAG/assets
   fi
 
 deploy:

@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Process Graph",
+  "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+  "allOf": [
+    {
+      "$ref": "#/definitions/process_graph"
+    }
+  ],
+  "definitions": {
+    "process_graph": {
+      "title": "Process Graph",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/process_node"
+      }
+    },
+    "process_node": {
+      "title": "Process Node",
+      "type": "object",
+      "required": [
+        "process_id",
+        "arguments"
+      ],
+      "properties": {
+        "process_id": {
+          "$ref": "#/definitions/process_id"
+        },
+        "result": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arguments": {
+          "$ref": "#/definitions/process_arguments"
+        }
+      }
+    },
+    "process_arguments": {
+      "title": "Process Arguments",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/process_argument_value"
+      }
+    },
+    "process_argument_value": {
+      "title": "Process Argument Value",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "title": "Object"
+        },
+        {
+          "type": "string",
+          "title": "String"
+        },
+        {
+          "type": "number",
+          "title": "Number (incl. integers)"
+        },
+        {
+          "type": "boolean",
+          "title": "Boolean"
+        },
+        {
+          "type": "array",
+          "title": "Array",
+          "items": {
+            "$ref": "#/definitions/process_argument_value"
+          }
+        },
+        {
+          "$ref": "#/definitions/variable"
+        },
+        {
+          "type": "object",
+          "title": "Result",
+          "required": [
+            "from_node"
+          ],
+          "properties": {
+            "from_node": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Callback Parameter",
+          "required": [
+            "from_argument"
+          ],
+          "properties": {
+            "from_argument": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Callback",
+          "required": [
+            "callback"
+          ],
+          "properties": {
+            "callback": {
+              "$ref": "#/definitions/process_graph"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "variable": {
+      "title": "Process Graph Variable",
+      "type": "object",
+      "required": [
+        "variable_id"
+      ],
+      "properties": {
+        "variable_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "array",
+            "object"
+          ],
+          "default": "string"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "description": "Any type is allowed."
+              }
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/definitions/process_graph"
+            }
+          ]
+        }
+      }
+    },
+    "process_id": {
+      "type": "string",
+      "subtype": "process-id",
+      "pattern": "^[A-Za-z0-9_]+$"
+    }
+  }
+}
