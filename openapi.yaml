@@ -1174,7 +1174,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/collection'
                   links:
-                    $ref: '#/components/schemas/links_pagination'
+                    $ref: '#/components/schemas/links_discovery'
                 example:
                   collections:
                     - stac_version: 0.9.0
@@ -1786,7 +1786,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/process'
                   links:
-                    $ref: '#/components/schemas/links_pagination'
+                    $ref: '#/components/schemas/links_discovery'
                 example:
                   processes:
                     - id: round
@@ -2428,6 +2428,8 @@ paths:
         - Process Graphs
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: JSON array with stored process graph meta data
@@ -2741,6 +2743,8 @@ paths:
         - Secondary Services
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: Array of service descriptions
@@ -3002,6 +3006,8 @@ paths:
         - Batch Jobs
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: Array of job descriptions
@@ -3451,6 +3457,8 @@ paths:
         - File Storage
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: >-
@@ -3902,23 +3910,37 @@ components:
         Clients SHOULD only connect to non-production implementations if the
         user explicitly confirmed to use a non-production implementation.
       default: true
+    links_discovery:
+      description: |-
+        Links related to this set of resources, for example links to alternative
+        formats such as a human-readable HTML version.
+
+        It is RECOMMENDED to provide links with the following
+        `rel` (relation) types:
+
+        1. `alternate`: An alternative representation. For example, a
+        human-readable HTML version or another catalog service.
+
+        For additional relation types see also the lists of
+        [common relation types in openEO](#section/Web-Linking).
+      type: array
+      items:
+        $ref: '#/components/schemas/link'
     links_pagination:
       description: |-
         Links related to this list of resources, for example links for pagination
         or alternative formats such as a human-readable HTML version.
+        The links array MUST NOT be paginated.
 
-        Pagination is currently OPTIONAL and back-ends and clients may not support it.
-        Therefore it MUST be implemented in a way that clients not supporting
-        pagination get all resources regardless. The links array MUST NOT be paginated.
         If pagination is implemented, the following `rel` (relation) types apply:
 
-        1. `next` (REQUIRED): A link to the next page.
+        1. `next` (REQUIRED): A link to the next page, except on the last page.
 
-        2. `prev` (OPTIONAL): A link to the previous page.
+        2. `prev` (OPTIONAL): A link to the previous page, except on the first page.
 
-        3. `first` (OPTIONAL): A link to the first page.
+        3. `first` (OPTIONAL): A link to the first page, except on the first page.
 
-        4. `last` (OPTIONAL): A link to the last page.
+        4. `last` (OPTIONAL): A link to the last page, except on the last page.
 
         For additional relation types see also the lists of
         [common relation types in openEO](#section/Web-Linking).
@@ -5531,6 +5553,27 @@ components:
           schema:
             $ref: '#/components/schemas/error'
   parameters:
+    pagination_limit:
+      name: limit
+      description: |-
+        This parameter enables pagination for the endpoint and specifies the maximum number of
+        elements that arrays in the top-level object are allowed to contain.
+        The only exception is the `links` array, which MUST NOT be paginated as otherwise the
+        pagination links may be missing ins responses.
+        
+        Pagination is OPTIONAL and back-ends and clients may not support it.
+        Therefore it MUST be implemented in a way that clients not supporting
+        pagination get all resources regardless.
+        
+        If the response is paginated, the links array must be used to propagate the 
+        links for pagination with pre-defined `rel` types. See the links array schema
+        for supported `rel` types.
+      in: query
+      allowEmptyValue: true
+      schema:
+        type: integer
+        minimum: 1
+      example: 10
     log_limit:
       name: limit
       description: The maximum amount of log entries to include in the response. If not provided or empty, return all log entries.
