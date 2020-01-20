@@ -1174,7 +1174,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/collection'
                   links:
-                    $ref: '#/components/schemas/links_pagination'
+                    $ref: '#/components/schemas/links_discovery'
                 example:
                   collections:
                     - stac_version: 0.9.0
@@ -1786,7 +1786,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/process'
                   links:
-                    $ref: '#/components/schemas/links_pagination'
+                    $ref: '#/components/schemas/links_discovery'
                 example:
                   processes:
                     - id: round
@@ -2428,6 +2428,8 @@ paths:
         - Process Graphs
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: JSON array with stored process graph meta data
@@ -2741,6 +2743,8 @@ paths:
         - Secondary Services
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: Array of service descriptions
@@ -2982,8 +2986,7 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/service_id'
-        - $ref: '#/components/parameters/log_offset'
-        - $ref: '#/components/parameters/log_limit'
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           $ref: '#/components/responses/logs'
@@ -3002,6 +3005,8 @@ paths:
         - Batch Jobs
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: Array of job descriptions
@@ -3295,8 +3300,7 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/job_id'
-        - $ref: '#/components/parameters/log_offset'
-        - $ref: '#/components/parameters/log_limit'
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           $ref: '#/components/responses/logs'
@@ -3451,6 +3455,8 @@ paths:
         - File Storage
       security:
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: >-
@@ -3902,23 +3908,37 @@ components:
         Clients SHOULD only connect to non-production implementations if the
         user explicitly confirmed to use a non-production implementation.
       default: true
+    links_discovery:
+      description: |-
+        Links related to this set of resources, for example links to alternative
+        formats such as a human-readable HTML version.
+
+        It is RECOMMENDED to provide links with the following
+        `rel` (relation) types:
+
+        1. `alternate`: An alternative representation. For example, a
+        human-readable HTML version or another catalog service.
+
+        For additional relation types see also the lists of
+        [common relation types in openEO](#section/Web-Linking).
+      type: array
+      items:
+        $ref: '#/components/schemas/link'
     links_pagination:
       description: |-
         Links related to this list of resources, for example links for pagination
         or alternative formats such as a human-readable HTML version.
+        The links array MUST NOT be paginated.
 
-        Pagination is currently OPTIONAL and back-ends and clients may not support it.
-        Therefore it MUST be implemented in a way that clients not supporting
-        pagination get all resources regardless. The links array MUST NOT be paginated.
         If pagination is implemented, the following `rel` (relation) types apply:
 
-        1. `next` (REQUIRED): A link to the next page.
+        1. `next` (REQUIRED): A link to the next page, except on the last page.
 
-        2. `prev` (OPTIONAL): A link to the previous page.
+        2. `prev` (OPTIONAL): A link to the previous page, except on the first page.
 
-        3. `first` (OPTIONAL): A link to the first page.
+        3. `first` (OPTIONAL): A link to the first page, except on the first page.
 
-        4. `last` (OPTIONAL): A link to the last page.
+        4. `last` (OPTIONAL): A link to the last page, except on the last page.
 
         For additional relation types see also the lists of
         [common relation types in openEO](#section/Web-Linking).
@@ -5452,16 +5472,7 @@ components:
                 items:
                   $ref: '#/components/schemas/log_entry'
               links:
-                type: array
-                description: |-
-                  Links related to this log file, e.g. a link to the
-                  customer support, external documentation or an
-                  alternative version of the log file.
-
-                  For relation types see the lists of
-                  [common relation types in openEO](#section/Web-Linking).
-                items:
-                  $ref: '#/components/schemas/link'
+                $ref: '#/components/schemas/links_pagination'
     created:
       description: >-
         The resource has been created successfully and the location of the newly
@@ -5531,23 +5542,33 @@ components:
           schema:
             $ref: '#/components/schemas/error'
   parameters:
-    log_limit:
+    pagination_limit:
       name: limit
-      description: The maximum amount of log entries to include in the response. If not provided or empty, return all log entries.
+      description: |-
+        This parameter enables pagination for the endpoint and specifies the maximum number of
+        elements that arrays in the top-level object (e.g. jobs, log entries, secondary services,
+        files etc.) are allowed to contain. The only exception is the `links` array, which
+        MUST NOT be paginated as otherwise the pagination links may be missing ins responses.
+        If the parameter is not provided or empty, all elements are returned.
+        
+        Pagination is OPTIONAL and back-ends and clients may not support it.
+        Therefore it MUST be implemented in a way that clients not supporting
+        pagination get all resources regardless.
+        
+        If the response is paginated, the links array MUST be used to propagate the 
+        links for pagination with pre-defined `rel` types. See the links array schema
+        for supported `rel` types.
+
+        *Note:* Implementations can use all kind of pagination techniques, depending on what is
+        supported best by their infrastructure. So it doesn't care whether it is page-based,
+        offset-based or uses tokens for pagination. The clients will use whatever is specified
+        in the links with the corresponding `rel` types.
       in: query
       allowEmptyValue: true
       example: 10
       schema:
         type: integer
         minimum: 1
-    log_offset:
-      name: offset
-      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occurred after the specified identifier. If not provided or empty, start with the first entry.
-      in: query
-      allowEmptyValue: true
-      example: "log1234"
-      schema:
-        type: string
     process_graph_id:
       name: process_graph_id
       in: path
