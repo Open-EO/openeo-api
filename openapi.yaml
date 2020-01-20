@@ -1811,18 +1811,15 @@ paths:
                         gets propagated.
                       categories:
                         - math
-                      parameter_order:
-                        - x
-                        - p
                       parameters:
-                        x:
+                        - name: x
                           description: A number to round.
                           schema:
                             type:
                               - number
                               - 'null'
                           required: true
-                        p:
+                        - name: p
                           description: >-
                             A positive number specifies the number of digits
                             after the decimal point to round to. A negative
@@ -1875,7 +1872,7 @@ paths:
                         The numerical value is approximately *2.71828*.
                       categories:
                         - math > constants
-                      parameters: {}
+                      parameters: []
                       returns:
                         description: >-
                           Returns the numerical value of Euler's number.
@@ -4697,48 +4694,8 @@ components:
           items:
             type: string
             description: Name of the category.
-        parameter_order:
-          type: array
-          description: >-
-            Describes the order or the parameter for any environments that don't
-            support named parameters. This property MUST be present for all
-            processes with two or more parameters.
-          items:
-            type: string
-            description: Each item MUST correspond to a key in the `parameters` object.
-            pattern: '^[A-Za-z0-9_]+$'
         parameters:
-          type: object
-          title: Process Parameters
-          description: >-
-            A list of parameters that are applicable for this process. The keys
-            of the object are the names of the parameters. They keys MUST match
-            the following pattern: `^[A-Za-z0-9_]+$`
-          additionalProperties:
-            x-additionalPropertiesName: Parameter Name
-            title: Process Parameter
-            type: object
-            required:
-              - description
-              - schema
-            properties:
-              description:
-                $ref: '#/components/schemas/process_description'
-              required:
-                type: boolean
-                description: Determines whether this parameter is mandatory.
-                default: false
-              deprecated:
-                $ref: '#/components/schemas/process_deprecated'
-              experimental:
-                $ref: '#/components/schemas/process_experimental'
-              default:
-                description: >-
-                  The default value for this parameter.
-                  Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-                nullable: true
-              schema:
-                $ref: '#/components/schemas/process_schema'
+          $ref: '#/components/schemas/process_parameters'
         returns:
           type: object
           title: Process Return Value
@@ -4884,6 +4841,42 @@ components:
         added to the `links` and MUST refer to the process that can be used
         instead.
       default: false
+    process_parameters:
+      type: array
+      description: |-
+        A list of parameters.
+
+        The order in the array corresponds to the parameter order to
+        be used in clients that don't support named parameters.
+      items:
+        title: Process Parameter
+        type: object
+        required:
+          - name
+          - description
+          - schema
+        properties:
+          name:
+            type: string
+            description: A unique name for the parameter.
+            pattern: '^[A-Za-z0-9_]+$'
+          description:
+            $ref: '#/components/schemas/process_description'
+          required:
+            type: boolean
+            description: Determines whether this parameter is mandatory.
+            default: false
+          deprecated:
+            $ref: '#/components/schemas/process_deprecated'
+          experimental:
+            $ref: '#/components/schemas/process_experimental'
+          default:
+            description: >-
+              The default value for this parameter.
+              Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
+            nullable: true
+          schema:
+            $ref: '#/components/schemas/process_schema'
     process_graph_id:
       type: string
       description: >-
@@ -5165,9 +5158,7 @@ components:
         subtype:
           type: string
         parameters:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/process_json_schema'
+          $ref: '#/components/schemas/process_parameters'
         pattern:
           type: "string"
           format: "regex"
