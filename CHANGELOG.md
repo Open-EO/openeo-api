@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - The processes should not use the JSON Schema keyword `format` any longer. Instead use the custom keyword `subtype`. [#233](https://github.com/Open-EO/openeo-processes/issues/233)
-- PROJ definitions are deprecated in favor of EPSG codes, WKT2 and PROJJSON. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
+- PROJ definitions are deprecated in favor of EPSG codes and WKT2. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
 
 ### Removed
 
