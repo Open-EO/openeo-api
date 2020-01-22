@@ -247,7 +247,7 @@ tags:
 
       Two custom keywords have been defined:
       * `subtype` for more fine-grained data-types than JSON Schema supports (see chapter 'Subtypes' below).
-      * `parameters` to specify parameters that process parameters can pass to parametrized process graphs (see chapter 'Parametrized Process Graphs' below).
+      * `parameters` to specify parameters that processes can pass to other process graphs.
 
       ## Subtypes
 
@@ -277,9 +277,7 @@ tags:
       | `kernel`                  | array       | Image kernel, a multi-dimensional array of numbers. |
       | `output-format`           | string      | An output format supported by the back-end. |
       | `output-format-options`   | object      | Key-value-pairs with arguments for the output format options supported by the back-end. |
-      | `process-graph`           | object      | An parametrized process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in a `parameters` property (see chapter "Parametrized Process Graphs" below). |
-      | `process-graph-id`        | string      | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-      | `process-graph-variables` | object      | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
+      | `process-graph`           | object      | An process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in the `parameters` property of the corresponding schema. |
       | `proj-definition`         | string      | **DEPRECATED.** Specifies details about cartographic projections as [PROJ](https://proj.org/usage/quickstart.html) definition. |
       | `raster-cube`             | object      | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
       | `temporal-interval`       | array       | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the subtypes `date-time`, `date` (see above) and `time` (see below). |
@@ -292,33 +290,6 @@ tags:
       | `vector-cube`             | object      | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
       | `wkt2-definition`         | string      | Specifies details about cartographic projections as WKT2 string. Refers to the latest WKT2 version (currently [WKT2:2018](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) / ISO 19162:2018) unless otherwise stated by the process. |
 
-      ## Parametrized Process Graphs
-
-      A parametrized process graph is a process graph that is passed as an argument to a process parameter and is expected to be executed by the process.
-
-      In a process definition, a parameter that accepts a parametrized process graph is defined by setting the `type` to `object` and the `subtype` to `process-graph` in the parameter schema. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the parameter names and the values being a valid JSON Schema again.
-
-      A schema for a process parameter that accepts a parametrized process graph with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
-
-      ```json
-      {
-        "type": "object",
-        "subtype": "process-graph",
-        "parameters": {
-          "dimension": {
-            "description": "Name of the dimension",
-            "type": "string"
-          },
-          "data": {
-            "description": "Data for the dimension",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          }
-        }
-      }
-      ```
   - name: Account Management
     description: |-
       The following endpoints handle user profiles, accounting and authentication. See also [Authentication](#section/Authentication). In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to
@@ -342,9 +313,9 @@ tags:
     description: Management of user-uploaded assets and processed data.
   - name: Process Graphs
     description: |-
-      These endpoints allow to store and manage process graphs at the back-end.
+      These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
 
-      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be parametrized process graphs, scalar values, arrays, objects or variables.
+      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be user-defined processes, scalar values, arrays or objects.
 
       # Definition
 
@@ -395,60 +366,62 @@ tags:
       A value is defined as follows:
 
       ```
-      <ArgumentValue> := <string|number|boolean|null|array|object|Callback|CallbackParameter|Result|Variable>
+      <ArgumentValue> := <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
       ```
 
       Notes:
-      - The specified value types, except `Callback`, `CallbackParameter`, `Result` and `Variable`, are the native data types supported by JSON. 
+      - The specified value types, except `UserDefinedProcess`, `ParameterReference` and `ResultReference`, are the native data types supported by JSON. 
       - Object-type values are not allowed to have keys with the following names:
 
-          * `variable_id`, except for objects of type `Variable`
-          * `from_argument`, except for objects of type `PGParameter`
-          * `from_node`, except for objects of type `Result`
+          * `from_parameter`, except for objects of type `ParameterReference`
+          * `from_node`, except for objects of type `ResultReference`
+          * `process_graph`, except for objects of type `UserDefinedProcess`
 
-      - A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
+      - A value of type `<ResultReference>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
 
           ```
-          <Result> := {
+          <ResultReference> := {
             "from_node": <ProcessNodeIdentifier>
           }
           ```
 
           Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
 
-      - For `Variable`, `Callback` and `CallbackParameter` see the sections below.
+      - For `UserDefinedProcess` and `ParameterReference` see the sections below.
 
 
       **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
 
 
-      ## Parametrized Process Graphs
+      ## User-defined process
 
-      A parametrized process graph is a child process graph to be evaluated as part of a parent process graph.
-      The child process graph is passed as argument of one of the processes in the parent process graph.
-      It is called parametrized process graph as the parent process can pass parameters to the child process graph.
-      The child process graph must be wrapped in an object with a single key `callback`.
+      A user-defined process is a custom process defined by a process graph and often to be evaluated as part of another process graph.
+
+      A user-defined process is defined like a pre-defined process in `GET /processes`, but has additionally a key `process_graph` with the processing instruction as process graph.
 
       ```
-      <ParametrizedProcessGraph> := {
-        "callback": <ProcessGraph>
+      <UserDefinedProcess> := {
+        "process_graph": <ProcessGraph>,
+        ...
       }
       ```
+
+      ## Accessing process parameters
 
       For example, you want to iterate over an array and calculate the absolute value of each value in the array.
       You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass a process graph containing a single process `absolute`.
 
       The parameters made available by the "parent" process (`apply` in the example) to the "child" process graph are the *process graph parameters*. 
-      Processes in the parametrized process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the parametrized process graph (similar to the `Result` type discussed above).
-      It is a simple object with key `from_argument` specifying the name of the process graph parameter: 
+      Processes in the child process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the child process graph (similar to the `ResultReference` type discussed above).
+      It is a simple object with key `from_parameter` specifying the name of the process graph parameter: 
 
       ```
-      <PGParameter> := {
-        "from_argument": <PGParameterName>
+      <ParameterReference> := {
+        "from_parameter": <ParameterReferenceName>
       }
       ```
 
-      The available parameter names (`<PGParameterName>`) are defined by the processes.
+      The available parameter names (`<ParameterReferenceName>`) are defined by the processes.
       A process parameter has a [`parameters` property](#section/Additional-data-types-for-schemas/Parametrized-Process-Graphs)
       in the JSON Schema, which defines the parameters made available to the child process graph.
 
@@ -462,11 +435,11 @@ tags:
         "arguments": {
           "data": {"from_node": "loadcollection1"}
           "process": {
-            "callback": {
+            "process_graph": {
               "abs1": {
                 "process_id": "absolute",
                 "arguments: {
-                  "x": {"from_argument": "x"}
+                  "x": {"from_parameter": "x"}
                 },
                 "result": true
               }
@@ -476,28 +449,7 @@ tags:
       }
       ```
 
-      Please note that the `<PGParameterName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
-
-      ## Variables
-
-      Process graphs can also hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.
-
-      Variables are defined as follows:
-
-      ```
-      <Variable> := {
-        "variable_id": <string>,
-        "description": <string>,
-        "type": <string>,
-        "default": <string|number|boolean|null|array|object>
-      }
-      ```
-
-      The value for `type` is the expected data type for the content of the variable and MUST be one of `string` (default), `number`, `boolean`, `array` or `object`.
-
-      The value for `variable_id` is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`.
-
-      Whenever no value for the variable is defined, the `default` value is used or the process graph is rejected if not default value has been specified.
+      Please note that the `<ParameterReferenceName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
 
       # Validation
 
@@ -508,8 +460,7 @@ tags:
       3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
       4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
       5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
-      6. Validate whether the data types of process graph variables are compatible to the JSON schema of the parameters.
-      7. Check the content of arrays and objects. These could include variables and other references (`from_node`, `from_argument` etc.).
+      7. Check the content of arrays and objects. These could include parameter and result references (`from_node`, `from_parameter` etc.).
 
 
       # Execution
@@ -1787,7 +1738,7 @@ paths:
                   processes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/process'
+                      $ref: '#/components/schemas/predefined_process'
                   links:
                     $ref: '#/components/schemas/links_discovery'
                 example:
@@ -2285,8 +2236,8 @@ paths:
           $ref: '#/components/responses/server_error'
   /validation:
     post:
-      summary: Validate a process graph
-      operationId: validate-process-graph
+      summary: Validate a user-defined process (graph)
+      operationId: validate-custom-process
       description: >-
         Validates a process graph without executing it. A process graph is
         considered valid unless the `errors` array in the response contains at
@@ -2419,10 +2370,10 @@ paths:
                   $ref: '#/components/schemas/billing_plan_defaultable'
   /process_graphs:
     get:
-      summary: List all stored process graphs
-      operationId: list-process-graphs
+      summary: List all user-defined processes
+      operationId: list-custom-processes
       description: >-
-        This service lists all process graphs of the authenticated user that are
+        This service lists all user-defined processes (process graphs) of the authenticated user that are
         stored at the back-end.
       tags:
         - Process Graphs
@@ -2432,34 +2383,28 @@ paths:
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: JSON array with stored process graph meta data
+          description: JSON array with user-defined processes.
           content:
             application/json:
               schema:
-                title: Stored Process Graph List Response
+                title: User Defined Processes Response
                 type: object
                 required:
-                  - process_graphs
+                  - processes
                   - links
                 properties:
-                  process_graphs:
-                    description: Array of stored process graphs
+                  processes:
+                    description: Array of user-defined processes
                     type: array
                     items:
-                      title: Stored Process Graph Metadata
+                      title: User-Defined Process
                       description: >-
-                        Defines limited metadata of stored process graphs that
-                        have been submitted by users.
-                      type: object
-                      required:
-                        - id
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/process_graph_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
-                        description:
-                          $ref: '#/components/schemas/eo_description'
+                        The user-defined processes submitted by a user,
+                        usually without process graph to keep the response size small.
+                      allOf:
+                        - $ref: '#/components/schemas/process'
+                        - required:
+                          - id
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -2467,11 +2412,14 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
     post:
-      summary: Store a process graph
-      operationId: create-process-graph
-      description: >-
-        Creates a unique resource for a provided process graph that can be
+      summary: Store a user-defined process
+      operationId: create-custom-process
+      description: |-
+        Stores a provided user-defined process with process graph that can be
         reused in other process graphs.
+
+        The process id must be unique for the authenticated user,
+        including all pre-defined processes by the back-end.
       tags:
         - Process Graphs
       security:
@@ -2484,65 +2432,41 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        description: Specifies the process graph with its meta data.
         content:
           application/json:
             schema:
-              title: Store Process Graph Request
-              type: object
-              required:
-                - process_graph
-              properties:
-                title:
-                  $ref: '#/components/schemas/eo_title'
-                description:
-                  $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
-        description: Specifies the process graph with its meta data.
+              $ref: '#/components/schemas/user_defined_process'
   '/process_graphs/{process_graph_id}':
     parameters:
       - $ref: '#/components/parameters/process_graph_id'
     get:
-      summary: Full metadata for a stored process graph
-      operationId: describe-process-graph
-      description: Returns all information about a process graph.
+      summary: Full metadata for a user-defined process
+      operationId: describe-custom-process
+      description: Returns all information about a user-defined process, including its process graph.
       tags:
         - Process Graphs
       security:
         - Bearer: []
       responses:
         '200':
-          description: JSON object with process graph
+          description: The user-defined process with process graph.
           content:
             application/json:
               schema:
-                title: Stored Process Graph Response
-                description: >-
-                  Defines full metadata of stored process graphs that have been
-                  submitted by users.
-                type: object
-                required:
-                  - id
-                  - process_graph
-                properties:
-                  id:
-                    $ref: '#/components/schemas/process_graph_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                $ref: '#/components/schemas/user_defined_process'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
     patch:
-      summary: Modify a stored process graph
-      operationId: update-process-graph
+      summary: Modify a user-defined process
+      operationId: update-custom-process
       description: >-
-        Replaces a process graph or modifies the metadata, but maintains the
-        identifier.
+        Fully or partially replaces a user-defined process (process graph).
+
+        The process id must still be unique for the authenticated user,
+        including all pre-defined processes by the back-end.
       tags:
         - Process Graphs
       security:
@@ -2558,30 +2482,26 @@ paths:
         content:
           application/json:
             schema:
-              title: Update Stored Process Graph Request
-              type: object
-              properties:
-                title:
-                  $ref: '#/components/schemas/eo_title'
-                description:
-                  $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
-        description: Specifies the process graph details to update.
+              allOf:
+                - $ref: '#/components/schemas/process'
+                - type: object
+                  properties:
+                    process_graph:
+                      $ref: '#/components/schemas/process_graph'
     delete:
-      summary: Delete a stored process graph
-      operationId: delete-process-graph
-      description: >-
-        Deletes the data related to this stored process graph.
+      summary: Delete a user-defined process
+      operationId: delete-custom-process
+      description: |-
+        Deletes the data related to this user-defined process, including its process graph.
 
-        Does NOT delete jobs or services that reference this process graph.
+        Does NOT delete jobs or services that reference this user-defined process.
       tags:
         - Process Graphs
       security:
         - Bearer: []
       responses:
         '204':
-          description: The process graph has been successfully deleted
+          description: The user-defined process has been successfully deleted
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2590,24 +2510,23 @@ paths:
     get:
       summary: Supported secondary web service protocols
       operationId: list-service-types
-      description: >-
+      description: |-
         The request will ask the back-end for supported secondary web service
         protocols, e.g. WMS or WCS. The response is an object of all available
-        secondary web service protocols, including their parameters, attributes
-        and process graph variables.
+        secondary web service protocols,supported configuration settings and
+        process parameters.
 
-        Parameters configure the service and therefore need to be defined upon
-        creation of a service. Attributes are read-only characteristics of the
-        service and may be computed based on the parameters, e.g. available
-        layers for a WMS based on the bands in the underlying GeoTiff.
+        Configuration settings for the service need to be defined upon
+        creation of a service and the service will be set up accordingly.
 
-        A list of process graph variables is also available. This variables can
+        A list of process parameters is also available. This parameters can
         be used by users in a process graph that is used to compute web service
-        results. The objects can directly be used inside the process graph. Such
-        variables are usually things that have to be injected into the process
-        graph from the context of the web service. For example, a map service
-        such as a WMS would need to inject the spatial extent into the process
-        graph so that the back-end can compute the corresponding tile correctly.
+        results. The objects can directly be used inside the process graph with 
+        a `from_parameter` reference. Such parameters are usually things that
+        have to be injected into the process graph from the context of the web
+        service during runtime. For example, a map service such as a WMS would
+        need to inject the spatial extent into the process graph so that the
+        back-end can compute the corresponding tile correctly.
 
         To improve interoperability between back-ends common names for the
         services SHOULD be used, e.g. the abbreviations used in the official
@@ -2625,7 +2544,7 @@ paths:
         '200':
           description: >-
             An object with a map containing all service names as keys and an
-            object that defines supported parameters and attributes.
+            object that defines supported configuration settings and process parameters.
           content:
             application/json:
               schema:
@@ -2637,29 +2556,22 @@ paths:
                   title: Service Type
                   type: object
                   properties:
-                    parameters:
-                      title: Service Type Parameters
-                      description: List of supported parameters for configuration.
+                    configuration:
+                      title: Service Configuration
+                      description: List of supported configuration settings made available to the creator the service.
                       type: object
                       additionalProperties:
                         $ref: '#/components/schemas/argument'
-                    attributes:
-                      title: Service Type Attributes
-                      description: List of supported attributes.
-                      type: object
-                      additionalProperties:
-                        $ref: '#/components/schemas/argument'
-                    variables:
-                      title: Service Type Variables
-                      description: List of supported process graph variables.
+                    process_parameters:
+                      title: Process Parameters
+                      description: List of parameters made available to process graphs.
                       type: array
                       items:
-                        $ref: '#/components/schemas/variable'
+                        $ref: '#/components/schemas/process_parameter'
                     links:
                       description: |-
                         Links related to this service type, e.g. more
-                        information about the parameters, attributes or options
-                        to access the created services
+                        information about the configuration settings and process parameters.
 
                         For relation types see the lists of
                         [common relation types in openEO](#section/Web-Linking).
@@ -2668,44 +2580,45 @@ paths:
                         $ref: '#/components/schemas/link'
                 example:
                   WMS:
-                    parameters:
+                    configuration:
                       version:
                         type: string
-                        description: The WMS version to use.
+                        description: The WMS version offered to consumers of the service.
                         default: 1.3.0
                         enum:
                           - 1.1.1
                           - 1.3.0
-                    attributes:
-                      layers:
-                        type: array
-                        description: Array of layer names.
-                        example:
-                          - roads
-                          - countries
-                          - water_bodies
-                    variables:
-                      - variable_id: layer
-                        type: string
+                    process_parameters:
+                      - name: layer
                         description: The layer name.
+                        schema:
+                          type: string
                         default: roads
-                      - variable_id: spatial_extent_west
-                        type: number
-                      - variable_id: spatial_extent_east
-                        type: number
-                      - variable_id: spatial_extent_north
-                        type: number
-                      - variable_id: spatial_extent_south
-                        type: number
+                      - name: spatial_extent_west
+                        description: The lower left corner for coordinate axis 1 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_south
+                        description: The lower left corner for coordinate axis 2 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_east
+                        description: The upper right corner for coordinate axis 1 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_north
+                        description: The upper right corner for coordinate axis 2 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
                     links:
                       - href: 'https://www.opengeospatial.org/standards/wms'
                         rel: about
                         title: OGC Web Map Service Standard
                   WFS:
-                    parameters:
+                    configuration:
                       version:
                         type: string
-                        description: The WFS version to use.
+                        description: The WFS version offered to consumers of the service.
                         default: 2.0.0
                         enum:
                           - 1.0.0
@@ -2717,13 +2630,6 @@ paths:
                         default: 10000
                         minimum: 1
                         maximum: 100000
-                    attributes:
-                      typeNames:
-                        type: array
-                        description: Array of available feature type names.
-                        example:
-                          - 'topp:states'
-                          - 'topp:cities'
                     links:
                       - href: 'https://www.opengeospatial.org/standards/wfs'
                         rel: about
@@ -2840,8 +2746,8 @@ paths:
                   $ref: '#/components/schemas/service_type'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
-                parameters:
-                  $ref: '#/components/schemas/service_parameters'
+                configuration:
+                  $ref: '#/components/schemas/service_configuration'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -2883,8 +2789,8 @@ paths:
                   $ref: '#/components/schemas/process_graph'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
-                parameters:
-                  $ref: '#/components/schemas/service_parameters'
+                configuration:
+                  $ref: '#/components/schemas/service_configuration'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -2932,16 +2838,15 @@ paths:
                     $ref: '#/components/schemas/service_type'
                   enabled:
                     $ref: '#/components/schemas/service_enabled'
-                  parameters:
-                    $ref: '#/components/schemas/service_parameters'
+                  configuration:
+                    $ref: '#/components/schemas/service_configuration'
                   attributes:
                     title: Secondary Web Service Attributes
                     type: object
                     description: >-
                       Additional attributes of the secondary web service, e.g.
                       available layers for a WMS based on the bands in the
-                      underlying GeoTiff. See `GET /service_types` for supported
-                      attributes.
+                      underlying GeoTiff.
                     example:
                       layers:
                         - ndvi
@@ -4417,60 +4322,6 @@ components:
         - type: number
           default: 4326
           description: EPSG code
-    variable:
-      title: Process Graph Variable
-      description: >-
-        Process graphs can hold a variable, which can be filled in later. For
-        shared process graphs this can be useful to make them more portable, e.g
-        in case a back-end specific product name would be stored with the
-        process graph.
-
-
-        If a process graph with a variable is about to be executed and neither a
-        value nor a default value is specified, the back-end MUST reject the
-        request with an error of type `VariableValueMissing`. The values are
-        usually defined when loading the process graph with the
-        `run_process_graph` process.
-
-
-        Invalid variable types MUST be rejected with error
-        `VariableTypeInvalid`. If the default value is not compatible to the
-        specified type an `VariableDefaultValueTypeInvalid` error MUST be sent.
-        Invalid variable ids MUST be rejected with error `VariableIdInvalid`. 
-      type: object
-      required:
-        - variable_id
-      properties:
-        variable_id:
-          type: string
-          description: >-
-            The name of the variable. Can be any valid JSON key, but it is
-            RECOMMENDED to use snake case and limit the characters to `a-z`,
-            `0-9` and `_`.
-        type:
-          $ref: '#/components/schemas/data_type'
-        description:
-          description: Optional description about the variable.
-          type: string
-          nullable: true
-        default:
-          description: >-
-            Whenever no value for the variable is defined, the default value is
-            used.
-          nullable: true
-    data_type:
-      type: string
-      description: >-
-        The type is the expected data type for the content of the variable or
-        parameter. `null` is allowed for all types. If no type is specified, any
-        type is allowed to be passed.
-      enum:
-        - string
-        - number
-        - integer
-        - boolean
-        - array
-        - object
     process_arguments:
       title: Process Arguments
       type: object
@@ -4483,7 +4334,14 @@ components:
       anyOf:
         - type: object
           nullable: true
-          title: Object
+          title: Object,
+          properties:
+            from_argument:
+              not: {}
+            from_node:
+              not: {}
+            process_graph:
+              not: {}
         - type: string
           title: String
         - type: number
@@ -4494,9 +4352,18 @@ components:
           title: Array
           items:
             $ref: '#/components/schemas/process_argument_value'
-        - $ref: '#/components/schemas/variable'
+        - title: Process Graph
+          description: Processing instructions as process graph.
+          allOf:
+            - $ref: '#/components/schemas/process'
+            - type: object
+              required:
+                - process_graph
+              properties:
+                process_graph:
+                  $ref: '#/components/schemas/process_graph'
         - type: object
-          title: Result
+          title: Result Reference
           description: Data that is expected to be passed from another process.
           required:
             - from_node
@@ -4506,27 +4373,16 @@ components:
               type: string
           additionalProperties: false
         - type: object
-          title: Parameter in a Parametrized Process Graph
+          title: Parameter Reference
           description: >-
-            Data that is expected to be passed to a parametrized process graph from the process
-            that is executing the parametrized process graph.
+            A parameter for a process graph. Data that is expected to be passed to a process graph either from the user directly
+            or from the process that is executing the process graph.
           required:
-            - from_argument
+            - from_parameter
           properties:
-            from_argument:
-              description: >-
-                The name of the parameter that is made available to a parametrized process graph
-                by a calling process.
+            from_parameter:
+              description: The name of the parameter that data is expected to come from.
               type: string
-          additionalProperties: false
-        - type: object
-          title: Parametrized Process Graph
-          description: Process graph with parameters, which is executed from withing another process.
-          required:
-            - callback
-          properties:
-            callback:
-              $ref: '#/components/schemas/process_graph'
           additionalProperties: false
     process_graph:
       title: Process Graph
@@ -4593,24 +4449,24 @@ components:
               from_node: bands
             dimension: spectral
             reducer:
-              callback:
+              process_graph:
                 nir:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 0
                 red:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 1
                 blue:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 2
                 sub:
                   process_id: subtract
@@ -4659,12 +4515,12 @@ components:
               from_node: evi
             dimension: temporal
             reducer:
-              callback:
+              process_graph:
                 min:
                   process_id: min
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                   result: true
         save:
           process_id: save_result
@@ -4676,11 +4532,6 @@ components:
     process:
       title: Process
       type: object
-      required:
-        - id
-        - description
-        - parameters
-        - returns
       properties:
         id:
           $ref: '#/components/schemas/process_id'
@@ -4816,6 +4667,28 @@ components:
             [common relation types in openEO](#section/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+    predefined_process:
+      title: Pre-Defined Process
+      description: A pre-defined process made available by the back-end.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - required:
+            - id
+            - description
+            - parameters
+            - returns
+    user_defined_process:
+      title: User-Defined Process
+      description: A user-defined process with processing instructions as process graph.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - type: object
+          required:
+            - id
+            - process_graph
+          properties:
+            process_graph:
+              $ref: '#/components/schemas/process_graph'
     process_id:
       type: string
       description: Unique identifier of the process.
@@ -4850,34 +4723,36 @@ components:
         The order in the array corresponds to the parameter order to
         be used in clients that don't support named parameters.
       items:
-        title: Process Parameter
-        type: object
+        $ref: '#/components/schemas/process_parameter'
+    process_parameter:
+      title: Process Parameter
+      type: object
+      required:
+        - name
+        - description
+        - schema
+      properties:
+        name:
+          type: string
+          description: A unique name for the parameter.
+          pattern: '^[A-Za-z0-9_]+$'
+        description:
+          $ref: '#/components/schemas/process_description'
         required:
-          - name
-          - description
-          - schema
-        properties:
-          name:
-            type: string
-            description: A unique name for the parameter.
-            pattern: '^[A-Za-z0-9_]+$'
-          description:
-            $ref: '#/components/schemas/process_description'
-          required:
-            type: boolean
-            description: Determines whether this parameter is mandatory.
-            default: false
-          deprecated:
-            $ref: '#/components/schemas/process_deprecated'
-          experimental:
-            $ref: '#/components/schemas/process_experimental'
-          default:
-            description: >-
-              The default value for this parameter.
-              Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-            nullable: true
-          schema:
-            $ref: '#/components/schemas/process_schema'
+          type: boolean
+          description: Determines whether this parameter is mandatory.
+          default: false
+        deprecated:
+          $ref: '#/components/schemas/process_deprecated'
+        experimental:
+          $ref: '#/components/schemas/process_experimental'
+        default:
+          description: >-
+            The default value for this parameter.
+            Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
+          nullable: true
+        schema:
+          $ref: '#/components/schemas/process_schema'
     process_graph_id:
       type: string
       description: >-
@@ -4982,9 +4857,9 @@ components:
         MUST be accepted *case insensitive*.
       type: string
       example: wms
-    service_parameters:
+    service_configuration:
       type: object
-      title: Service Parameters
+      title: Service Configuration
       description: >-
         List of arguments, i.e. the parameter names supported by the secondary
         web service combined with actual values. See `GET /service_types` for
@@ -5023,7 +4898,18 @@ components:
         - description
       properties:
         type:
-          $ref: '#/components/schemas/data_type'
+          type: string
+          description: >-
+            The type is the expected data type for the content of the parameter.
+            `null` is allowed for all types. If no type is specified, any type is
+            allowed to be passed.
+          enum:
+            - string
+            - number
+            - integer
+            - boolean
+            - array
+            - object
         description:
           type: string
           description: A brief description of the argument.
