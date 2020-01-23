@@ -479,6 +479,8 @@ tags:
     description: Management of user-uploaded assets and processed data.
   - name: User-Defined Processes
     description: These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
+  - name: Data Processing
+    description: Organizes and manages data processing on the back-end, either as synchronous on-demand computation or batch jobs.
   - name: Batch Jobs
     description: Management of batch processing tasks (jobs) and their results.
   - name: Secondary Services
@@ -929,7 +931,7 @@ paths:
         Format names are allowed to be *case insensitive* throughout the API.
       tags:
         - Capabilities
-        - Batch Jobs
+        - Data Processing
       security:
         - {}
         - Bearer: []
@@ -2297,6 +2299,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/process_graph_with_metadata'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
         description: Specifies the process graph to be validated.
   /result:
     post:
@@ -2317,8 +2322,7 @@ paths:
         include the costs for processing and downloading the data. Additionally, 
         a link to a log file MAY be sent in the header.
       tags:
-        - User-Defined Processes
-        - Batch Jobs
+        - Data Processing
       security:
         - Bearer: []
       responses:
@@ -2402,6 +2406,51 @@ paths:
                           - id
                   links:
                     $ref: '#/components/schemas/links_pagination'
+                example:
+                  processes:
+                    - id: evi
+                      summary: Enhanced Vegetation Index
+                      description: >-
+                        Computes the Enhanced Vegetation Index (EVI).
+                        It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
+                      parameters:
+                        - name: red
+                          description: Value from the red band.
+                          required: true
+                          schema: 
+                            type: number
+                        - name: blue
+                          description: Value from the blue band.
+                          required: true
+                          schema: 
+                            type: number
+                        - name: nir
+                          description: Value from the near infrared band.
+                          required: true
+                          schema: 
+                            type: number
+                      returns:
+                        description: Computed EVI.
+                        schema:
+                          type: number
+                    - id: ndsi
+                      summary: Normalized-Difference Snow Index
+                      parameters:
+                        - name: green
+                          description: Value from the Visible Green (0.53 - 0.61 micrometers) band.
+                          required: true
+                          schema: 
+                            type: number
+                        - name: swir
+                          description: Value from the Short Wave Infrared (1.55 - 1.75 micrometers) band.
+                          required: true
+                          schema: 
+                            type: number
+                      returns:
+                        schema:
+                          type: number
+                    - id: my_custom_process
+                  links: []
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2432,6 +2481,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/user_defined_process'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
   '/process_graphs/{process_graph_id}':
     parameters:
       - $ref: '#/components/parameters/process_graph_id'
@@ -2450,6 +2502,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/user_defined_process'
+              examples:
+                evi_user_defined_process:
+                  $ref: '#/components/examples/evi_user_defined_process'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2478,6 +2533,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/process_metadata'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
     delete:
       summary: Delete a user-defined process
       operationId: delete-custom-process
@@ -2897,7 +2955,7 @@ paths:
         Requests to this endpoint will list all batch jobs submitted by a user
         with given id.
       tags:
-        - Batch Jobs
+        - Data Processing
       security:
         - Bearer: []
       parameters:
@@ -2964,6 +3022,7 @@ paths:
         Processing the data doesn't start yet. The job status gets initialized
         as `created` by default.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3009,6 +3068,7 @@ paths:
         Otherwise requests to this endpoint MUST be rejected with openEO error
         `JobLocked`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3042,6 +3102,7 @@ paths:
       operationId: describe-job
       description: Returns detailed information about a submitted batch job.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3109,6 +3170,7 @@ paths:
         computed results are deleted. This job won't generate additional costs
         for processing.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3133,6 +3195,7 @@ paths:
         downloading costs. This can be indicated with the `downloads_included`
         flag.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3190,6 +3253,7 @@ paths:
       operationId: debug-job
       description: Logs for the batch job.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3230,6 +3294,7 @@ paths:
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3298,6 +3363,7 @@ paths:
         * Whenever an error occurs during processing, the status must be set to
         `error`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3329,6 +3395,7 @@ paths:
         beforehand and partial or preliminary results are available to be
         downloaded. Otherwise the status is set to `created`. 
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -4534,7 +4601,6 @@ components:
           title: Process Return Value
           description: The data that is returned from this process.
           required:
-            - description
             - schema
           properties:
             description:
@@ -5491,6 +5557,75 @@ components:
             $ref: '#/components/schemas/process_graph'
       description: Description of one or more (chained) processes.
       required: true
+  examples:
+    evi_user_defined_process:
+      description: A user-defined process that computes the EVI.
+      value:
+        id: evi
+        summary: Enhanced Vegetation Index
+        description: >-
+          Computes the Enhanced Vegetation Index (EVI).
+          It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
+        parameters:
+          - name: red
+            description: Value from the red band.
+            required: true
+            schema: 
+              type: number
+          - name: blue
+            description: Value from the blue band.
+            required: true
+            schema: 
+              type: number
+          - name: nir
+            description: Value from the near infrared band.
+            required: true
+            schema: 
+              type: number
+        returns:
+          description: Computed EVI.
+          schema:
+            type: number
+        process_graph:
+          sub:
+            process_id: subtract
+            arguments:
+              data:
+                - from_parameter: nir
+                - from_parameter: red
+          p1:
+            process_id: product
+            arguments:
+              data:
+                - 6
+                - from_parameter: red
+          p2:
+            process_id: product
+            arguments:
+              data:
+                - -7.5
+                - from_parameter: blue
+          sum:
+            process_id: sum
+            arguments:
+              data:
+                - 1
+                - from_parameter: nir
+                - from_node: p1
+                - from_node: p2
+          div:
+            process_id: divide
+            arguments:
+              data:
+                - from_node: sub
+                - from_node: sum
+          p3:
+            process_id: product
+            arguments:
+              data:
+                - 2.5
+                - from_node: div
+            result: true
   securitySchemes:
     Bearer:
       type: http
