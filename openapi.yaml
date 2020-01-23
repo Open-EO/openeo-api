@@ -173,6 +173,172 @@ info:
 
     All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
 
+    # Process Graphs
+
+    A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be user-defined processes, scalar values, arrays or objects.
+
+    ## Definition
+
+    A process graph is defined to be a map of connected processes with exactly one node returning the final result:
+
+    ```
+    <ProcessGraph> := {
+      <ProcessNodeIdentifier>: <ProcessNode>,
+      ...
+    }
+    ```
+
+    `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
+
+    Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
+
+    ## Processes (Process Nodes)
+
+    A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
+
+    ```
+    <ProcessNode> := {
+      "process_id": <string>,
+      "description": <string>,
+      "arguments": <Arguments>,
+      "result": <boolean>
+    }
+    ```
+    A process node MUST always contain key-value-pairs named `process_id` and `arguments` (see the next section). It MAY contain a `description`.
+
+    One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`.  This is important as multiple end nodes are possible, but in most use cases it is important to have exactly one end node, which can be referenced and the return value be used by other processes. Please note each parametrized sub process graph also has a result node similar to the "main" process graph.
+
+    `process_id` can contain any of the process names defined by a back-end, which are all listed at `GET /processes`, e.g. `load_collection` to retrieve data from a specific collection for processing.
+
+    ### Arguments
+
+    A process can have an arbitrary number of arguments. Their name and value are specified 
+    in the process specification as an object of key-value pairs:
+
+    ```
+    <Arguments> := {
+      <ParameterName>: <ArgumentValue>
+    }
+    ```
+
+    The key `<ParameterName>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) and MUST limit the characters to letters (a-z), numbers and underscores.
+
+    A value is defined as follows:
+
+    ```
+    <ArgumentValue> := <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
+    ```
+
+    Notes:
+    - The specified value types, except `UserDefinedProcess`, `ParameterReference` and `ResultReference`, are the native data types supported by JSON. 
+    - Object-type values are not allowed to have keys with the following names:
+
+        * `from_parameter`, except for objects of type `ParameterReference`
+        * `from_node`, except for objects of type `ResultReference`
+        * `process_graph`, except for objects of type `UserDefinedProcess`
+
+    - A value of type `<ResultReference>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
+
+        ```
+        <ResultReference> := {
+          "from_node": <ProcessNodeIdentifier>
+        }
+        ```
+
+        Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
+
+    - For `UserDefinedProcess` and `ParameterReference` see the sections below.
+
+
+    **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
+
+
+    ### User-defined process
+
+    A user-defined process is a custom process defined by a process graph and often to be evaluated as part of another process graph.
+
+    A user-defined process is defined like a pre-defined process in `GET /processes`, but has additionally a key `process_graph` with the processing instruction as process graph.
+
+    ```
+    <UserDefinedProcess> := {
+      "process_graph": <ProcessGraph>,
+      ...
+    }
+    ```
+
+    ### Accessing process parameters
+
+    For example, you want to iterate over an array and calculate the absolute value of each value in the array.
+    You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass a process graph containing a single process `absolute`.
+
+    The parameters made available by the "parent" process (`apply` in the example) to the "child" process graph are the *process graph parameters*. 
+    Processes in the child process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the child process graph (similar to the `ResultReference` type discussed above).
+    It is a simple object with key `from_parameter` specifying the name of the process graph parameter: 
+
+    ```
+    <ParameterReference> := {
+      "from_parameter": <ParameterReferenceName>
+    }
+    ```
+
+    The available parameter names (`<ParameterReferenceName>`) are defined by the processes.
+    A process parameter has a [`parameters` property](#section/Additional-data-types-for-schemas/Parametrized-Process-Graphs)
+    in the JSON Schema, which defines the parameters made available to the child process graph.
+
+    In case of the `apply-absolute` example, the parameter `process` in the process `apply` provides a process graph parameter named `x` 
+    and `absolute` expects an argument with the same name.
+    `loadcollection1` would be a result from another process (not defined in this example):
+
+    ```
+    {
+      "process_id": "apply",
+      "arguments": {
+        "data": {"from_node": "loadcollection1"}
+        "process": {
+          "process_graph": {
+            "abs1": {
+              "process_id": "absolute",
+              "arguments: {
+                "x": {"from_parameter": "x"}
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    }
+    ```
+
+    Please note that the `<ParameterReferenceName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
+
+    ## Validation
+
+    Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
+
+    1. Validate whether there's exactly one `result: true` per process graph.
+    2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+    3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
+    4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
+    5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
+    7. Check the content of arrays and objects. These could include parameter and result references (`from_node`, `from_parameter` etc.).
+
+
+    ## Execution
+
+    To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.
+
+    You can now start and execute the start nodes (in parallel, if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
+
+    Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
+
+    ## Example
+
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
+
+    ![Graph with processing instructions](assets/pg-evi-example.png)
+
+    The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
+
     # Web Linking
     
     The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
@@ -225,11 +391,11 @@ tags:
       If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
   - name: Process Discovery
     description: |-
-      These endpoints allow to the processes that are available at the back-end.
+      These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
 
-      A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#tag/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
+      A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
-      There are some processes that we define to be core processes that are pre-defined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for pre-defined processes.
+      There are some processes that we define to be core processes that are predefined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for pre-defined processes.
 
       In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
 
@@ -311,173 +477,8 @@ tags:
       * user registration (except for [user registration with OpenID Connect](http://openid.net/specs/openid-connect-registration-1_0.html)).
   - name: File Storage
     description: Management of user-uploaded assets and processed data.
-  - name: Process Graphs
-    description: |-
-      These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
-
-      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be user-defined processes, scalar values, arrays or objects.
-
-      # Definition
-
-      A process graph is defined to be a map of connected processes with exactly one node returning the final result:
-
-      ```
-      <ProcessGraph> := {
-        <ProcessNodeIdentifier>: <ProcessNode>,
-        ...
-      }
-      ```
-
-      `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
-
-      Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
-
-      ## Processes (Process Nodes)
-
-      A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
-
-      ```
-      <ProcessNode> := {
-        "process_id": <string>,
-        "description": <string>,
-        "arguments": <Arguments>,
-        "result": <boolean>
-      }
-      ```
-      A process node MUST always contain key-value-pairs named `process_id` and `arguments` (see the next section). It MAY contain a `description`.
-
-      One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`.  This is important as multiple end nodes are possible, but in most use cases it is important to have exactly one end node, which can be referenced and the return value be used by other processes. Please note each parametrized sub process graph also has a result node similar to the "main" process graph.
-
-      `process_id` can contain any of the process names defined by a back-end, which are all listed at `GET /processes`, e.g. `load_collection` to retrieve data from a specific collection for processing.
-
-      ## Arguments
-
-      A process can have an arbitrary number of arguments. Their name and value are specified 
-      in the process specification as an object of key-value pairs:
-
-      ```
-      <Arguments> := {
-        <ParameterName>: <ArgumentValue>
-      }
-      ```
-
-      The key `<ParameterName>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) and MUST limit the characters to letters (a-z), numbers and underscores.
-
-      A value is defined as follows:
-
-      ```
-      <ArgumentValue> := <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
-      ```
-
-      Notes:
-      - The specified value types, except `UserDefinedProcess`, `ParameterReference` and `ResultReference`, are the native data types supported by JSON. 
-      - Object-type values are not allowed to have keys with the following names:
-
-          * `from_parameter`, except for objects of type `ParameterReference`
-          * `from_node`, except for objects of type `ResultReference`
-          * `process_graph`, except for objects of type `UserDefinedProcess`
-
-      - A value of type `<ResultReference>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
-
-          ```
-          <ResultReference> := {
-            "from_node": <ProcessNodeIdentifier>
-          }
-          ```
-
-          Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
-
-      - For `UserDefinedProcess` and `ParameterReference` see the sections below.
-
-
-      **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
-
-
-      ## User-defined process
-
-      A user-defined process is a custom process defined by a process graph and often to be evaluated as part of another process graph.
-
-      A user-defined process is defined like a pre-defined process in `GET /processes`, but has additionally a key `process_graph` with the processing instruction as process graph.
-
-      ```
-      <UserDefinedProcess> := {
-        "process_graph": <ProcessGraph>,
-        ...
-      }
-      ```
-
-      ## Accessing process parameters
-
-      For example, you want to iterate over an array and calculate the absolute value of each value in the array.
-      You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass a process graph containing a single process `absolute`.
-
-      The parameters made available by the "parent" process (`apply` in the example) to the "child" process graph are the *process graph parameters*. 
-      Processes in the child process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the child process graph (similar to the `ResultReference` type discussed above).
-      It is a simple object with key `from_parameter` specifying the name of the process graph parameter: 
-
-      ```
-      <ParameterReference> := {
-        "from_parameter": <ParameterReferenceName>
-      }
-      ```
-
-      The available parameter names (`<ParameterReferenceName>`) are defined by the processes.
-      A process parameter has a [`parameters` property](#section/Additional-data-types-for-schemas/Parametrized-Process-Graphs)
-      in the JSON Schema, which defines the parameters made available to the child process graph.
-
-      In case of the `apply-absolute` example, the parameter `process` in the process `apply` provides a process graph parameter named `x` 
-      and `absolute` expects an argument with the same name.
-      `loadcollection1` would be a result from another process (not defined in this example):
-
-      ```
-      {
-        "process_id": "apply",
-        "arguments": {
-          "data": {"from_node": "loadcollection1"}
-          "process": {
-            "process_graph": {
-              "abs1": {
-                "process_id": "absolute",
-                "arguments: {
-                  "x": {"from_parameter": "x"}
-                },
-                "result": true
-              }
-            }
-          }
-        }
-      }
-      ```
-
-      Please note that the `<ParameterReferenceName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
-
-      # Validation
-
-      Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
-
-      1. Validate whether there's exactly one `result: true` per process graph.
-      2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
-      3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
-      4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
-      5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
-      7. Check the content of arrays and objects. These could include parameter and result references (`from_node`, `from_parameter` etc.).
-
-
-      # Execution
-
-      To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.
-
-      You can now start and execute the start nodes (in parallel, if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
-
-      Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
-
-      # Example
-
-      Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
-
-      ![Graph with processing instructions](assets/pg-evi-example.png)
-
-      The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
+  - name: User-Defined Processes
+    description: These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
   - name: Batch Jobs
     description: Management of batch processing tasks (jobs) and their results.
   - name: Secondary Services
@@ -1713,10 +1714,10 @@ paths:
           $ref: '#/components/responses/server_error'
   /processes:
     get:
-      summary: Supported processes
+      summary: Supported predefined processes
       operationId: list-processes
       description: >-
-        The request asks the back-end for available processes and returns
+        The request asks the back-end for available predefined processes and returns
         detailed process descriptions, including parameters and return values.
       tags:
         - Process Discovery
@@ -1725,7 +1726,7 @@ paths:
         - Bearer: []
       responses:
         '200':
-          description: Formal specification describing the supported processes.
+          description: Formal specification describing the supported predefined processes.
           content:
             application/json:
               schema:
@@ -2265,7 +2266,7 @@ paths:
         graph parameter specified), but never if the process graph validation
         found an error (e.g. an unsupported process).
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - {}
         - Bearer: []
@@ -2295,13 +2296,7 @@ paths:
         content:
           application/json:
             schema:
-              title: Validation Request
-              type: object
-              required:
-                - process_graph
-              properties:
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+              $ref: '#/components/schemas/process_graph_with_metadata'
         description: Specifies the process graph to be validated.
   /result:
     post:
@@ -2322,7 +2317,7 @@ paths:
         include the costs for processing and downloading the data. Additionally, 
         a link to a log file MAY be sent in the header.
       tags:
-        - Process Graphs
+        - User-Defined Processes
         - Batch Jobs
       security:
         - Bearer: []
@@ -2376,7 +2371,7 @@ paths:
         This service lists all user-defined processes (process graphs) of the authenticated user that are
         stored at the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       parameters:
@@ -2402,7 +2397,7 @@ paths:
                         The user-defined processes submitted by a user,
                         usually without process graph to keep the response size small.
                       allOf:
-                        - $ref: '#/components/schemas/process'
+                        - $ref: '#/components/schemas/user_defined_process_metadata'
                         - required:
                           - id
                   links:
@@ -2421,7 +2416,7 @@ paths:
         The process id must be unique for the authenticated user,
         including all pre-defined processes by the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -2445,7 +2440,7 @@ paths:
       operationId: describe-custom-process
       description: Returns all information about a user-defined process, including its process graph.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -2468,7 +2463,7 @@ paths:
         The process id must still be unique for the authenticated user,
         including all pre-defined processes by the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -2482,12 +2477,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/process'
-                - type: object
-                  properties:
-                    process_graph:
-                      $ref: '#/components/schemas/process_graph'
+              $ref: '#/components/schemas/process_metadata'
     delete:
       summary: Delete a user-defined process
       operationId: delete-custom-process
@@ -2496,7 +2486,7 @@ paths:
 
         Does NOT delete jobs or services that reference this user-defined process.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -4335,13 +4325,12 @@ components:
         - type: object
           nullable: true
           title: Object
-          title: Object
           properties:
             from_parameter:
               not: {}
             from_node:
               not: {}
-            process_graph
+            process_graph:
               not: {}
         - type: string
           title: String
@@ -4353,16 +4342,7 @@ components:
           title: Array
           items:
             $ref: '#/components/schemas/process_argument_value'
-        - title: Process Graph
-          description: Processing instructions as process graph.
-          allOf:
-            - $ref: '#/components/schemas/process'
-            - type: object
-              required:
-                - process_graph
-              properties:
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+        - $ref: '#/components/schemas/process_graph_with_metadata'
         - type: object
           title: Result Reference
           description: Data that is expected to be passed from another process.
@@ -4530,8 +4510,8 @@ components:
               from_node: mintime
             format: GTiff
           result: true
-    process:
-      title: Process
+    process_metadata:
+      title: Process Metadata
       type: object
       properties:
         id:
@@ -4668,6 +4648,14 @@ components:
             [common relation types in openEO](#section/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+    process:
+      title: Process
+      allOf:
+        - $ref: '#/components/schemas/process_metadata'
+        - type: object
+          properties:
+            process_graph:
+              $ref: '#/components/schemas/process_graph'
     predefined_process:
       title: Pre-Defined Process
       description: A pre-defined process made available by the back-end.
@@ -4678,21 +4666,36 @@ components:
             - description
             - parameters
             - returns
+    user_defined_process_metadata:
+      title: User-Defined Process Metadata
+      description: A user-defined process without process graph.
+      allOf:
+        - $ref: '#/components/schemas/process_metadata'
+        - required:
+            - id
     user_defined_process:
       title: User-Defined Process
       description: A user-defined process with processing instructions as process graph.
       allOf:
         - $ref: '#/components/schemas/process'
-        - type: object
-          required:
+        - required:
             - id
             - process_graph
-          properties:
-            process_graph:
-              $ref: '#/components/schemas/process_graph'
+    process_graph_with_metadata:
+      title: Process Graph with metadata
+      description: A process graph, optionally enriched with process metadata.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - required:
+            - process_graph
     process_id:
       type: string
-      description: Unique identifier of the process.
+      description: >-
+        Unique identifier for the process.
+        
+        MUST be unique across all predefined and user-defined processes available for the authenticated user.
+        If a back-end adds a process with the name of a user-defined process, the user-defined process takes
+        preference over predefined processes in execution to not break existing process graphs.
       pattern: '^[A-Za-z0-9_]+$'
       example: ndvi
     process_experimental:
@@ -4754,13 +4757,6 @@ components:
           nullable: true
         schema:
           $ref: '#/components/schemas/process_schema'
-    process_graph_id:
-      type: string
-      description: >-
-        Unique identifier of a process graph that is generated by the back-end
-        during process graph submission. MUST match the specified pattern.
-      pattern: '^[A-Za-z0-9_\-\.~]+$'
-      example: cc2bab1e3b3a52aa
     job_id:
       type: string
       description: >-
@@ -5454,7 +5450,7 @@ components:
       description: Unique process graph identifier.
       required: true
       schema:
-        $ref: '#/components/schemas/process_graph_id'
+        $ref: '#/components/schemas/process_id'
     service_id:
       name: service_id
       in: path
