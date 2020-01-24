@@ -11,6 +11,12 @@ info:
 
     In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119).
 
+    ## Casing
+
+    Unless otherwise stated the API works **case sensitive**.
+
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+
     ## HTTP / REST
 
     This uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) [Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
@@ -20,6 +26,10 @@ info:
     Endpoints are made use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE) whenever technically possible. If there is a need to transfer big chunks of data for a GET requests to the back-end, POST requests MAY be used as a replacement as they support to send data via request body. Unless otherwise stated, PATCH requests are only defined to work on direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires to send the whole JSON object defined by the first-level property.
 
     Naming of endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
+
+    ## JSON
+
+    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
 
     ## Web Linking
     
@@ -36,15 +46,73 @@ info:
 
     3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
 
-    ## JSON
+    ## Error Handling
 
-    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
+    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
 
-    ## Casing
+    If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
 
-    Unless otherwise stated the API works **case sensitive**.
+    In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+    Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors *do* contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. 
+
+    ### JSON error object
+
+    A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.
+
+    ``` json
+    {
+      "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
+      "code": "SampleError",
+      "message": "A sample error message.",
+      "url": "http://www.openeo.org/docs/errors/SampleError"
+    }
+    ```
+
+    Sending `code` and `message` is REQUIRED. 
+
+    * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
+    * The `code` is either one of the [standardized textual openEO error codes](https://open-eo.github.io/openeo-api/draft/errors/index.html) or a proprietary error code.
+    * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
+
+      By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
+    * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
+
+    ### Standardized status codes
+
+    The openEO API usually uses the following HTTP status codes for successful requests: 
+
+    - **200 OK**:
+      Indicates a successful request **with** a response body being sent.
+    - **201 Created**
+      Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
+    - **202 Accepted**
+      Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent **without** a response body.
+    - **204 No Content**:
+      Indicates a successful request **without** a response body being sent.
+
+    The openEO API has some commonly used HTTP status codes for failed requests: 
+
+    - **400 Bad Request**:
+      The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
+
+    - **401 Unauthorized**:
+      The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
+
+    - **403 Forbidden**:
+      The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
+
+    - **404 Not Found**:
+      The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
+      *Note:* Unsupported endpoints MUST use HTTP status code 501.
+
+    - **500 Internal Server Error**:
+      The error has its origin on server side and no other status code in the 500 range is suitable.
+
+
+    If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
+
+    All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
 
     ## Temporal data
 
@@ -120,95 +188,61 @@ info:
     
     **Tip**: Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
 
-    # Error Handling
-
-    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
-
-    If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
-
-    In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
-
-    Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors *do* contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. 
-
-    ## JSON error object
-
-    A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.
-
-    ``` json
-    {
-      "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
-      "code": "SampleError",
-      "message": "A sample error message.",
-      "url": "http://www.openeo.org/docs/errors/SampleError"
-    }
-    ```
-
-    Sending `code` and `message` is REQUIRED. 
-
-    * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
-    * The `code` is either one of the [standardized textual openEO error codes](https://open-eo.github.io/openeo-api/draft/errors/index.html) or a proprietary error code.
-    * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
-
-      By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
-    * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
-
-    ## Standardized status codes
-
-    The openEO API usually uses the following HTTP status codes for successful requests: 
-
-    - **200 OK**:
-      Indicates a successful request **with** a response body being sent.
-    - **201 Created**
-      Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
-    - **202 Accepted**
-      Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent **without** a response body.
-    - **204 No Content**:
-      Indicates a successful request **without** a response body being sent.
-
-    The openEO API has some commonly used HTTP status codes for failed requests: 
-
-    - **400 Bad Request**:
-      The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
-
-    - **401 Unauthorized**:
-      The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
-
-    - **403 Forbidden**:
-      The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
-
-    - **404 Not Found**:
-      The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
-      *Note:* Unsupported endpoints MUST use HTTP status code 501.
-
-    - **500 Internal Server Error**:
-      The error has its origin on server side and no other status code in the 500 range is suitable.
-
-
-    If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
-
-    All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
-
     # Processes
 
-    A process is an operation that performs a specific task, see the [glossary](https://openeo.org/documentation/draft/glossary.html) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
+    A **process** is an operation that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
-    There are some processes that we define to be core processes that are predefined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org/draft)** for pre-defined processes.
+    A **pre-defined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
+    Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org/draft)** for pre-defined processes.
 
-    In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
+    A **user-defined process** is a process defined by the *user* and stored as custom process the back-end. Internally it is a *process graph*.
+
+    A **process graph** chains specific process calls from the set of pre-defined and user-defined processes together. A process graph itself is a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values for input parameters need to be specified. These arguments can again be process graphs, scalar values, arrays or objects.
+
+    ## Defining processes
+
+    Back-ends and users MAY define new proprietary processes for their domain. 
+    
+    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](/#tag/Process-Discovery) to define new processes. This includes:
 
     * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
     * Defining the parameters and their exact (JSON) schemes.
     * Specifying the return value of a process also with a (JSON) schema.
     * Providing examples or compliance tests.
     * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
+    
+    **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs`](/#tag/Process-Discovery) to define new processes. This includes:
 
-    If the process is potentially useful for other back-ends, the new process can be proposed to be included in the pre-defined processes.
+    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Defining the algorithm as a process graph.
+    * Optionally, specifying the additional metadata for processes.
 
-    # Process Graphs
+    If new process are potentially useful for other back-ends the openEO consortium is happily accepting [pull requests](https://github.com/Open-EO/openeo-processes/pulls) to include them in the list of pre-defined processes.
+
+    ### Schemas
+
+    Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
+
+    Two custom keywords have been defined:
+    * `subtype` for more fine-grained data-types than JSON Schema supports.
+    * `parameters` to specify parameters that processes can pass to other process graphs.
+
+    ### Subtypes
+
+    JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
+    To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
+    It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
+    These should be re-used in process schema definitions whenever suitable.
+    
+    If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
+    Clients should offer make passing subtypes as easy as passing a general data type.
+    For example, a parameter accepting strings must also allow passing a string with subtype `date` and thus clients should encourage this by also providing a date-picker.
+
+    A [list of predefined subtypes](assets/subtype-schemas.json) is available as JSON Schema.
+
+    ## Process Graphs
 
     A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be user-defined processes, scalar values, arrays or objects.
-
-    ## Definition
 
     A process graph is defined to be a map of connected processes with exactly one node returning the final result:
 
@@ -223,7 +257,7 @@ info:
 
     Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
 
-    ## Processes (Process Nodes)
+    ### Processes (Process Nodes)
 
     A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
 
@@ -340,9 +374,27 @@ info:
     }
     ```
 
-    Please note that the `<ParameterReferenceName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
+    Please note that the `<ParameterReferenceName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs.
 
-    ## Validation
+    ### Example
+
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
+
+    ![Graph with processing instructions](assets/pg-evi-example.png)
+
+    The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
+
+    ## Data Processing
+
+    Processes can run in three different ways:
+
+    1. Results can be pre-computed by creating a ***batch job***. They are submitted to the back-end's processing system, but will remain inactive until explicitly put into the processing queue. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming and user interaction is not possible although log files are generated for them. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
+    
+    2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms) (Open Geospatial Consortium Web Map Service), [OGC WCS](http://www.opengeospatial.org/standards/wcs) (Web Coverage Service) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
+    
+    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+
+    ### Validation
 
     Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
 
@@ -354,21 +406,13 @@ info:
     7. Check the content of arrays and objects. These could include parameter and result references (`from_node`, `from_parameter` etc.).
 
 
-    ## Execution
+    ### Execution
 
     To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.
 
     You can now start and execute the start nodes (in parallel, if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
 
     Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
-
-    ## Example
-
-    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
-
-    ![Graph with processing instructions](assets/pg-evi-example.png)
-
-    The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
   contact:
     name: openEO Consortium
     url: 'http://www.openeo.org'
@@ -378,58 +422,10 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 externalDocs:
   description: openEO Documentation
-  url: 'https://open-eo.github.io/openeo-api/draft/'
+  url: 'https://openeo.org/documentation/draft/'
 tags:
   - name: Capabilities
     description: General information about the API implementation and other supported capabilities at the back-end.
-  - name: EO Data Discovery
-    description: |-      
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
-
-      The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
-      
-      **WARNING**: STAC, as well as openEO, is still under development. Therefore, it is very likely that further changes and adjustments will be made in the future.
-      
-      # Content Extensions
-      
-      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
-      
-      Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
-      
-      - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
-      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
-      
-      # Provide data for download
-      
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
-  - name: Process Discovery
-    description: |-
-      These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
-
-      # Schemas
-
-      Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
-
-      Two custom keywords have been defined:
-      * `subtype` for more fine-grained data-types than JSON Schema supports (see chapter 'Subtypes' below).
-      * `parameters` to specify parameters that processes can pass to other process graphs.
-
-      ## Subtypes
-
-      JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
-      To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
-      It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
-      These should be re-used in process schema definitions whenever suitable.
-      
-      If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
-      Clients should offer make passing subtypes as easy as passing a general data type.
-      For example, a parameter accepting strings must also allow passing a string with subtype `date` and thus clients should encourage this by also providing a date-picker.
-
-      A [list of redefined subtypes](assets/subtype-schemas.json) is available as [JSON Schema](https://json-schema.org/).
-
   - name: Account Management
     description: |-
       The following endpoints handle user profiles, accounting and authentication. See also [Authentication](#section/Authentication). In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to
@@ -449,8 +445,34 @@ tags:
       * payments, i.e. topping up credits for pre-paid services or paying for post-paid services
       * other accounting related tasks, e.g. creating invoices,
       * user registration (except for [user registration with OpenID Connect](http://openid.net/specs/openid-connect-registration-1_0.html)).
-  - name: File Storage
-    description: Management of user-uploaded assets and processed data.
+  - name: EO Data Discovery
+    description: |-
+      These endpoints allow to list the collections that are available at the back-end and can be used as data cubes for data processing.
+
+      ## STAC
+      
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+
+      The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+      
+      ### Content Extensions
+      
+      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      
+      Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
+      
+      - Data Cube extension (part of the openEO API)
+      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
+      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
+      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
+      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
+      
+      ### Provide data for download
+      
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
+  - name: Process Discovery
+    description: |-
+      These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
   - name: User-Defined Processes
     description: These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
   - name: Data Processing
@@ -459,6 +481,8 @@ tags:
     description: Management of batch processing tasks (jobs) and their results.
   - name: Secondary Services
     description: On-demand access to data using other web service protocols.
+  - name: File Storage
+    description: Management of user-uploaded assets and processed data.
 servers:
   - url: 'https://localhost/api/{version}'
     description: >-
@@ -4579,60 +4603,7 @@ components:
         experimental:
           $ref: '#/components/schemas/process_experimental'
         exceptions:
-          type: object
-          title: Process Exceptions
-          description: >-
-            Declares any exceptions (errors) that might occur during execution
-            of this process. MUST be used only for exceptions that stop the
-            execution of a process and are therefore not to be used for
-            warnings, or notices or debugging messages.
-
-
-            The keys define the error code and MUST match the following pattern:
-            `^[A-Za-z0-9_]+$`
-
-
-            This schema follows the schema of the general openEO error list (see
-            errors.json).
-          additionalProperties:
-            x-additionalPropertiesName: Error Code
-            title: Process Exception
-            type: object
-            required:
-              - message
-            properties:
-              description:
-                type: string
-                description: >-
-                  Detailed description to explain the error to client
-                  users and back-end developers. This should not be shown in the
-                  clients directly, but may be linked to in the errors `url`
-                  property.
-
-
-                  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
-                  for rich text representation.
-              message:
-                type: string
-                description: >-
-                  Explains the reason the server is rejecting the request. This
-                  message is intended to be displayed to the client user. For
-                  "4xx" error codes the message should explain shortly how the
-                  client needs to modify the request.
-
-
-                  The message MAY contain variables, which are enclosed by curly
-                  brackets. Example: `{variable_name}`
-                example: >-
-                  The value specified for the process argument '{argument}' in
-                  process '{process}' is invalid: {reason}
-              http:
-                type: integer
-                description: >-
-                  HTTP Status Code, following the [error handling conventions in
-                  openEO](https://open-eo.github.io/openeo-api/draft/errors/).
-                  Defaults to `400`.
-                default: 400
+          $ref: '#/components/schemas/process_exceptions'
         examples:
           type: array
           description: >-
@@ -4765,6 +4736,61 @@ components:
         added to the `links` and MUST refer to the process that can be used
         instead.
       default: false
+    process_exceptions:
+      type: object
+      title: Process Exceptions
+      description: >-
+        Declares any exceptions (errors) that might occur during execution
+        of this process. MUST be used only for exceptions that stop the
+        execution of a process and are therefore not to be used for
+        warnings, or notices or debugging messages.
+
+
+        The keys define the error code and MUST match the following pattern:
+        `^[A-Za-z0-9_]+$`
+
+
+        This schema follows the schema of the general openEO error list (see
+        errors.json).
+      additionalProperties:
+        x-additionalPropertiesName: Error Code
+        title: Process Exception
+        type: object
+        required:
+          - message
+        properties:
+          description:
+            type: string
+            description: >-
+              Detailed description to explain the error to client
+              users and back-end developers. This should not be shown in the
+              clients directly, but may be linked to in the errors `url`
+              property.
+
+
+              [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
+              for rich text representation.
+          message:
+            type: string
+            description: >-
+              Explains the reason the server is rejecting the request. This
+              message is intended to be displayed to the client user. For
+              "4xx" error codes the message should explain shortly how the
+              client needs to modify the request.
+
+
+              The message MAY contain variables, which are enclosed by curly
+              brackets. Example: `{variable_name}`
+            example: >-
+              The value specified for the process argument '{argument}' in
+              process '{process}' is invalid: {reason}
+          http:
+            type: integer
+            description: >-
+              HTTP Status Code, following the [error handling conventions in
+              openEO](https://open-eo.github.io/openeo-api/draft/errors/).
+              Defaults to `400`.
+            default: 400
     process_parameters:
       type: array
       description: |-
