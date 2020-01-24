@@ -25,9 +25,9 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 
 ## Repository
 
-This repository contains a set of files formally and technically describing the openEO API, each with a human-readable and easily browseable version:
+This repository contains a set of files formally describing the openEO API, each with a human-readable and easily browseable version:
 
-* [docs/](docs/) ([browseable version](https://open-eo.github.io/openeo-api/draft/)) contains all additional written documentation, including 'getting started' guides, the architecture, feature descriptions, development guidelines and more.
-* [processes/](processes/) ([browseable version](https://open-eo.github.io/openeo-api/draft/processreference/)) defines pre-defined core processes back-ends may implement for best interoperability.
-* [openapi.yaml](openapi.yaml) ([browseable version](https://open-eo.github.io/openeo-api/draft/apireference/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
-* [errors.json](errors.json) ([browseable version](https://open-eo.github.io/openeo-api/draft/errors/#openeo-error-codes)) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
+* [openapi.yaml](openapi.yaml) ([browseable version](https://open-eo.github.io/openeo-api/draft/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
+* [errors.json](errors.json) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
+* [subtype-schema.json](subtype-schema.json) defines data types (subtypes) for JSON Schema used in openEO.
+* [assets/] contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.

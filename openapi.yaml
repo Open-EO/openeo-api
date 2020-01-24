@@ -260,37 +260,7 @@ tags:
       Clients should offer make passing subtypes as easy as passing a general data type.
       For example, a parameter accepting strings must also allow passing a string with subtype `date` and thus clients should encourage this by also providing a date-picker.
 
-      | Subtype                   | Parent Type | Description |
-      | ------------------------- | ----------- | ----------- |
-      | `band-name`               | string      | Either a unique band name (metadata field `name`) or a [common band name](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions/eo#common-band-names) (metadata field `common_name`) available in the data cube. If unique band name and common name conflict, the unique band name has higher priority. |
-      | `bounding-box`            | object      | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code, a WKT2:2018 string or a PROJ definition (deprecated). |
-      | `collection-id`           | string      | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
-      | `date`                    | string      | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
-      | `date-time`               | string      | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
-      | `epsg-code`               | integer     | Specifies details about cartographic projections as [EPSG](http://www.epsg.org) code. |
-      | `file-paths`              | array       | An array with relative paths to user-uploaded files. Clients should assist to generate a list of files for folders. |
-      | `file-path`               | string      | A relative path to a user-uploaded file. Folders can't be specified. |
-      | `geojson`                 | object      | GeoJSON as defined by [RFC 7946](https://tools.ietf.org/html/rfc7946). [JSON Schemes for validation are available.](https://github.com/geojson/schema) |
-      | `input-format`            | string      | An input format supported by the back-end. |
-      | `input-format-options`    | object      | Key-value-pairs with arguments for the input format options supported by the back-end. |
-      | `job-id`                  | string      | A batch job id, either one of the jobs a user has stored or a publicly available job. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-      | `kernel`                  | array       | Image kernel, a multi-dimensional array of numbers. |
-      | `output-format`           | string      | An output format supported by the back-end. |
-      | `output-format-options`   | object      | Key-value-pairs with arguments for the output format options supported by the back-end. |
-      | `process-graph`           | object      | An parametrized process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in a `parameters` property (see chapter "Parametrized Process Graphs" below). |
-      | `process-graph-id`        | string      | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-      | `process-graph-variables` | object      | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
-      | `proj-definition`         | string      | **DEPRECATED.** Specifies details about cartographic projections as [PROJ](https://proj.org/usage/quickstart.html) definition. |
-      | `raster-cube`             | object      | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
-      | `temporal-interval`       | array       | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the subtypes `date-time`, `date` (see above) and `time` (see below). |
-      | `temporal-intervals`      | array       | An array of two-element arrays, each being an array with subtype `temporal-interval` (see above). |
-      | `time`                    | string      | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), this definition allows the value '24' for the hour as end time in an interval in order to make it possible that left-closed time intervals can fully cover the day. |
-      | `udf-code`                | string      | The (multi-line) source code of an user-defined function (UDF). |
-      | `udf-runtime`             | string      | The name of an UDF runtime. |
-      | `udf-runtime-version`     | string      | The version of an UDF runtime. |
-      | `uri`                     | string      | A valid URI according to [RFC3986](https://tools.ietf.org/html/rfc3986). |
-      | `vector-cube`             | object      | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
-      | `wkt2-definition`         | string      | Specifies details about cartographic projections as WKT2 string. Refers to the latest WKT2 version (currently [WKT2:2018](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) / ISO 19162:2018) unless otherwise stated by the process. |
+      A [list of redefined subtypes](assets/subtype-schemas.json) is available as [JSON Schema](https://json-schema.org/).
 
       ## Parametrized Process Graphs
 
@@ -5153,6 +5123,7 @@ components:
         It is recommended to refrain from using the following more complex JSON Schema keywords:
         `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
 
+        JSON Schemas should always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
