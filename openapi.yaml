@@ -21,6 +21,21 @@ info:
 
     Naming of endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
 
+    ## Web Linking
+    
+    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
+
+    Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
+    A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
+
+    Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
+    
+    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
+
+    2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
+
+    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
+
     ## JSON
 
     The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
@@ -172,6 +187,22 @@ info:
     If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
 
     All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
+
+    # Processes
+
+    A process is an operation that performs a specific task, see the [glossary](https://openeo.org/documentation/draft/glossary.html) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
+
+    There are some processes that we define to be core processes that are predefined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org/draft)** for pre-defined processes.
+
+    In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
+
+    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Defining the parameters and their exact (JSON) schemes.
+    * Specifying the return value of a process also with a (JSON) schema.
+    * Providing examples or compliance tests.
+    * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
+
+    If the process is potentially useful for other back-ends, the new process can be proposed to be included in the pre-defined processes.
 
     # Process Graphs
 
@@ -338,21 +369,6 @@ info:
     ![Graph with processing instructions](assets/pg-evi-example.png)
 
     The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
-
-    # Web Linking
-    
-    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
-
-    Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
-    A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
-
-    Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
-    
-    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
-
-    2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
-
-    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
   contact:
     name: openEO Consortium
     url: 'http://www.openeo.org'
@@ -392,20 +408,6 @@ tags:
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
-
-      A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
-
-      There are some processes that we define to be core processes that are predefined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for pre-defined processes.
-
-      In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
-
-      * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
-      * Defining the parameters and their exact (JSON) schemes.
-      * Specifying the return value of a process also with a (JSON) schema.
-      * Providing examples or compliance tests.
-      * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
-
-      If the process is potentially useful for other back-ends, the new process can be proposed to be included in the pre-defined processes.
 
       # Schemas
 
@@ -1114,6 +1116,8 @@ paths:
       security:
         - {}
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: A list of collections and related links.
@@ -1131,7 +1135,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/collection'
                   links:
-                    $ref: '#/components/schemas/links_discovery'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   collections:
                     - stac_version: 0.9.0
@@ -1726,6 +1730,8 @@ paths:
       security:
         - {}
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: Formal specification describing the supported predefined processes.
@@ -1743,7 +1749,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/predefined_process'
                   links:
-                    $ref: '#/components/schemas/links_discovery'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   processes:
                     - id: round
@@ -2377,6 +2383,7 @@ paths:
         stored at the back-end.
       tags:
         - User-Defined Processes
+        - Process Discovery
       security:
         - Bearer: []
       parameters:
@@ -2400,11 +2407,25 @@ paths:
                       title: User-Defined Process
                       description: >-
                         The user-defined processes submitted by a user,
-                        usually without process graph to keep the response size small.
-                      allOf:
-                        - $ref: '#/components/schemas/user_defined_process_metadata'
-                        - required:
-                          - id
+                        usually without process graph, examples, exceptions and links to keep the response size small.
+                      type: object
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/process_id'
+                        summary:
+                          $ref: '#/components/schemas/process_summary'
+                        description:
+                          $ref: '#/components/schemas/process_description'
+                        categories:
+                          $ref: '#/components/schemas/process_categories'
+                        parameters:
+                          $ref: '#/components/schemas/process_parameters'
+                        returns:
+                          $ref: '#/components/schemas/process_return_value'
+                        deprecated:
+                          $ref: '#/components/schemas/process_deprecated'
+                        experimental:
+                          $ref: '#/components/schemas/process_experimental'
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2490,6 +2511,7 @@ paths:
       description: Returns all information about a user-defined process, including its process graph.
       tags:
         - User-Defined Processes
+        - Process Discovery
       security:
         - Bearer: []
       responses:
@@ -3873,22 +3895,6 @@ components:
         Clients SHOULD only connect to non-production implementations if the
         user explicitly confirmed to use a non-production implementation.
       default: true
-    links_discovery:
-      description: |-
-        Links related to this set of resources, for example links to alternative
-        formats such as a human-readable HTML version.
-
-        It is RECOMMENDED to provide links with the following
-        `rel` (relation) types:
-
-        1. `alternate`: An alternative representation. For example, a
-        human-readable HTML version or another catalog service.
-
-        For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
-      type: array
-      items:
-        $ref: '#/components/schemas/link'
     links_pagination:
       description: |-
         Links related to this list of resources, for example links for pagination
@@ -4587,29 +4593,15 @@ components:
         id:
           $ref: '#/components/schemas/process_id'
         summary:
-          type: string
-          description: A short summary of what the process does.
+          $ref: '#/components/schemas/process_summary'
         description:
           $ref: '#/components/schemas/process_description'
         categories:
-          type: array
-          description: A list of categories.
-          items:
-            type: string
-            description: Name of the category.
+          $ref: '#/components/schemas/process_categories'
         parameters:
           $ref: '#/components/schemas/process_parameters'
         returns:
-          type: object
-          title: Process Return Value
-          description: The data that is returned from this process.
-          required:
-            - schema
-          properties:
-            description:
-              $ref: '#/components/schemas/process_description'
-            schema:
-              $ref: '#/components/schemas/process_schema'
+          $ref: '#/components/schemas/process_return_value'
         deprecated:
           $ref: '#/components/schemas/process_deprecated'
         experimental:
@@ -4735,13 +4727,6 @@ components:
             - description
             - parameters
             - returns
-    user_defined_process_metadata:
-      title: User-Defined Process Metadata
-      description: A user-defined process without process graph.
-      allOf:
-        - $ref: '#/components/schemas/process_metadata'
-        - required:
-            - id
     user_defined_process:
       title: User-Defined Process
       description: A user-defined process with processing instructions as process graph.
@@ -4767,6 +4752,26 @@ components:
         preference over predefined processes in execution to not break existing process graphs.
       pattern: '^[A-Za-z0-9_]+$'
       example: ndvi
+    process_summary:
+      type: string
+      description: A short summary of what the process does.
+    process_categories:
+      type: array
+      description: A list of categories.
+      items:
+        type: string
+        description: Name of the category.
+    process_return_value:
+      type: object
+      title: Process Return Value
+      description: The data that is returned from this process.
+      required:
+        - schema
+      properties:
+        description:
+          $ref: '#/components/schemas/process_description'
+        schema:
+          $ref: '#/components/schemas/process_schema'
     process_experimental:
       type: boolean
       description: >-
