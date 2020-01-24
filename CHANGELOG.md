@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `POST /result`: May add a link to a log file in the header. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 - `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Endpoints that publish logging information. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 - `GET /files`, `GET /jobs`, `GET /process_graphs`, `GET /services`: Added `limit` parameter for pagination and clarified how to use links for pagination. [#103](https://github.com/Open-EO/openeo-api/issues/103)
+- JSON Schema for the defined schema `subtypes`.
 
 ### Changed
 
