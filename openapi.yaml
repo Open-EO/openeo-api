@@ -190,7 +190,7 @@ info:
 
     # Processes
 
-    A **process** is an operation that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
+    A **process** is an operation that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. In openEO, processes are used to build a chain of processes ([process graph](#section/Processes/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
     A **pre-defined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
     Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org/draft)** for pre-defined processes.
@@ -254,7 +254,7 @@ info:
 
     `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only strictly within itself, excluding any parent and child process graphs. Process node identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Circular references are not allowed.
 
-    Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
+    Note: We provide a non-binding [JSON Schema for basic process graph validation](assets/pg-schema.json).
 
     ### Processes (Process Nodes)
 
@@ -547,10 +547,11 @@ paths:
                       Identifier for the service.
 
                       This field originates from STAC and is used as unique identifier for the STAC catalog available at `/collections`.
+                    example: cool-eo-cloud
                   title:
                     type: string
                     description: The name of the service.
-                    example: Cool Cloud EOPS
+                    example: Cool EO Cloud
                   description:
                     type: string
                     description: >-
@@ -559,21 +560,13 @@ paths:
 
                       [CommonMark 0.29](http://commonmark.org/) syntax MAY be
                       used for rich text representation.
-                    example: >-
-                      EOPS - the most advanced EO processing service - is
-                      provided to you by [Cool Cloud
-                      Corp.](http://cool-cloud-corp.com). It implements the full
-                      openEO API and allows to process a range of 999 EO data
-                      sets, including 
+                    example: |-
+                      This service is provided to you by [Cool EO Cloud Corp.](http://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
 
                       * Sentinel 1/2/3 and 5
-
                       * Landsat 7/8
 
-
-                      A free plan is available to test the service. For further
-                      information please contact our customer service at
-                      [support@cool-cloud-corp.com](mailto:support@cool-cloud-corp.com).
+                      A free plan is available to test the service. For further information please contact our customer service at [support@cool-eo-cloud-corp.com](mailto:support@cool-eo-cloud-corp.com).
                   production:
                     $ref: '#/components/schemas/production'
                   endpoints:
@@ -769,7 +762,7 @@ paths:
                       - href: 'https://www.cool-cloud-corp.com/tos'
                         rel: terms-of-service
                         type: text/html
-                        title: Terms of service
+                        title: Terms of Service
                       - href: 'https://www.cool-cloud-corp.com/privacy'
                         rel: privacy-policy
                         type: text/html
@@ -778,6 +771,14 @@ paths:
                         rel: version-history
                         type: application/json
                         title: List of supported openEO versions
+                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/conformance'
+                        rel: conformance
+                        type: application/json
+                        title: OGC Conformance Classes
+                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/collections'
+                        rel: data
+                        type: application/json
+                        title: List of Datasets
         4XX:
           $ref: '#/components/responses/client_error'
         5XX:
@@ -1473,10 +1474,9 @@ paths:
                                   nullable: true
                       summaries:
                         title: STAC Summaries (Collection Properties)
-                        description: >-
+                        description: |-
                           Collection properties from STAC extensions (e.g. EO,
                           SAR, Satellite or Scientific) or even custom extensions.
-
 
                           Summaries are either a unique set of all available
                           values *or* statistics. Statistics by default only
@@ -1493,8 +1493,8 @@ paths:
                           `providers` and `license`) may not be repeated in the
                           summaries.
 
-
                           Potential fields for the summaries can be found here:
+
                           * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/0.9.0/item-spec/common-metadata.md)**:
                             A list of commonly used fields throughout all domains
                           * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions/README.md#list-of-content-extensions)**:
@@ -4226,15 +4226,12 @@ components:
             example: datacube
     stac_license:
       type: string
-      description: >-
-        License(s) of the data as a SPDX [License
-        identifier](https://spdx.org/licenses/) or
-        [expression](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60).
+      description: |-
+        License(s) of the data as a SPDX [License identifier](https://spdx.org/licenses/).
         Alternatively, use `proprietary` if the license is not on the SPDX
         license list or `various` if multiple licenses apply. In these two cases
         links to the license texts SHOULD be added, see the `license` link
         relation type.
-
 
         Non-SPDX licenses SHOULD add a link to the license text with the
         `license` relation in the links section. The license text MUST NOT be
@@ -4257,6 +4254,7 @@ components:
           name:
             description: The name of the organization or the individual.
             type: string
+            example: Cool EO Cloud Corp
           description:
             description: >-
               Multi-line description to add further provider information such as
@@ -4266,6 +4264,7 @@ components:
 
               CommonMark 0.29 syntax MAY be used for rich text representation.
             type: string
+            example: No further processing applied.
           roles:
             description: >-
               Roles of the provider.
@@ -4295,12 +4294,17 @@ components:
                 - licensor
                 - processor
                 - host
+            example:
+              - producer
+              - licensor
+              - host
           url:
             description: >-
               Homepage on which the provider describes the dataset and publishes
               contact information.
             type: string
             format: uri
+            example: http://cool-eo-cloud-corp.com
     collection_id:
       type: string
       description: >-
@@ -4668,12 +4672,13 @@ components:
             - process_graph
     process_id:
       type: string
-      description: >-
+      description: |-
         Unique identifier for the process.
         
         MUST be unique across all predefined and user-defined processes available for the authenticated user.
         If a back-end adds a process with the name of a user-defined process, the user-defined process takes
         preference over predefined processes in execution to not break existing process graphs.
+        
         Back-ends may choose to enforce a prefix for user-defined processes while storing the process, e.g.
         `user_ndvi` with `user_` being the prefix. Prefixes must still follow the pattern.
       pattern: '^[A-Za-z0-9_]+$'
@@ -5034,6 +5039,7 @@ components:
           description: >-
             A message explaining what the client may need to change or what
             difficulties the server is facing.
+          example: Parameter 'sample' is missing.
         links:
           $ref: '#/components/schemas/log_links'
     log_code:
