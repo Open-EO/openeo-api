@@ -14,7 +14,7 @@ The openEO (core) API is currently released in version **0.4.2**. **This branch 
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | Improvements based on implementer feedback, introduce extension concept. Potentially version 1.0.0. |
 | [**0.4.2**](https://api.openeo.org)                       | **current** | Bugfix release, see the [changelog](CHANGELOG.md#042---2019-06-11). |
-| [0.4.1](https://api.openeo.org/v/0.4.11)                  | legacy      | Bugfix release, see the [changelog](CHANGELOG.md#041---2019-05-29). |
+| [0.4.1](https://api.openeo.org/v/0.4.1)                   | legacy      | Bugfix release, see the [changelog](CHANGELOG.md#041---2019-05-29). |
 | [0.4.0](https://api.openeo.org/v/0.4.0)                   | legacy      | Improved discovery, added processes catalogue, new process graph structure and [more](CHANGELOG.md#040---2019-03-07). |
 | [0.3.1](https://api.openeo.org/v/0.3.1)                   | legacy      | Fixing minor issues, see the [changelog](CHANGELOG.md#031---2018-11-06). |
 | [0.3.0](https://api.openeo.org/v/0.3.0)                   | legacy      | Major rework. |
