@@ -21,13 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `POST /result`: May add a link to a log file in the header. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 - `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Endpoints that publish logging information. [#214](https://github.com/Open-EO/openeo-api/issues/214)
 - `GET /files`, `GET /jobs`, `GET /process_graphs`, `GET /services`: Added `limit` parameter for pagination and clarified how to use links for pagination. [#103](https://github.com/Open-EO/openeo-api/issues/103)
+- JSON Schema for the defined schema `subtypes`.
 
 ### Changed
 
-- The concept of callbacks has been renamed. Schema format/subtype `callback` has been renamed to `process-graph`. [#216](https://github.com/Open-EO/openeo-api/issues/216)
+- The concept of callbacks has simply been renamed to process graph. Schema format/subtype `callback` has been renamed to `process-graph`. [#216](https://github.com/Open-EO/openeo-api/issues/216)
 - Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
 - If `currency` returned by `GET /` is `null`, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to `null` (default).
-- The default type for Process Graph Variables is not `string`, but no specific (any) data type. Default values can be of any type.
 - Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
 - The parameter `user_id ` has been removed from the endpoints to manage user files (`/files/{user_id}`). [#218](https://github.com/Open-EO/openeo-api/issues/218)
 - Schema subtype `band-name` allows common band names, too. [Processes#77](https://github.com/Open-EO/openeo-processes/issues/77)
@@ -35,9 +35,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenAPI string format `url` has been replaced with `uri`.
 - `GET /jobs`, `GET /jobs/{job_id}`, `GET /services` and `GET /services/{service_id}`: Renamed field `submitted` to `created` for consistency with STAC job results.
 - `GET /`: Property `links` is required.
+- `GET /service_types`:
+    - `parameter` has been renamed to `configuration` to not overlap with `process_parameters`.
+    - `variables` has been renamed to `process_parameters` and has a different schema now. [#161](https://github.com/Open-EO/openeo-api/issues/161)
 - `GET /processes`:
     - Default values are now specified on the parameter-level, not in the JSON schemas.
     - Multiple data types in parameters or return values are supported as arrays. Using `anyOf` is discouraged.
+    - Parameters are defined as array. `parameter_order` is therefore removed and the name is part of the parameter object. [#239](https://github.com/Open-EO/openeo-api/issues/239)
+    - Process graph (callback) parameters have a new, more advanced schema, allowing to define more aspects of the process graph parameters. [#239](https://github.com/Open-EO/openeo-api/issues/239)
+    - Return values don't require a description any longer.
+    - `required` was replaced with `optional`.
 - `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.9.0. See the [STAC Changelog](https://github.com/radiantearth/stac-spec/blob/master/CHANGELOG.md) for more details. [#247](https://github.com/Open-EO/openeo-api/issues/247), [#204](https://github.com/Open-EO/openeo-api/issues/204).
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
@@ -53,10 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - The processes should not use the JSON Schema keyword `format` any longer. Instead use the custom keyword `subtype`. [#233](https://github.com/Open-EO/openeo-processes/issues/233)
-- PROJ definitions are deprecated in favor of EPSG codes, WKT2 and PROJJSON. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
+- PROJ definitions are deprecated in favor of EPSG codes and WKT2. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
 
 ### Removed
 
+- Process graph variables. Use parameters for user-defined processes instead.
 - `GET /processes`: `media_type` removed from parameters and return values. Use `contentMediaType` in the JSON Schema instead.
 - `GET /job/{job_id}`: Removed property `error`. Request information from `GET /job/{job_id}/logs` instead.
 - `GET /job/{job_id}/results`:
@@ -64,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `Expires` header has been removed, use `expires` property in the response body instead.
 - `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
 - `GET /collections/{collectionId}`: Removed optional STAC extensions from the API specification. Inform yourself about useful [STAC extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions) instead. [#176](https://github.com/Open-EO/openeo-api/issues/176)
+- `GET /service_types` doesn't support `attributes` any longer.
 
 ### Fixed
 

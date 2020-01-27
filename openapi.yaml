@@ -11,6 +11,12 @@ info:
 
     In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119).
 
+    ## Casing
+
+    Unless otherwise stated the API works **case sensitive**.
+
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+
     ## HTTP / REST
 
     This uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) [Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
@@ -25,11 +31,88 @@ info:
 
     The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
 
-    ## Casing
+    ## Web Linking
+    
+    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
 
-    Unless otherwise stated the API works **case sensitive**.
+    Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
+    A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+    Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
+    
+    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
+
+    2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
+
+    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
+
+    ## Error Handling
+
+    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
+
+    If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
+
+    In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
+
+    Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors *do* contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. 
+
+    ### JSON error object
+
+    A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.
+
+    ``` json
+    {
+      "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
+      "code": "SampleError",
+      "message": "A sample error message.",
+      "url": "http://www.openeo.org/docs/errors/SampleError"
+    }
+    ```
+
+    Sending `code` and `message` is REQUIRED. 
+
+    * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
+    * The `code` is either one of the [standardized textual openEO error codes](errors.json) or a proprietary error code.
+    * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
+
+      By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
+    * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
+
+    ### Standardized status codes
+
+    The openEO API usually uses the following HTTP status codes for successful requests: 
+
+    - **200 OK**:
+      Indicates a successful request **with** a response body being sent.
+    - **201 Created**
+      Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
+    - **202 Accepted**
+      Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent **without** a response body.
+    - **204 No Content**:
+      Indicates a successful request **without** a response body being sent.
+
+    The openEO API has some commonly used HTTP status codes for failed requests: 
+
+    - **400 Bad Request**:
+      The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
+
+    - **401 Unauthorized**:
+      The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
+
+    - **403 Forbidden**:
+      The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
+
+    - **404 Not Found**:
+      The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
+      *Note:* Unsupported endpoints MUST use HTTP status code 501.
+
+    - **500 Internal Server Error**:
+      The error has its origin on server side and no other status code in the 500 range is suitable.
+
+
+    If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
+
+    All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
 
     ## Temporal data
 
@@ -105,88 +188,222 @@ info:
     
     **Tip**: Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
 
-    # Error Handling
+    # Processes
 
-    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
+    A **process** is an operation that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. In openEO, processes are used to build a chain of processes ([process graph](#section/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
-    If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
+    A **pre-defined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
+    Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org/draft)** for pre-defined processes.
 
-    In general an error is communicated with a status code between 400 and 599. Client errors are defined as a client passing invalid data to the service and the service *correctly* rejecting that data. Examples include invalid credentials, incorrect parameters, unknown versions, or similar. These are generally "4xx" HTTP error codes and are the result of a client passing incorrect or invalid data. Client errors do *not* contribute to overall API availability. 
+    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
 
-    Server errors are defined as the server failing to correctly return in response to a valid client request. These are generally "5xx" HTTP error codes. Server errors *do* contribute to the overall API availability. Calls that fail due to rate limiting or quota failures MUST NOT count as server errors. 
+    A **process graph** chains specific process calls from the set of pre-defined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
-    ## JSON error object
+    ## Defining Processes
 
-    A JSON error object SHOULD be sent with all responses that have a status code between 400 and 599.
+    Back-ends and users MAY define new proprietary processes for their domain. 
+    
+    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](/#tag/Process-Discovery) to define new processes. This includes:
 
-    ``` json
-    {
-      "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
-      "code": "SampleError",
-      "message": "A sample error message.",
-      "url": "http://www.openeo.org/docs/errors/SampleError"
+    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Defining the parameters and their exact (JSON) schemes.
+    * Specifying the return value of a process also with a (JSON) schema.
+    * Providing examples or compliance tests.
+    * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
+    
+    **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs`](/#tag/User-Defined-Processes) to define new processes. This includes:
+
+    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Defining the algorithm as a process graph.
+    * Optionally, specifying the additional metadata for processes.
+
+    If new process are potentially useful for other back-ends the openEO consortium is happily accepting [pull requests](https://github.com/Open-EO/openeo-processes/pulls) to include them in the list of pre-defined processes.
+
+    ### Schemas
+
+    Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
+
+    Two custom keywords have been defined:
+    * `subtype` for more fine-grained data-types than JSON Schema supports.
+    * `parameters` to specify parameters that processes can pass to other process graphs.
+
+    ### Subtypes
+
+    JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
+    To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
+    It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
+    These should be re-used in process schema definitions whenever suitable.
+    
+    If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
+    Clients should offer make passing subtypes as easy as passing a general data type.
+    For example, a parameter accepting strings must also allow passing a string with subtype `date` and thus clients should encourage this by also providing a date-picker.
+
+    A [list of predefined subtypes](subtype-schemas.json) is available as JSON Schema.
+
+    ## Process Graphs
+
+    As defined above, a **process graph** is a chain of processes with explicit values for their parameters.
+    Technically, a process graph is defined to be a graph of connected processes with exactly one node returning the final result:
+
+    ```
+    <ProcessGraph> := {
+      "<ProcessNodeIdentifier>": <ProcessNode>,
+      ...
     }
     ```
 
-    Sending `code` and `message` is REQUIRED. 
+    `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only strictly within itself, excluding any parent and child process graphs. Process node identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Circular references are not allowed.
 
-    * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
-    * The `code` is either one of the [standardized textual openEO error codes](https://open-eo.github.io/openeo-api/draft/errors/index.html) or a proprietary error code.
-    * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
+    Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
 
-      By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
-    * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
+    ### Processes (Process Nodes)
 
-    ## Standardized status codes
+    A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
 
-    The openEO API usually uses the following HTTP status codes for successful requests: 
+    ```
+    <ProcessNode> := {
+      "process_id": <string>,
+      "description": <string>,
+      "arguments": <Arguments>,
+      "result": true / false
+    }
+    ```
+    A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description`.
 
-    - **200 OK**:
-      Indicates a successful request **with** a response body being sent.
-    - **201 Created**
-      Indicates a successful request that successfully created a new resource. Sends a `Location` header to the newly created resource **without** a response body.
-    - **202 Accepted**
-      Indicates a successful request that successfully queued the creation of a new resource, but it has not been created yet. The response is sent **without** a response body.
-    - **204 No Content**:
-      Indicates a successful request **without** a response body being sent.
+    One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
 
-    The openEO API has some commonly used HTTP status codes for failed requests: 
+    `process_id` MUST be any of the pre-defined or user-defined process IDs, which are all listed at `GET /processes` and `GET /process_graphs`. An example is `load_collection` to retrieve data from a specific collection for processing.
 
-    - **400 Bad Request**:
-      The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
+    ### Arguments
 
-    - **401 Unauthorized**:
-      The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
+    A process can have an arbitrary number of arguments. Their name and value are specified 
+    in the process specification as an object of key-value pairs:
 
-    - **403 Forbidden**:
-      The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
+    ```
+    <Arguments> := {
+      "<ParameterName>": <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
+    }
+    ```
 
-    - **404 Not Found**:
-      The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
-      *Note:* Unsupported endpoints MUST use HTTP status code 501.
+    **Notes:**
+    - The specified data types are the native data types supported by JSON, except for `UserDefinedProcess`, `ParameterReference` and `ResultReference`. 
+    - Objects are not allowed to have keys with the following names:
 
-    - **500 Internal Server Error**:
-      The error has its origin on server side and no other status code in the 500 range is suitable.
+        * `from_parameter`, except for objects of type `ParameterReference`
+        * `from_node`, except for objects of type `ResultReference`
+        * `process_graph`, except for objects of type `UserDefinedProcess`
 
+    - Arrays and objects can also contain a `UserDefinedProcess`, a `ParameterReference` or a `ResultReference`. So back-ends must *fully* traverse the process graphs, including all children.
 
-    If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
+    ### User-defined process
 
-    All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
+    A user-defined process in a process graph is a simply a child process graph and thus to be evaluated as part of another process graph.
+    It may consists only of an object with a key `process_graph`, but can be described with all additional properties available also for pre-defined processes such as an id, parameters, return values etc. In process graphs these additional properties are usually not used, except for validation purposes. 
 
-    # Web Linking
+    ```
+    <UserDefinedProcess> := {
+      "process_graph": <ProcessGraph>,
+      ...
+    }
+    ```
+
+    ### Accessing return values
+
+    A value of type `<ResultReference>` is an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value:
     
-    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
-
-    Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
-    A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
-
-    Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
+    ```
+    <ResultReference> := {
+      "from_node": "<ProcessNodeIdentifier>"
+    }
+    ```
     
-    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
+    This tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument. The `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
 
-    2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
+    ### Accessing process parameters
 
-    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
+    **Example:** You want to iterate over an array and calculate the absolute value of each value in the array.
+    This can be achieved by executing the `apply` process in openEO and pass a process graph containing a single process `absolute`.
+
+    The parameters made available by the "parent" process (`apply` in this example) to the "child" process graph are the *process graph parameters*. 
+    Processes can access parameters by passing a certain type of object as argument to a processes.
+    It is an object with key `from_parameter` specifying the name of the process graph parameter:
+
+    ```
+    <ParameterReference> := {
+      "from_parameter": "<ParameterReferenceName>"
+    }
+    ```
+
+    The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
+    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service.
+
+    It is important to know that `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
+    `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
+    If there are multiple parameters with the same name, the parameter is resolved by starting in the current scope and then checking each parent for a suitable parameter until the "root" process graph is reached.
+
+    If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
+    In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
+    The process graph for the example would look as follows:
+
+    ```
+    {
+      "process_id": "apply",
+      "arguments": {
+        "data": {"from_node": "loadcollection1"}
+        "process": {
+          "process_graph": {
+            "abs1": {
+              "process_id": "absolute",
+              "arguments": {
+                "x": {"from_parameter": "x"}
+              },
+              "result": true
+            }
+          }
+        }
+      }
+    }
+    ```
+
+    `loadcollection1` would be a result from another process, which is not part of this example.
+
+    ### Full example for an EVI computation
+
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, child process graphs in yellow:
+
+    ![Graph with processing instructions](assets/pg-evi-example.png)
+
+    The process graph for the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
+
+    ## Data Processing
+
+    Processes can run in three different ways:
+
+    1. Results can be pre-computed by creating a ***batch job***. They are submitted to the back-end's processing system, but will remain inactive until explicitly put into the processing queue. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming and user interaction is not possible although log files are generated for them. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
+    
+    2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms) (Open Geospatial Consortium Web Map Service), [OGC WCS](http://www.opengeospatial.org/standards/wcs) (Web Coverage Service) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
+    
+    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+
+    ### Validation
+
+    Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
+
+    1. Validate whether there's exactly one `result: true` per process graph.
+    2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+    3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
+    4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
+    5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
+    7. Check the content of arrays and objects. These could include parameter and result references (`from_node`, `from_parameter` etc.).
+
+
+    ### Execution
+
+    To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.
+
+    You can now start and execute the start nodes (in parallel, if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
+
+    Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
   contact:
     name: openEO Consortium
     url: 'http://www.openeo.org'
@@ -196,126 +413,10 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 externalDocs:
   description: openEO Documentation
-  url: 'https://open-eo.github.io/openeo-api/draft/'
+  url: 'https://openeo.org/documentation/draft/'
 tags:
   - name: Capabilities
     description: General information about the API implementation and other supported capabilities at the back-end.
-  - name: EO Data Discovery
-    description: |-      
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
-
-      The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
-      
-      **WARNING**: STAC, as well as openEO, is still under development. Therefore, it is very likely that further changes and adjustments will be made in the future.
-      
-      # Content Extensions
-      
-      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
-      
-      Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
-      
-      - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
-      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
-      
-      # Provide data for download
-      
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
-  - name: Process Discovery
-    description: |-
-      These endpoints allow to the processes that are available at the back-end.
-
-      A process is an operation that performs a specific task, see the [glossary](glossary.md) for a detailed definition. It consists of an id (the identifying name of the process), a set of parameters, a return type and may throw errors or exceptions. In openEO, processes are used to build a chain of processes ([process graph](#tag/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
-
-      There are some processes that we define to be core processes that are pre-defined and back-ends SHOULD follow these specifications to be interoperable. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for pre-defined processes.
-
-      In addition, back-ends MAY define new proprietary processes for their domain. To define new processes, back-end providers MUST follow the `process` schema in the API specification. This includes:
-
-      * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
-      * Defining the parameters and their exact (JSON) schemes.
-      * Specifying the return value of a process also with a (JSON) schema.
-      * Providing examples or compliance tests.
-      * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
-
-      If the process is potentially useful for other back-ends, the new process can be proposed to be included in the pre-defined processes.
-
-      # Schemas
-
-      Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
-
-      Two custom keywords have been defined:
-      * `subtype` for more fine-grained data-types than JSON Schema supports (see chapter 'Subtypes' below).
-      * `parameters` to specify parameters that process parameters can pass to parametrized process graphs (see chapter 'Parametrized Process Graphs' below).
-
-      ## Subtypes
-
-      JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
-      To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
-      It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
-      These should be re-used in process schema definitions whenever suitable.
-
-      | Subtype                   | Data type | Description |
-      | ------------------------- | --------- | ----------- |
-      | `band-name`               | string    | Either a unique band name (metadata field `name`) or a [common band name](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions/eo#common-band-names) (metadata field `common_name`) available in the data cube. If unique band name and common name conflict, the unique band name has higher priority. |
-      | `bounding-box`            | object    | A bounding box with the required fields `west`, `south`, `east`, `north` and optionally `base`, `height`, `crs`. The `crs` is a EPSG code, a WKT2:2018 string, PROJJSON or a PROJ definition (deprecated). |
-      | `collection-id`           | string    | A collection id from the list of supported collections. Pattern: `^[A-Za-z0-9_\-\.~/]+$` |
-      | `date`                    | string    | Date only representation, as defined for `full-date` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). The time zone is UTC. |
-      | `date-time`               | string    | Date and time representation, as defined for `date-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). |
-      | `epsg-code`               | integer   | Specifies details about cartographic projections as [EPSG](http://www.epsg.org) code. |
-      | `file-paths`              | array     | An array with relative paths to user-uploaded files. Clients should assist to generate a list of files for folders. |
-      | `file-path`               | string    | A relative path to a user-uploaded file. Folders can't be specified. |
-      | `geojson`                 | object    | GeoJSON as defined by [RFC 7946](https://tools.ietf.org/html/rfc7946). [JSON Schemes for validation are available.](https://github.com/geojson/schema) |
-      | `input-format`            | string    | An input format supported by the back-end. |
-      | `input-format-options`    | object    | Key-value-pairs with arguments for the input format options supported by the back-end. |
-      | `job-id`                  | string    | A batch job id, either one of the jobs a user has stored or a publicly available job. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-      | `kernel`                  | array     | Image kernel, a multi-dimensional array of numbers. |
-      | `output-format`           | string    | An output format supported by the back-end. |
-      | `output-format-options`   | object    | Key-value-pairs with arguments for the output format options supported by the back-end. |
-      | `process-graph`           | object    | An parametrized process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in a `parameters` property (see chapter "Parametrized Process Graphs" below). |
-      | `process-graph-id`        | string    | A process graph id, either one of the process graphs a user has stored or a publicly available process graph. Pattern: `^[A-Za-z0-9_\-\.~]+$` |
-      | `process-graph-variables` | object    | Key-value-pairs with values for variables that are defined by the process graph. The key of the pair is the `variable_id` for the value specified. |
-      | `proj-definition`         | string    | **DEPRECATED.** Specifies details about cartographic projections as [PROJ](https://proj.org/usage/quickstart.html) definition. |
-      | `projjson-definition`     | object    | Specifies details about cartographic projections as [PROJJSON](https://proj.org/projjson.html) definition. |
-      | `raster-cube`             | object    | A raster data cube, an image collection stored at the back-end. Different back-ends have different internal representations for this data structure. |
-      | `temporal-interval`       | array     | A two-element array, which describes a left-closed temporal interval. The first element is the start of the date and/or time interval. The second element is the end of the date and/or time interval. The specified temporal strings follow the subtypes `date-time`, `date` (see above) and `time` (see below). |
-      | `temporal-intervals`      | array     | An array of two-element arrays, each being an array with subtype `temporal-interval` (see above). |
-      | `time`                    | string    | Time only representation, as defined for `full-time` by [RFC 3339 in section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6). Although [RFC 3339 prohibits the hour to be '24'](https://tools.ietf.org/html/rfc3339#section-5.7), this definition allows the value '24' for the hour as end time in an interval in order to make it possible that left-closed time intervals can fully cover the day. |
-      | `udf-code`                | string    | The (multi-line) source code of an user-defined function (UDF). |
-      | `udf-runtime`             | string    | The name of an UDF runtime. |
-      | `udf-runtime-version`     | string    | The version of an UDF runtime. |
-      | `uri`                     | string    | A valid URI according to [RFC3986](https://tools.ietf.org/html/rfc3986). |
-      | `vector-cube`             | object    | A vector data cube, a vector collection stored at the back-end. Different back-ends have different internal representations for this data structure |
-      | `wkt2-definition`         | string    | Specifies details about cartographic projections as WKT2 string. Refers to the latest WKT2 version (currently [WKT2:2018](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) / ISO 19162:2018) unless otherwise stated by the process. |
-
-      ## Parametrized Process Graphs
-
-      A parametrized process graph is a process graph that is passed as an argument to a process parameter and is expected to be executed by the process.
-
-      In a process definition, a parameter that accepts a parametrized process graph is defined by setting the `type` to `object` and the `subtype` to `process-graph` in the parameter schema. Additionally, it must have a property `parameters` (a custom JSON Schema keyword). `parameters` must be an object with the keys being the parameter names and the values being a valid JSON Schema again.
-
-      A schema for a process parameter that accepts a parametrized process graph with two parameters `dimension` (a string) and `data` (an array of numbers) could be defined as follows:
-
-      ```json
-      {
-        "type": "object",
-        "subtype": "process-graph",
-        "parameters": {
-          "dimension": {
-            "description": "Name of the dimension",
-            "type": "string"
-          },
-          "data": {
-            "description": "Data for the dimension",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          }
-        }
-      }
-      ```
   - name: Account Management
     description: |-
       The following endpoints handle user profiles, accounting and authentication. See also [Authentication](#section/Authentication). In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to
@@ -335,199 +436,44 @@ tags:
       * payments, i.e. topping up credits for pre-paid services or paying for post-paid services
       * other accounting related tasks, e.g. creating invoices,
       * user registration (except for [user registration with OpenID Connect](http://openid.net/specs/openid-connect-registration-1_0.html)).
-  - name: File Storage
-    description: Management of user-uploaded assets and processed data.
-  - name: Process Graphs
+  - name: EO Data Discovery
     description: |-
-      These endpoints allow to store and manage process graphs at the back-end.
+      These endpoints allow to list the collections that are available at the back-end and can be used as data cubes for data processing.
 
-      A process graph is a chain of specific [processes](#section/Processes). Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, which means that concrete values for input parameters need to be specified. These arguments can again be parametrized process graphs, scalar values, arrays, objects or variables.
+      ## STAC
+      
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
-      # Definition
-
-      A process graph is defined to be a map of connected processes with exactly one node returning the final result:
-
-      ```
-      <ProcessGraph> := {
-        <ProcessNodeIdentifier>: <ProcessNode>,
-        ...
-      }
-      ```
-
-      `<ProcessNodeIdentifier>` is a unique key within the process graph that is used to reference (the return value of) this process in arguments of other processes. The identifier is unique only within its own process graph, excluding any parent and child process graphs. Identifiers are also strictly scoped and can not be referenced from child or parent process graphs. Please note that circular references are not allowed.
-
-      Note: [Below you can find a JSON Schema for process graph validation](#process-graph-validation).
-
-      ## Processes (Process Nodes)
-
-      A single node in a process graph (i.e. a specific instance of a process) is defined as follows:
-
-      ```
-      <ProcessNode> := {
-        "process_id": <string>,
-        "description": <string>,
-        "arguments": <Arguments>,
-        "result": <boolean>
-      }
-      ```
-      A process node MUST always contain key-value-pairs named `process_id` and `arguments` (see the next section). It MAY contain a `description`.
-
-      One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`.  This is important as multiple end nodes are possible, but in most use cases it is important to have exactly one end node, which can be referenced and the return value be used by other processes. Please note each parametrized sub process graph also has a result node similar to the "main" process graph.
-
-      `process_id` can contain any of the process names defined by a back-end, which are all listed at `GET /processes`, e.g. `load_collection` to retrieve data from a specific collection for processing.
-
-      ## Arguments
-
-      A process can have an arbitrary number of arguments. Their name and value are specified 
-      in the process specification as an object of key-value pairs:
-
-      ```
-      <Arguments> := {
-        <ParameterName>: <ArgumentValue>
-      }
-      ```
-
-      The key `<ParameterName>` is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) and MUST limit the characters to letters (a-z), numbers and underscores.
-
-      A value is defined as follows:
-
-      ```
-      <ArgumentValue> := <string|number|boolean|null|array|object|Callback|CallbackParameter|Result|Variable>
-      ```
-
-      Notes:
-      - The specified value types, except `Callback`, `CallbackParameter`, `Result` and `Variable`, are the native data types supported by JSON. 
-      - Object-type values are not allowed to have keys with the following names:
-
-          * `variable_id`, except for objects of type `Variable`
-          * `from_argument`, except for objects of type `PGParameter`
-          * `from_node`, except for objects of type `Result`
-
-      - A value of type `<Result>` is simply an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value, which tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument:
-
-          ```
-          <Result> := {
-            "from_node": <ProcessNodeIdentifier>
-          }
-          ```
-
-          Note that the `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
-
-      - For `Variable`, `Callback` and `CallbackParameter` see the sections below.
-
-
-      **Important:** Arrays and objects can also contain any of the data types defined above for `<ArgumentValue>`. So back-ends must *fully* traverse the process graphs, including all children.
-
-
-      ## Parametrized Process Graphs
-
-      A parametrized process graph is a child process graph to be evaluated as part of a parent process graph.
-      The child process graph is passed as argument of one of the processes in the parent process graph.
-      It is called parametrized process graph as the parent process can pass parameters to the child process graph.
-      The child process graph must be wrapped in an object with a single key `callback`.
-
-      ```
-      <ParametrizedProcessGraph> := {
-        "callback": <ProcessGraph>
-      }
-      ```
-
-      For example, you want to iterate over an array and calculate the absolute value of each value in the array.
-      You can do so by executing the `apply` process in openEO (often also called `map` in other languages) and pass a process graph containing a single process `absolute`.
-
-      The parameters made available by the "parent" process (`apply` in the example) to the "child" process graph are the *process graph parameters*. 
-      Processes in the parametrized process graph can access the values of a parameter by passing a certain type of object to the parameters of processes in the parametrized process graph (similar to the `Result` type discussed above).
-      It is a simple object with key `from_argument` specifying the name of the process graph parameter: 
-
-      ```
-      <PGParameter> := {
-        "from_argument": <PGParameterName>
-      }
-      ```
-
-      The available parameter names (`<PGParameterName>`) are defined by the processes.
-      A process parameter has a [`parameters` property](#section/Additional-data-types-for-schemas/Parametrized-Process-Graphs)
-      in the JSON Schema, which defines the parameters made available to the child process graph.
-
-      In case of the `apply-absolute` example, the parameter `process` in the process `apply` provides a process graph parameter named `x` 
-      and `absolute` expects an argument with the same name.
-      `loadcollection1` would be a result from another process (not defined in this example):
-
-      ```
-      {
-        "process_id": "apply",
-        "arguments": {
-          "data": {"from_node": "loadcollection1"}
-          "process": {
-            "callback": {
-              "abs1": {
-                "process_id": "absolute",
-                "arguments: {
-                  "x": {"from_argument": "x"}
-                },
-                "result": true
-              }
-            }
-          }
-        }
-      }
-      ```
-
-      Please note that the `<PGParameterName>` is also strictly scoped within the child process graph and can not be referenced from other process graphs. 
-
-      ## Variables
-
-      Process graphs can also hold a variable, which can be filled in later. For shared process graphs this can be useful to make them more portable, e.g in case a back-end specific product name would be stored with the process graph.
-
-      Variables are defined as follows:
-
-      ```
-      <Variable> := {
-        "variable_id": <string>,
-        "description": <string>,
-        "type": <string>,
-        "default": <string|number|boolean|null|array|object>
-      }
-      ```
-
-      The value for `type` is the expected data type for the content of the variable and MUST be one of `string` (default), `number`, `boolean`, `array` or `object`.
-
-      The value for `variable_id` is the name of the variable and can be any valid JSON key, but it is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) and limit the characters to `a-z`, `0-9` and `_`.
-
-      Whenever no value for the variable is defined, the `default` value is used or the process graph is rejected if not default value has been specified.
-
-      # Validation
-
-      Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
-
-      1. Validate whether there's exactly one `result: true` per process graph.
-      2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
-      3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
-      4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
-      5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
-      6. Validate whether the data types of process graph variables are compatible to the JSON schema of the parameters.
-      7. Check the content of arrays and objects. These could include variables and other references (`from_node`, `from_argument` etc.).
-
-
-      # Execution
-
-      To process the process graph on the back-end you need to go through all nodes/processes in the list and set for each node to which node it passes data and from which it expects data. In another iteration the back-end can find all start nodes for processing by checking for zero dependencies.
-
-      You can now start and execute the start nodes (in parallel, if possible). Results can be passed to the nodes that were identified beforehand. For each node that depends on multiple inputs you need to check whether all dependencies have already finished and only execute once the last dependency is ready.
-
-      Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
-
-      # Example
-
-      Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, parametrized child process graphs in yellow:
-
-      ![Graph with processing instructions](assets/pg-evi-example.png)
-
-      The process graph representing the algorithm: [pg-evi-example.json](assets/pg-evi-example.json)
+      The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+      
+      ### Content Extensions
+      
+      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      
+      Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
+      
+      - Data Cube extension (part of the openEO API)
+      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
+      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
+      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
+      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
+      
+      ### Provide data for download
+      
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
+  - name: Process Discovery
+    description: |-
+      These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
+  - name: User-Defined Processes
+    description: These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
+  - name: Data Processing
+    description: Organizes and manages data processing on the back-end, either as synchronous on-demand computation or batch jobs.
   - name: Batch Jobs
     description: Management of batch processing tasks (jobs) and their results.
   - name: Secondary Services
     description: On-demand access to data using other web service protocols.
+  - name: File Storage
+    description: Management of user-uploaded assets and processed data.
 servers:
   - url: 'https://localhost/api/{version}'
     description: >-
@@ -537,7 +483,7 @@ servers:
       secure with HTTP only!
     variables:
       version:
-        default: v0.4
+        default: v1.0
         description: >-
           API versioning is RECOMMENDED. As the openEO API is following
           [SemVer](https://semver.org/) only the MAJOR part of the stable
@@ -811,7 +757,7 @@ paths:
                       Required if full OGC API compatibility is desired.
 
                       For additional relation types see also the lists of
-                      [common relation types in openEO](#section/Web-Linking).
+                      [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -909,7 +855,7 @@ paths:
                           type: string
                           format: uri
                           description: '*Absolute* URLs to the service.'
-                          example: 'https://example.com/api/v0.4'
+                          example: 'https://example.com/api/v1.0'
                         production:
                           $ref: '#/components/schemas/production'
                         api_version:
@@ -974,7 +920,7 @@ paths:
         Format names are allowed to be *case insensitive* throughout the API.
       tags:
         - Capabilities
-        - Batch Jobs
+        - Data Processing
       security:
         - {}
         - Bearer: []
@@ -1147,16 +1093,13 @@ paths:
         features / extensions and
         [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
-
-
-        More information on
-        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
         - {}
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
           description: A list of collections and related links.
@@ -1174,7 +1117,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/collection'
                   links:
-                    $ref: '#/components/schemas/links_discovery'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   collections:
                     - stac_version: 0.9.0
@@ -1283,11 +1226,6 @@ paths:
         features / extensions and
         [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
-
-
-        More information on
-        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
@@ -1759,19 +1697,21 @@ paths:
           $ref: '#/components/responses/server_error'
   /processes:
     get:
-      summary: Supported processes
+      summary: Supported predefined processes
       operationId: list-processes
       description: >-
-        The request asks the back-end for available processes and returns
+        The request asks the back-end for available predefined processes and returns
         detailed process descriptions, including parameters and return values.
       tags:
         - Process Discovery
       security:
         - {}
         - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: Formal specification describing the supported processes.
+          description: Formal specification describing the supported predefined processes.
           content:
             application/json:
               schema:
@@ -1784,9 +1724,9 @@ paths:
                   processes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/process'
+                      $ref: '#/components/schemas/predefined_process'
                   links:
-                    $ref: '#/components/schemas/links_discovery'
+                    $ref: '#/components/schemas/links_pagination'
                 example:
                   processes:
                     - id: round
@@ -1811,24 +1751,21 @@ paths:
                         gets propagated.
                       categories:
                         - math
-                      parameter_order:
-                        - x
-                        - p
                       parameters:
-                        x:
+                        - name: x
                           description: A number to round.
                           schema:
                             type:
                               - number
                               - 'null'
-                          required: true
-                        p:
+                        - name: p
                           description: >-
                             A positive number specifies the number of digits
                             after the decimal point to round to. A negative
                             number means rounding to a power of ten, so for
                             example *-2* rounds to the nearest hundred. Defaults
                             to *0*.
+                          required: false
                           schema:
                             type: integer
                           default: 0
@@ -1875,7 +1812,7 @@ paths:
                         The numerical value is approximately *2.71828*.
                       categories:
                         - math > constants
-                      parameters: {}
+                      parameters: []
                       returns:
                         description: >-
                           Returns the numerical value of Euler's number.
@@ -2007,7 +1944,7 @@ paths:
                                         library or a latest version of the library available at the back-end.
 
                                         For additional relation types see also the lists of
-                                        [common relation types in openEO](#section/Web-Linking).
+                                        [common relation types in openEO](#section/API-Principles/Web-Linking).
                                       items:
                                         $ref: '#/components/schemas/link'
                         links:
@@ -2205,7 +2142,7 @@ paths:
                             help page or a page to register a new user account.
 
                             For relation types see the lists of
-                            [common relation types in openEO](#section/Web-Linking).
+                            [common relation types in openEO](#section/API-Principles/Web-Linking).
                           items:
                             $ref: '#/components/schemas/link'
                 example:
@@ -2285,8 +2222,8 @@ paths:
           $ref: '#/components/responses/server_error'
   /validation:
     post:
-      summary: Validate a process graph
-      operationId: validate-process-graph
+      summary: Validate a user-defined process (graph)
+      operationId: validate-custom-process
       description: >-
         Validates a process graph without executing it. A process graph is
         considered valid unless the `errors` array in the response contains at
@@ -2314,7 +2251,7 @@ paths:
         graph parameter specified), but never if the process graph validation
         found an error (e.g. an unsupported process).
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - {}
         - Bearer: []
@@ -2341,16 +2278,14 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              title: Validation Request
-              type: object
-              required:
-                - process_graph
-              properties:
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+              $ref: '#/components/schemas/process_graph_with_metadata'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
         description: Specifies the process graph to be validated.
   /result:
     post:
@@ -2371,8 +2306,7 @@ paths:
         include the costs for processing and downloading the data. Additionally, 
         a link to a log file MAY be sent in the header.
       tags:
-        - Process Graphs
-        - Batch Jobs
+        - Data Processing
       security:
         - Bearer: []
       responses:
@@ -2419,61 +2353,113 @@ paths:
                   $ref: '#/components/schemas/billing_plan_defaultable'
   /process_graphs:
     get:
-      summary: List all stored process graphs
-      operationId: list-process-graphs
+      summary: List all user-defined processes
+      operationId: list-custom-processes
       description: >-
-        This service lists all process graphs of the authenticated user that are
+        This service lists all user-defined processes (process graphs) of the authenticated user that are
         stored at the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
+        - Process Discovery
       security:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: JSON array with stored process graph meta data
+          description: JSON array with user-defined processes.
           content:
             application/json:
               schema:
-                title: Stored Process Graph List Response
+                title: User Defined Processes Response
                 type: object
                 required:
-                  - process_graphs
+                  - processes
                   - links
                 properties:
-                  process_graphs:
-                    description: Array of stored process graphs
+                  processes:
+                    description: Array of user-defined processes
                     type: array
                     items:
-                      title: Stored Process Graph Metadata
+                      title: User-Defined Process
                       description: >-
-                        Defines limited metadata of stored process graphs that
-                        have been submitted by users.
+                        The user-defined processes submitted by a user,
+                        usually without process graph, examples, exceptions and links to keep the response size small.
                       type: object
-                      required:
-                        - id
                       properties:
                         id:
-                          $ref: '#/components/schemas/process_graph_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
+                          $ref: '#/components/schemas/process_id'
+                        summary:
+                          $ref: '#/components/schemas/process_summary'
                         description:
-                          $ref: '#/components/schemas/eo_description'
+                          $ref: '#/components/schemas/process_description'
+                        categories:
+                          $ref: '#/components/schemas/process_categories'
+                        parameters:
+                          $ref: '#/components/schemas/process_parameters'
+                        returns:
+                          $ref: '#/components/schemas/process_return_value'
+                        deprecated:
+                          $ref: '#/components/schemas/process_deprecated'
+                        experimental:
+                          $ref: '#/components/schemas/process_experimental'
                   links:
                     $ref: '#/components/schemas/links_pagination'
+                example:
+                  processes:
+                    - id: evi
+                      summary: Enhanced Vegetation Index
+                      description: >-
+                        Computes the Enhanced Vegetation Index (EVI).
+                        It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
+                      parameters:
+                        - name: red
+                          description: Value from the red band.
+                          schema: 
+                            type: number
+                        - name: blue
+                          description: Value from the blue band.
+                          schema: 
+                            type: number
+                        - name: nir
+                          description: Value from the near infrared band.
+                          schema: 
+                            type: number
+                      returns:
+                        description: Computed EVI.
+                        schema:
+                          type: number
+                    - id: ndsi
+                      summary: Normalized-Difference Snow Index
+                      parameters:
+                        - name: green
+                          description: Value from the Visible Green (0.53 - 0.61 micrometers) band.
+                          schema: 
+                            type: number
+                        - name: swir
+                          description: Value from the Short Wave Infrared (1.55 - 1.75 micrometers) band.
+                          schema: 
+                            type: number
+                      returns:
+                        schema:
+                          type: number
+                    - id: my_custom_process
+                  links: []
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
     post:
-      summary: Store a process graph
-      operationId: create-process-graph
-      description: >-
-        Creates a unique resource for a provided process graph that can be
+      summary: Store a user-defined process
+      operationId: create-custom-process
+      description: |-
+        Stores a provided user-defined process with process graph that can be
         reused in other process graphs.
+
+        The process id must be unique for the authenticated user,
+        including all pre-defined processes by the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -2484,67 +2470,51 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
+        description: Specifies the process graph with its meta data.
         content:
           application/json:
             schema:
-              title: Store Process Graph Request
-              type: object
-              required:
-                - process_graph
-              properties:
-                title:
-                  $ref: '#/components/schemas/eo_title'
-                description:
-                  $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
-        description: Specifies the process graph with its meta data.
+              $ref: '#/components/schemas/user_defined_process'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
   '/process_graphs/{process_graph_id}':
     parameters:
       - $ref: '#/components/parameters/process_graph_id'
     get:
-      summary: Full metadata for a stored process graph
-      operationId: describe-process-graph
-      description: Returns all information about a process graph.
+      summary: Full metadata for a user-defined process
+      operationId: describe-custom-process
+      description: Returns all information about a user-defined process, including its process graph.
       tags:
-        - Process Graphs
+        - User-Defined Processes
+        - Process Discovery
       security:
         - Bearer: []
       responses:
         '200':
-          description: JSON object with process graph
+          description: The user-defined process with process graph.
           content:
             application/json:
               schema:
-                title: Stored Process Graph Response
-                description: >-
-                  Defines full metadata of stored process graphs that have been
-                  submitted by users.
-                type: object
-                required:
-                  - id
-                  - process_graph
-                properties:
-                  id:
-                    $ref: '#/components/schemas/process_graph_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                $ref: '#/components/schemas/user_defined_process'
+              examples:
+                evi_user_defined_process:
+                  $ref: '#/components/examples/evi_user_defined_process'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
     patch:
-      summary: Modify a stored process graph
-      operationId: update-process-graph
+      summary: Modify a user-defined process
+      operationId: update-custom-process
       description: >-
-        Replaces a process graph or modifies the metadata, but maintains the
-        identifier.
+        Fully or partially replaces a user-defined process (process graph).
+
+        The process id must still be unique for the authenticated user,
+        including all pre-defined processes by the back-end.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
@@ -2555,33 +2525,28 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              title: Update Stored Process Graph Request
-              type: object
-              properties:
-                title:
-                  $ref: '#/components/schemas/eo_title'
-                description:
-                  $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
-        description: Specifies the process graph details to update.
+              $ref: '#/components/schemas/process_metadata'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
     delete:
-      summary: Delete a stored process graph
-      operationId: delete-process-graph
-      description: >-
-        Deletes the data related to this stored process graph.
+      summary: Delete a user-defined process
+      operationId: delete-custom-process
+      description: |-
+        Deletes the data related to this user-defined process, including its process graph.
 
-        Does NOT delete jobs or services that reference this process graph.
+        Does NOT delete jobs or services that reference this user-defined process.
       tags:
-        - Process Graphs
+        - User-Defined Processes
       security:
         - Bearer: []
       responses:
         '204':
-          description: The process graph has been successfully deleted
+          description: The user-defined process has been successfully deleted
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2590,24 +2555,23 @@ paths:
     get:
       summary: Supported secondary web service protocols
       operationId: list-service-types
-      description: >-
+      description: |-
         The request will ask the back-end for supported secondary web service
         protocols, e.g. WMS or WCS. The response is an object of all available
-        secondary web service protocols, including their parameters, attributes
-        and process graph variables.
+        secondary web service protocols,supported configuration settings and
+        process parameters.
 
-        Parameters configure the service and therefore need to be defined upon
-        creation of a service. Attributes are read-only characteristics of the
-        service and may be computed based on the parameters, e.g. available
-        layers for a WMS based on the bands in the underlying GeoTiff.
+        Configuration settings for the service need to be defined upon
+        creation of a service and the service will be set up accordingly.
 
-        A list of process graph variables is also available. This variables can
+        A list of process parameters is also available. This parameters can
         be used by users in a process graph that is used to compute web service
-        results. The objects can directly be used inside the process graph. Such
-        variables are usually things that have to be injected into the process
-        graph from the context of the web service. For example, a map service
-        such as a WMS would need to inject the spatial extent into the process
-        graph so that the back-end can compute the corresponding tile correctly.
+        results. The objects can directly be used inside the process graph with 
+        a `from_parameter` reference. Such parameters are usually things that
+        have to be injected into the process graph from the context of the web
+        service during runtime. For example, a map service such as a WMS would
+        need to inject the spatial extent into the process graph so that the
+        back-end can compute the corresponding tile correctly.
 
         To improve interoperability between back-ends common names for the
         services SHOULD be used, e.g. the abbreviations used in the official
@@ -2625,7 +2589,7 @@ paths:
         '200':
           description: >-
             An object with a map containing all service names as keys and an
-            object that defines supported parameters and attributes.
+            object that defines supported configuration settings and process parameters.
           content:
             application/json:
               schema:
@@ -2637,75 +2601,69 @@ paths:
                   title: Service Type
                   type: object
                   properties:
-                    parameters:
-                      title: Service Type Parameters
-                      description: List of supported parameters for configuration.
+                    configuration:
+                      title: Service Configuration
+                      description: List of supported configuration settings made available to the creator the service.
                       type: object
                       additionalProperties:
                         $ref: '#/components/schemas/argument'
-                    attributes:
-                      title: Service Type Attributes
-                      description: List of supported attributes.
-                      type: object
-                      additionalProperties:
-                        $ref: '#/components/schemas/argument'
-                    variables:
-                      title: Service Type Variables
-                      description: List of supported process graph variables.
+                    process_parameters:
+                      title: Process Parameters
+                      description: List of parameters made available to process graphs.
                       type: array
                       items:
-                        $ref: '#/components/schemas/variable'
+                        $ref: '#/components/schemas/process_parameter'
                     links:
                       description: |-
                         Links related to this service type, e.g. more
-                        information about the parameters, attributes or options
-                        to access the created services
+                        information about the configuration settings and process parameters.
 
                         For relation types see the lists of
-                        [common relation types in openEO](#section/Web-Linking).
+                        [common relation types in openEO](#section/API-Principles/Web-Linking).
                       type: array
                       items:
                         $ref: '#/components/schemas/link'
                 example:
                   WMS:
-                    parameters:
+                    configuration:
                       version:
                         type: string
-                        description: The WMS version to use.
+                        description: The WMS version offered to consumers of the service.
                         default: 1.3.0
                         enum:
                           - 1.1.1
                           - 1.3.0
-                    attributes:
-                      layers:
-                        type: array
-                        description: Array of layer names.
-                        example:
-                          - roads
-                          - countries
-                          - water_bodies
-                    variables:
-                      - variable_id: layer
-                        type: string
+                    process_parameters:
+                      - name: layer
                         description: The layer name.
+                        schema:
+                          type: string
                         default: roads
-                      - variable_id: spatial_extent_west
-                        type: number
-                      - variable_id: spatial_extent_east
-                        type: number
-                      - variable_id: spatial_extent_north
-                        type: number
-                      - variable_id: spatial_extent_south
-                        type: number
+                      - name: spatial_extent_west
+                        description: The lower left corner for coordinate axis 1 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_south
+                        description: The lower left corner for coordinate axis 2 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_east
+                        description: The upper right corner for coordinate axis 1 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
+                      - name: spatial_extent_north
+                        description: The upper right corner for coordinate axis 2 of the extent currently shown to the consumer.
+                        schema: 
+                          type: number
                     links:
                       - href: 'https://www.opengeospatial.org/standards/wms'
                         rel: about
                         title: OGC Web Map Service Standard
                   WFS:
-                    parameters:
+                    configuration:
                       version:
                         type: string
-                        description: The WFS version to use.
+                        description: The WFS version offered to consumers of the service.
                         default: 2.0.0
                         enum:
                           - 1.0.0
@@ -2717,13 +2675,6 @@ paths:
                         default: 10000
                         minimum: 1
                         maximum: 100000
-                    attributes:
-                      typeNames:
-                        type: array
-                        description: Array of available feature type names.
-                        example:
-                          - 'topp:states'
-                          - 'topp:cities'
                     links:
                       - href: 'https://www.opengeospatial.org/standards/wfs'
                         rel: about
@@ -2821,6 +2772,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2840,8 +2792,8 @@ paths:
                   $ref: '#/components/schemas/service_type'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
-                parameters:
-                  $ref: '#/components/schemas/service_parameters'
+                configuration:
+                  $ref: '#/components/schemas/service_configuration'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -2869,6 +2821,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2883,8 +2836,8 @@ paths:
                   $ref: '#/components/schemas/process_graph'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
-                parameters:
-                  $ref: '#/components/schemas/service_parameters'
+                configuration:
+                  $ref: '#/components/schemas/service_configuration'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -2932,16 +2885,15 @@ paths:
                     $ref: '#/components/schemas/service_type'
                   enabled:
                     $ref: '#/components/schemas/service_enabled'
-                  parameters:
-                    $ref: '#/components/schemas/service_parameters'
+                  configuration:
+                    $ref: '#/components/schemas/service_configuration'
                   attributes:
                     title: Secondary Web Service Attributes
                     type: object
                     description: >-
                       Additional attributes of the secondary web service, e.g.
                       available layers for a WMS based on the bands in the
-                      underlying GeoTiff. See `GET /service_types` for supported
-                      attributes.
+                      underlying GeoTiff.
                     example:
                       layers:
                         - ndvi
@@ -3002,7 +2954,7 @@ paths:
         Requests to this endpoint will list all batch jobs submitted by a user
         with given id.
       tags:
-        - Batch Jobs
+        - Data Processing
       security:
         - Bearer: []
       parameters:
@@ -3069,6 +3021,7 @@ paths:
         Processing the data doesn't start yet. The job status gets initialized
         as `created` by default.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3080,6 +3033,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -3114,6 +3068,7 @@ paths:
         Otherwise requests to this endpoint MUST be rejected with openEO error
         `JobLocked`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3125,6 +3080,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -3147,6 +3103,7 @@ paths:
       operationId: describe-job
       description: Returns detailed information about a submitted batch job.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3214,6 +3171,7 @@ paths:
         computed results are deleted. This job won't generate additional costs
         for processing.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3238,6 +3196,7 @@ paths:
         downloading costs. This can be indicated with the `downloads_included`
         flag.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3295,6 +3254,7 @@ paths:
       operationId: debug-job
       description: Logs for the batch job.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3335,6 +3295,7 @@ paths:
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3403,6 +3364,7 @@ paths:
         * Whenever an error occurs during processing, the status must be set to
         `error`.
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3434,6 +3396,7 @@ paths:
         beforehand and partial or preliminary results are available to be
         downloaded. Otherwise the status is set to `created`. 
       tags:
+        - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
@@ -3552,6 +3515,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
+        required: true
         content:
           application/octet-stream:
             schema:
@@ -3656,7 +3620,7 @@ paths:
                       2. `edit-form`: Points to a page where the user can edit his user profile.
 
                       For additional relation types see also the lists of
-                      [common relation types in openEO](#section/Web-Linking).
+                      [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -3853,7 +3817,7 @@ components:
             default.
 
             For relation types see the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     file_format:
@@ -3896,7 +3860,7 @@ components:
             Links related to this file format, e.g. external documentation.
 
             For relation types see the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     production:
@@ -3908,22 +3872,6 @@ components:
         Clients SHOULD only connect to non-production implementations if the
         user explicitly confirmed to use a non-production implementation.
       default: true
-    links_discovery:
-      description: |-
-        Links related to this set of resources, for example links to alternative
-        formats such as a human-readable HTML version.
-
-        It is RECOMMENDED to provide links with the following
-        `rel` (relation) types:
-
-        1. `alternate`: An alternative representation. For example, a
-        human-readable HTML version or another catalog service.
-
-        For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
-      type: array
-      items:
-        $ref: '#/components/schemas/link'
     links_pagination:
       description: |-
         Links related to this list of resources, for example links for pagination
@@ -3941,7 +3889,7 @@ components:
         4. `last` (OPTIONAL): A link to the last page, except on the last page.
 
         For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
@@ -3957,7 +3905,7 @@ components:
         e.g. a user guide or the documentation.
 
         For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       items:
         $ref: '#/components/schemas/link'
     link:
@@ -4247,7 +4195,7 @@ components:
             metadata document following another standard such as ISO 19115 or DCAT.
 
             For additional relation types see also the lists of
-            [common relation types in openEO](#section/Web-Linking)
+            [common relation types in openEO](#section/API-Principles/Web-Linking)
             and the STAC specification for Collections.
           type: array
           items:
@@ -4410,69 +4358,13 @@ components:
       type: string
     collection_dimension_reference_system_spatial:
       description: >-
-        The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON](https://proj.org/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
+        The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
       oneOf:
-        - type: object
-          description: PROJJSON
         - type: string
           description: WKT2 or PROJ definition
         - type: number
           default: 4326
           description: EPSG code
-    variable:
-      title: Process Graph Variable
-      description: >-
-        Process graphs can hold a variable, which can be filled in later. For
-        shared process graphs this can be useful to make them more portable, e.g
-        in case a back-end specific product name would be stored with the
-        process graph.
-
-
-        If a process graph with a variable is about to be executed and neither a
-        value nor a default value is specified, the back-end MUST reject the
-        request with an error of type `VariableValueMissing`. The values are
-        usually defined when loading the process graph with the
-        `run_process_graph` process.
-
-
-        Invalid variable types MUST be rejected with error
-        `VariableTypeInvalid`. If the default value is not compatible to the
-        specified type an `VariableDefaultValueTypeInvalid` error MUST be sent.
-        Invalid variable ids MUST be rejected with error `VariableIdInvalid`. 
-      type: object
-      required:
-        - variable_id
-      properties:
-        variable_id:
-          type: string
-          description: >-
-            The name of the variable. Can be any valid JSON key, but it is
-            RECOMMENDED to use snake case and limit the characters to `a-z`,
-            `0-9` and `_`.
-        type:
-          $ref: '#/components/schemas/data_type'
-        description:
-          description: Optional description about the variable.
-          type: string
-          nullable: true
-        default:
-          description: >-
-            Whenever no value for the variable is defined, the default value is
-            used.
-          nullable: true
-    data_type:
-      type: string
-      description: >-
-        The type is the expected data type for the content of the variable or
-        parameter. `null` is allowed for all types. If no type is specified, any
-        type is allowed to be passed.
-      enum:
-        - string
-        - number
-        - integer
-        - boolean
-        - array
-        - object
     process_arguments:
       title: Process Arguments
       type: object
@@ -4486,6 +4378,13 @@ components:
         - type: object
           nullable: true
           title: Object
+          properties:
+            from_parameter:
+              not: {}
+            from_node:
+              not: {}
+            process_graph:
+              not: {}
         - type: string
           title: String
         - type: number
@@ -4496,9 +4395,9 @@ components:
           title: Array
           items:
             $ref: '#/components/schemas/process_argument_value'
-        - $ref: '#/components/schemas/variable'
+        - $ref: '#/components/schemas/process_graph_with_metadata'
         - type: object
-          title: Result
+          title: Result Reference
           description: Data that is expected to be passed from another process.
           required:
             - from_node
@@ -4508,27 +4407,16 @@ components:
               type: string
           additionalProperties: false
         - type: object
-          title: Parameter in a Parametrized Process Graph
+          title: Parameter Reference
           description: >-
-            Data that is expected to be passed to a parametrized process graph from the process
-            that is executing the parametrized process graph.
+            A parameter for a process graph. Data that is expected to be passed to a process graph either from the user directly
+            or from the process that is executing the process graph.
           required:
-            - from_argument
+            - from_parameter
           properties:
-            from_argument:
-              description: >-
-                The name of the parameter that is made available to a parametrized process graph
-                by a calling process.
+            from_parameter:
+              description: The name of the parameter that data is expected to come from.
               type: string
-          additionalProperties: false
-        - type: object
-          title: Parametrized Process Graph
-          description: Process graph with parameters, which is executed from withing another process.
-          required:
-            - callback
-          properties:
-            callback:
-              $ref: '#/components/schemas/process_graph'
           additionalProperties: false
     process_graph:
       title: Process Graph
@@ -4595,24 +4483,24 @@ components:
               from_node: bands
             dimension: spectral
             reducer:
-              callback:
+              process_graph:
                 nir:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 0
                 red:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 1
                 blue:
                   process_id: array_element
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                     index: 2
                 sub:
                   process_id: subtract
@@ -4661,12 +4549,12 @@ components:
               from_node: evi
             dimension: temporal
             reducer:
-              callback:
+              process_graph:
                 min:
                   process_id: min
                   arguments:
                     data:
-                      from_argument: data
+                      from_parameter: data
                   result: true
         save:
           process_id: save_result
@@ -4675,141 +4563,28 @@ components:
               from_node: mintime
             format: GTiff
           result: true
-    process:
-      title: Process
+    process_metadata:
+      title: Process Metadata
       type: object
-      required:
-        - id
-        - description
-        - parameters
-        - returns
       properties:
         id:
           $ref: '#/components/schemas/process_id'
         summary:
-          type: string
-          description: A short summary of what the process does.
+          $ref: '#/components/schemas/process_summary'
         description:
           $ref: '#/components/schemas/process_description'
         categories:
-          type: array
-          description: A list of categories.
-          items:
-            type: string
-            description: Name of the category.
-        parameter_order:
-          type: array
-          description: >-
-            Describes the order or the parameter for any environments that don't
-            support named parameters. This property MUST be present for all
-            processes with two or more parameters.
-          items:
-            type: string
-            description: Each item MUST correspond to a key in the `parameters` object.
-            pattern: '^[A-Za-z0-9_]+$'
+          $ref: '#/components/schemas/process_categories'
         parameters:
-          type: object
-          title: Process Parameters
-          description: >-
-            A list of parameters that are applicable for this process. The keys
-            of the object are the names of the parameters. They keys MUST match
-            the following pattern: `^[A-Za-z0-9_]+$`
-          additionalProperties:
-            x-additionalPropertiesName: Parameter Name
-            title: Process Parameter
-            type: object
-            required:
-              - description
-              - schema
-            properties:
-              description:
-                $ref: '#/components/schemas/process_description'
-              required:
-                type: boolean
-                description: Determines whether this parameter is mandatory.
-                default: false
-              deprecated:
-                $ref: '#/components/schemas/process_deprecated'
-              experimental:
-                $ref: '#/components/schemas/process_experimental'
-              default:
-                description: >-
-                  The default value for this parameter.
-                  Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-                nullable: true
-              schema:
-                $ref: '#/components/schemas/process_schema'
+          $ref: '#/components/schemas/process_parameters'
         returns:
-          type: object
-          title: Process Return Value
-          description: The data that is returned from this process.
-          required:
-            - description
-            - schema
-          properties:
-            description:
-              $ref: '#/components/schemas/process_description'
-            schema:
-              $ref: '#/components/schemas/process_schema'
+          $ref: '#/components/schemas/process_return_value'
         deprecated:
           $ref: '#/components/schemas/process_deprecated'
         experimental:
           $ref: '#/components/schemas/process_experimental'
         exceptions:
-          type: object
-          title: Process Exceptions
-          description: >-
-            Declares any exceptions (errors) that might occur during execution
-            of this process. MUST be used only for exceptions that stop the
-            execution of a process and are therefore not to be used for
-            warnings, or notices or debugging messages.
-
-
-            The keys define the error code and MUST match the following pattern:
-            `^[A-Za-z0-9_]+$`
-
-
-            This schema follows the schema of the general openEO error list (see
-            errors.json).
-          additionalProperties:
-            x-additionalPropertiesName: Error Code
-            title: Process Exception
-            type: object
-            required:
-              - message
-            properties:
-              description:
-                type: string
-                description: >-
-                  Detailed description to explain the error to client
-                  users and back-end developers. This should not be shown in the
-                  clients directly, but may be linked to in the errors `url`
-                  property.
-
-
-                  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
-                  for rich text representation.
-              message:
-                type: string
-                description: >-
-                  Explains the reason the server is rejecting the request. This
-                  message is intended to be displayed to the client user. For
-                  "4xx" error codes the message should explain shortly how the
-                  client needs to modify the request.
-
-
-                  The message MAY contain variables, which are enclosed by curly
-                  brackets. Example: `{variable_name}`
-                example: >-
-                  The value specified for the process argument '{argument}' in
-                  process '{process}' is invalid: {reason}
-              http:
-                type: integer
-                description: >-
-                  HTTP Status Code, following the [error handling conventions in
-                  openEO](https://open-eo.github.io/openeo-api/draft/errors/).
-                  Defaults to `400`.
-                default: 400
+          $ref: '#/components/schemas/process_exceptions'
         examples:
           type: array
           description: >-
@@ -4855,14 +4630,74 @@ components:
             links should be added.
 
             For additional relation types see also the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+    process:
+      title: Process
+      allOf:
+        - $ref: '#/components/schemas/process_metadata'
+        - type: object
+          properties:
+            process_graph:
+              $ref: '#/components/schemas/process_graph'
+    predefined_process:
+      title: Pre-Defined Process
+      description: A pre-defined process made available by the back-end.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - required:
+            - id
+            - description
+            - parameters
+            - returns
+    user_defined_process:
+      title: User-Defined Process
+      description: A user-defined process with processing instructions as process graph.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - required:
+            - id
+            - process_graph
+    process_graph_with_metadata:
+      title: Process Graph with metadata
+      description: A process graph, optionally enriched with process metadata.
+      allOf:
+        - $ref: '#/components/schemas/process'
+        - required:
+            - process_graph
     process_id:
       type: string
-      description: Unique identifier of the process.
+      description: >-
+        Unique identifier for the process.
+        
+        MUST be unique across all predefined and user-defined processes available for the authenticated user.
+        If a back-end adds a process with the name of a user-defined process, the user-defined process takes
+        preference over predefined processes in execution to not break existing process graphs.
+        Back-ends may choose to enforce a prefix for user-defined processes while storing the process, e.g.
+        `user_ndvi` with `user_` being the prefix. Prefixes must still follow the pattern.
       pattern: '^[A-Za-z0-9_]+$'
       example: ndvi
+    process_summary:
+      type: string
+      description: A short summary of what the process does.
+    process_categories:
+      type: array
+      description: A list of categories.
+      items:
+        type: string
+        description: Name of the category.
+    process_return_value:
+      type: object
+      title: Process Return Value
+      description: The data that is returned from this process.
+      required:
+        - schema
+      properties:
+        description:
+          $ref: '#/components/schemas/process_description'
+        schema:
+          $ref: '#/components/schemas/process_schema'
     process_experimental:
       type: boolean
       description: >-
@@ -4884,13 +4719,102 @@ components:
         added to the `links` and MUST refer to the process that can be used
         instead.
       default: false
-    process_graph_id:
-      type: string
+    process_exceptions:
+      type: object
+      title: Process Exceptions
       description: >-
-        Unique identifier of a process graph that is generated by the back-end
-        during process graph submission. MUST match the specified pattern.
-      pattern: '^[A-Za-z0-9_\-\.~]+$'
-      example: cc2bab1e3b3a52aa
+        Declares any exceptions (errors) that might occur during execution
+        of this process. MUST be used only for exceptions that stop the
+        execution of a process and are therefore not to be used for
+        warnings, or notices or debugging messages.
+
+
+        The keys define the error code and MUST match the following pattern:
+        `^[A-Za-z0-9_]+$`
+
+
+        This schema follows the schema of the general openEO error list (see
+        errors.json).
+      additionalProperties:
+        x-additionalPropertiesName: Error Code
+        title: Process Exception
+        type: object
+        required:
+          - message
+        properties:
+          description:
+            type: string
+            description: >-
+              Detailed description to explain the error to client
+              users and back-end developers. This should not be shown in the
+              clients directly, but may be linked to in the errors `url`
+              property.
+
+
+              [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
+              for rich text representation.
+          message:
+            type: string
+            description: >-
+              Explains the reason the server is rejecting the request. This
+              message is intended to be displayed to the client user. For
+              "4xx" error codes the message should explain shortly how the
+              client needs to modify the request.
+
+
+              The message MAY contain variables, which are enclosed by curly
+              brackets. Example: `{variable_name}`
+            example: >-
+              The value specified for the process argument '{argument}' in
+              process '{process}' is invalid: {reason}
+          http:
+            type: integer
+            description: >-
+              HTTP Status Code, following the [error handling conventions in
+              openEO](#section/API-Principles/Error-Handling).
+              Defaults to `400`.
+            default: 400
+    process_parameters:
+      type: array
+      description: |-
+        A list of parameters.
+
+        The order in the array corresponds to the parameter order to
+        be used in clients that don't support named parameters.
+      items:
+        $ref: '#/components/schemas/process_parameter'
+    process_parameter:
+      title: Process Parameter
+      type: object
+      required:
+        - name
+        - description
+        - schema
+      properties:
+        name:
+          type: string
+          description: |-
+            A unique name for the parameter. 
+
+            It is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`).
+          pattern: '^[A-Za-z0-9_]+$'
+        description:
+          $ref: '#/components/schemas/process_description'
+        optional:
+          type: boolean
+          description: Determines whether this parameter is optional to be specified.
+          default: false
+        deprecated:
+          $ref: '#/components/schemas/process_deprecated'
+        experimental:
+          $ref: '#/components/schemas/process_experimental'
+        default:
+          description: >-
+            The default value for this parameter.
+            Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
+          nullable: true
+        schema:
+          $ref: '#/components/schemas/process_schema'
     job_id:
       type: string
       description: >-
@@ -4988,9 +4912,9 @@ components:
         MUST be accepted *case insensitive*.
       type: string
       example: wms
-    service_parameters:
+    service_configuration:
       type: object
-      title: Service Parameters
+      title: Service Configuration
       description: >-
         List of arguments, i.e. the parameter names supported by the secondary
         web service combined with actual values. See `GET /service_types` for
@@ -5029,7 +4953,18 @@ components:
         - description
       properties:
         type:
-          $ref: '#/components/schemas/data_type'
+          type: string
+          description: >-
+            The type is the expected data type for the content of the parameter.
+            `null` is allowed for all types. If no type is specified, any type is
+            allowed to be passed.
+          enum:
+            - string
+            - number
+            - integer
+            - boolean
+            - array
+            - object
         description:
           type: string
           description: A brief description of the argument.
@@ -5074,10 +5009,11 @@ components:
       title: General Error
       description: >-
         An error object declares additional information about a client-side or
-        server-side error. The [openEO
-        documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html)
-        provides additional information regarding error handling and a list of
-        potential error codes.
+        server-side error.
+        
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       type: object
       required:
         - code
@@ -5112,7 +5048,7 @@ components:
         provides further explanations.
 
         For relation types see the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
@@ -5142,7 +5078,7 @@ components:
         Specifies a data type supported by a parameter or return value.
 
         The data types are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
-        See the chapter [Schemas in Process Discovery](#section/Schemas) for more information.
+        See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
 
         It is discouraged to specify JSON Schemas with `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
         Instead specify each data type in a separate array element.
@@ -5150,6 +5086,7 @@ components:
         It is recommended to refrain from using the following more complex JSON Schema keywords:
         `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
 
+        JSON Schemas should always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
@@ -5165,9 +5102,7 @@ components:
         subtype:
           type: string
         parameters:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/process_json_schema'
+          $ref: '#/components/schemas/process_parameters'
         pattern:
           type: "string"
           format: "regex"
@@ -5491,7 +5426,7 @@ components:
             description: URL to the newly created resource.
             format: uri
             type: string
-            example: 'https://openeo.org/api/v0.4/resource/123'
+            example: 'https://openeo.org/api/v1.0/resource/123'
         OpenEO-Identifier:
           required: true
           schema:
@@ -5501,42 +5436,57 @@ components:
             type: string
             example: '123'
     client_error:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client should not repeat the request without
-        modifications. The response body SHOULD contain a JSON error object.
+        modifications.
+        
+        The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC
         7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request
         usually does not respond with HTTP status codes 401 and 403 due to
         missing authorization. HTTP status code 404 should be used if the value
         of a path parameter is invalid.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
     client_error_auth:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client should not repeat the request without
-        modifications. The response body SHOULD contain a JSON error object.
+        modifications.
+        
+        The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
         This request MUST respond with HTTP status codes 401 if authorization is required or
         403 if the authorization failed or access is forbidden in general to the
         authenticated user. HTTP status code 404 should be used if the value of
         a path parameter is invalid.
-        See also the global [Error Handling](#section/Error-Handling) definitions.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
     server_error:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error at the back-end. The
         error is never the client’s fault and therefore it is reasonable for the
-        client to retry the exact same request that triggered this response. The
-        response body SHOULD contain a JSON error object. MUST be any HTTP
+        client to retry the exact same request that triggered this response.
+        
+        The response body SHOULD contain a JSON error object. MUST be any HTTP
         status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
-        See also the global [Error Handling](#section/Error-Handling) definitions.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
@@ -5575,7 +5525,7 @@ components:
       description: Unique process graph identifier.
       required: true
       schema:
-        $ref: '#/components/schemas/process_graph_id'
+        $ref: '#/components/schemas/process_id'
     service_id:
       name: service_id
       in: path
@@ -5616,6 +5566,72 @@ components:
             $ref: '#/components/schemas/process_graph'
       description: Description of one or more (chained) processes.
       required: true
+  examples:
+    evi_user_defined_process:
+      description: A user-defined process that computes the EVI.
+      value:
+        id: evi
+        summary: Enhanced Vegetation Index
+        description: >-
+          Computes the Enhanced Vegetation Index (EVI).
+          It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
+        parameters:
+          - name: red
+            description: Value from the red band.
+            schema: 
+              type: number
+          - name: blue
+            description: Value from the blue band.
+            schema: 
+              type: number
+          - name: nir
+            description: Value from the near infrared band.
+            schema: 
+              type: number
+        returns:
+          description: Computed EVI.
+          schema:
+            type: number
+        process_graph:
+          sub:
+            process_id: subtract
+            arguments:
+              data:
+                - from_parameter: nir
+                - from_parameter: red
+          p1:
+            process_id: product
+            arguments:
+              data:
+                - 6
+                - from_parameter: red
+          p2:
+            process_id: product
+            arguments:
+              data:
+                - -7.5
+                - from_parameter: blue
+          sum:
+            process_id: sum
+            arguments:
+              data:
+                - 1
+                - from_parameter: nir
+                - from_node: p1
+                - from_node: p2
+          div:
+            process_id: divide
+            arguments:
+              data:
+                - from_node: sub
+                - from_node: sum
+          p3:
+            process_id: product
+            arguments:
+              data:
+                - 2.5
+                - from_node: div
+            result: true
   securitySchemes:
     Bearer:
       type: http

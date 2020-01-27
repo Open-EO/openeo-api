@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Process Graph",
-  "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph.",
+  "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph. This JSON Schema is provided for convenience and doesn't claim to be complete or correct. The source of truth for the process graph schema is the OpenAPI specification!",
   "allOf": [
     {
       "$ref": "#/definitions/process_graph"
@@ -56,7 +56,18 @@
         },
         {
           "type": "object",
-          "title": "Object"
+          "title": "Object",
+          "properties": {
+            "from_argument": {
+              "not": {}
+            },
+            "from_node": {
+              "not": {}
+            },
+            "process_graph": {
+              "not": {}
+            }
+          }
         },
         {
           "type": "string",
@@ -78,11 +89,8 @@
           }
         },
         {
-          "$ref": "#/definitions/variable"
-        },
-        {
           "type": "object",
-          "title": "Result",
+          "title": "Result Reference",
           "required": [
             "from_node"
           ],
@@ -95,12 +103,12 @@
         },
         {
           "type": "object",
-          "title": "Callback Parameter",
+          "title": "Parameter Reference",
           "required": [
-            "from_argument"
+            "from_parameter"
           ],
           "properties": {
-            "from_argument": {
+            "from_parameter": {
               "type": "string"
             }
           },
@@ -108,76 +116,17 @@
         },
         {
           "type": "object",
-          "title": "Callback",
+          "title": "Process Graph",
           "required": [
-            "callback"
+            "process_graph"
           ],
           "properties": {
-            "callback": {
+            "process_graph": {
               "$ref": "#/definitions/process_graph"
             }
-          },
-          "additionalProperties": false
+          }
         }
       ]
-    },
-    "variable": {
-      "title": "Process Graph Variable",
-      "type": "object",
-      "required": [
-        "variable_id"
-      ],
-      "properties": {
-        "variable_id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "integer",
-            "boolean",
-            "array",
-            "object"
-          ],
-          "default": "string"
-        },
-        "description": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "default": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "type": "object"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "number"
-            },
-            {
-              "type": "array",
-              "items": {
-                "description": "Any type is allowed."
-              }
-            },
-            {
-              "type": "boolean"
-            },
-            {
-              "$ref": "#/definitions/process_graph"
-            }
-          ]
-        }
-      }
     },
     "process_id": {
       "type": "string",
