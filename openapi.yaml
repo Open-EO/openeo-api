@@ -72,7 +72,7 @@ info:
     Sending `code` and `message` is REQUIRED. 
 
     * A back-end MAY add a free-form `id` (unique identifier) to the error response to be able to log and track errors with further non-disclosable details.
-    * The `code` is either one of the [standardized textual openEO error codes](https://open-eo.github.io/openeo-api/draft/errors/index.html) or a proprietary error code.
+    * The `code` is either one of the [standardized textual openEO error codes](errors.json) or a proprietary error code.
     * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
 
       By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
@@ -199,7 +199,7 @@ info:
 
     A **process graph** chains specific process calls from the set of pre-defined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
-    ## Defining processes
+    ## Defining Processes
 
     Back-ends and users MAY define new proprietary processes for their domain. 
     
@@ -341,7 +341,7 @@ info:
     `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
     If there are multiple parameters with the same name, the parameter is resolved by starting in the current scope and then checking each parent for a suitable parameter until the "root" process graph is reached.
 
-    If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-processes) of the corresponding JSON Schema.
+    If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
     In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
     The process graph for the example would look as follows:
 
@@ -483,7 +483,7 @@ servers:
       secure with HTTP only!
     variables:
       version:
-        default: v0.4
+        default: v1.0
         description: >-
           API versioning is RECOMMENDED. As the openEO API is following
           [SemVer](https://semver.org/) only the MAJOR part of the stable
@@ -757,7 +757,7 @@ paths:
                       Required if full OGC API compatibility is desired.
 
                       For additional relation types see also the lists of
-                      [common relation types in openEO](#section/Web-Linking).
+                      [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -855,7 +855,7 @@ paths:
                           type: string
                           format: uri
                           description: '*Absolute* URLs to the service.'
-                          example: 'https://example.com/api/v0.4'
+                          example: 'https://example.com/api/v1.0'
                         production:
                           $ref: '#/components/schemas/production'
                         api_version:
@@ -1093,11 +1093,6 @@ paths:
         features / extensions and
         [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
-
-
-        More information on
-        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
@@ -1231,11 +1226,6 @@ paths:
         features / extensions and
         [STAC extensions](https://github.com/radiantearth/stac-spec/tree/0.9.0/extensions)
         can be implemented in addition to what is documented here.
-
-
-        More information on
-        [data discovery](https://open-eo.github.io/openeo-api/draft/collections/),
-        including common relation types for links, are available in the documentation.
       tags:
         - EO Data Discovery
       security:
@@ -1954,7 +1944,7 @@ paths:
                                         library or a latest version of the library available at the back-end.
 
                                         For additional relation types see also the lists of
-                                        [common relation types in openEO](#section/Web-Linking).
+                                        [common relation types in openEO](#section/API-Principles/Web-Linking).
                                       items:
                                         $ref: '#/components/schemas/link'
                         links:
@@ -2152,7 +2142,7 @@ paths:
                             help page or a page to register a new user account.
 
                             For relation types see the lists of
-                            [common relation types in openEO](#section/Web-Linking).
+                            [common relation types in openEO](#section/API-Principles/Web-Linking).
                           items:
                             $ref: '#/components/schemas/link'
                 example:
@@ -2629,7 +2619,7 @@ paths:
                         information about the configuration settings and process parameters.
 
                         For relation types see the lists of
-                        [common relation types in openEO](#section/Web-Linking).
+                        [common relation types in openEO](#section/API-Principles/Web-Linking).
                       type: array
                       items:
                         $ref: '#/components/schemas/link'
@@ -3630,7 +3620,7 @@ paths:
                       2. `edit-form`: Points to a page where the user can edit his user profile.
 
                       For additional relation types see also the lists of
-                      [common relation types in openEO](#section/Web-Linking).
+                      [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
                     items:
                       $ref: '#/components/schemas/link'
@@ -3827,7 +3817,7 @@ components:
             default.
 
             For relation types see the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     file_format:
@@ -3870,7 +3860,7 @@ components:
             Links related to this file format, e.g. external documentation.
 
             For relation types see the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     production:
@@ -3899,7 +3889,7 @@ components:
         4. `last` (OPTIONAL): A link to the last page, except on the last page.
 
         For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
@@ -3915,7 +3905,7 @@ components:
         e.g. a user guide or the documentation.
 
         For additional relation types see also the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       items:
         $ref: '#/components/schemas/link'
     link:
@@ -4205,7 +4195,7 @@ components:
             metadata document following another standard such as ISO 19115 or DCAT.
 
             For additional relation types see also the lists of
-            [common relation types in openEO](#section/Web-Linking)
+            [common relation types in openEO](#section/API-Principles/Web-Linking)
             and the STAC specification for Collections.
           type: array
           items:
@@ -4640,7 +4630,7 @@ components:
             links should be added.
 
             For additional relation types see also the lists of
-            [common relation types in openEO](#section/Web-Linking).
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
     process:
@@ -4781,7 +4771,7 @@ components:
             type: integer
             description: >-
               HTTP Status Code, following the [error handling conventions in
-              openEO](https://open-eo.github.io/openeo-api/draft/errors/).
+              openEO](#section/API-Principles/Error-Handling).
               Defaults to `400`.
             default: 400
     process_parameters:
@@ -5019,10 +5009,11 @@ components:
       title: General Error
       description: >-
         An error object declares additional information about a client-side or
-        server-side error. The [openEO
-        documentation](https://open-eo.github.io/openeo-api/draft/errors/index.html)
-        provides additional information regarding error handling and a list of
-        potential error codes.
+        server-side error.
+        
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       type: object
       required:
         - code
@@ -5057,7 +5048,7 @@ components:
         provides further explanations.
 
         For relation types see the lists of
-        [common relation types in openEO](#section/Web-Linking).
+        [common relation types in openEO](#section/API-Principles/Web-Linking).
       type: array
       items:
         $ref: '#/components/schemas/link'
@@ -5087,7 +5078,7 @@ components:
         Specifies a data type supported by a parameter or return value.
 
         The data types are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
-        See the chapter [Schemas in Process Discovery](#section/Schemas) for more information.
+        See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
 
         It is discouraged to specify JSON Schemas with `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
         Instead specify each data type in a separate array element.
@@ -5435,7 +5426,7 @@ components:
             description: URL to the newly created resource.
             format: uri
             type: string
-            example: 'https://openeo.org/api/v0.4/resource/123'
+            example: 'https://openeo.org/api/v1.0/resource/123'
         OpenEO-Identifier:
           required: true
           schema:
@@ -5445,42 +5436,57 @@ components:
             type: string
             example: '123'
     client_error:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client should not repeat the request without
-        modifications. The response body SHOULD contain a JSON error object.
+        modifications.
+        
+        The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC
         7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request
         usually does not respond with HTTP status codes 401 and 403 due to
         missing authorization. HTTP status code 404 should be used if the value
         of a path parameter is invalid.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
     client_error_auth:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client should not repeat the request without
-        modifications. The response body SHOULD contain a JSON error object.
+        modifications.
+        
+        The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
         This request MUST respond with HTTP status codes 401 if authorization is required or
         403 if the authorization failed or access is forbidden in general to the
         authenticated user. HTTP status code 404 should be used if the value of
         a path parameter is invalid.
-        See also the global [Error Handling](#section/Error-Handling) definitions.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
     server_error:
-      description: >-
+      description: |-
         The request can't be fulfilled due to an error at the back-end. The
         error is never the client’s fault and therefore it is reasonable for the
-        client to retry the exact same request that triggered this response. The
-        response body SHOULD contain a JSON error object. MUST be any HTTP
+        client to retry the exact same request that triggered this response.
+        
+        The response body SHOULD contain a JSON error object. MUST be any HTTP
         status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
-        See also the global [Error Handling](#section/Error-Handling) definitions.
+
+        See also:
+        * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
+        * [Common Error Codes](errors.json)
       content:
         application/json:
           schema:
