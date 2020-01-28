@@ -1729,118 +1729,85 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
                 example:
                   processes:
-                    - id: round
-                      summary: Rounds to a specified precision
+                    - id: apply
+                      summary: Apply a process to each pixel
                       description: >-
-                        Rounds a real number `x` to specified precision `p`.
+                        Applies a *unary* process to each pixel value in the data cube (i.e. a local operation). A unary process takes a single value and returns a single value, for example ``abs()`` or ``linear_scale_range()``.
+                      categories:
+                        - cubes
+                      parameters:
+                        - name: data
+                          description: A data cube.
+                          schema:
+                            type: object
+                            subtype: raster-cube
+                        - name: process
+                          description: 'A unary process to be applied on each value, may consist of multiple sub-processes.'
+                          schema:
+                            type: object
+                            subtype: process-graph
+                            parameters:
+                              - name: x
+                                description: The value to process.
+                                schema:
+                                  description: Any data type.
+                      returns:
+                        description: 'A data cube with the newly computed values. The resolution, cardinality and the number of dimensions are the same as for the original data cube.'
+                        schema:
+                          type: object
+                          subtype: raster-cube
+                    - id: multiply
+                      summary: Multiplication of two numbers
+                      description: |-
+                        Multiplies the two numbers `x` and `y` (*x * y*) and returns the computed product.
 
+                        No-data values are taken into account so that `null` is returned if any element is such a value.
 
-                        If the fractional part of `x` is halfway between two
-                        integers, one of which is even and the other odd, then
-                        the even number is returned.
-
-                        This behavior follows [IEEE Standard
-                        754](https://ieeexplore.ieee.org/document/4610935). This
-                        kind of rounding is also called "rounding to nearest" or
-                        "banker's rounding". It minimizes rounding errors that
-                        result from consistently rounding a midpoint value in a
-                        single direction.
-
-
-                        The no-data value `null` is passed through and therefore
-                        gets propagated.
+                        The computations follow [IEEE Standard 754](https://ieeexplore.ieee.org/document/8766229) whenever the processing environment supports it.
                       categories:
                         - math
                       parameters:
                         - name: x
-                          description: A number to round.
+                          description: The multiplier.
                           schema:
                             type:
                               - number
                               - 'null'
-                        - name: p
-                          description: >-
-                            A positive number specifies the number of digits
-                            after the decimal point to round to. A negative
-                            number means rounding to a power of ten, so for
-                            example *-2* rounds to the nearest hundred. Defaults
-                            to *0*.
-                          required: false
+                        - name: 'y'
+                          description: The multiplicand.
                           schema:
-                            type: integer
-                          default: 0
+                            type:
+                              - number
+                              - 'null'
                       returns:
-                        description: The rounded number.
+                        description: The computed product of the two numbers.
                         schema:
                           type:
                             - number
                             - 'null'
+                      exceptions:
+                        MultiplicandMissing:
+                          message: Multiplication requires at least two numbers.
                       examples:
                         - arguments:
-                            x: 0
-                          returns: 0
+                            x: 5
+                            y: 2.5
+                          returns: 12.5
                         - arguments:
-                            x: 3.56
-                            p: 1
-                          returns: 3.6
+                            x: -2
+                            y: -4
+                          returns: 8
                         - arguments:
-                            x: -0.4444444
-                            p: 2
-                          returns: -0.44
-                        - arguments:
-                            x: -2.5
-                          returns: -2
-                        - arguments:
-                            x: -3.5
-                          returns: -4
-                        - arguments:
-                            x: 1234.5
-                            p: -2
-                          returns: 1200
+                            x: 1
+                            y: null
+                          returns: null
                       links:
                         - rel: about
-                          href: 'http://mathworld.wolfram.com/AbsoluteValue.html'
-                          title: Absolute value explained by Wolfram MathWorld
+                          href: 'http://mathworld.wolfram.com/Product.html'
+                          title: Product explained by Wolfram MathWorld
                         - rel: about
-                          href: 'https://ieeexplore.ieee.org/document/4610935'
-                          title: IEEE Standard 754-2008 for Floating-Point Arithmetic
-                    - id: e
-                      summary: Euler's number (e)
-                      description: >-
-                        The real number *e* is a mathematical constant that is
-                        the base of the natural logarithm such that *ln(e) = 1*.
-                        The numerical value is approximately *2.71828*.
-                      categories:
-                        - math > constants
-                      parameters: []
-                      returns:
-                        description: >-
-                          Returns the numerical value of Euler's number.
-                          Precision may be limited by the processing software.
-                        schema:
-                          type: number
-                      examples:
-                        - title: Test for ln(e) = 1
-                          process_graph:
-                            e1:
-                              process_id: e
-                              arguments: {}
-                            ln1:
-                              process_id: ln
-                              arguments:
-                                data:
-                                  from_node: e1
-                              result: true
-                          returns: 1
-                      links:
-                        - rel: about
-                          href: 'http://mathworld.wolfram.com/e.html'
-                          title: Mathematical constant e on Wolfram MathWorld
-                  links:
-                    - rel: alternate
-                      href: 'https://provider.com/processes'
-                      type: text/html
-                      title: HTML version of the processes
+                          href: 'https://ieeexplore.ieee.org/document/8766229'
+                          title: IEEE Standard 754-2019 for Floating-Point Arithmetic
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
