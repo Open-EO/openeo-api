@@ -6,14 +6,15 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 ## Versions
 
-The openEO (core) API is currently released in version **0.4.2**. **This branch is an unreleased draft!**
+The openEO (core) API is currently released in version **1.0.0-rc.1**. **This branch is an unreleased draft!**
 
 **Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
 
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
-| [draft](https://api.openeo.org/draft)                     | planned     | Improvements based on implementer feedback, introduce extension concept. Potentially version 1.0.0. |
-| [**0.4.2**](https://api.openeo.org)                       | **current** | Bugfix release, see the [changelog](CHANGELOG.md#042---2019-06-11). |
+| [draft](https://api.openeo.org/draft)                     | planned     | Bug fixes based on developer feedback, introduce extension concept. Potentially version 1.0.0-final. |
+| [**1.0.0-rc.1**](https://api.openeo.org)                  | **current** | Release candidate for first stable version of openEO, see the [changelog](CHANGELOG.md#100-rc1---2020-01-31). |
+| [0.4.2](https://api.openeo.org/v/0.4.2)                   | legacy      | Bugfix release, see the [changelog](CHANGELOG.md#042---2019-06-11). |
 | [0.4.1](https://api.openeo.org/v/0.4.1)                   | legacy      | Bugfix release, see the [changelog](CHANGELOG.md#041---2019-05-29). |
 | [0.4.0](https://api.openeo.org/v/0.4.0)                   | legacy      | Improved discovery, added processes catalogue, new process graph structure and [more](CHANGELOG.md#040---2019-03-07). |
 | [0.3.1](https://api.openeo.org/v/0.3.1)                   | legacy      | Fixing minor issues, see the [changelog](CHANGELOG.md#031---2018-11-06). |
