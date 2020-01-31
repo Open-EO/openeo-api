@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Process Graph",
+  "description": "A process graph defines a graph-like structure as a connected set of executable processes. Each key is a unique identifier (node id) that is used to refer to the process in the graph. This JSON Schema is provided for convenience and doesn't claim to be complete or correct. The source of truth for the process graph schema is the OpenAPI specification!",
+  "allOf": [
+    {
+      "$ref": "#/definitions/process_graph"
+    }
+  ],
+  "definitions": {
+    "process_graph": {
+      "title": "Process Graph",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/process_node"
+      }
+    },
+    "process_node": {
+      "title": "Process Node",
+      "type": "object",
+      "required": [
+        "process_id",
+        "arguments"
+      ],
+      "properties": {
+        "process_id": {
+          "$ref": "#/definitions/process_id"
+        },
+        "result": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arguments": {
+          "$ref": "#/definitions/process_arguments"
+        }
+      }
+    },
+    "process_arguments": {
+      "title": "Process Arguments",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/process_argument_value"
+      }
+    },
+    "process_argument_value": {
+      "title": "Process Argument Value",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "title": "Object",
+          "properties": {
+            "from_argument": {
+              "not": {}
+            },
+            "from_node": {
+              "not": {}
+            },
+            "process_graph": {
+              "not": {}
+            }
+          }
+        },
+        {
+          "type": "string",
+          "title": "String"
+        },
+        {
+          "type": "number",
+          "title": "Number (incl. integers)"
+        },
+        {
+          "type": "boolean",
+          "title": "Boolean"
+        },
+        {
+          "type": "array",
+          "title": "Array",
+          "items": {
+            "$ref": "#/definitions/process_argument_value"
+          }
+        },
+        {
+          "type": "object",
+          "title": "Result Reference",
+          "required": [
+            "from_node"
+          ],
+          "properties": {
+            "from_node": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Parameter Reference",
+          "required": [
+            "from_parameter"
+          ],
+          "properties": {
+            "from_parameter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "title": "Process Graph",
+          "required": [
+            "process_graph"
+          ],
+          "properties": {
+            "process_graph": {
+              "$ref": "#/definitions/process_graph"
+            }
+          }
+        }
+      ]
+    },
+    "process_id": {
+      "type": "string",
+      "subtype": "process-id",
+      "pattern": "^[A-Za-z0-9_]+$"
+    }
+  }
+}

@@ -8,7 +8,7 @@
 		]
 	},
 	"NotFound": {
-		"description": "To be used if the requested resource does not exist. Note: Unsupported endpoints MUST send an 'FeatureUnsupported' error. There are also specialized errors for missing jobs (JobNotFound), files (FileNotFound), etc.",
+		"description": "To be used if the requested resource does not exist. Note: There are specialized errors for missing jobs (JobNotFound), files (FileNotFound), etc. Unsupported endpoints MAY send an 'FeatureUnsupported' (501) error.",
 		"message": "Resource not found.",
 		"http": 404,
 		"tags": [
@@ -39,7 +39,7 @@
 			"General"
 		]
 	},
-	"Timeout": {
+	"RequestTimeout": {
 		"description": "The request took too long and timed out.",
 		"message": "Request timed out.",
 		"http": 408,
@@ -93,17 +93,9 @@
 			"Process Graph Management"
 		]
 	},
-	"WebSocketUpgradeNotRequested": {
-		"description": "In order to subscribe the connection must be upgradable to WebSockets.",
-		"message": "Client sent invalid request to establish subscriptions.",
-		"http": 400,
-		"tags": [
-			"Subscriptions"
-		]
-	},
 	"CollectionNotFound": {
 		"description": "The requested collection does not exist.",
-		"message": "Collection does not exist.",
+		"message": "Collection '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
 			"EO Data Discovery",
@@ -130,7 +122,7 @@
 	},
 	"FileNotFound": {
 		"description": "The requested file does not exist.",
-		"message": "File does not exist.",
+		"message": "File '{file}' does not exist.",
 		"http": 404,
 		"tags": [
 			"File Management",
@@ -138,7 +130,7 @@
 		]
 	},
 	"FilePathInvalid": {
-		"description": "The specified path is invalid or not accessible. Path could contain invalid characters, an invalid user ID or point to an existing folder or a location outside of the user folder.",
+		"description": "The specified path is invalid or not accessible. Path could contain invalid characters, point to an existing folder or a location outside of the user folder.",
 		"message": "File path is invalid.",
 		"http": 400,
 		"tags": [
@@ -196,8 +188,8 @@
 		]
 	},
 	"ProcessGraphNotFound": {
-		"description": "The requested process graph does not exist.",
-		"message": "Process graph does not exist.",
+		"description": "The requested user-defined process does not exist.",
+		"message": "User-defined process '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
 			"Process Graph Management"
@@ -213,40 +205,11 @@
 			"Secondary Services Management"
 		]
 	},
-	"VariableValueMissing": {
-		"description": null,
-		"message": "No value specified for process graph variable '{variable_id}'.",
+	"ProcessGraphComplexity": {
+		"description": "The process graph is too complex for synchronous processing and likely to time out. Please use a batch job instead.",
+		"message": "The process graph is too complex for for synchronous processing. Please use a batch job instead.",
 		"http": 400,
 		"tags": [
-			"Process Graph Management",
-			"Job Management",
-			"Secondary Services Management"
-		]
-	},
-	"VariableDefaultValueTypeInvalid": {
-		"description": null,
-		"message": "The default value for the process graph variable '{variable_id}' is not of type '{type}'.",
-		"http": 400,
-		"tags": [
-			"Process Graph Management",
-			"Job Management"
-		]
-	},
-	"VariableIdInvalid": {
-		"description": null,
-		"message": "A specified variable ID is not valid.",
-		"http": 400,
-		"tags": [
-			"Process Graph Management",
-			"Job Management"
-		]
-	},
-	"VariableTypeInvalid": {
-		"description": null,
-		"message": "The data type for the process graph variable '{variable_id}' is invalid. Must be one of: string, boolean, number, array or object.",
-		"http": 400,
-		"tags": [
-			"Process Graph Management",
 			"Job Management"
 		]
 	},
@@ -292,7 +255,7 @@
 	},
 	"JobNotFound": {
 		"description": "The requested job does not exist.",
-		"message": "The job does not exist.",
+		"message": "The job '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
 			"Job Management",
@@ -407,7 +370,7 @@
 	},
 	"ServiceNotFound": {
 		"description": "The requested secondary service does not exist.",
-		"message": "Service does not exist.",
+		"message": "Service '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
 			"Secondary Services Management"
