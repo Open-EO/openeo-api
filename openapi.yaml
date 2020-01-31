@@ -1248,31 +1248,19 @@ paths:
                     properties:
                       'cube:dimensions':
                         title: STAC Collection Cube Dimensions
-                        description: >-
+                        description: |-
                           Uniquely named dimensions of the data cube.
-
 
                           The keys of the object are the dimension names. For
                           interoperability, it is RECOMMENDED to use the
                           following dimension names if there is only a single
                           dimension with the specified criteria:
 
-                          * `x` for the dimension of type `spatial` with the
-                          axis set to `x`
-
-                          * `y` for the dimension of type `spatial` with the
-                          axis set to `y`
-
-                          * `z` for the dimension of type `spatial` with the
-                          axis set to `z`
-
-                          * `temporal` for the dimension of type `temporal`
-
-                          * `spectral` for the dimension of type `bands` if the
-                          data IS multi-spectral
-
-                          * `bands` for dimensions of type `bands` if the data
-                          IS NOT multi-spectral.
+                          * `x` for the dimension of type `spatial` with the axis set to `x`
+                          * `y` for the dimension of type `spatial` with the axis set to `y`
+                          * `z` for the dimension of type `spatial` with the axis set to `z`
+                          * `t` for the dimension of type `temporal`
+                          * `bands` for dimensions of type `bands`
                         type: object
                         additionalProperties:
                           x-additionalPropertiesName: Dimension Name
@@ -1591,20 +1579,20 @@ paths:
                         - -180
                         - 180
                       reference_system: 4326
-                    'y':
+                    y:
                       type: spatial
                       axis: 'y'
                       extent:
                         - -56
                         - 83
                       reference_system: 4326
-                    temporal:
+                    t:
                       type: temporal
                       extent:
                         - '2015-06-23T00:00:00Z'
                         - null
                       step: null
-                    spectral:
+                    bands:
                       type: bands
                       values:
                         - B1
@@ -4197,6 +4185,7 @@ components:
           - title: Reference to a core extension
             type: string
             example: datacube
+      example: []
     stac_license:
       type: string
       description: |-
@@ -4458,7 +4447,7 @@ components:
           arguments:
             data:
               from_node: bands
-            dimension: spectral
+            dimension: bands
             reducer:
               process_graph:
                 nir:
