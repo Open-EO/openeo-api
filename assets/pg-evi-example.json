@@ -1,7 +1,7 @@
 {
   "dc": {
     "process_id": "load_collection",
-    "description": "Loading the data; The order of the specified bands is important for the following reduce operation.",
+    "description": "Loading the data.",
     "arguments": {
       "id": "Sentinel-2",
       "spatial_extent": {
@@ -15,20 +15,20 @@
         "2018-02-01"
       ],
       "bands": [
-        "B08",
+        "B02",
         "B04",
-        "B02"
+        "B08"
       ]
     }
   },
   "evi": {
-    "process_id": "reduce",
+    "process_id": "reduce_dimension",
     "description": "Compute the EVI. Formula: 2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)",
     "arguments": {
       "data": {
         "from_node": "dc"
       },
-      "dimension": "spectral",
+      "dimension": "bands",
       "reducer": {
         "process_graph": {
           "nir": {
@@ -37,7 +37,7 @@
               "data": {
                 "from_parameter": "data"
               },
-              "index": 0
+              "label": "B08"
             }
           },
           "red": {
@@ -46,7 +46,7 @@
               "data": {
                 "from_parameter": "data"
               },
-              "index": 1
+              "label": "B04"
             }
           },
           "blue": {
@@ -55,42 +55,36 @@
               "data": {
                 "from_parameter": "data"
               },
-              "index": 2
+              "label": "B02"
             }
           },
           "sub": {
             "process_id": "subtract",
             "arguments": {
-              "data": [
-                {
-                  "from_node": "nir"
-                },
-                {
-                  "from_node": "red"
-                }
-              ]
+              "x": {
+                "from_node": "nir"
+              },
+              "y": {
+                "from_node": "red"
+              }
             }
           },
-          "p1": {
-            "process_id": "product",
+          "m1": {
+            "process_id": "multiply",
             "arguments": {
-              "data": [
-                6,
-                {
-                  "from_node": "red"
-                }
-              ]
+              "x": 6,
+              "y": {
+                "from_node": "red"
+              }
             }
           },
-          "p2": {
-            "process_id": "product",
+          "m2": {
+            "process_id": "multiply",
             "arguments": {
-              "data": [
-                -7.5,
-                {
-                  "from_node": "blue"
-                }
-              ]
+              "x": -7.5,
+              "y": {
+                "from_node": "blue"
+              }
             }
           },
           "sum": {
@@ -102,10 +96,10 @@
                   "from_node": "nir"
                 },
                 {
-                  "from_node": "p1"
+                  "from_node": "m1"
                 },
                 {
-                  "from_node": "p2"
+                  "from_node": "m2"
                 }
               ]
             }
@@ -113,25 +107,21 @@
           "div": {
             "process_id": "divide",
             "arguments": {
-              "data": [
-                {
-                  "from_node": "sub"
-                },
-                {
-                  "from_node": "sum"
-                }
-              ]
+              "x": {
+                "from_node": "sub"
+              },
+              "y": {
+                "from_node": "sum"
+              }
             }
           },
           "p3": {
-            "process_id": "product",
+            "process_id": "multiply",
             "arguments": {
-              "data": [
-                2.5,
-                {
-                  "from_node": "div"
-                }
-              ]
+              "x": 2.5,
+              "y": {
+                "from_node": "div"
+              }
             },
             "result": true
           }
@@ -140,13 +130,13 @@
     }
   },
   "mintime": {
-    "process_id": "reduce",
+    "process_id": "reduce_dimension",
     "description": "Compute a minimum time composite by reducing the temporal dimension",
     "arguments": {
       "data": {
         "from_node": "evi"
       },
-      "dimension": "temporal",
+      "dimension": "t",
       "reducer": {
         "process_graph": {
           "min": {
