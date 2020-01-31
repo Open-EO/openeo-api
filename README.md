@@ -8,8 +8,6 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 The openEO (core) API is currently released in version **1.0.0-rc.1**. **This branch is an unreleased draft!**
 
-**Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
-
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | Bug fixes based on developer feedback, introduce extension concept. Potentially version 1.0.0-final. |
