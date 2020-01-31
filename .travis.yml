@@ -9,47 +9,69 @@ node_js:
 sudo: required
 
 before_install:
+# Speccy
 - npm install -g speccy
-- speccy lint openapi.json -r "speccy.yml"
+- speccy lint openapi.yaml -r tests/speccy.yml
+# OpenAPI Spec Validator
 - pip install openapi-spec-validator
-- openapi-spec-validator openapi.json
+- openapi-spec-validator openapi.yaml
 # DIY example validation (PR#194)
 - pip install -r tests/requirements.txt
 - pytest tests
+# ToDo: Check assets/pg-evi-example.json against the schema in pg-schema.json
 
 install:
-- pip install mkdocs
-- pip install mkdocs-material
-- pip install mkdocs-macros-plugin
-- pip install pymdown-extensions
-- pip install pygments
-- npm install -g asyncapi-generator@0.6.7 # 0.7 only supports AsyncAPI 2.0
-- npm install -g concat-json-files
+- npm install
 
 script:
-- concat-json-files "processes/*.json" -t "processes.json"
-- mv CHANGELOG.md docs/changelog.md
-- ag subscriptions.json markdown
-- \mv -f asyncapi.md docs/apireference-subscriptions.md
-- mkdocs build --clean
-- cp *.json site/
-- \mv -f docs/apireference.html site/apireference/index.html
-- \mv -f docs/processreference.html site/processreference/index.html
-- cp processes/*.json site/processreference/
+- npm run build
 
 before_deploy:
 - git clone --branch gh-pages https://$GITHUB_TOKEN@github.com/Open-EO/openeo-api.git gh-pages
 - cd gh-pages
-- if [[ $TRAVIS_BRANCH == 'master' ]] ; then rm -rf !(v) && cp -R ../site/* ./ ; fi
-- if [[ $TRAVIS_BRANCH == 'draft' ]] ; then rm -rf draft/ && mkdir -p draft/ && cp -R ../site/* draft/ ; fi
-- if [[ $TRAVIS_BRANCH =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then rm -rf v/$TRAVIS_BRANCH/ && mkdir -p v/$TRAVIS_BRANCH/ && cp -R ../site/* v/$TRAVIS_BRANCH/ ; fi
+- |
+  if [[ $TRAVIS_BRANCH == 'master' ]] ; then
+    cp ../redoc.html index.html
+    cp ../errors.json errors.json
+    cp ../subtype-schemas.json subtype-schemas.json
+    cp -r ../assets assets
+  fi
+- |
+  if [[ $TRAVIS_BRANCH == 'draft' ]] ; then
+    rm -rf draft
+    mkdir -p draft
+    cp ../redoc.html draft/index.html
+    cp ../errors.json draft/errors.json
+    cp ../subtype-schemas.json draft/subtype-schemas.json
+    cp -r ../assets draft/assets
+  fi
+- |
+  if [ -n "$TRAVIS_TAG" ] ; then
+    rm -rf $TRAVIS_TAG
+    mkdir -p $TRAVIS_TAG
+    cp ../redoc.html $TRAVIS_TAG/index.html
+    cp ../errors.json $TRAVIS_TAG/errors.json
+    cp ../subtype-schemas.json $TRAVIS_TAG/subtype-schemas.json
+    cp -r ../assets $TRAVIS_TAG/assets
+  fi
 
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  keep-history: true
-  committer-from-gh: true
-  local-dir: gh-pages
-  on:
-    all_branches: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: gh-pages
+    keep-history: true
+    name: openEO CI
+    email: openeo.ci@uni-muenster.de
+    on:
+      tags: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: gh-pages
+    keep-history: true
+    name: openEO CI
+    email: openeo.ci@uni-muenster.de
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH =~ ^(master|draft)$

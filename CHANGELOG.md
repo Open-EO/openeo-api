@@ -4,13 +4,96 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.2] - 2019-06-11
+## 1.0.0-rc.1 - 2020-01-31
+
+**Note:** The user and developer documentation has been moved to [openeo.org](https://openeo.org/documentation).
+
+### Added
+
+- `GET /`: 
+    - Field `production` added to response. [#184](https://github.com/Open-EO/openeo-api/issues/184)
+    - Required fields `stac_version` and `id` added to response for STAC compatibility. [#247](https://github.com/Open-EO/openeo-api/issues/247)
+    - Links with relation types `terms-of-service` and `privacy-policy` explicitly documented. Clients must handle them properly if present. [#212](https://github.com/Open-EO/openeo-api/issues/212)
+- `GET /collections` and `GET /collections/{collectionId}`:
+    - New field `deprecated` can be used to indicate outdated collections. Links with relation type `latest-version` can point to the latest version. [#226]( https://github.com/Open-EO/openeo-api/issues/226)
+    - Added a Data Cube Dimension of type `bands` to the `cube:dimensions` property. [#208](https://github.com/Open-EO/openeo-api/issues/208)
+- `GET /conformance` has been added for OCG API compliance. Back-ends may implement it for compatibility with OGC API clients. 
+- `POST /result`: May add a link to a log file in the header. [#214](https://github.com/Open-EO/openeo-api/issues/214)
+- `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Endpoints that publish logging information. [#214](https://github.com/Open-EO/openeo-api/issues/214)
+- `GET /files`, `GET /jobs`, `GET /process_graphs`, `GET /services`: Added `limit` parameter for pagination and clarified how to use links for pagination. [#103](https://github.com/Open-EO/openeo-api/issues/103)
+- JSON Schema for the defined schema `subtypes`.
 
 ### Changed
-- Updated the process catalog, see the separate changelog.
+
+- The concept of callbacks has simply been renamed to process graph. Schema format/subtype `callback` has been renamed to `process-graph`. [#216](https://github.com/Open-EO/openeo-api/issues/216)
+- Unsupported endpoints are not forced to return a `FeatureUnsupported` (501) error and can return a simple `NotFound` (404) instead.
+- If `currency` returned by `GET /` is `null`, `costs` and `budget` are unsupported. `costs` and `budget` fields in various endpoints can be set to `null` (default).
+- Official support for [CommonMark 0.29 instead of CommonMark 0.28](https://spec.commonmark.org/0.29/changes.html). [#203](https://github.com/Open-EO/openeo-api/issues/203)
+- The parameter `user_id ` has been removed from the endpoints to manage user files (`/files/{user_id}`). [#218](https://github.com/Open-EO/openeo-api/issues/218)
+- Schema subtype `band-name` allows common band names, too. [Processes#77](https://github.com/Open-EO/openeo-processes/issues/77)
+- Link property `rel` is required.
+- OpenAPI string format `url` has been replaced with `uri`.
+- Process graphs:
+    - `from_argument` has been renamed to `from_parameter`.
+    - `callback` has been renamed to `process_graph`.
+    - `from_parameter` can access parameters defined in parent scopes.
+    - `from_parameter` can be used in the top-level process graph.
+    - Process graph variables (objects with `variable_id` etc.) have been removed.
+- `GET /jobs`, `GET /jobs/{job_id}`, `GET /services` and `GET /services/{service_id}`: Renamed field `submitted` to `created` for consistency with STAC job results.
+- `GET /`: Property `links` is required.
+- `GET /service_types`:
+    - `parameter` has been renamed to `configuration` to not overlap with `process_parameters`.
+    - `variables` has been renamed to `process_parameters` and has a different schema now. [#161](https://github.com/Open-EO/openeo-api/issues/161)
+- `GET /processes`:
+    - Default values are now specified on the parameter-level, not in the JSON schemas.
+    - Multiple data types in parameters or return values are supported as arrays. Using `anyOf` is discouraged.
+    - Parameters are defined as array. `parameter_order` is therefore removed and the name is part of the parameter object. [#239](https://github.com/Open-EO/openeo-api/issues/239)
+    - Process graph (callback) parameters have a new, more advanced schema, allowing to define more aspects of the process graph parameters. [#239](https://github.com/Open-EO/openeo-api/issues/239)
+    - Return values don't require a description any longer.
+    - `required` was replaced with `optional` with inverted behavior.
+- `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.9.0. See the [STAC Changelog](https://github.com/radiantearth/stac-spec/blob/master/CHANGELOG.md) for more details. [#247](https://github.com/Open-EO/openeo-api/issues/247), [#204](https://github.com/Open-EO/openeo-api/issues/204).
+- `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
+- Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
+- `GET /udf_runtimes`: `description` fields don't allow `null` values any longer.
+- `GET /output_formats` renamed to `GET /file_formats` to allow listing input file formats. [#215](https://github.com/Open-EO/openeo-api/issues/215)
+    - The structure of the response has changed. The former response body for the output formats is now available in the property `output`.
+    - The input file formats are now available in the property `input` with the same schema as for output formats.
+    - Additionally, each format can have a `title`.
+- `GET /jobs/{job_id}/results`:
+    - Response body for status code 200 has changed to be a valid STAC Item, allows content type `application/geo+json`.
+    - Response body for status code 424 has been extended.
+
+### Deprecated
+
+- The processes should not use the JSON Schema keyword `format` any longer. Instead use the custom keyword `subtype`. [#233](https://github.com/Open-EO/openeo-processes/issues/233)
+- PROJ definitions are deprecated in favor of EPSG codes and WKT2. [#58](https://github.com/Open-EO/openeo-processes/issues/58)
+
+### Removed
+
+- Process graph variables. Use Parameter References instead.
+- `GET /processes`: `media_type` removed from parameters and return values. Use `contentMediaType` in the JSON Schema instead.
+- `GET /job/{job_id}`: Removed property `error`. Request information from `GET /job/{job_id}/logs` instead.
+- `GET /job/{job_id}/results`:
+    - Metalink XML encoding has been removed. [#205](https://github.com/Open-EO/openeo-api/issues/205)
+    - `Expires` header has been removed, use `expires` property in the response body instead.
+- `GET /credentials/basic` doesn't return a `user_id`. Instead request it from `GET /me`.
+- `GET /collections/{collectionId}`: Removed optional STAC extensions from the API specification. Inform yourself about useful [STAC extensions](https://github.com/radiantearth/stac-spec/tree/master/extensions#list-of-content-extensions) instead. [#176](https://github.com/Open-EO/openeo-api/issues/176)
+- `GET /service_types` doesn't support `attributes` any longer.
+
+### Fixed
+
+- Service parameters and attributes in `GET /service_types` and output format parameters in `GET /file_formats` (previously `GET /output_formats`) now have a `type`, which was previously only mentioned in examples.
+- `GET /processes`: Parameters `arguments` and `process_graph` can't be used together in process examples.
+- `GET /collections`, `GET /processes`: Clarified that pagination is not supported. [#103](https://github.com/Open-EO/openeo-api/issues/103)
+- `GET ./well-known/openeo`: Clarified how clients and back-ends should implement well-known discovery. [#202](https://github.com/Open-EO/openeo-api/issues/202)
+
+## [0.4.2] - 2019-06-11
 
 ### Added
 - Basic JSON Schema for process graph validation.
+
+### Changed
+- Updated the process catalog, see the separate changelog.
 
 ### Removed
 - Disallowed CommonMark in descriptions of process graph variables and process graph nodes.
