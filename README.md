@@ -8,8 +8,6 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 The openEO (core) API is currently released in version **1.0.0-rc.1**.
 
-**Note:** The specification is currently still an early version, with the potential for some major things to change. The core is now fleshed out, so implementors are encouraged to try it out and give feedback. But the goal is to actually be able to act on that feedback, which will mean changes are quite possible. A solid basis is specified right now, but best practices, extensions and specification details will emerge with implementation.
-
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | Bug fixes based on developer feedback, introduce extension concept. Potentially version 1.0.0-final. |
@@ -28,7 +26,7 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 
 This repository contains a set of files formally describing the openEO API, each with a human-readable and easily browseable version:
 
-* [openapi.yaml](openapi.yaml) ([browseable version](https://api.openeo.org/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
+* [openapi.yaml](openapi.yaml) ([human-readable version](https://api.openeo.org/)) provides the [openAPI](https://www.openapis.org/) 3.0 definition of the openEO API.
 * [errors.json](errors.json) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
 * [subtype-schema.json](subtype-schema.json) defines data types (subtypes) for JSON Schema used in openEO.
-* [assets/] contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
+* The [assets](assets/) folder contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
