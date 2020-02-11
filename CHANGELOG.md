@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `$id` to JSON Schema file for subtypes.
 - Fixed invalid EPSG code example.
 - Fixed invalid JSON Schema for process graph validation (used `from_argument` instead of `from_parameter`).
+- Clarified how `from_parameter` is resolved in case no value is given.
+- Removed outdated error codes from `errors.json`.
 
 ## 1.0.0-rc.1 - 2020-01-31
 

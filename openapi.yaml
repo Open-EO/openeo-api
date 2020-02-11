@@ -335,11 +335,7 @@ info:
     ```
 
     The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
-    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service.
-
-    It is important to know that `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
-    `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
-    If there are multiple parameters with the same name, the parameter is resolved by starting in the current scope and then checking each parent for a suitable parameter until the "root" process graph is reached.
+    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service. 
 
     If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
     In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
@@ -366,6 +362,14 @@ info:
     ```
 
     `loadcollection1` would be a result from another process, which is not part of this example.
+
+    **Important:** `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
+    `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
+
+    The value for the parameter must be resolved as follows:
+    1. In general the most specific parameter value is used. This means the parameter value is resolved starting from the current scope and then checking each parent for a suitable parameter value until a parameter values is found or the "root" process graph has been reached.
+    2. In case a parameter value is not available, the most unspecific default value from the process graph parameter definitions are used. For example, if default values are available for the root process graph and all children, the default value from the root process graph is used.
+    3. If no default values are available either, the error `ProcessParameterMissing` must be thrown.
 
     ### Full example for an EVI computation
 
