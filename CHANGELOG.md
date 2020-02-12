@@ -48,11 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `from_parameter` can access parameters defined in parent scopes.
     - `from_parameter` can be used in the top-level process graph.
     - Process graph variables (objects with `variable_id` etc.) have been removed.
-- `GET /jobs`, `GET /jobs/{job_id}`, `GET /services` and `GET /services/{service_id}`: Renamed field `submitted` to `created` for consistency with STAC job results.
+- `GET /jobs`, `GET /jobs/{job_id}`, `GET /services` and `GET /services/{service_id}`: Renamed field `submitted` to `created` for consistency with STAC job results. Also renamed the corresponding value in the field `status` for batch jobs.
 - `GET /`: Property `links` is required.
-- `GET /service_types`:
-    - `parameter` has been renamed to `configuration` to not overlap with `process_parameters`.
-    - `variables` has been renamed to `process_parameters` and has a different schema now. [#161](https://github.com/Open-EO/openeo-api/issues/161)
+- `GET /service_types`: `variables` has been renamed to `process_parameters` and has a different schema now. [#161](https://github.com/Open-EO/openeo-api/issues/161)
+- `GET /service_types`, `POST /services`, `GET /services/{service_id}`, `PATCH /services/{service_id}`: `parameter` has been renamed to `configuration` to not overlap with `process_parameters`.
 - `GET /processes`:
     - Default values are now specified on the parameter-level, not in the JSON schemas.
     - Multiple data types in parameters or return values are supported as arrays. Using `anyOf` is discouraged.
@@ -60,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Process graph (callback) parameters have a new, more advanced schema, allowing to define more aspects of the process graph parameters. [#239](https://github.com/Open-EO/openeo-api/issues/239)
     - Return values don't require a description any longer.
     - `required` was replaced with `optional` with inverted behavior.
+- `POST /process_graphs`,`GET /process_graphs/{process_graph_id}`, `PATCH /process_graphs/{process_graph_id}`, `POST /validation`: Request and response bodies have been completely reworked to follow the same schema as `GET /processes`. Each process graph is now basically a process a user can use in other process graphs.
 - `GET /collections` and `GET /collections/{collectionId}`: Updated STAC to version 0.9.0. See the [STAC Changelog](https://github.com/radiantearth/stac-spec/blob/master/CHANGELOG.md) for more details. [#247](https://github.com/Open-EO/openeo-api/issues/247), [#204](https://github.com/Open-EO/openeo-api/issues/204).
 - `GET /credentials/oidc`: Changed response to support multiple OpenID Connect identity providers ([#201](https://github.com/Open-EO/openeo-api/issues/201)) and clarified workflow overall.
 - Bearer token are built from the authentication method, an optional provider id and the token itself. [#219](https://github.com/Open-EO/openeo-api/issues/219)
