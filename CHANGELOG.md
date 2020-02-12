@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Changed
+- `GET /process_graphs`: Field `id` is required for each process.
+
 ### Fixed
 - Added `$id` to JSON Schema file for subtypes.
 - Fixed invalid EPSG code example.
