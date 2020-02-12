@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+- `PUT /process_graphs/{process_graph_id}` to store and replace custom process-graphs. [#260](https://github.com/Open-EO/openeo-api/issues/260)
+
 ### Changed
 - `GET /process_graphs`: Field `id` is required for each process.
+
+### Removed
+- `POST /process_graphs` and `PATCH /process_graphs/{process_graph_id}`. Use `PUT /process_graphs/{process_graph_id}` instead. [#260](https://github.com/Open-EO/openeo-api/issues/260)
 
 ### Fixed
 - Added `$id` to JSON Schema file for subtypes.

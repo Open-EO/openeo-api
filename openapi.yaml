@@ -1717,7 +1717,15 @@ paths:
                   processes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/predefined_process'
+                      title: Pre-Defined Process
+                      description: A pre-defined process made available by the back-end.
+                      allOf:
+                        - $ref: '#/components/schemas/process'
+                        - required:
+                            - id
+                            - description
+                            - parameters
+                            - returns
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2416,36 +2424,6 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-    post:
-      summary: Store a user-defined process
-      operationId: create-custom-process
-      description: |-
-        Stores a provided user-defined process with process graph that can be
-        reused in other process graphs.
-
-        The process id must be unique for the authenticated user,
-        including all pre-defined processes by the back-end.
-      tags:
-        - User-Defined Processes
-      security:
-        - Bearer: []
-      responses:
-        '201':
-          $ref: '#/components/responses/created'
-        4XX:
-          $ref: '#/components/responses/client_error_auth'
-        5XX:
-          $ref: '#/components/responses/server_error'
-      requestBody:
-        required: true
-        description: Specifies the process graph with its meta data.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/user_defined_process'
-            examples:
-              evi_user_defined_process:
-                $ref: '#/components/examples/evi_user_defined_process'
   '/process_graphs/{process_graph_id}':
     parameters:
       - $ref: '#/components/parameters/process_graph_id'
@@ -2464,7 +2442,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user_defined_process'
+                title: User-Defined Process
+                description: A user-defined process with processing instructions as process graph.
+                allOf:
+                  - $ref: '#/components/schemas/process'
+                  - required:
+                      - id
+                      - process_graph
               examples:
                 evi_user_defined_process:
                   $ref: '#/components/examples/evi_user_defined_process'
@@ -2472,31 +2456,42 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-    patch:
-      summary: Modify a user-defined process
-      operationId: update-custom-process
-      description: >-
-        Fully or partially replaces a user-defined process (process graph).
+    put:
+      summary: Store a user-defined process
+      operationId: store-custom-process
+      description: |-
+        Stores a provided user-defined process with process graph that can be
+        reused in other process graphs. If a process with the specified 
+        `process_graph_id` exists, the process is fully replaced. The id can't
+        be changed for stored user-defined processes.
 
-        The process id must still be unique for the authenticated user,
-        including all pre-defined processes by the back-end.
+        The id must be unique for the authenticated user, including all
+        pre-defined processes by the back-end.
+
+        Partially updating user-defined processes is not supported.
+
+        To simplify exchanging process graphs, the property `id` can be part of
+        the request body. If the values don't match, the value for `id` gets
+        replaced with the value from the `process_graph_id` parameter in the
+        path.
       tags:
         - User-Defined Processes
       security:
         - Bearer: []
       responses:
-        '204':
-          description: The process graph data has been updated successfully.
+        '200':
+          description: The user-defined process has been stored successfully.
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
         required: true
+        description: Specifies the process graph with its meta data.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/process_metadata'
+              $ref: '#/components/schemas/process_graph_with_metadata'
             examples:
               evi_user_defined_process:
                 $ref: '#/components/examples/evi_user_defined_process'
@@ -4535,8 +4530,8 @@ components:
               from_node: mintime
             format: GTiff
           result: true
-    process_metadata:
-      title: Process Metadata
+    process:
+      title: Process
       type: object
       properties:
         id:
@@ -4605,32 +4600,8 @@ components:
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
-    process:
-      title: Process
-      allOf:
-        - $ref: '#/components/schemas/process_metadata'
-        - type: object
-          properties:
-            process_graph:
-              $ref: '#/components/schemas/process_graph'
-    predefined_process:
-      title: Pre-Defined Process
-      description: A pre-defined process made available by the back-end.
-      allOf:
-        - $ref: '#/components/schemas/process'
-        - required:
-            - id
-            - description
-            - parameters
-            - returns
-    user_defined_process:
-      title: User-Defined Process
-      description: A user-defined process with processing instructions as process graph.
-      allOf:
-        - $ref: '#/components/schemas/process'
-        - required:
-            - id
-            - process_graph
+        process_graph:
+          $ref: '#/components/schemas/process_graph'
     process_graph_with_metadata:
       title: Process Graph with metadata
       description: A process graph, optionally enriched with process metadata.
