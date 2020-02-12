@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `GET /process_graphs`: Field `id` is required for each process.
+- For batch jobs (`/jobs`), services (`/services`) and sync. processing (`/result`) the property `process_graph` got replaced by `process`. It contains a process graph and optionally all process metadata. [#260](https://github.com/Open-EO/openeo-api/issues/260)
 
 ### Fixed
 - Added `$id` to JSON Schema file for subtypes.
