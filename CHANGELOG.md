@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed invalid JSON Schema for process graph validation (used `from_argument` instead of `from_parameter`).
 - Clarified how `from_parameter` is resolved in case no value is given.
 - Removed outdated error codes from `errors.json`.
+- Clarified that back-ends not supporting pagination will return all resources.
 
 ## 1.0.0-rc.1 - 2020-01-31
 
