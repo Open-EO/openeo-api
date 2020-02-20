@@ -2357,26 +2357,28 @@ paths:
                       description: >-
                         The user-defined processes submitted by a user,
                         usually without process graph, examples, exceptions and links to keep the response size small.
-                      type: object
-                      required:
-                        - id
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/process_id'
-                        summary:
-                          $ref: '#/components/schemas/process_summary'
-                        description:
-                          $ref: '#/components/schemas/process_description'
-                        categories:
-                          $ref: '#/components/schemas/process_categories'
-                        parameters:
-                          $ref: '#/components/schemas/process_parameters'
-                        returns:
-                          $ref: '#/components/schemas/process_return_value'
-                        deprecated:
-                          $ref: '#/components/schemas/process_deprecated'
-                        experimental:
-                          $ref: '#/components/schemas/process_experimental'
+                      allOf:
+                        - type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/process_id'
+                            summary:
+                              $ref: '#/components/schemas/process_summary'
+                            description:
+                              $ref: '#/components/schemas/process_description'
+                            categories:
+                              $ref: '#/components/schemas/process_categories'
+                            parameters:
+                              $ref: '#/components/schemas/process_parameters'
+                            returns:
+                              $ref: '#/components/schemas/process_return_value'
+                            deprecated:
+                              $ref: '#/components/schemas/process_deprecated'
+                            experimental:
+                              $ref: '#/components/schemas/process_experimental'
+                        - $ref: '#/components/schemas/nullable_process'
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2445,6 +2447,7 @@ paths:
                 description: A user-defined process with processing instructions as process graph.
                 allOf:
                   - $ref: '#/components/schemas/process'
+                  - $ref: '#/components/schemas/nullable_process'
                   - required:
                       - id
                       - process_graph
@@ -4627,13 +4630,29 @@ components:
             $ref: '#/components/schemas/link'
         process_graph:
           $ref: '#/components/schemas/process_graph'
+    nullable_process:
+      type: object
+      properties:
+        summary:
+          nullable: true
+        description:
+          nullable: true
+        parameters:
+          nullable: true
+        returns:
+          nullable: true
     process_graph_with_metadata:
       title: Process Graph with metadata
       description: A process graph, optionally enriched with process metadata.
       allOf:
         - $ref: '#/components/schemas/process'
-        - required:
+        - $ref: '#/components/schemas/nullable_process'
+        - type: object
+          required:
             - process_graph
+          properties:
+            id:
+              nullable: true
     process_id:
       type: string
       description: |-
@@ -4691,16 +4710,15 @@ components:
     process_exceptions:
       type: object
       title: Process Exceptions
-      description: >-
+      description: |-
         Declares any exceptions (errors) that might occur during execution
-        of this process. MUST be used only for exceptions that stop the
-        execution of a process and are therefore not to be used for
-        warnings, or notices or debugging messages.
-
+        of this process. This list is just for informative purposes and may be
+        incomplete. This list MUST only contain exceptions that stop the
+        execution of a process and MUST NOT contain warnings, notices or
+        debugging messages.
 
         The keys define the error code and MUST match the following pattern:
         `^\w+$`
-
 
         This schema follows the schema of the general openEO error list (see
         errors.json).
@@ -4750,6 +4768,13 @@ components:
 
         The order in the array corresponds to the parameter order to
         be used in clients that don't support named parameters.
+
+        **Note:** Specifying an empty array is different from (if allowed)
+        `null` or the property being absent.
+        An empty array means the process has no parameters.
+        `null` / property absent means that the parameters are unknown as
+        the user has not specified them. There could still be parameters in the
+        process graph, if one is specified.
       items:
         $ref: '#/components/schemas/process_parameter'
     process_parameter:
