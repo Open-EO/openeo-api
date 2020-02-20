@@ -15,9 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added `$id` to JSON Schema file for subtypes.
 - Fixed invalid EPSG code example.
+- Fixed collection example (`sat:cloud_cover` changed to `eo:cloud_cover`).
 - Fixed invalid JSON Schema for process graph validation (used `from_argument` instead of `from_parameter`).
-- Clarified how `from_parameter` is resolved in case no value is given.
+- Clarified how version numbers in well-known discovery are compared. [#259](https://github.com/Open-EO/openeo-api/issues/259)
 - Clarified that back-ends not supporting pagination will return all resources.
+- Clarified how `from_parameter` is resolved in case no value is given.
 - Clarified `GET .../logs` endpoint behaviour.
 - Removed outdated error codes from `errors.json`.
 
