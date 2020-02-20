@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+- `/jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Reintroduced the missing `offset` parameter.
+
 ### Changed
 - `GET /process_graphs`: Field `id` is required for each process.
 
@@ -17,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified how version numbers in well-known discovery are compared. [#259](https://github.com/Open-EO/openeo-api/issues/259)
 - Clarified that back-ends not supporting pagination will return all resources.
 - Clarified how `from_parameter` is resolved in case no value is given.
+- Clarified `GET .../logs` endpoint behaviour.
 - Removed outdated error codes from `errors.json`.
 
 ## 1.0.0-rc.1 - 2020-01-31
