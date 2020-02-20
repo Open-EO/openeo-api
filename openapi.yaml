@@ -2898,13 +2898,26 @@ paths:
     get:
       summary: Logs for a secondary service
       operationId: debug-service
-      description: Logs for the secondary service.
+      description: >-
+        Shows log entries for the secondary service, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while the secondary service is enabled, it is
+        RECOMMENDED that clients use the offset parameter to get only the entries
+        they have not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Secondary Services
       security:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/service_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -3219,7 +3232,19 @@ paths:
     get:
       summary: Logs for a batch job
       operationId: debug-job
-      description: Logs for the batch job.
+      description: |-
+        Shows log entries for the batch job, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while a job is running, it is RECOMMENDED
+        that clients use the offset parameter to get only the entries they have
+        not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3227,6 +3252,7 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/job_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -5470,9 +5496,9 @@ components:
       name: limit
       description: |-
         This parameter enables pagination for the endpoint and specifies the maximum number of
-        elements that arrays in the top-level object (e.g. jobs, log entries, secondary services,
-        files etc.) are allowed to contain. The only exception is the `links` array, which
-        MUST NOT be paginated as otherwise the pagination links may be missing ins responses.
+        elements that arrays in the top-level object (e.g. jobs or log entries) are allowed to contain.
+        The only exception is the `links` array, which MUST NOT be paginated as otherwise the
+        pagination links may be missing ins responses.
         If the parameter is not provided or empty, all elements are returned.
         
         Pagination is OPTIONAL and back-ends and clients may not support it.
@@ -5483,7 +5509,7 @@ components:
         If the response is paginated, the links array MUST be used to propagate the 
         links for pagination with pre-defined `rel` types. See the links array schema
         for supported `rel` types.
-
+        
         *Note:* Implementations can use all kind of pagination techniques, depending on what is
         supported best by their infrastructure. So it doesn't care whether it is page-based,
         offset-based or uses tokens for pagination. The clients will use whatever is specified
@@ -5494,6 +5520,14 @@ components:
       schema:
         type: integer
         minimum: 1
+    log_offset:
+      name: offset
+      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occured after the specified identifier. If not provided or empty, start with the first entry.
+      in: query
+      allowEmptyValue: true
+      example: "log1234"
+      schema:
+        type: string
     process_graph_id:
       name: process_graph_id
       in: path
