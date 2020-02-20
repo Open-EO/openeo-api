@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: openEO API
-  version: 1.0.0-rc.1
+  version: 1.0.0-rc.2
   description: |-
     The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.
 
@@ -335,11 +335,7 @@ info:
     ```
 
     The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
-    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service.
-
-    It is important to know that `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
-    `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
-    If there are multiple parameters with the same name, the parameter is resolved by starting in the current scope and then checking each parent for a suitable parameter until the "root" process graph is reached.
+    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service. 
 
     If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
     In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
@@ -366,6 +362,14 @@ info:
     ```
 
     `loadcollection1` would be a result from another process, which is not part of this example.
+
+    **Important:** `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
+    `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
+
+    The value for the parameter must be resolved as follows:
+    1. In general the most specific parameter value is used. This means the parameter value is resolved starting from the current scope and then checking each parent for a suitable parameter value until a parameter values is found or the "root" process graph has been reached.
+    2. In case a parameter value is not available, the most unspecific default value from the process graph parameter definitions are used. For example, if default values are available for the root process graph and all children, the default value from the root process graph is used.
+    3. If no default values are available either, the error `ProcessParameterMissing` must be thrown.
 
     ### Full example for an EVI computation
 
@@ -788,18 +792,19 @@ paths:
     get:
       summary: Supported openEO versions
       operationId: connect
-      description: >-
+      description: |-
         Well-Known URI (see [RFC 57855](https://tools.ietf.org/html/rfc5785))
         for openEO, listing all implemented openEO versions supported by the
         service provider.
 
-
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
-        most recent production-ready version it supports. Clients MAY let users
-        choose to connect to versions that are not production-ready versions or
-        outdated.
-
+        most recent production-ready version it supports. The most recent
+        version is determined by comparing the version numbers according to 
+        rules from [Semantic Versioning](https://semver.org/), especially
+        [§11](https://semver.org/#spec-item-11).
+        Clients MAY let users choose to connect to versions that are not
+        production-ready versions or outdated.
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
@@ -810,12 +815,10 @@ paths:
         client SHOULD try to request the capabilities at `/` from
         `https://example.com`.
 
-
         **This URI MUST NOT be versioned as the other endpoints.** If your API
         is available at `https://example.com/api/v1.0`, the Well-Known URI
         SHOULD be located at `https://example.com/.well-known/openeo` and the
         URI users connect to SHOULD be `https://example.com`.
-
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
@@ -1617,7 +1620,7 @@ paths:
                       - Sentinel-2B
                     'instruments':
                       - MSI
-                    'sat:cloud_cover':
+                    'eo:cloud_cover':
                       min: 0
                       max: 75
                     'sat:orbit_state':
@@ -1713,7 +1716,15 @@ paths:
                   processes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/predefined_process'
+                      title: Pre-Defined Process
+                      description: A pre-defined process made available by the back-end.
+                      allOf:
+                        - $ref: '#/components/schemas/process'
+                        - required:
+                            - id
+                            - description
+                            - parameters
+                            - returns
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -1854,7 +1865,7 @@ paths:
                           description: Versions available for the programming language.
                           type: object
                           additionalProperties:
-                            x-additionalPropertiesName: Programming Language Name
+                            x-additionalPropertiesName: Programming Language Version
                             title: Programming language version
                             type: object
                             required:
@@ -2304,10 +2315,10 @@ paths:
               title: Synchronous Result Request
               type: object
               required:
-                - process_graph
+                - process
               properties:
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 budget:
                   $ref: '#/components/schemas/budget'
                 plan:
@@ -2346,24 +2357,28 @@ paths:
                       description: >-
                         The user-defined processes submitted by a user,
                         usually without process graph, examples, exceptions and links to keep the response size small.
-                      type: object
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/process_id'
-                        summary:
-                          $ref: '#/components/schemas/process_summary'
-                        description:
-                          $ref: '#/components/schemas/process_description'
-                        categories:
-                          $ref: '#/components/schemas/process_categories'
-                        parameters:
-                          $ref: '#/components/schemas/process_parameters'
-                        returns:
-                          $ref: '#/components/schemas/process_return_value'
-                        deprecated:
-                          $ref: '#/components/schemas/process_deprecated'
-                        experimental:
-                          $ref: '#/components/schemas/process_experimental'
+                      allOf:
+                        - type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              $ref: '#/components/schemas/process_id'
+                            summary:
+                              $ref: '#/components/schemas/process_summary'
+                            description:
+                              $ref: '#/components/schemas/process_description'
+                            categories:
+                              $ref: '#/components/schemas/process_categories'
+                            parameters:
+                              $ref: '#/components/schemas/process_parameters'
+                            returns:
+                              $ref: '#/components/schemas/process_return_value'
+                            deprecated:
+                              $ref: '#/components/schemas/process_deprecated'
+                            experimental:
+                              $ref: '#/components/schemas/process_experimental'
+                        - $ref: '#/components/schemas/nullable_process'
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2410,36 +2425,6 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-    post:
-      summary: Store a user-defined process
-      operationId: create-custom-process
-      description: |-
-        Stores a provided user-defined process with process graph that can be
-        reused in other process graphs.
-
-        The process id must be unique for the authenticated user,
-        including all pre-defined processes by the back-end.
-      tags:
-        - User-Defined Processes
-      security:
-        - Bearer: []
-      responses:
-        '201':
-          $ref: '#/components/responses/created'
-        4XX:
-          $ref: '#/components/responses/client_error_auth'
-        5XX:
-          $ref: '#/components/responses/server_error'
-      requestBody:
-        required: true
-        description: Specifies the process graph with its meta data.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/user_defined_process'
-            examples:
-              evi_user_defined_process:
-                $ref: '#/components/examples/evi_user_defined_process'
   '/process_graphs/{process_graph_id}':
     parameters:
       - $ref: '#/components/parameters/process_graph_id'
@@ -2458,7 +2443,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user_defined_process'
+                title: User-Defined Process
+                description: A user-defined process with processing instructions as process graph.
+                allOf:
+                  - $ref: '#/components/schemas/process'
+                  - $ref: '#/components/schemas/nullable_process'
+                  - required:
+                      - id
+                      - process_graph
               examples:
                 evi_user_defined_process:
                   $ref: '#/components/examples/evi_user_defined_process'
@@ -2466,31 +2458,42 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-    patch:
-      summary: Modify a user-defined process
-      operationId: update-custom-process
-      description: >-
-        Fully or partially replaces a user-defined process (process graph).
+    put:
+      summary: Store a user-defined process
+      operationId: store-custom-process
+      description: |-
+        Stores a provided user-defined process with process graph that can be
+        reused in other process graphs. If a process with the specified 
+        `process_graph_id` exists, the process is fully replaced. The id can't
+        be changed for stored user-defined processes.
 
-        The process id must still be unique for the authenticated user,
-        including all pre-defined processes by the back-end.
+        The id must be unique for the authenticated user, including all
+        pre-defined processes by the back-end.
+
+        Partially updating user-defined processes is not supported.
+
+        To simplify exchanging process graphs, the property `id` can be part of
+        the request body. If the values don't match, the value for `id` gets
+        replaced with the value from the `process_graph_id` parameter in the
+        path.
       tags:
         - User-Defined Processes
       security:
         - Bearer: []
       responses:
-        '204':
-          description: The process graph data has been updated successfully.
+        '200':
+          description: The user-defined process has been stored successfully.
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
         required: true
+        description: Specifies the process graph with its meta data.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/process_metadata'
+              $ref: '#/components/schemas/process_graph_with_metadata'
             examples:
               evi_user_defined_process:
                 $ref: '#/components/examples/evi_user_defined_process'
@@ -2741,14 +2744,14 @@ paths:
               type: object
               required:
                 - type
-                - process_graph
+                - process
               properties:
                 title:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
@@ -2793,8 +2796,8 @@ paths:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
                 configuration:
@@ -2825,7 +2828,7 @@ paths:
                 type: object
                 required:
                   - id
-                  - process_graph
+                  - process
                   - enabled
                   - type
                   - url
@@ -2838,8 +2841,8 @@ paths:
                     $ref: '#/components/schemas/eo_title'
                   description:
                     $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                  process:
+                    $ref: '#/components/schemas/process_graph_with_metadata'
                   url:
                     $ref: '#/components/schemas/service_url'
                   type:
@@ -2892,13 +2895,26 @@ paths:
     get:
       summary: Logs for a secondary service
       operationId: debug-service
-      description: Logs for the secondary service.
+      description: >-
+        Shows log entries for the secondary service, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while the secondary service is enabled, it is
+        RECOMMENDED that clients use the offset parameter to get only the entries
+        they have not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Secondary Services
       security:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/service_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -3001,14 +3017,14 @@ paths:
               title: Store Batch Job Request
               type: object
               required:
-                - process_graph
+                - process
               properties:
                 title:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -3052,8 +3068,8 @@ paths:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -3081,7 +3097,7 @@ paths:
                 type: object
                 required:
                   - id
-                  - process_graph
+                  - process
                   - status
                   - created
                 properties:
@@ -3091,8 +3107,8 @@ paths:
                     $ref: '#/components/schemas/eo_title'
                   description:
                     $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                  process:
+                    $ref: '#/components/schemas/process_graph_with_metadata'
                   status:
                     $ref: '#/components/schemas/status'
                   progress:
@@ -3213,7 +3229,19 @@ paths:
     get:
       summary: Logs for a batch job
       operationId: debug-job
-      description: Logs for the batch job.
+      description: |-
+        Shows log entries for the batch job, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while a job is running, it is RECOMMENDED
+        that clients use the offset parameter to get only the entries they have
+        not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3221,6 +3249,7 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/job_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -4272,7 +4301,7 @@ components:
       description: >-
         A unique identifier for the collection, which MUST match the specified
         pattern.
-      pattern: '^[A-Za-z0-9_\-\.~\/]+$'
+      pattern: '^[\w\-\.~\/]+$'
       example: Sentinel-2A
     collection_dimension_type_spatial:
       description: 'Type of the dimension, always `spatial`.'
@@ -4529,8 +4558,8 @@ components:
               from_node: mintime
             format: GTiff
           result: true
-    process_metadata:
-      title: Process Metadata
+    process:
+      title: Process
       type: object
       properties:
         id:
@@ -4599,39 +4628,31 @@ components:
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
-    process:
-      title: Process
-      allOf:
-        - $ref: '#/components/schemas/process_metadata'
-        - type: object
-          properties:
-            process_graph:
-              $ref: '#/components/schemas/process_graph'
-    predefined_process:
-      title: Pre-Defined Process
-      description: A pre-defined process made available by the back-end.
-      allOf:
-        - $ref: '#/components/schemas/process'
-        - required:
-            - id
-            - description
-            - parameters
-            - returns
-    user_defined_process:
-      title: User-Defined Process
-      description: A user-defined process with processing instructions as process graph.
-      allOf:
-        - $ref: '#/components/schemas/process'
-        - required:
-            - id
-            - process_graph
+        process_graph:
+          $ref: '#/components/schemas/process_graph'
+    nullable_process:
+      type: object
+      properties:
+        summary:
+          nullable: true
+        description:
+          nullable: true
+        parameters:
+          nullable: true
+        returns:
+          nullable: true
     process_graph_with_metadata:
       title: Process Graph with metadata
       description: A process graph, optionally enriched with process metadata.
       allOf:
         - $ref: '#/components/schemas/process'
-        - required:
+        - $ref: '#/components/schemas/nullable_process'
+        - type: object
+          required:
             - process_graph
+          properties:
+            id:
+              nullable: true
     process_id:
       type: string
       description: |-
@@ -4643,7 +4664,7 @@ components:
         
         Back-ends may choose to enforce a prefix for user-defined processes while storing the process, e.g.
         `user_ndvi` with `user_` being the prefix. Prefixes must still follow the pattern.
-      pattern: '^[A-Za-z0-9_]+$'
+      pattern: '^\w+$'
       example: ndvi
     process_summary:
       type: string
@@ -4689,16 +4710,15 @@ components:
     process_exceptions:
       type: object
       title: Process Exceptions
-      description: >-
+      description: |-
         Declares any exceptions (errors) that might occur during execution
-        of this process. MUST be used only for exceptions that stop the
-        execution of a process and are therefore not to be used for
-        warnings, or notices or debugging messages.
-
+        of this process. This list is just for informative purposes and may be
+        incomplete. This list MUST only contain exceptions that stop the
+        execution of a process and MUST NOT contain warnings, notices or
+        debugging messages.
 
         The keys define the error code and MUST match the following pattern:
-        `^[A-Za-z0-9_]+$`
-
+        `^\w+$`
 
         This schema follows the schema of the general openEO error list (see
         errors.json).
@@ -4748,6 +4768,13 @@ components:
 
         The order in the array corresponds to the parameter order to
         be used in clients that don't support named parameters.
+
+        **Note:** Specifying an empty array is different from (if allowed)
+        `null` or the property being absent.
+        An empty array means the process has no parameters.
+        `null` / property absent means that the parameters are unknown as
+        the user has not specified them. There could still be parameters in the
+        process graph, if one is specified.
       items:
         $ref: '#/components/schemas/process_parameter'
     process_parameter:
@@ -4764,7 +4791,7 @@ components:
             A unique name for the parameter. 
 
             It is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`).
-          pattern: '^[A-Za-z0-9_]+$'
+          pattern: '^\w+$'
         description:
           $ref: '#/components/schemas/process_description'
         optional:
@@ -4787,7 +4814,7 @@ components:
       description: >-
         Unique identifier of a job that is generated by the back-end during job
         submission. MUST match the specified pattern.
-      pattern: '^[A-Za-z0-9_\-\.~]+$'
+      pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
     created:
       type: string
@@ -4809,7 +4836,7 @@ components:
         Unique identifier of the user. MUST match the specified pattern. SHOULD
         be a human-friendly user name instead of a randomly generated
         identifier.
-      pattern: '^[A-Za-z0-9_\-\.~]+$'
+      pattern: '^[\w\-\.~]+$'
       example: john_doe
     status:
       type: string
@@ -4909,7 +4936,7 @@ components:
       description: >-
         Unique identifier of a secondary web service that is generated by the
         back-end during creation. MUST match the specified pattern.
-      pattern: '^[A-Za-z0-9_\-\.~]+$'
+      pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
     argument:
       x-additionalPropertiesName: Parameter Name
@@ -5464,19 +5491,20 @@ components:
       name: limit
       description: |-
         This parameter enables pagination for the endpoint and specifies the maximum number of
-        elements that arrays in the top-level object (e.g. jobs, log entries, secondary services,
-        files etc.) are allowed to contain. The only exception is the `links` array, which
-        MUST NOT be paginated as otherwise the pagination links may be missing ins responses.
+        elements that arrays in the top-level object (e.g. jobs or log entries) are allowed to contain.
+        The only exception is the `links` array, which MUST NOT be paginated as otherwise the
+        pagination links may be missing ins responses.
         If the parameter is not provided or empty, all elements are returned.
         
         Pagination is OPTIONAL and back-ends and clients may not support it.
         Therefore it MUST be implemented in a way that clients not supporting
-        pagination get all resources regardless.
+        pagination get all resources regardless. Back-ends not supporting 
+        pagination will return all resources.
         
         If the response is paginated, the links array MUST be used to propagate the 
         links for pagination with pre-defined `rel` types. See the links array schema
         for supported `rel` types.
-
+        
         *Note:* Implementations can use all kind of pagination techniques, depending on what is
         supported best by their infrastructure. So it doesn't care whether it is page-based,
         offset-based or uses tokens for pagination. The clients will use whatever is specified
@@ -5487,6 +5515,14 @@ components:
       schema:
         type: integer
         minimum: 1
+    log_offset:
+      name: offset
+      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occured after the specified identifier. If not provided or empty, start with the first entry.
+      in: query
+      allowEmptyValue: true
+      example: "log1234"
+      schema:
+        type: string
     process_graph_id:
       name: process_graph_id
       in: path
@@ -5526,14 +5562,6 @@ components:
             A path with special chars. It describes a file `münster.shp` in
             folders called `europe` and `österreich`.
           value: europe/%C3%B6sterreich/m%C3%BCnster.shp
-  requestBodies:
-    process_graph:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/process_graph'
-      description: Description of one or more (chained) processes.
-      required: true
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
