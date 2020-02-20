@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+## 1.0.0-rc.2 - 2020-02-20
+
 ### Added
 - `PUT /process_graphs/{process_graph_id}` to store and replace custom process-graphs. [#260](https://github.com/Open-EO/openeo-api/issues/260)
 - `/jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Reintroduced the missing `offset` parameter.
