@@ -792,18 +792,19 @@ paths:
     get:
       summary: Supported openEO versions
       operationId: connect
-      description: >-
+      description: |-
         Well-Known URI (see [RFC 57855](https://tools.ietf.org/html/rfc5785))
         for openEO, listing all implemented openEO versions supported by the
         service provider.
 
-
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
-        most recent production-ready version it supports. Clients MAY let users
-        choose to connect to versions that are not production-ready versions or
-        outdated.
-
+        most recent production-ready version it supports. The most recent
+        version is determined by comparing the version numbers according to 
+        rules from [Semantic Versioning](https://semver.org/), especially
+        [§11](https://semver.org/#spec-item-11).
+        Clients MAY let users choose to connect to versions that are not
+        production-ready versions or outdated.
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
@@ -814,12 +815,10 @@ paths:
         client SHOULD try to request the capabilities at `/` from
         `https://example.com`.
 
-
         **This URI MUST NOT be versioned as the other endpoints.** If your API
         is available at `https://example.com/api/v1.0`, the Well-Known URI
         SHOULD be located at `https://example.com/.well-known/openeo` and the
         URI users connect to SHOULD be `https://example.com`.
-
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
