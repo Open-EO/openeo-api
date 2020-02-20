@@ -792,18 +792,19 @@ paths:
     get:
       summary: Supported openEO versions
       operationId: connect
-      description: >-
+      description: |-
         Well-Known URI (see [RFC 57855](https://tools.ietf.org/html/rfc5785))
         for openEO, listing all implemented openEO versions supported by the
         service provider.
 
-
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
-        most recent production-ready version it supports. Clients MAY let users
-        choose to connect to versions that are not production-ready versions or
-        outdated.
-
+        most recent production-ready version it supports. The most recent
+        version is determined by comparing the version numbers according to 
+        rules from [Semantic Versioning](https://semver.org/), especially
+        [§11](https://semver.org/#spec-item-11).
+        Clients MAY let users choose to connect to versions that are not
+        production-ready versions or outdated.
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
@@ -814,12 +815,10 @@ paths:
         client SHOULD try to request the capabilities at `/` from
         `https://example.com`.
 
-
         **This URI MUST NOT be versioned as the other endpoints.** If your API
         is available at `https://example.com/api/v1.0`, the Well-Known URI
         SHOULD be located at `https://example.com/.well-known/openeo` and the
         URI users connect to SHOULD be `https://example.com`.
-
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
@@ -1621,7 +1620,7 @@ paths:
                       - Sentinel-2B
                     'instruments':
                       - MSI
-                    'sat:cloud_cover':
+                    'eo:cloud_cover':
                       min: 0
                       max: 75
                     'sat:orbit_state':
@@ -2316,10 +2315,10 @@ paths:
               title: Synchronous Result Request
               type: object
               required:
-                - process_graph
+                - process
               properties:
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 budget:
                   $ref: '#/components/schemas/budget'
                 plan:
@@ -2742,14 +2741,14 @@ paths:
               type: object
               required:
                 - type
-                - process_graph
+                - process
               properties:
                 title:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
@@ -2794,8 +2793,8 @@ paths:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 enabled:
                   $ref: '#/components/schemas/service_enabled'
                 configuration:
@@ -2826,7 +2825,7 @@ paths:
                 type: object
                 required:
                   - id
-                  - process_graph
+                  - process
                   - enabled
                   - type
                   - url
@@ -2839,8 +2838,8 @@ paths:
                     $ref: '#/components/schemas/eo_title'
                   description:
                     $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                  process:
+                    $ref: '#/components/schemas/process_graph_with_metadata'
                   url:
                     $ref: '#/components/schemas/service_url'
                   type:
@@ -2893,13 +2892,26 @@ paths:
     get:
       summary: Logs for a secondary service
       operationId: debug-service
-      description: Logs for the secondary service.
+      description: >-
+        Shows log entries for the secondary service, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while the secondary service is enabled, it is
+        RECOMMENDED that clients use the offset parameter to get only the entries
+        they have not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Secondary Services
       security:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/service_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -3002,14 +3014,14 @@ paths:
               title: Store Batch Job Request
               type: object
               required:
-                - process_graph
+                - process
               properties:
                 title:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -3053,8 +3065,8 @@ paths:
                   $ref: '#/components/schemas/eo_title'
                 description:
                   $ref: '#/components/schemas/eo_description'
-                process_graph:
-                  $ref: '#/components/schemas/process_graph'
+                process:
+                  $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
@@ -3082,7 +3094,7 @@ paths:
                 type: object
                 required:
                   - id
-                  - process_graph
+                  - process
                   - status
                   - created
                 properties:
@@ -3092,8 +3104,8 @@ paths:
                     $ref: '#/components/schemas/eo_title'
                   description:
                     $ref: '#/components/schemas/eo_description'
-                  process_graph:
-                    $ref: '#/components/schemas/process_graph'
+                  process:
+                    $ref: '#/components/schemas/process_graph_with_metadata'
                   status:
                     $ref: '#/components/schemas/status'
                   progress:
@@ -3214,7 +3226,19 @@ paths:
     get:
       summary: Logs for a batch job
       operationId: debug-job
-      description: Logs for the batch job.
+      description: |-
+        Shows log entries for the batch job, usually for debugging purposes.
+        
+        Back-ends can log any information that may be relevant for a user.
+        Users can log information during data processing using respective
+        processes such as `debug`.
+
+        If requested consecutively while a job is running, it is RECOMMENDED
+        that clients use the offset parameter to get only the entries they have
+        not received yet.
+
+        While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
+        to be implemented by back-ends.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3222,6 +3246,7 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/job_id'
+        - $ref: '#/components/parameters/log_offset'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -5441,19 +5466,20 @@ components:
       name: limit
       description: |-
         This parameter enables pagination for the endpoint and specifies the maximum number of
-        elements that arrays in the top-level object (e.g. jobs, log entries, secondary services,
-        files etc.) are allowed to contain. The only exception is the `links` array, which
-        MUST NOT be paginated as otherwise the pagination links may be missing ins responses.
+        elements that arrays in the top-level object (e.g. jobs or log entries) are allowed to contain.
+        The only exception is the `links` array, which MUST NOT be paginated as otherwise the
+        pagination links may be missing ins responses.
         If the parameter is not provided or empty, all elements are returned.
         
         Pagination is OPTIONAL and back-ends and clients may not support it.
         Therefore it MUST be implemented in a way that clients not supporting
-        pagination get all resources regardless.
+        pagination get all resources regardless. Back-ends not supporting 
+        pagination will return all resources.
         
         If the response is paginated, the links array MUST be used to propagate the 
         links for pagination with pre-defined `rel` types. See the links array schema
         for supported `rel` types.
-
+        
         *Note:* Implementations can use all kind of pagination techniques, depending on what is
         supported best by their infrastructure. So it doesn't care whether it is page-based,
         offset-based or uses tokens for pagination. The clients will use whatever is specified
@@ -5464,6 +5490,14 @@ components:
       schema:
         type: integer
         minimum: 1
+    log_offset:
+      name: offset
+      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occured after the specified identifier. If not provided or empty, start with the first entry.
+      in: query
+      allowEmptyValue: true
+      example: "log1234"
+      schema:
+        type: string
     process_graph_id:
       name: process_graph_id
       in: path
@@ -5503,14 +5537,6 @@ components:
             A path with special chars. It describes a file `münster.shp` in
             folders called `europe` and `österreich`.
           value: europe/%C3%B6sterreich/m%C3%BCnster.shp
-  requestBodies:
-    process_graph:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/process_graph'
-      description: Description of one or more (chained) processes.
-      required: true
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
