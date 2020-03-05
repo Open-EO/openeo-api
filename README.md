@@ -29,5 +29,5 @@ This repository contains a set of files formally describing the openEO API, each
 
 * [openapi.yaml](openapi.yaml) provides the [OpenAPI](https://www.openapis.org/) 3.0 definition of the openEO API. See the table above for human-readable versions of the OpenAPI definition.
 * [errors.json](errors.json) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
-* [subtype-schema.json](subtype-schema.json) defines data types (subtypes) for JSON Schema used in openEO.
+* [subtype-schemas.json](subtype-schemas.json) defines data types (subtypes) for JSON Schema used in openEO.
 * The [assets](assets/) folder contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
