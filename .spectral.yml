@@ -1,25 +1,16 @@
 extends: "spectral:oas"
+# don't error on circular schemas, these are currently not supported by spectral
+# https://github.com/stoplightio/spectral/issues/894
+except:
+  "openapi.yaml#/components/schemas/process_graph/example":
+    - oas3-valid-schema-example
+  "openapi.yaml#/paths/~1processes/get/responses/200/content/application~1json/schema/example":
+    - oas3-valid-content-schema-example
+  "openapi.yaml#/paths/~1process_graphs/get/responses/200/content/application~1json/schema/example":
+    - oas3-valid-content-schema-example
+  "openapi.yaml#/paths/~1service_types/get/responses/200/content/application~1json/schema/example":
+    - oas3-valid-content-schema-example
 rules:
-  # https://github.com/stoplightio/spectral/issues/892
-  # Remove whenever fixed in spectral
-  oas3-operation-security-defined: false
-  # https://github.com/stoplightio/spectral/issues/883
-  # Remove whenever fixed in spectral
-  example-value-or-externalValue:
-    description: Example should have either a `value` or `externalValue` field.
-    recommended: true
-    type: style
-    given: $..examples
-    then:
-      function: xor
-      functionOptions:
-        properties:
-          - externalValue
-          - value
-  # https://github.com/stoplightio/spectral/issues/894
-  # Remove whenever fixed in spectral
-  oas3-valid-schema-example: info
-  oas3-valid-content-schema-example: info
   # Ported from Spectral 4.0
   contact-properties: true
   tag-description: true
