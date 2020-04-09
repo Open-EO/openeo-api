@@ -969,6 +969,7 @@ paths:
                   output:
                     GTiff:
                       title: GeoTiff
+                      description: Export to GeoTiff. Doesn't support cloud-optimized GeoTiffs (COGs) yet.
                       gis_data_types:
                         - raster
                       parameters:
@@ -1855,6 +1856,8 @@ paths:
                         - default
                         - versions
                       properties:
+                        title:
+                          $ref: '#/components/schemas/object_title'
                         description:
                           $ref: '#/components/schemas/description'
                         default:
@@ -1928,6 +1931,8 @@ paths:
                         - default
                         - tags
                       properties:
+                        title:
+                          $ref: '#/components/schemas/object_title'
                         description:
                           $ref: '#/components/schemas/description'
                         docker:
@@ -1948,6 +1953,7 @@ paths:
                           $ref: '#/components/schemas/udf_links'
                 example:
                   PHP7:
+                    title: PHP v7.x
                     description: Just an example how to reference a docker image.
                     docker: openeo/udf-php7
                     default: latest
@@ -1960,6 +1966,7 @@ paths:
                       - href: 'https://hub.docker.com/openeo/udf-php7/'
                         rel: about
                   R:
+                    title: R v3.x for Statistical Computing
                     description: R programming language with `Rcpp` and `rmarkdown` extensions installed.
                     default: 3.5.2
                     versions:
@@ -2565,6 +2572,10 @@ paths:
                   title: Service Type
                   type: object
                   properties:
+                    title:
+                      $ref: '#/components/schemas/object_title'
+                    description:
+                      $ref: '#/components/schemas/description'
                     configuration:
                       title: Service Configuration
                       description: List of supported configuration settings made available to the creator the service.
@@ -2589,6 +2600,7 @@ paths:
                         $ref: '#/components/schemas/link'
                 example:
                   WMS:
+                    title: OGC Web Map Service
                     configuration:
                       version:
                         type: string
@@ -2624,6 +2636,10 @@ paths:
                         rel: about
                         title: OGC Web Map Service Standard
                   WFS:
+                    title: OGC Web Feature Service
+                    description: >-
+                      Exposes a OGC-compliant WFS service.
+                      Note: This is NOT compliant to OGC API - Features.
                     configuration:
                       version:
                         type: string
@@ -3819,15 +3835,9 @@ components:
         - gis_data_types
       properties:
         title:
-          type: string
-          description: >-
-            A human-readable short title for the format to be displayed to users
-            **in addition** to the format names specified in the keys. This
-            property is only for better user experience so that users can
-            understand format names better, e.g. GeoTiff for `GTiff` or
-            GeoPackage for `GPKG`. The title MUST NOT be used in communication
-            (e.g. in process graphs), although clients MAY translate the titles
-            into the corresponding format names.
+          $ref: '#/components/schemas/object_title'
+        description:
+          $ref: '#/components/schemas/description'
         gis_data_types:
           type: array
           description: Specifies the supported GIS spatial data type for this format.
@@ -4874,6 +4884,16 @@ components:
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
         text representation.
       type: string
+    object_title:
+      type: string
+      description: >-
+        A human-readable short title to be displayed to users **in addition** to
+        the names specified in the keys. This property is only for better user
+        experience so that users can understand the names better.
+        Example titles could be `GeoTiff` for the key `GTiff` (for file formats)
+        or `OGC Web Map Service` for the key `WMS` (for service types).
+        The title MUST NOT be used in communication (e.g. in process graphs),
+        although clients MAY translate the titles into the corresponding names.
     eo_title:
       description: A short description to easily distinguish entities.
       type: string
