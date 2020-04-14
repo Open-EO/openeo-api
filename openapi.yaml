@@ -2746,7 +2746,29 @@ paths:
         - Bearer: []
       responses:
         '201':
-          $ref: '#/components/responses/created'
+          description: The service has been created successfully.
+          headers:
+            Location:
+              required: true
+              schema:
+                description: |-
+                  Absolute URL to the newly created service.
+                  
+                  The URL points to the metadata endpoint
+                  `GET /services/{service_id}` with the `{service_id}` being the
+                  unique identifier (ID) of the created service.
+                  MUST NOT point to the actual instance (e.g. WMTS base URL) of
+                  the service. The URL to the instance is made available by the
+                  metadata endpoint in the property `url`.
+                format: uri
+                type: string
+                example: 'https://openeo.org/api/v1.0/services/123'
+            OpenEO-Identifier:
+              required: true
+              schema:
+                description: Unique Identifier (ID) of the created service.
+                type: string
+                example: '123'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3020,7 +3042,25 @@ paths:
         - Bearer: []
       responses:
         '201':
-          $ref: '#/components/responses/created'
+          description: The batch job has been created successfully.
+          headers:
+            Location:
+              required: true
+              schema:
+                description: |-
+                  Absolute URL to the newly created batch job.
+                  
+                  The URL points to the metadata endpoint
+                  `GET /jobs/{job_id}` with the `{job_id}` being the
+                  unique identifier (ID) of the created batch job.
+                format: uri
+                type: string
+                example: 'https://openeo.org/api/v1.0/jobs/123'
+            OpenEO-Identifier:
+              required: true
+              schema:
+                description: Unique Identifier (ID) of the created batch job.
+                type: string
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -5423,33 +5463,6 @@ components:
                   $ref: '#/components/schemas/log_entry'
               links:
                 $ref: '#/components/schemas/links_pagination'
-    created:
-      description: >-
-        The resource has been created successfully and the location of the newly
-        created resource is advertized by the back-end.
-
-
-        Examples:
-
-        * `POST /services` redirects to `GET /services/{service_id}`
-
-        * `POST /jobs` redirects to `GET /jobs/{job_id}`
-      headers:
-        Location:
-          required: true
-          schema:
-            description: URL to the newly created resource.
-            format: uri
-            type: string
-            example: 'https://openeo.org/api/v1.0/resource/123'
-        OpenEO-Identifier:
-          required: true
-          schema:
-            description: >-
-              Unique Identifier (e.g. job id or service id) of the newly created
-              resource.
-            type: string
-            example: '123'
     client_error:
       description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
