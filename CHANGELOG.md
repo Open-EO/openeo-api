@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added variable `reason` to error `FilePathInvalid` and `type` to `ServiceUnsupported`.
     - Replaced the following error messages. The variables in the messages may have changed, too.
         - `ProcessArgumentUnsupported` -> `ProcessParameterUnsupported`
-        - `ProcessArgumentRequired` -> `ProcessParameterUnsupported`
         - `ProcessArgumentInvalid` -> `ProcessParameterInvalid`
         - `ProcessParameterMissing` and `ProcessArgumentRequired` -> `ProcessParameterRequired`
         - `ServiceArgumentUnsupported` -> `ServiceConfigUnsupported`
