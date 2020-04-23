@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /service_types`: Added optional `title` and `description` properties for service types. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 
+### Changes
+- `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
+    - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
+    - Added variable `reason` to error `FilePathInvalid` and `type` to `ServiceUnsupported`.
+    - Replaced the following error messages. The variables in the messages may have changed, too.
+        - `ProcessArgumentUnsupported` -> `ProcessParameterUnsupported`
+        - `ProcessArgumentInvalid` -> `ProcessParameterInvalid`
+        - `ProcessParameterMissing` and `ProcessArgumentRequired` -> `ProcessParameterRequired`
+        - `ServiceArgumentUnsupported` -> `ServiceConfigUnsupported`
+        - `ServiceArgumentInvalid` -> `ServiceConfigInvalid`
+        - `ServiceArgumentRequired` -> `ServiceConfigRequired`
+    - Removed all error messages with tag `Processes` (`CRSInvalid`, `CoordinateOutOfBounds`) or related to storing file formats (`FormatUnsupported`, `FormatArgumentUnsupported`, `FormatArgumentInvalid`, `FormatUnsuitable`) as they are usually defined directly in the process specification as `exceptions`.
+
 ### Fixed
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
 
