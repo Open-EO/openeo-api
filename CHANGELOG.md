@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 - `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
-    - Added `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
+    - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
     - Added variable `reason` to error `FilePathInvalid` and `type` to `ServiceUnsupported`.
     - Replaced the following error messages. The variables in the messages may have changed, too.
         - `ProcessArgumentUnsupported` -> `ProcessParameterUnsupported`
