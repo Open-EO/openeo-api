@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased / Draft
 
 ### Added
+- `GET /me`: Added optional `name` property to better separate an internal user id from a displayable user name. Adopted description of `user_id` accordingly.
 - `GET /udf_runtimes`: Added optional `title` property for UDF runtimes. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /service_types`: Added optional `title` and `description` properties for service types. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
