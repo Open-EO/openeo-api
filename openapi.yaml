@@ -298,7 +298,9 @@ info:
     ### User-defined process
 
     A user-defined process in a process graph is a simply a child process graph and thus to be evaluated as part of another process graph.
-    It may consists only of an object with a key `process_graph`, but can be described with all additional properties available also for pre-defined processes such as an id, parameters, return values etc. In process graphs these additional properties are usually not used, except for validation purposes. 
+    It must at least consist of an object with a key `process_graph`.
+    Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
+    When embedded in a process graph, these additional properties of a user-defined process are usually not used, except for validation purposes.
 
     ```
     <UserDefinedProcess> := {
@@ -317,14 +319,15 @@ info:
     }
     ```
     
-    This tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument. The `<ProcessNodeIdentifier>` is strictly scoped and can only referenced from within the same process graph, i.e. can not be referenced in child or parent process graphs.
+    This tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument.
+    The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
     ### Accessing process parameters
 
     **Example:** You want to iterate over an array and calculate the absolute value of each value in the array.
-    This can be achieved by executing the `apply` process in openEO and pass a process graph containing a single process `absolute`.
+    This can be achieved by executing the `array_apply` process in openEO and pass a "child" process graph containing a single process `absolute`.
 
-    The parameters made available by the "parent" process (`apply` in this example) to the "child" process graph are the *process graph parameters*. 
+    The parameters made available by the "parent" process (`array_apply` in this example) to the "child" process graph are the *process graph parameters*. [`array_apply`](https://processes.openeo.org/#array_apply) for example provides two parameters `x` (each array value consecutively) and `context` (additional data passed through from the user). `x` can then be passed to `absolute`.
     Processes can access parameters by passing a certain type of object as argument to a processes.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
 
@@ -335,7 +338,7 @@ info:
     ```
 
     The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
-    The parent could be a process such as `apply` or something else that executes a process graph, for example a secondary web service. 
+    The parent could be a process (such as `apply` or `reduce_dimension`) or something else that executes a process graph (a secondary web service for example).
 
     If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
     In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
