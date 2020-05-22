@@ -1540,9 +1540,22 @@ paths:
                                   anyOf:
                                     - type: string
                                     - type: number
+                      assets:
+                        type: object
+                        title: Assets
+                        description: >-
+                          Dictionary of asset objects for data that can be downloaded,
+                          each with a unique key.
+                          The keys MAY be used by clients as file names.
+
+                          Implementing this property REQUIRES to add `collection-assets`
+                          to the list of `stac_extensions`.
+                        additionalProperties:
+                          $ref: '#/components/schemas/asset'
                 example:
                   stac_version: 0.9.0
                   stac_extensions:
+                   - collection-assets
                    - datacube
                    - scientific
                    - version
@@ -1699,6 +1712,34 @@ paths:
                     'proj:epsg':
                       min: 32601
                       max: 32660
+                  assets:
+                    thumbnail:
+                      href: 'https://openeo.org/api/collections/Sentinel-2/thumbnail.png'
+                      type: image/png
+                      title: Preview
+                      roles:
+                        - thumbnail
+                    true-color:
+                      href: 'https://openeo.org/api/collections/Sentinel-2/examples/true-color.json'
+                      type: application/json
+                      title: Example Process for True-Color Visualization
+                      roles:
+                        - process
+                        - example
+                    ndvi:
+                      href: 'https://openeo.org/api/collections/Sentinel-2/examples/ndvi.json'
+                      type: application/json
+                      title: Example Process for NDVI Calculation and Visualization
+                      roles:
+                        - process
+                        - example
+                    inspire:
+                      href: 'https://openeo.org/api/collections/Sentinel-2/inspire.xml'
+                      type: application/xml
+                      title: INSPIRE metadata
+                      description: INSPIRE compliant XML metadata
+                      roles:
+                        - metadata
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3817,50 +3858,7 @@ components:
             Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
           additionalProperties:
-            type: object
-            required:
-              - href
-            properties:
-              href:
-                title: Asset location
-                description: >-
-                  URL to the downloadable asset.
-
-                  The URLs SHOULD  be available without authentication so that
-                  external clients can download them easily.
-                  Signed URLs SHOULD be used to protect against unauthorized
-                  access from third parties.
-                type: string
-              title:
-                description: The displayed title for clients and users.
-                type: string
-              description:
-                type: string
-                description: >-
-                  Multi-line description to explain the asset.
-          
-          
-                  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
-                  text representation.
-              type:
-                title: Media Type
-                description: Media type of the asset.
-                type: string
-                example: image/tiff; application=geotiff
-              roles:
-                type: array
-                items:
-                  type: string
-                description: |-
-                  Purposes of the asset. Can be any value, but commonly used values are:
-                  
-                  * `thumbnail`: A visualization of the data, usually a lower-resolution true color image in JPEG or PNG format.
-                  * `process` and `reproduction`: The process used to compute the data made available here, in JSON format.
-                  * `process` and `example`: Examples for user-defined process(es) using this data, in JSON format.
-                  * `data`: The computed data in the format given by the user in the user-defined process.
-                  * `metadata`: Additional metadata available for the computed data.
-                example:
-                  - data
+            $ref: '#/components/schemas/asset'
           example:
             preview.png:
               href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
@@ -4027,6 +4025,50 @@ components:
           type: string
           description: Used as a human-readable label for a link.
           example: openEO
+    asset:
+      type: object
+      required:
+        - href
+      properties:
+        href:
+          title: Asset location
+          description: >-
+            URL to the downloadable asset.
+
+            The URLs SHOULD be available without authentication so that
+            external clients can download them easily.
+            If the data is confidential, signed URLs SHOULD be used to protect
+            against unauthorized access from third parties.
+          type: string
+        title:
+          description: The displayed title for clients and users.
+          type: string
+        description:
+          type: string
+          description: |-
+            Multi-line description to explain the asset.
+    
+            [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+            text representation.
+        type:
+          title: Media Type
+          description: Media type of the asset.
+          type: string
+          example: image/tiff; application=geotiff
+        roles:
+          type: array
+          items:
+            type: string
+          description: |-
+            Purposes of the asset. Can be any value, but commonly used values are:
+            
+            * `thumbnail`: A visualization of the data, usually a lower-resolution true color image in JPEG or PNG format.
+            * `process` and `reproduction`: The process used to compute the data made available here, in JSON format.
+            * `process` and `example`: Examples for user-defined process(es) using this data, in JSON format.
+            * `data`: The computed data in the format given by the user in the user-defined process.
+            * `metadata`: Additional metadata available for the computed data.
+          example:
+            - data
     money:
       description: >-
         An amount of money or credits. The value MUST be specified in the
