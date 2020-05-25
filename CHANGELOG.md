@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /service_types`: Added optional `title` and `description` properties for service types. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to process graphs or thumbnails for visualizations. [#211](https://github.com/Open-EO/openeo-api/issues/211)
+- `year` subtype to subtype-schemas.json. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
 
 ### Changes
 - `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
