@@ -451,7 +451,7 @@ tags:
       
       For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
-      The data discovery endpoints `GET /collections` and `GET /collections/{name}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+      The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
       
       ### Content Extensions
       
@@ -467,7 +467,7 @@ tags:
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints  `GET /collections/{collectionId}/items` and `GET /collections/{collection-name}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -639,9 +639,18 @@ paths:
                     title: Billing
                     description: >-
                       Billing related data, e.g. the currency used or available
-                      plans to process jobs. MUST be specified if the back-end
-                      uses any billing related functionalities, e.g. budgeting,
+                      plans to process jobs.
+                      
+                      This property MUST be specified if the back-end uses any
+                      billing related API functionalities, e.g. budgeting or
                       estimates.
+                      
+                      The absence of this property doesn't mean the back-end is
+                      necessarily free to use for all. Providers may choose to
+                      bill users outside of the API, e.g. with a monthly fee
+                      that is giving them access a managed virtual machine 
+                      running a protected API instance that is not billing based
+                      on individual API interactions.
                     type: object
                     required:
                       - currency
@@ -1497,6 +1506,9 @@ paths:
                             Domain-specific fields for domains such as EO, SAR and point clouds.
                           * **Custom Properties**:
                             It is generally allowed to add custom fields.
+
+                          This property REQUIRES to add `datacube` to the list
+                          of `stac_extensions`.
                         type: object
                         additionalProperties:
                           oneOf:
@@ -3756,12 +3768,12 @@ components:
               title: Date and Time
               description: >-
                 The searchable date/time of the data, in UTC. Formatted as a
-                [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time. For
-                timeseries: The center date and time for the data.
+                [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
 
 
-                Although possible, it is NOT RECOMMENDED to set this field to `null` as this field
-                is required for the answer to be a valid STAC Item.
+                If this field is set to `null` (usually for larger time ranges),
+                it is STRONGLY RECOMMENDED to specify both `start_datetime` and
+                `end_datetime` to be a valid STAC Item.
               type: string
               format: date-time
               nullable: true
@@ -3800,9 +3812,9 @@ components:
               example: '2020-11-01T00:00:00Z'
         assets:
           type: object
-          title: Item Assets
+          title: Assets
           description: >-
-            Dictionary of asset objects that can be downloaded, each with a
+            Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
           additionalProperties:
             type: object
@@ -3810,10 +3822,17 @@ components:
               - href
             properties:
               href:
-                title: Signed URL to the downloadable asset.
+                title: Asset location
+                description: >-
+                  URL to the downloadable asset.
+
+                  The URLs SHOULD  be available without authentication so that
+                  external clients can download them easily.
+                  Signed URLs SHOULD be used to protect against unauthorized
+                  access from third parties.
                 type: string
               title:
-                title: The displayed title for clients and users.
+                description: The displayed title for clients and users.
                 type: string
               description:
                 type: string
@@ -3824,14 +3843,22 @@ components:
                   [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                   text representation.
               type:
-                title: Media type of the asset.
+                title: Media Type
+                description: Media type of the asset.
                 type: string
                 example: image/tiff; application=geotiff
               roles:
                 type: array
                 items:
                   type: string
-                description: Purposes of the asset. Can be any value, but common examples are `data`, `metadata`, `thumbnail` and `overview`.
+                description: |-
+                  Purposes of the asset. Can be any value, but commonly used values are:
+                  
+                  * `thumbnail`: A visualization of the data, usually a lower-resolution true color image in JPEG or PNG format.
+                  * `process` and `reproduction`: The process used to compute the data made available here, in JSON format.
+                  * `process` and `example`: Examples for user-defined process(es) using this data, in JSON format.
+                  * `data`: The computed data in the format given by the user in the user-defined process.
+                  * `metadata`: Additional metadata available for the computed data.
                 example:
                   - data
           example:
@@ -3841,6 +3868,13 @@ components:
               title: Thumbnail
               roles:
                 - thumbnail
+            process.json:
+              href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+              type: application/json
+              title: Original Process
+              roles:
+                - process
+                - reproduction
             1.tif:
               href: 'https://openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
               type: image/tiff; application=geotiff
@@ -4090,18 +4124,24 @@ components:
             type: string
         version:
           type: string
-          description: Version of the collection.
+          description: |-
+            Version of the collection.
+
+            This property REQUIRES to add `version` to the list
+            of `stac_extensions`.
         deprecated:
           type: boolean
           default: false
-          description: >-
+          description: |-
             Specifies that the collection is deprecated with the potential to
             be removed. It should be transitioned out of usage as soon as
             possible and users should refrain from using it in new projects.
             
-            
             A link with relation type `latest-version` SHOULD be added to the
             links and MUST refer to the collection that can be used instead.
+
+            This property REQUIRES to add `version` to the list
+            of `stac_extensions`.
         license:
           $ref: '#/components/schemas/stac_license'
         providers:
@@ -4276,7 +4316,6 @@ components:
           - title: Reference to a core extension
             type: string
             example: datacube
-      example: []
     stac_license:
       type: string
       description: |-
