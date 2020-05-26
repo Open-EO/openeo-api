@@ -1540,9 +1540,22 @@ paths:
                                   anyOf:
                                     - type: string
                                     - type: number
+                      assets:
+                        type: object
+                        title: Assets
+                        description: >-
+                          Dictionary of asset objects for data that can be downloaded,
+                          each with a unique key.
+                          The keys MAY be used by clients as file names.
+
+                          Implementing this property REQUIRES to add `collection-assets`
+                          to the list of `stac_extensions`.
+                        additionalProperties:
+                          $ref: '#/components/schemas/asset'
                 example:
                   stac_version: 0.9.0
                   stac_extensions:
+                   - collection-assets
                    - datacube
                    - scientific
                    - version
@@ -1584,12 +1597,20 @@ paths:
                           - null
                   links:
                     - rel: license
-                      href: >-
-                        https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
+                      href: https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
+                      type: application/pdf
                     - rel: about
-                      href: >-
-                        https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c
+                      href: https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c
+                      type: text/html
                       title: ESA Sentinel-2 MSI Level-1C User Guide
+                    - rel: example
+                      href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/true-color.json'
+                      type: application/json
+                      title: Example Process for True-Color Visualization
+                    - rel: example
+                      href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/ndvi.json'
+                      type: application/json
+                      title: Example Process for NDVI Calculation and Visualization
                   'cube:dimensions':
                     x:
                       type: spatial
@@ -1699,6 +1720,20 @@ paths:
                     'proj:epsg':
                       min: 32601
                       max: 32660
+                  assets:
+                    thumbnail:
+                      href: 'https://example.openeo.org/api/collections/Sentinel-2/thumbnail.png'
+                      type: image/png
+                      title: Preview
+                      roles:
+                        - thumbnail
+                    inspire:
+                      href: 'https://example.openeo.org/api/collections/Sentinel-2/inspire.xml'
+                      type: application/xml
+                      title: INSPIRE metadata
+                      description: INSPIRE compliant XML metadata
+                      roles:
+                        - metadata
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3817,50 +3852,7 @@ components:
             Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
           additionalProperties:
-            type: object
-            required:
-              - href
-            properties:
-              href:
-                title: Asset location
-                description: >-
-                  URL to the downloadable asset.
-
-                  The URLs SHOULD  be available without authentication so that
-                  external clients can download them easily.
-                  Signed URLs SHOULD be used to protect against unauthorized
-                  access from third parties.
-                type: string
-              title:
-                description: The displayed title for clients and users.
-                type: string
-              description:
-                type: string
-                description: >-
-                  Multi-line description to explain the asset.
-          
-          
-                  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
-                  text representation.
-              type:
-                title: Media Type
-                description: Media type of the asset.
-                type: string
-                example: image/tiff; application=geotiff
-              roles:
-                type: array
-                items:
-                  type: string
-                description: |-
-                  Purposes of the asset. Can be any value, but commonly used values are:
-                  
-                  * `thumbnail`: A visualization of the data, usually a lower-resolution true color image in JPEG or PNG format.
-                  * `process` and `reproduction`: The process used to compute the data made available here, in JSON format.
-                  * `process` and `example`: Examples for user-defined process(es) using this data, in JSON format.
-                  * `data`: The computed data in the format given by the user in the user-defined process.
-                  * `metadata`: Additional metadata available for the computed data.
-                example:
-                  - data
+            $ref: '#/components/schemas/asset'
           example:
             preview.png:
               href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
@@ -4027,6 +4019,49 @@ components:
           type: string
           description: Used as a human-readable label for a link.
           example: openEO
+    asset:
+      type: object
+      required:
+        - href
+      properties:
+        href:
+          title: Asset location
+          description: >-
+            URL to the downloadable asset.
+
+            The URLs SHOULD be available without authentication so that
+            external clients can download them easily.
+            If the data is confidential, signed URLs SHOULD be used to protect
+            against unauthorized access from third parties.
+          type: string
+        title:
+          description: The displayed title for clients and users.
+          type: string
+        description:
+          type: string
+          description: |-
+            Multi-line description to explain the asset.
+    
+            [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+            text representation.
+        type:
+          title: Media Type
+          description: Media type of the asset.
+          type: string
+          example: image/tiff; application=geotiff
+        roles:
+          type: array
+          items:
+            type: string
+          description: |-
+            Purposes of the asset. Can be any value, but commonly used values are:
+            
+            * `thumbnail`: A visualization of the data, usually a lower-resolution true color image in JPEG or PNG format.
+            * `reproducibility`: Information how the data was produced and/or can be reproduced, e.g. the process graph used to compute the data in JSON format.
+            * `data`: The computed data in the format specified by the user in the process graph (applicable in `GET /jobs/{job_id}/results` only).
+            * `metadata`: Additional metadata available for the computed data.
+          example:
+            - data
     money:
       description: >-
         An amount of money or credits. The value MUST be specified in the
@@ -4269,19 +4304,21 @@ components:
             2. `license`: A link to the license(s) should be specified if the `license`
             field is set to `proprietary` or `various`.
 
-            3. `derived_from`: Allows linking to the data this collection was derived from.
+            3. `example`: Links to examples of processes that use this collection.
 
-            4. `cite-as`: [DOI](https://www.doi.org/) links should be added. DOIs can also be 
+            4. `derived_from`: Allows linking to the data this collection was derived from.
+
+            5. `cite-as`: [DOI](https://www.doi.org/) links should be added. DOIs can also be 
             listed in the STAC fields `sci:doi` and `sci:publications`, see the [STAC scientific
             extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
             for more details.
 
-            5. `latest-version`: If a collection has been marked as deprecated, a link should
+            6. `latest-version`: If a collection has been marked as deprecated, a link should
             point to the latest version of the collection. The relation types `predecessor-version`
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
 
-            6. `alternate`: An alternative representation of the collection.
+            7. `alternate`: An alternative representation of the collection.
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
