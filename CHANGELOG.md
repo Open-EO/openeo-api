@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /udf_runtimes`: Added optional `title` property for UDF runtimes. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /service_types`: Added optional `title` and `description` properties for service types. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
+- `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 - `year` subtype to subtype-schemas.json. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
 
 ### Changes
@@ -26,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - `ServiceArgumentInvalid` -> `ServiceConfigInvalid`
         - `ServiceArgumentRequired` -> `ServiceConfigRequired`
     - Removed all error messages with tag `Processes` (`CRSInvalid`, `CoordinateOutOfBounds`) or related to storing file formats (`FormatUnsupported`, `FormatArgumentUnsupported`, `FormatArgumentInvalid`, `FormatUnsuitable`) as they are usually defined directly in the process specification as `exceptions`.
+
+### Removed
+- `GET /processes`: Examples containing process graphs. Use links with `rel` type `example` and `type` set to `application/json` instead. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 
 ### Fixed
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
