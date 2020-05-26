@@ -2219,16 +2219,16 @@ paths:
       summary: Validate a user-defined process (graph)
       operationId: validate-custom-process
       description: >-
-        Validates a process graph without executing it. A process graph is
+        Validates a user-defined process without executing it. A user-defined process is
         considered valid unless the `errors` array in the response contains at
         least one error.
 
 
-        Checks whether the process graph is schematically correct and the
+        Checks whether the user-defined process is schematically correct and the
         processes are supported by the back-end. It MUST also checks the
         parameter values against the schema, but checking whether the values are
         adequate in the context of data is OPTIONAL. For example, a non-existing
-        band name may may get rejected only by a few back-ends.
+        band name may get rejected only by a few back-ends.
 
 
         Errors that usually occur during processing MAY NOT get reported, e.g.
@@ -2241,9 +2241,9 @@ paths:
 
         Please note that a validation always returns with HTTP status code 200.
         Error codes in the 4xx and 5xx ranges MUST be returned only when the
-        general validation request is invalid (e.g. server is busy or no process
-        graph parameter specified), but never if the process graph validation
-        found an error (e.g. an unsupported process).
+        general validation request is invalid (e.g. server is busy or properties
+        in the request body are missing), but never if an error was found during
+        validation of the user-defined process (e.g. an unsupported process).
       tags:
         - User-Defined Processes
       security:
@@ -2280,15 +2280,15 @@ paths:
             examples:
               evi_user_defined_process:
                 $ref: '#/components/examples/evi_user_defined_process'
-        description: Specifies the process graph to be validated.
+        description: Specifies the user-defined process to be validated.
   /result:
     post:
       summary: Process and download data synchronously
       operationId: compute-result
       description: >-
-        Process graphs will be executed directly and the result will be
+        A user-defined process will be executed directly and the result will be
         downloaded in the format specified in the process graph. This endpoint
-        can be used to generate small previews or test process graphs before
+        can be used to generate small previews or test user-defined processes before
         starting a batch job.
         
         Timeouts on either client- or server-side are to be expected for complex
@@ -2329,7 +2329,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
       requestBody:
-        description: 'Specifies the job details, e.g. the process graph and billing details.'
+        description: 'Specifies the job details, e.g. the user-defined process and billing details.'
         required: true
         content:
           application/json:
@@ -2485,7 +2485,7 @@ paths:
       operationId: store-custom-process
       description: |-
         Stores a provided user-defined process with process graph that can be
-        reused in other process graphs. If a process with the specified 
+        reused in other processes. If a process with the specified 
         `process_graph_id` exists, the process is fully replaced. The id can't
         be changed for stored user-defined processes.
 
@@ -2494,7 +2494,7 @@ paths:
 
         Partially updating user-defined processes is not supported.
 
-        To simplify exchanging process graphs, the property `id` can be part of
+        To simplify exchanging user-defined processes, the property `id` can be part of
         the request body. If the values don't match, the value for `id` gets
         replaced with the value from the `process_graph_id` parameter in the
         path.
@@ -2551,12 +2551,12 @@ paths:
         creation of a service and the service will be set up accordingly.
 
         A list of process parameters is also available. This parameters can
-        be used by users in a process graph that is used to compute web service
+        be used by users in a user-defined process that is used to compute web service
         results. The objects can directly be used inside the process graph with 
         a `from_parameter` reference. Such parameters are usually things that
-        have to be injected into the process graph from the context of the web
+        have to be injected into the user-defined process from the context of the web
         service during runtime. For example, a map service such as a WMS would
-        need to inject the spatial extent into the process graph so that the
+        need to inject the spatial extent into the user-defined process so that the
         back-end can compute the corresponding tile correctly.
 
         To improve interoperability between back-ends common names for the
@@ -2599,7 +2599,7 @@ paths:
                         $ref: '#/components/schemas/argument'
                     process_parameters:
                       title: Process Parameters
-                      description: List of parameters made available to process graphs.
+                      description: List of parameters made available to user-defined processes.
                       type: array
                       items:
                         $ref: '#/components/schemas/process_parameter'
@@ -3010,7 +3010,7 @@ paths:
                       description: >-
                         Defines a metadata subset of batch jobs that have been
                         submitted by users. To get the full metadata for a job
-                        including a process graph call `GET /jobs/{job_id}`
+                        including the user-defined process call `GET /jobs/{job_id}`
                       type: object
                       required:
                         - id
@@ -3101,7 +3101,7 @@ paths:
                   $ref: '#/components/schemas/billing_plan_defaultable'
                 budget:
                   $ref: '#/components/schemas/budget'
-        description: 'Specifies the job details, e.g. the process graph and billing details.'
+        description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
       - $ref: '#/components/parameters/job_id'
@@ -5601,7 +5601,7 @@ components:
     process_graph_id:
       name: process_graph_id
       in: path
-      description: Unique process graph identifier.
+      description: Unique identifier for a user-defined process.
       required: true
       schema:
         $ref: '#/components/schemas/process_id'
