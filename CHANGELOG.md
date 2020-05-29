@@ -34,12 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
-- Clarified that version numbers in well-known discovery should be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
-- Several clarifications and improvements for the documentation.
-
-### Fixed
+- `/.well-known/openeo`: Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
 - Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
+- Several clarifications and improvements for the documentation.
 
 ## 1.0.0-rc.2 - 2020-02-20
 
