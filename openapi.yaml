@@ -2063,23 +2063,6 @@ paths:
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
 
-        For each OpenID provider, a name and the issuer location MUST be listed.
-        A description and related links can OPTIONALLY be added. The [issuer
-        location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
-        (also referred to as 'authority' in client libraries) is the URL of the
-        OpenID provider, which conforms to a set of rules:
-
-        1. After appending `/.well-known/openid-configuration` to the URL, a
-        [HTTP/1.1 GET
-        request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest)
-        to the concatenated URL must return a [OpenID Discovery Configuration
-        Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
-        The response provides all information required to authenticate using
-        OpenID Connect.
-
-        2. The URL MUST NOT contain a terminating forward slash `/`.
-
-
         It is highly RECOMMENDED to implement OpenID Connect for public services
         in favor of Basic authentication.
 
@@ -2087,8 +2070,8 @@ paths:
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
         about Bearer tokens in this document). Clients MUST NOT use the id token
-        or the authorization code. The access token provided by this the OpenID
-        Provider does not always provide information about the issuer (i.e. the
+        or the authorization code. The access token provided by an OpenID
+        Provider does not necessarily provide information about the issuer (i.e. the
         OpenID provider) and therefore a prefix MUST be added to the Bearer
         Token sent in subsequent API calls to protected endpoints. The Bearer
         Token sent to protected endpoints MUST consist of the authentication
@@ -2129,7 +2112,6 @@ paths:
                       required:
                         - id
                         - issuer
-                        - scopes
                         - title
                       properties:
                         id:
@@ -2142,19 +2124,26 @@ paths:
                           type: string
                           format: uri
                           description: >-
-                            The [issuer
-                            location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig),
-                            i.e. the URL of the OpenID provider (see endpoint
-                            description).
+                            The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
+                            (also referred to as 'authority' in some client libraries) is the URL of the
+                            OpenID provider, which conforms to a set of rules:
+
+                            1. After appending `/.well-known/openid-configuration` to the URL, a
+                            [HTTP/1.1 GET
+                            request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest)
+                            to the concatenated URL must return a [OpenID Discovery Configuration
+                            Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
+                            The response provides all information required to authenticate using
+                            OpenID Connect.
+
+                            2. The URL MUST NOT contain a terminating forward slash `/`.
+
                           example: 'https://accounts.google.com'
                         scopes:
                           type: array
                           description: >-
-                            A list of OpenID Scopes that the client MUST use.
-
-
-                            If empty, the default scopes of OpenID Connect MUST
-                            be used.
+                            A list of OpenID Connect scopes that the client MUST use.
+                            If scopes are specified, the list MUST at least contain the `openid` scope.
                           items:
                             type: string
                         title:
@@ -2181,7 +2170,7 @@ paths:
                       title: Google
                       description: Login with your Google Account.
                       scopes:
-                        - oidc
+                        - openid
                         - profile
                         - email
                         - earthengine
