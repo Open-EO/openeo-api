@@ -34,8 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /processes`: Examples containing process graphs. Use links with `rel` type `example` and `type` set to `application/json` instead. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 
 ### Fixed
+- `/.well-known/openeo`:
+    - Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
+    - Clarified that non-production ready versions should be connected to if no production-ready version is supported. [#289](https://github.com/Open-EO/openeo-api/issues/289)
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
-- `/.well-known/openeo`: Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
 - Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Several clarifications and improvements for the documentation.
