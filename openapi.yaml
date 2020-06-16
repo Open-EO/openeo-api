@@ -281,24 +281,44 @@ info:
 
     ```
     <Arguments> := {
-      "<ParameterName>": <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
+      "<ParameterName>": <string|number|boolean|null|array|object|ResultReference|UserDefinedProcess|ParameterReference>
     }
     ```
 
     **Notes:**
-    - The specified data types are the native data types supported by JSON, except for `UserDefinedProcess`, `ParameterReference` and `ResultReference`. 
-    - Objects are not allowed to have keys with the following names:
+    - The specified data types are the native data types supported by JSON, except for `ResultReference`, `UserDefinedProcess` and `ParameterReference`.
+    - Objects are not allowed to have keys with the following reserved names:
 
-        * `from_parameter`, except for objects of type `ParameterReference`
         * `from_node`, except for objects of type `ResultReference`
         * `process_graph`, except for objects of type `UserDefinedProcess`
+        * `from_parameter`, except for objects of type `ParameterReference`
 
-    - Arrays and objects can also contain a `UserDefinedProcess`, a `ParameterReference` or a `ResultReference`. So back-ends must *fully* traverse the process graphs, including all children.
+    - Arrays and objects can also contain a `ResultReference`, a `UserDefinedProcess` or a `ParameterReference`. So back-ends must *fully* traverse the process graphs, including all children.
+
+    ### Accessing results of other process nodes
+
+    A value of type `<ResultReference>` is an object with a key `from_node` and a `<ProcessNodeIdentifier>` as corresponding value:
+
+    ```
+    <ResultReference> := {
+      "from_node": "<ProcessNodeIdentifier>"
+    }
+    ```
+
+    This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
+    The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
     ### User-defined process
 
-    A user-defined process in a process graph is a simply a child process graph and thus to be evaluated as part of another process graph.
-    It must at least consist of an object with a key `process_graph`.
+    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+
+    **Example**: You want to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openeEO by executing the `apply` process and pass it
+    a user-defined process as the "operator" to apply to each pixel.
+    In this simple example, the "child" process graph defining the user-defined process
+    consists of a single process `absolute`, but it can be arbitrairy complex in general.
+
+    A `<UserDefinedProcess>` argument must at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
     When embedded in a process graph, these additional properties of a user-defined process are usually not used, except for validation purposes.
 
@@ -309,26 +329,11 @@ info:
     }
     ```
 
-    ### Accessing return values
-
-    A value of type `<ResultReference>` is an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value:
-    
-    ```
-    <ResultReference> := {
-      "from_node": "<ProcessNodeIdentifier>"
-    }
-    ```
-    
-    This tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument.
-    The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
-
     ### Accessing process parameters
 
-    **Example:** You want to iterate over an array and calculate the absolute value of each value in the array.
-    This can be achieved by executing the `array_apply` process in openEO and pass a "child" process graph containing a single process `absolute`.
-
-    The parameters made available by the "parent" process (`array_apply` in this example) to the "child" process graph are the *process graph parameters*. [`array_apply`](https://processes.openeo.org/#array_apply) for example provides two parameters `x` (each array value consecutively) and `context` (additional data passed through from the user). `x` can then be passed to `absolute`.
-    Processes can access parameters by passing a certain type of object as argument to a processes.
+    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    available to the "child" logic.
+    Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
 
     ```
@@ -339,9 +344,10 @@ info:
 
     The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
     The parent could be a process (such as `apply` or `reduce_dimension`) or something else that executes a process graph (a secondary web service for example).
-
     If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
-    In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
+
+    In case of the example given above, the parameter `process` in the process [`apply`](https://processes.openeo.org/#apply) defines two process graph parameters: `x` (the value of each pixel that will be processed) and `context` (additional data passed through from the user).
+    The process `absolute` expects an argument with the same name `x`.
     The process graph for the example would look as follows:
 
     ```
