@@ -5399,6 +5399,30 @@ components:
           $ref: '#/components/schemas/GeoJsonPoint3D'
     GeoJsonGeometry:
       title: GeoJSON Geometry
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+            - LineString
+            - Polygon
+            - MultiPoint
+            - MultiLineString
+            - MultiPolygon
+            - GeometryCollection
+      discriminator:
+        propertyName: type 
+        mapping:
+          Point: '#/components/schemas/GeoJsonPoint'
+          LineString: '#/components/schemas/GeoJsonLineString'
+          Polygon: '#/components/schemas/GeoJsonPolygon'
+          MultiPoint: '#/components/schemas/GeoJsonMultiPoint'
+          MultiLineString: '#/components/schemas/GeoJsonMultiLineString'
+          MultiPolygon: '#/components/schemas/GeoJsonMultiPolygon'
+          GeometryCollection: '#/components/schemas/GeoJsonGeometryCollection'
       oneOf:
         - $ref: '#/components/schemas/GeoJsonPoint'
         - $ref: '#/components/schemas/GeoJsonLineString'
