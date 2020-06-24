@@ -168,6 +168,25 @@
         "description": "Any data type."
       }
     },
+    "metadata-filter": {
+      "type": "object",
+      "subtype": "metadata-filter",
+      "title": "Filters",
+      "description": "A list of filters to check against. Specify key-value-pairs with the key being the name of the metadata property name and the value being a user-defined process evaluated against the metadata values.",
+      "additionalProperties": {
+        "type": "object",
+        "subtype": "process-graph",
+        "parameters": [
+          {
+            "name": "value",
+            "description": "The property value to be checked against.",
+            "schema": {
+              "description": "Any data type."
+            }
+          }
+        ]
+      }
+    },
     "output-format": {
       "type": "string",
       "subtype": "output-format",
@@ -183,8 +202,29 @@
     "process-graph": {
       "type": "object",
       "subtype": "process-graph",
-      "title": "Process Graph (user-defined process)",
-      "description": "An process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in the `parameters` property of the corresponding schema."
+      "title": "User-defined process",
+      "description": "An process graph that is passed as an argument and is expected to be executed by the process. Parameters passed to the process graph are specified in the `parameters` property of the corresponding schema.",
+      "required": [
+        "process_graph"
+      ],
+      "properties": {
+        "process_graph": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "process_id",
+              "arguments"
+            ],
+            "properties": {
+              "process_id": {
+                "type": "string"
+              },
+              "arguments": {}
+            }
+          }
+        }
+      }
     },
     "proj-definition": {
       "type": "string",
