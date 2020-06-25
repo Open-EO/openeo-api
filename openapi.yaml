@@ -2391,9 +2391,15 @@ paths:
     get:
       summary: List all user-defined processes
       operationId: list-custom-processes
-      description: >-
-        This service lists all user-defined processes (process graphs) of the authenticated user that are
-        stored at the back-end.
+      description: |-
+        This service lists all user-defined processes (process graphs) of the
+        authenticated user that are stored at the back-end.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting larger values from the objects in `processes` (e.g. the
+        `exceptions`, `examples` and `links` properties).
+        To get the full metadata for a secondary web service clients MUST
+        request `GET /services/{service_id}`.
       tags:
         - User-Defined Processes
         - Process Discovery
@@ -2417,32 +2423,11 @@ paths:
                     description: Array of user-defined processes
                     type: array
                     items:
-                      title: User-Defined Process
-                      description: >-
-                        The user-defined processes submitted by a user,
-                        usually without process graph, examples, exceptions and links to keep the response size small.
                       allOf:
-                        - type: object
-                          required:
-                            - id
-                          properties:
-                            id:
-                              $ref: '#/components/schemas/process_id'
-                            summary:
-                              $ref: '#/components/schemas/process_summary'
-                            description:
-                              $ref: '#/components/schemas/process_description'
-                            categories:
-                              $ref: '#/components/schemas/process_categories'
-                            parameters:
-                              $ref: '#/components/schemas/process_parameters'
-                            returns:
-                              $ref: '#/components/schemas/process_return_value'
-                            deprecated:
-                              $ref: '#/components/schemas/process_deprecated'
-                            experimental:
-                              $ref: '#/components/schemas/process_experimental'
+                        - $ref: '#/components/schemas/process'
                         - $ref: '#/components/schemas/nullable_process'
+                        - required:
+                            - id
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2724,9 +2709,15 @@ paths:
     get:
       summary: List all web services
       operationId: list-services
-      description: >-
-        Requests to this endpoint will list all running secondary web services
-        submitted by a user with given id.
+      description: |-
+        Requests to this endpoint will list all secondary web services submitted
+        by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all non-scalar values from services (i.e. the `process`,
+        `configuration` and `attributes` properties).
+        To get the full metadata for a secondary web service clients MUST
+        request `GET /services/{service_id}`.
       tags:
         - Secondary Services
       security:
@@ -2735,7 +2726,7 @@ paths:
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: Array of service descriptions
+          description: Array of secondary web service descriptions
           content:
             application/json:
               schema:
@@ -2748,35 +2739,7 @@ paths:
                   services:
                     type: array
                     items:
-                      title: Secondary Web Service Metadata
-                      description: Defines metadata of services.
-                      type: object
-                      required:
-                        - id
-                        - enabled
-                        - type
-                        - url
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/service_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
-                        description:
-                          $ref: '#/components/schemas/eo_description'
-                        url:
-                          $ref: '#/components/schemas/service_url'
-                        type:
-                          $ref: '#/components/schemas/service_type'
-                        enabled:
-                          $ref: '#/components/schemas/service_enabled'
-                        created:
-                          $ref: '#/components/schemas/created'
-                        plan:
-                          $ref: '#/components/schemas/billing_plan'
-                        costs:
-                          $ref: '#/components/schemas/money'
-                        budget:
-                          $ref: '#/components/schemas/budget'
+                      $ref: '#/components/schemas/service'
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -2916,53 +2879,12 @@ paths:
           content:
             application/json:
               schema:
-                title: Secondary Web Service Response
-                description: Metadata of a service.
-                type: object
-                required:
-                  - id
-                  - process
-                  - enabled
-                  - type
-                  - url
-                  - configuration
-                  - attributes
-                properties:
-                  id:
-                    $ref: '#/components/schemas/service_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process:
-                    $ref: '#/components/schemas/process_graph_with_metadata'
-                  url:
-                    $ref: '#/components/schemas/service_url'
-                  type:
-                    $ref: '#/components/schemas/service_type'
-                  enabled:
-                    $ref: '#/components/schemas/service_enabled'
-                  configuration:
-                    $ref: '#/components/schemas/service_configuration'
-                  attributes:
-                    title: Secondary Web Service Attributes
-                    type: object
-                    description: >-
-                      Additional attributes of the secondary web service, e.g.
-                      available layers for a WMS based on the bands in the
-                      underlying GeoTiff.
-                    example:
-                      layers:
-                        - ndvi
-                        - evi
-                  created:
-                    $ref: '#/components/schemas/created'
-                  plan:
-                    $ref: '#/components/schemas/billing_plan'
-                  costs:
-                    $ref: '#/components/schemas/money'
-                  budget:
-                    $ref: '#/components/schemas/budget'
+                allOf:
+                  - $ref: '#/components/schemas/service' 
+                  - required:
+                    - process
+                    - configuration
+                    - attributes
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3020,9 +2942,12 @@ paths:
     get:
       summary: List all batch jobs
       operationId: list-jobs
-      description: >-
-        Requests to this endpoint will list all batch jobs submitted by a user
-        with given id.
+      description: |-
+        Requests to this endpoint will list all batch jobs submitted by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all non-scalar values from jobs (i.e. the `process` property).
+        To get the full metadata for a job clients MUST request `GET /jobs/{job_id}`.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3043,38 +2968,9 @@ paths:
                   - links
                 properties:
                   jobs:
-                    description: Array of job descriptions
                     type: array
                     items:
-                      title: Batch Job Metadata
-                      description: >-
-                        Defines a metadata subset of batch jobs that have been
-                        submitted by users. To get the full metadata for a job
-                        including the user-defined process call `GET /jobs/{job_id}`
-                      type: object
-                      required:
-                        - id
-                        - status
-                        - created
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/job_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
-                        description:
-                          $ref: '#/components/schemas/eo_description'
-                        status:
-                          $ref: '#/components/schemas/status'
-                        created:
-                          $ref: '#/components/schemas/created'
-                        updated:
-                          $ref: '#/components/schemas/updated'
-                        plan:
-                          $ref: '#/components/schemas/billing_plan'
-                        costs:
-                          $ref: '#/components/schemas/money'
-                        budget:
-                          $ref: '#/components/schemas/budget'
+                      $ref: '#/components/schemas/job'
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -3189,7 +3085,7 @@ paths:
     get:
       summary: Full metadata for a batch job
       operationId: describe-job
-      description: Returns detailed information about a submitted batch job.
+      description: Returns all information about a submitted batch job.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3201,52 +3097,10 @@ paths:
           content:
             application/json:
               schema:
-                title: Batch Job Response
-                description: >-
-                  Defines full metadata of batch jobs that have been submitted
-                  by users.
-                type: object
-                required:
-                  - id
-                  - process
-                  - status
-                  - created
-                properties:
-                  id:
-                    $ref: '#/components/schemas/job_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process:
-                    $ref: '#/components/schemas/process_graph_with_metadata'
-                  status:
-                    $ref: '#/components/schemas/status'
-                  progress:
-                    type: number
-                    description: >-
-                      Indicates the process of a running batch job in percent.
-
-                      Can also be set for a job which stopped due to an error or was
-                      canceled by the user. In this case, the value indicates
-                      the progress at which the job stopped. Property may not be
-                      available for the status codes `created` and `queued`.
-
-                      Submitted and queued jobs only allow the value `0`,
-                      finished jobs only allow the value `100`.
-                    minimum: 0
-                    maximum: 100
-                    example: 75.5
-                  created:
-                    $ref: '#/components/schemas/created'
-                  updated:
-                    $ref: '#/components/schemas/updated'
-                  plan:
-                    $ref: '#/components/schemas/billing_plan'
-                  costs:
-                    $ref: '#/components/schemas/money'
-                  budget:
-                    $ref: '#/components/schemas/budget'
+                allOf:
+                  - $ref: '#/components/schemas/job' 
+                  - required:
+                      - process
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -4961,6 +4815,75 @@ components:
           properties:
             schema:
               $ref: '#/components/schemas/parameter_schema'
+    job:
+      title: Batch Job
+      description: >-
+        The metadata of a batch jobs that has been submitted by the
+        authenticated user.
+      type: object
+      required:
+        - id
+        - status
+        - created
+      properties:
+        id:
+          $ref: '#/components/schemas/job_id'
+        title:
+          $ref: '#/components/schemas/eo_title'
+        description:
+          $ref: '#/components/schemas/eo_description'
+        process:
+          $ref: '#/components/schemas/process_graph_with_metadata'
+        status:
+          type: string
+          enum:
+            - created
+            - queued
+            - running
+            - canceled
+            - finished
+            - error
+          description: |-
+            The current status of a batch job.
+
+            The following status changes can occur:
+            * `POST /jobs`: The status is initialized as `created`.
+            * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
+            processing doesn't start instantly.
+                * Once the processing starts the status is set to `running`.
+                * Once the data is available to download the status is set to `finished`.
+                * Whenever an error occurs during processing, the status must be set to `error`.
+            * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
+            the status was `running` beforehand and partial or preliminary results
+            are available to be downloaded. Otherwise the status is set to
+            `created`. 
+          example: running
+          default: created
+        progress:
+          type: number
+          description: >-
+            Indicates the process of a running batch job in percent.
+
+            Can also be set for a job which stopped due to an error or was
+            canceled by the user. In this case, the value indicates
+            the progress at which the job stopped. Property may not be
+            available for the status codes `created` and `queued`.
+
+            Submitted and queued jobs only allow the value `0`,
+            finished jobs only allow the value `100`.
+          minimum: 0
+          maximum: 100
+          example: 75.5
+        created:
+          $ref: '#/components/schemas/created'
+        updated:
+          $ref: '#/components/schemas/updated'
+        plan:
+          $ref: '#/components/schemas/billing_plan'
+        costs:
+          $ref: '#/components/schemas/money'
+        budget:
+          $ref: '#/components/schemas/budget'
     job_id:
       type: string
       description: >-
@@ -4990,34 +4913,6 @@ components:
         not meant for displaying purposes.
       pattern: '^[\w\-\.~]+$'
       example: john_doe
-    status:
-      type: string
-      enum:
-        - created
-        - queued
-        - running
-        - canceled
-        - finished
-        - error
-      description: >-
-        The current status of a batch job.
-
-
-        The following status changes can occur:
-
-        * `POST /jobs`: The status is initialized as `created`.
-
-        * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
-        processing doesn't start instantly.
-            * Once the processing starts the status is set to `running`.
-            * Once the data is available to download the status is set to `finished`.
-            * Whenever an error occurs during processing, the status must be set to `error`.
-        * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
-        the status was `running` beforehand and partial or preliminary results
-        are available to be downloaded. Otherwise the status is set to
-        `created`. 
-      example: running
-      default: created
     description:
       type: string
       format: commonmark
@@ -5064,6 +4959,58 @@ components:
         text representation. In addition to the CommonMark syntax, clients can
         convert process IDs that are formatted as in the following example into
         links instead of code blocks: ``` ``process_id()`` ```
+    service:
+      title: Secondary Web Service
+      description: >-
+        The metadata of a secondary web service that has been submitted by the
+        authenticated user.
+      type: object
+      required:
+        - id
+        - enabled
+        - type
+        - url
+      properties:
+        id:
+          $ref: '#/components/schemas/service_id'
+        title:
+          $ref: '#/components/schemas/eo_title'
+        description:
+          $ref: '#/components/schemas/eo_description'
+        url:
+          type: string
+          format: uri
+          description: >-
+            URL at which the secondary web service is accessible. Doesn't
+            necessarily need to be located within the API.
+          example: 'https://example.openeo.org/wms/wms-a3cca9'
+        type:
+          $ref: '#/components/schemas/service_type'
+        enabled:
+          $ref: '#/components/schemas/service_enabled'
+        process:
+          $ref: '#/components/schemas/process_graph_with_metadata'
+        configuration:
+          $ref: '#/components/schemas/service_configuration'
+        attributes:
+          title: Secondary Web Service Attributes
+          type: object
+          description: >-
+            Additional attributes of the secondary web service, e.g.
+            available layers for a WMS based on the bands in the
+            underlying GeoTiff.
+          example:
+            layers:
+              - ndvi
+              - evi
+        created:
+          $ref: '#/components/schemas/created'
+        plan:
+          $ref: '#/components/schemas/billing_plan'
+        costs:
+          $ref: '#/components/schemas/money'
+        budget:
+          $ref: '#/components/schemas/budget'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5089,13 +5036,6 @@ components:
         (true) or not (false). Defaults to true. Disabled services don't produce
         any costs.
       default: true
-    service_url:
-      type: string
-      format: uri
-      description: >-
-        URL at which the secondary web service is accessible. Doesn't
-        necessarily need to be located within the API.
-      example: 'https://example.openeo.org/wms/wms-a3cca9'
     service_id:
       type: string
       description: >-
