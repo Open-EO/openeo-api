@@ -281,24 +281,44 @@ info:
 
     ```
     <Arguments> := {
-      "<ParameterName>": <string|number|boolean|null|array|object|UserDefinedProcess|ParameterReference|ResultReference>
+      "<ParameterName>": <string|number|boolean|null|array|object|ResultReference|UserDefinedProcess|ParameterReference>
     }
     ```
 
     **Notes:**
-    - The specified data types are the native data types supported by JSON, except for `UserDefinedProcess`, `ParameterReference` and `ResultReference`. 
-    - Objects are not allowed to have keys with the following names:
+    - The specified data types are the native data types supported by JSON, except for `ResultReference`, `UserDefinedProcess` and `ParameterReference`.
+    - Objects are not allowed to have keys with the following reserved names:
 
-        * `from_parameter`, except for objects of type `ParameterReference`
         * `from_node`, except for objects of type `ResultReference`
         * `process_graph`, except for objects of type `UserDefinedProcess`
+        * `from_parameter`, except for objects of type `ParameterReference`
 
-    - Arrays and objects can also contain a `UserDefinedProcess`, a `ParameterReference` or a `ResultReference`. So back-ends must *fully* traverse the process graphs, including all children.
+    - Arrays and objects can also contain a `ResultReference`, a `UserDefinedProcess` or a `ParameterReference`. So back-ends must *fully* traverse the process graphs, including all children.
+
+    ### Accessing results of other process nodes
+
+    A value of type `<ResultReference>` is an object with a key `from_node` and a `<ProcessNodeIdentifier>` as corresponding value:
+
+    ```
+    <ResultReference> := {
+      "from_node": "<ProcessNodeIdentifier>"
+    }
+    ```
+
+    This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
+    The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
     ### User-defined process
 
-    A user-defined process in a process graph is a simply a child process graph and thus to be evaluated as part of another process graph.
-    It must at least consist of an object with a key `process_graph`.
+    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+
+    **Example**: You want to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openeEO by executing the `apply` process and pass it
+    a user-defined process as the "operator" to apply to each pixel.
+    In this simple example, the "child" process graph defining the user-defined process
+    consists of a single process `absolute`, but it can be arbitrairy complex in general.
+
+    A `<UserDefinedProcess>` argument must at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
     When embedded in a process graph, these additional properties of a user-defined process are usually not used, except for validation purposes.
 
@@ -309,26 +329,11 @@ info:
     }
     ```
 
-    ### Accessing return values
-
-    A value of type `<ResultReference>` is an object with a key `from_node` with a `<ProcessNodeIdentifier>` as value:
-    
-    ```
-    <ResultReference> := {
-      "from_node": "<ProcessNodeIdentifier>"
-    }
-    ```
-    
-    This tells the back-end that the process expects the result (i.e. the return value) from another node to be passed as argument.
-    The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
-
     ### Accessing process parameters
 
-    **Example:** You want to iterate over an array and calculate the absolute value of each value in the array.
-    This can be achieved by executing the `array_apply` process in openEO and pass a "child" process graph containing a single process `absolute`.
-
-    The parameters made available by the "parent" process (`array_apply` in this example) to the "child" process graph are the *process graph parameters*. [`array_apply`](https://processes.openeo.org/#array_apply) for example provides two parameters `x` (each array value consecutively) and `context` (additional data passed through from the user). `x` can then be passed to `absolute`.
-    Processes can access parameters by passing a certain type of object as argument to a processes.
+    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    available to the "child" logic.
+    Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
 
     ```
@@ -339,9 +344,10 @@ info:
 
     The parameter names made available for `<ParameterReferenceName>` are defined and passed to the process graph by one of the parent entities.
     The parent could be a process (such as `apply` or `reduce_dimension`) or something else that executes a process graph (a secondary web service for example).
-
     If the parent is a process, the parameter are defined in the [`parameters` property](#section/Processes/Defining-Processes) of the corresponding JSON Schema.
-    In case of the example given above, the parameter `process` in the process `apply` defines a process graph parameter named `x`  and the process `absolute` expects an argument with the same name.
+
+    In case of the example given above, the parameter `process` in the process [`apply`](https://processes.openeo.org/#apply) defines two process graph parameters: `x` (the value of each pixel that will be processed) and `context` (additional data passed through from the user).
+    The process `absolute` expects an argument with the same name `x`.
     The process graph for the example would look as follows:
 
     ```
@@ -565,6 +571,7 @@ paths:
                     example: Cool EO Cloud
                   description:
                     type: string
+                    format: commonmark
                     description: >-
                       A description of the service, which allows the service
                       provider to introduce the user to its service.
@@ -694,6 +701,7 @@ paths:
                               example: free
                             description:
                               type: string
+                              format: commonmark
                               description: >-
                                 A description that gives a rough overview over
                                 the plan.
@@ -852,7 +860,7 @@ paths:
       responses:
         '200':
           description: >-
-            List of all available service instances, each with URL and the
+            List of all available API instances, each with URL and the
             implemented openEO API version.
           content:
             application/json:
@@ -865,7 +873,7 @@ paths:
                   versions:
                     type: array
                     items:
-                      title: Service Instance
+                      title: API Instance
                       type: object
                       required:
                         - url
@@ -955,6 +963,7 @@ paths:
           content:
             application/json:
               schema:
+                title: Format Overview Response
                 type: object
                 required:
                   - input
@@ -964,7 +973,7 @@ paths:
                     title: Input Formats Response
                     type: object
                     description: >-
-                      List of supported input file formats, i.e. file formats a
+                      Map of supported input file formats, i.e. file formats a
                       back-end can **read** from. The property keys are the file
                       format names that are used by clients and users, for
                       example in process graphs.
@@ -974,7 +983,7 @@ paths:
                     title: Output Formats Response
                     type: object
                     description: >-
-                      List of supported output file formats, i.e. file formats a
+                      Map of supported output file formats, i.e. file formats a
                       back-end can **write** to. The property keys are the file
                       format names that are used by clients and users, for
                       example in process graphs.
@@ -1081,6 +1090,7 @@ paths:
           content:
             application/json:
               schema:
+                title: OGC Conformance Response
                 type: object
                 required:
                   - conformsTo
@@ -1123,7 +1133,7 @@ paths:
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: A list of collections and related links.
+          description: Lists of collections and related links.
           content:
             application/json:
               schema:
@@ -1876,7 +1886,7 @@ paths:
       summary: Supported UDF runtimes
       operationId: list-udf-runtimes
       description: >-
-        Returns a list of supported runtimes for user-defined functions (UDFs),
+        Returns the supported runtimes for user-defined functions (UDFs),
         which includes either the programming languages including version
         numbers and available libraries including version numbers or docker
         containers.
@@ -1894,7 +1904,7 @@ paths:
                 title: UDF Runtimes Response
                 type: object
                 description: >-
-                  List of available runtime environments. Each runtime
+                  Map of available runtime environments. Each runtime
                   environment has a unique name, which is used as the property
                   key. The name is used in processes to select the runtime
                   environment for UDFs, so the names should be stable and
@@ -1914,7 +1924,7 @@ paths:
                         description:
                           $ref: '#/components/schemas/description'
                         default:
-                          description: The default version.
+                          description: The default version. MUST be one of the keys in the `versions` object.
                           type: string
                         versions:
                           title: Programming language versions
@@ -1929,10 +1939,9 @@ paths:
                             properties:
                               libraries:
                                 description: >-
-                                  List of installed
-                                  libraries/modules/packages/extensions for the
-                                  programming language. The names of the
-                                  extension are used as the property keys.
+                                  Map of installed libraries, modules, packages
+                                  or extensions for the programming language.
+                                  The names of them are used as the property keys.
                                 additionalProperties:
                                   x-additionalPropertiesName: Library Name
                                   title: Programming language library
@@ -1994,7 +2003,7 @@ paths:
                             Identifier of a Docker image on Docker Hub or a
                             private repository, i.e. the docker image name.
                         default:
-                          description: The default tag.
+                          description: The default tag. MUST be one of the values in the `tags` array.
                           type: string
                         tags:
                           type: array
@@ -2155,7 +2164,16 @@ paths:
                             The name that is publicly shown in clients for this
                             OpenID provider.
                         description:
-                          $ref: '#/components/schemas/description'
+                          type: string
+                          format: commonmark
+                          description: |-
+                            A description that explains how the authentication procedure works.
+
+                            It should make clear how to register and get credentials. This should
+                            include instruction on setting up `client_id`, `client_secret` and `redirect_uri`.
+
+                            [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+                            text representation.
                         links:
                           type: array
                           description: |-
@@ -2376,9 +2394,15 @@ paths:
     get:
       summary: List all user-defined processes
       operationId: list-custom-processes
-      description: >-
-        This service lists all user-defined processes (process graphs) of the authenticated user that are
-        stored at the back-end.
+      description: |-
+        This service lists all user-defined processes (process graphs) of the
+        authenticated user that are stored at the back-end.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting larger values from the objects in `processes` (e.g. the
+        `exceptions`, `examples` and `links` properties).
+        To get the full metadata for a secondary web service clients MUST
+        request `GET /services/{service_id}`.
       tags:
         - User-Defined Processes
         - Process Discovery
@@ -2402,32 +2426,11 @@ paths:
                     description: Array of user-defined processes
                     type: array
                     items:
-                      title: User-Defined Process
-                      description: >-
-                        The user-defined processes submitted by a user,
-                        usually without process graph, examples, exceptions and links to keep the response size small.
                       allOf:
-                        - type: object
-                          required:
-                            - id
-                          properties:
-                            id:
-                              $ref: '#/components/schemas/process_id'
-                            summary:
-                              $ref: '#/components/schemas/process_summary'
-                            description:
-                              $ref: '#/components/schemas/process_description'
-                            categories:
-                              $ref: '#/components/schemas/process_categories'
-                            parameters:
-                              $ref: '#/components/schemas/process_parameters'
-                            returns:
-                              $ref: '#/components/schemas/process_return_value'
-                            deprecated:
-                              $ref: '#/components/schemas/process_deprecated'
-                            experimental:
-                              $ref: '#/components/schemas/process_experimental'
+                        - $ref: '#/components/schemas/process'
                         - $ref: '#/components/schemas/nullable_process'
+                        - required:
+                            - id
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2608,7 +2611,7 @@ paths:
               schema:
                 title: Service Types Response
                 type: object
-                description: List of supported secondary web services.
+                description: Map of supported secondary web services.
                 additionalProperties:
                   x-additionalPropertiesName: Service Name
                   title: Service Type
@@ -2620,7 +2623,7 @@ paths:
                       $ref: '#/components/schemas/description'
                     configuration:
                       title: Service Configuration
-                      description: List of supported configuration settings made available to the creator the service.
+                      description: Map of supported configuration settings made available to the creator the service.
                       type: object
                       additionalProperties:
                         $ref: '#/components/schemas/argument'
@@ -2709,9 +2712,15 @@ paths:
     get:
       summary: List all web services
       operationId: list-services
-      description: >-
-        Requests to this endpoint will list all running secondary web services
-        submitted by a user with given id.
+      description: |-
+        Requests to this endpoint will list all secondary web services submitted
+        by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all non-scalar values from services (i.e. the `process`,
+        `configuration` and `attributes` properties).
+        To get the full metadata for a secondary web service clients MUST
+        request `GET /services/{service_id}`.
       tags:
         - Secondary Services
       security:
@@ -2720,7 +2729,7 @@ paths:
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
-          description: Array of service descriptions
+          description: Array of secondary web service descriptions
           content:
             application/json:
               schema:
@@ -2733,35 +2742,7 @@ paths:
                   services:
                     type: array
                     items:
-                      title: Secondary Web Service Metadata
-                      description: Defines metadata of services.
-                      type: object
-                      required:
-                        - id
-                        - enabled
-                        - type
-                        - url
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/service_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
-                        description:
-                          $ref: '#/components/schemas/eo_description'
-                        url:
-                          $ref: '#/components/schemas/service_url'
-                        type:
-                          $ref: '#/components/schemas/service_type'
-                        enabled:
-                          $ref: '#/components/schemas/service_enabled'
-                        created:
-                          $ref: '#/components/schemas/created'
-                        plan:
-                          $ref: '#/components/schemas/billing_plan'
-                        costs:
-                          $ref: '#/components/schemas/money'
-                        budget:
-                          $ref: '#/components/schemas/budget'
+                      $ref: '#/components/schemas/service'
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -2808,9 +2789,7 @@ paths:
             OpenEO-Identifier:
               required: true
               schema:
-                description: Unique Identifier (ID) of the created service.
-                type: string
-                example: '123'
+                $ref: '#/components/schemas/service_id'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2903,53 +2882,12 @@ paths:
           content:
             application/json:
               schema:
-                title: Secondary Web Service Response
-                description: Metadata of a service.
-                type: object
-                required:
-                  - id
-                  - process
-                  - enabled
-                  - type
-                  - url
-                  - parameters
-                  - attributes
-                properties:
-                  id:
-                    $ref: '#/components/schemas/service_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process:
-                    $ref: '#/components/schemas/process_graph_with_metadata'
-                  url:
-                    $ref: '#/components/schemas/service_url'
-                  type:
-                    $ref: '#/components/schemas/service_type'
-                  enabled:
-                    $ref: '#/components/schemas/service_enabled'
-                  configuration:
-                    $ref: '#/components/schemas/service_configuration'
-                  attributes:
-                    title: Secondary Web Service Attributes
-                    type: object
-                    description: >-
-                      Additional attributes of the secondary web service, e.g.
-                      available layers for a WMS based on the bands in the
-                      underlying GeoTiff.
-                    example:
-                      layers:
-                        - ndvi
-                        - evi
-                  created:
-                    $ref: '#/components/schemas/created'
-                  plan:
-                    $ref: '#/components/schemas/billing_plan'
-                  costs:
-                    $ref: '#/components/schemas/money'
-                  budget:
-                    $ref: '#/components/schemas/budget'
+                allOf:
+                  - $ref: '#/components/schemas/service' 
+                  - required:
+                    - process
+                    - configuration
+                    - attributes
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3007,9 +2945,12 @@ paths:
     get:
       summary: List all batch jobs
       operationId: list-jobs
-      description: >-
-        Requests to this endpoint will list all batch jobs submitted by a user
-        with given id.
+      description: |-
+        Requests to this endpoint will list all batch jobs submitted by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all non-scalar values from jobs (i.e. the `process` property).
+        To get the full metadata for a job clients MUST request `GET /jobs/{job_id}`.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3030,38 +2971,9 @@ paths:
                   - links
                 properties:
                   jobs:
-                    description: Array of job descriptions
                     type: array
                     items:
-                      title: Batch Job Metadata
-                      description: >-
-                        Defines a metadata subset of batch jobs that have been
-                        submitted by users. To get the full metadata for a job
-                        including the user-defined process call `GET /jobs/{job_id}`
-                      type: object
-                      required:
-                        - id
-                        - status
-                        - created
-                      properties:
-                        id:
-                          $ref: '#/components/schemas/job_id'
-                        title:
-                          $ref: '#/components/schemas/eo_title'
-                        description:
-                          $ref: '#/components/schemas/eo_description'
-                        status:
-                          $ref: '#/components/schemas/status'
-                        created:
-                          $ref: '#/components/schemas/created'
-                        updated:
-                          $ref: '#/components/schemas/updated'
-                        plan:
-                          $ref: '#/components/schemas/billing_plan'
-                        costs:
-                          $ref: '#/components/schemas/money'
-                        budget:
-                          $ref: '#/components/schemas/budget'
+                      $ref: '#/components/schemas/job'
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -3102,8 +3014,7 @@ paths:
             OpenEO-Identifier:
               required: true
               schema:
-                description: Unique Identifier (ID) of the created batch job.
-                type: string
+                $ref: '#/components/schemas/job_id'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3177,7 +3088,7 @@ paths:
     get:
       summary: Full metadata for a batch job
       operationId: describe-job
-      description: Returns detailed information about a submitted batch job.
+      description: Returns all information about a submitted batch job.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3189,52 +3100,10 @@ paths:
           content:
             application/json:
               schema:
-                title: Batch Job Response
-                description: >-
-                  Defines full metadata of batch jobs that have been submitted
-                  by users.
-                type: object
-                required:
-                  - id
-                  - process
-                  - status
-                  - created
-                properties:
-                  id:
-                    $ref: '#/components/schemas/job_id'
-                  title:
-                    $ref: '#/components/schemas/eo_title'
-                  description:
-                    $ref: '#/components/schemas/eo_description'
-                  process:
-                    $ref: '#/components/schemas/process_graph_with_metadata'
-                  status:
-                    $ref: '#/components/schemas/status'
-                  progress:
-                    type: number
-                    description: >-
-                      Indicates the process of a running batch job in percent.
-
-                      Can also be set for a job which stopped due to an error or was
-                      canceled by the user. In this case, the value indicates
-                      the progress at which the job stopped. Property may not be
-                      available for the status codes `created` and `queued`.
-
-                      Submitted and queued jobs only allow the value `0`,
-                      finished jobs only allow the value `100`.
-                    minimum: 0
-                    maximum: 100
-                    example: 75.5
-                  created:
-                    $ref: '#/components/schemas/created'
-                  updated:
-                    $ref: '#/components/schemas/updated'
-                  plan:
-                    $ref: '#/components/schemas/billing_plan'
-                  costs:
-                    $ref: '#/components/schemas/money'
-                  budget:
-                    $ref: '#/components/schemas/budget'
+                allOf:
+                  - $ref: '#/components/schemas/job' 
+                  - required:
+                      - process
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -4073,6 +3942,7 @@ components:
           type: string
         description:
           type: string
+          format: commonmark
           description: |-
             Multi-line description to explain the asset.
     
@@ -4180,6 +4050,7 @@ components:
           description: A short descriptive one-line title for the collection.
         description:
           type: string
+          format: commonmark
           description: >-
             Detailed multi-line description to explain the collection.
 
@@ -4544,7 +4415,7 @@ components:
       anyOf:
         - type: object
           nullable: true
-          title: Object
+          title: Object (restricted)
           properties:
             from_parameter:
               not: {}
@@ -4894,6 +4765,7 @@ components:
         properties:
           description:
             type: string
+            format: commonmark
             description: >-
               Detailed description to explain the error to client
               users and back-end developers. This should not be shown in the
@@ -4988,11 +4860,80 @@ components:
           properties:
             schema:
               $ref: '#/components/schemas/parameter_schema'
+    job:
+      title: Batch Job
+      description: >-
+        The metadata of a batch jobs that has been submitted by the
+        authenticated user.
+      type: object
+      required:
+        - id
+        - status
+        - created
+      properties:
+        id:
+          $ref: '#/components/schemas/job_id'
+        title:
+          $ref: '#/components/schemas/eo_title'
+        description:
+          $ref: '#/components/schemas/eo_description'
+        process:
+          $ref: '#/components/schemas/process_graph_with_metadata'
+        status:
+          type: string
+          enum:
+            - created
+            - queued
+            - running
+            - canceled
+            - finished
+            - error
+          description: |-
+            The current status of a batch job.
+
+            The following status changes can occur:
+            * `POST /jobs`: The status is initialized as `created`.
+            * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
+            processing doesn't start instantly.
+                * Once the processing starts the status is set to `running`.
+                * Once the data is available to download the status is set to `finished`.
+                * Whenever an error occurs during processing, the status must be set to `error`.
+            * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
+            the status was `running` beforehand and partial or preliminary results
+            are available to be downloaded. Otherwise the status is set to
+            `created`. 
+          example: running
+          default: created
+        progress:
+          type: number
+          description: >-
+            Indicates the process of a running batch job in percent.
+
+            Can also be set for a job which stopped due to an error or was
+            canceled by the user. In this case, the value indicates
+            the progress at which the job stopped. Property may not be
+            available for the status codes `created` and `queued`.
+
+            Submitted and queued jobs only allow the value `0`,
+            finished jobs only allow the value `100`.
+          minimum: 0
+          maximum: 100
+          example: 75.5
+        created:
+          $ref: '#/components/schemas/created'
+        updated:
+          $ref: '#/components/schemas/updated'
+        plan:
+          $ref: '#/components/schemas/billing_plan'
+        costs:
+          $ref: '#/components/schemas/money'
+        budget:
+          $ref: '#/components/schemas/budget'
     job_id:
       type: string
       description: >-
-        Unique identifier of a job that is generated by the back-end during job
-        submission. MUST match the specified pattern.
+        Unique identifier of the batch job, generated by the
+        back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
     created:
@@ -5017,42 +4958,15 @@ components:
         not meant for displaying purposes.
       pattern: '^[\w\-\.~]+$'
       example: john_doe
-    status:
-      type: string
-      enum:
-        - created
-        - queued
-        - running
-        - canceled
-        - finished
-        - error
-      description: >-
-        The current status of a batch job.
-
-
-        The following status changes can occur:
-
-        * `POST /jobs`: The status is initialized as `created`.
-
-        * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
-        processing doesn't start instantly.
-            * Once the processing starts the status is set to `running`.
-            * Once the data is available to download the status is set to `finished`.
-            * Whenever an error occurs during processing, the status must be set to `error`.
-        * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
-        the status was `running` beforehand and partial or preliminary results
-        are available to be downloaded. Otherwise the status is set to
-        `created`. 
-      example: running
-      default: created
     description:
+      type: string
+      format: commonmark
       description: >-
         Detailed description to explain the entity.
 
 
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
         text representation.
-      type: string
     object_title:
       type: string
       description: >-
@@ -5069,16 +4983,19 @@ components:
       nullable: true
       example: NDVI based on Sentinel 2
     eo_description:
+      type: string
+      format: commonmark
       description: >-
         Detailed multi-line description to explain the entity.
 
 
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
         text representation.
-      type: string
       nullable: true
       example: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
     process_description:
+      type: string
+      format: commonmark
       description: >-
         Detailed description to explain the entity.
 
@@ -5087,7 +5004,58 @@ components:
         text representation. In addition to the CommonMark syntax, clients can
         convert process IDs that are formatted as in the following example into
         links instead of code blocks: ``` ``process_id()`` ```
-      type: string
+    service:
+      title: Secondary Web Service
+      description: >-
+        The metadata of a secondary web service that has been submitted by the
+        authenticated user.
+      type: object
+      required:
+        - id
+        - enabled
+        - type
+        - url
+      properties:
+        id:
+          $ref: '#/components/schemas/service_id'
+        title:
+          $ref: '#/components/schemas/eo_title'
+        description:
+          $ref: '#/components/schemas/eo_description'
+        url:
+          type: string
+          format: uri
+          description: >-
+            URL at which the secondary web service is accessible. Doesn't
+            necessarily need to be located within the API.
+          example: 'https://example.openeo.org/wms/wms-a3cca9'
+        type:
+          $ref: '#/components/schemas/service_type'
+        enabled:
+          $ref: '#/components/schemas/service_enabled'
+        process:
+          $ref: '#/components/schemas/process_graph_with_metadata'
+        configuration:
+          $ref: '#/components/schemas/service_configuration'
+        attributes:
+          title: Secondary Web Service Attributes
+          type: object
+          description: >-
+            Additional attributes of the secondary web service, e.g.
+            available layers for a WMS based on the bands in the
+            underlying GeoTiff.
+          example:
+            layers:
+              - ndvi
+              - evi
+        created:
+          $ref: '#/components/schemas/created'
+        plan:
+          $ref: '#/components/schemas/billing_plan'
+        costs:
+          $ref: '#/components/schemas/money'
+        budget:
+          $ref: '#/components/schemas/budget'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5099,7 +5067,7 @@ components:
       type: object
       title: Service Configuration
       description: >-
-        List of arguments, i.e. the parameter names supported by the secondary
+        Map of arguments, i.e. the parameter names supported by the secondary
         web service combined with actual values. See `GET /service_types` for
         supported parameters and valid arguments. For example, this could
         specify the required version of the service, visualization details or
@@ -5113,17 +5081,10 @@ components:
         (true) or not (false). Defaults to true. Disabled services don't produce
         any costs.
       default: true
-    service_url:
-      type: string
-      format: uri
-      description: >-
-        URL at which the secondary web service is accessible. Doesn't
-        necessarily need to be located within the API.
-      example: 'https://example.openeo.org/wms/wms-a3cca9'
     service_id:
       type: string
       description: >-
-        Unique identifier of a secondary web service that is generated by the
+        Unique identifier of the secondary web service, generated by the
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
@@ -5388,6 +5349,30 @@ components:
           $ref: '#/components/schemas/GeoJsonPoint3D'
     GeoJsonGeometry:
       title: GeoJSON Geometry
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+            - LineString
+            - Polygon
+            - MultiPoint
+            - MultiLineString
+            - MultiPolygon
+            - GeometryCollection
+      discriminator:
+        propertyName: type 
+        mapping:
+          Point: '#/components/schemas/GeoJsonPoint'
+          LineString: '#/components/schemas/GeoJsonLineString'
+          Polygon: '#/components/schemas/GeoJsonPolygon'
+          MultiPoint: '#/components/schemas/GeoJsonMultiPoint'
+          MultiLineString: '#/components/schemas/GeoJsonMultiLineString'
+          MultiPolygon: '#/components/schemas/GeoJsonMultiPolygon'
+          GeometryCollection: '#/components/schemas/GeoJsonGeometryCollection'
       oneOf:
         - $ref: '#/components/schemas/GeoJsonPoint'
         - $ref: '#/components/schemas/GeoJsonLineString'
@@ -5570,6 +5555,7 @@ components:
       content:
         application/json:
           schema:
+            title: Log Entries Response
             type: object
             required:
               - logs
@@ -5743,21 +5729,22 @@ components:
           sub:
             process_id: subtract
             arguments:
-              data:
-                - from_parameter: nir
-                - from_parameter: red
+              x:
+                from_parameter: nir
+              y:
+                from_parameter: red
           p1:
-            process_id: product
+            process_id: multiply
             arguments:
-              data:
-                - 6
-                - from_parameter: red
+              x: 6
+              y:
+                from_parameter: red
           p2:
-            process_id: product
+            process_id: multiply
             arguments:
-              data:
-                - -7.5
-                - from_parameter: blue
+              x: -7.5
+              y:
+                from_parameter: blue
           sum:
             process_id: sum
             arguments:
@@ -5769,15 +5756,16 @@ components:
           div:
             process_id: divide
             arguments:
-              data:
-                - from_node: sub
-                - from_node: sum
+              x:
+                from_node: sub
+              y:
+                from_node: sum
           p3:
-            process_id: product
+            process_id: multiply
             arguments:
-              data:
-                - 2.5
-                - from_node: div
+              x: 2.5
+              y:
+                from_node: div
             result: true
   securitySchemes:
     Bearer:

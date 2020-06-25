@@ -13,12 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /collections/{collection_id}` and `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 - `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to visualizations for example. [#211](https://github.com/Open-EO/openeo-api/issues/211)
-- `year` subtype to subtype-schemas.json. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
+- `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
+- subtype-schemas.json:
+    - `year` subtype added. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
+    - `metadata-filter` subtype added. [pg-parser-python#20](https://github.com/Open-EO/openeo-pg-parser-python/issues/20)
+    - `process-graph`: Basic schema of required fields added.
 
 ### Changes
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
 - `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
+- Added `format: commonmark` to all properties supporting CommonMark formatting.
 - `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
     - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
     - Added variable `reason` to error `FilePathInvalid` and `type` to `ServiceUnsupported`.
@@ -41,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /jobs/{job_id}/results`: Clarified that unlocated results set `geometry` to `null` and omit the `bbox` property.
 - Formally forbid 5 elements in bounding boxes.
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
+- `GET /service/{service_id}`: Property `configuration` is required instead of a non-existing property named `parameters`.
+- Re-use corresponding schema for header `OpenEO-Identifier` (adds `pattern`).
 - Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Several clarifications and improvements for the documentation.
