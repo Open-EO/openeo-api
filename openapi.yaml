@@ -449,9 +449,12 @@ tags:
 
       ## STAC
       
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC API 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+
+      **Important:** [STAC specification](https://github.com/radiantearth/stac-spec) and [STAC API](https://github.com/radiantearth/stac-api-spec) are different specifications and have different version numbers after version 0.9.0.
+      The openEO API only implements [STAC API version 0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
       
       ### Content Extensions
       
@@ -467,7 +470,7 @@ tags:
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -3876,9 +3879,12 @@ components:
         assets:
           type: object
           title: Assets
-          description: >-
+          description: |-
             Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
+
+            It is RECOMMENDED to link to a copy of this STAC Item with relative links in the assets,
+            which allows users to easily publish their processed data with a basic set of metadata.
           additionalProperties:
             $ref: '#/components/schemas/asset'
           example:
@@ -4358,9 +4364,10 @@ components:
             $ref: '#/components/schemas/link'
     stac_version:
       type: string
-      description: The STAC version implemented.
-      enum:
-        - 0.9.0
+      description: >-
+        The [version of the STAC specification](https://github.com/radiantearth/stac-spec/releases),
+        which MAY not be equal to the [STAC API version](#section/STAC).
+        Supports versions 0.9.x and 1.x.x.
     stac_extensions:
       type: array
       description: >-
