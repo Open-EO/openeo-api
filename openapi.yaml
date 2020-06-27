@@ -2476,7 +2476,12 @@ paths:
           $ref: '#/components/responses/server_error'
   '/process_graphs/{process_graph_id}':
     parameters:
-      - $ref: '#/components/parameters/process_graph_id'
+      - name: process_graph_id
+        in: path
+        description: Unique identifier for a user-defined process.
+        required: true
+        schema:
+          $ref: '#/components/schemas/process_id'
     get:
       summary: Full metadata for a user-defined process
       operationId: describe-custom-process
@@ -3417,7 +3422,23 @@ paths:
           $ref: '#/components/responses/server_error'
   '/files/{path}':
     parameters:
-      - $ref: '#/components/parameters/file_path'
+      - name: path
+        in: path
+        description: "Path of the file, relative to the user's root directory.\r\n\r\n**Note:** Folder and file names in the path MUST be url-encoded. The path separator `/` and the file extension separator `.` MUST NOT be url-encoded. This may be shown incorrectly in rendered versions due to [OpenAPI 3 not supporting path parameters which contain slashes](https://github.com/OAI/OpenAPI-Specification/issues/892)."
+        required: true
+        schema:
+          type: string
+        examples:
+          normal:
+            description: >-
+              A path without special chars. It describes a file `europe.geojson`
+              in a folder called `borders`.
+            value: borders/europe.geojson
+          specialchars:
+            description: >-
+              A path with special chars. It describes a file `münster.shp` in
+              folders called `europe` and `österreich`.
+            value: europe/%C3%B6sterreich/m%C3%BCnster.shp
     get:
       summary: Download a file from the workspace
       operationId: download-file
@@ -3456,8 +3477,6 @@ paths:
         - File Storage
       security:
         - Bearer: []
-      parameters:
-        - $ref: '#/components/parameters/file_path'
       responses:
         '200':
           description: The file has been uploaded successfully.
@@ -3491,8 +3510,6 @@ paths:
         - File Storage
       security:
         - Bearer: []
-      parameters:
-        - $ref: '#/components/parameters/file_path'
       responses:
         '204':
           description: The file has been successfully deleted at the back-end.
@@ -5647,13 +5664,6 @@ components:
       example: "log1234"
       schema:
         type: string
-    process_graph_id:
-      name: process_graph_id
-      in: path
-      description: Unique identifier for a user-defined process.
-      required: true
-      schema:
-        $ref: '#/components/schemas/process_id'
     service_id:
       name: service_id
       in: path
@@ -5668,24 +5678,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
-    file_path:
-      name: path
-      in: path
-      description: "Path of the file, relative to the user's root directory.\r\n\r\n**Note:** Folder and file names in the path MUST be url-encoded. The path separator `/` and the file extension separator `.` MUST NOT be url-encoded. This may be shown incorrectly in rendered versions due to [OpenAPI 3 not supporting path parameters which contain slashes](https://github.com/OAI/OpenAPI-Specification/issues/892)."
-      required: true
-      schema:
-        type: string
-      examples:
-        normal:
-          description: >-
-            A path without special chars. It describes a file `europe.geojson`
-            in a folder called `borders`.
-          value: borders/europe.geojson
-        specialchars:
-          description: >-
-            A path with special chars. It describes a file `münster.shp` in
-            folders called `europe` and `österreich`.
-          value: europe/%C3%B6sterreich/m%C3%BCnster.shp
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
