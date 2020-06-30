@@ -1622,13 +1622,13 @@ paths:
                   programming language environment or Docker-based.
                 additionalProperties:
                   x-additionalPropertiesName: UDF Runtime name
-                  oneOf:
-                    - $ref: '#/components/schemas/udf_language'
-                    - $ref: '#/components/schemas/udf_docker'
+                  allOf:
+                    - $ref: '#/components/schemas/udf_runtime'
                 example:
                   PHP7:
                     title: PHP v7.x
                     description: Just an example how to reference a docker image.
+                    type: docker
                     docker: openeo/udf-php7
                     default: latest
                     tags:
@@ -1642,6 +1642,7 @@ paths:
                   R:
                     title: R v3.x for Statistical Computing
                     description: R programming language with `Rcpp` and `rmarkdown` extensions installed.
+                    type: language
                     default: 3.5.2
                     versions:
                       3.1.0:
@@ -3233,13 +3234,25 @@ paths:
           $ref: '#/components/responses/server_error'
 components:
   schemas:
-    udf_base:
+    udf_runtime:
       type: object
+      required:
+        - type
       properties:
         title:
           $ref: '#/components/schemas/object_title'
         description:
           $ref: '#/components/schemas/description'
+        type:
+          type: string
+          description: |-
+            The type of the UDF runtime.
+
+            Pre-defined types are:
+            * `language` for Programming Languages and
+            * `docker` for Docker Containers.
+            
+            The types can potentially be extended by back-ends.
         default:
           type: string
         links:
@@ -3257,12 +3270,23 @@ components:
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+      discriminator:
+        propertyName: type
+        mapping:
+          language: '#/components/schemas/udf_language'
+          docker: '#/components/schemas/udf_docker'
+      oneOf:
+        - $ref: '#/components/schemas/udf_language'
+        - $ref: '#/components/schemas/udf_docker'
     udf_language:
       title: Programming language
       required:
         - default
         - versions
       properties:
+        type:
+          enum:
+            - language
         default:
           description: The default version. MUST be one of the keys in the `versions` object.
         versions:
@@ -3323,8 +3347,6 @@ components:
                         [common relation types in openEO](#section/API-Principles/Web-Linking).
                       items:
                         $ref: '#/components/schemas/link'
-      allOf:
-        - $ref: '#/components/schemas/udf_base'
     udf_docker:
       title: Docker container
       required:
@@ -3332,6 +3354,9 @@ components:
         - default
         - tags
       properties:
+        type:
+          enum:
+            - docker
         docker:
           type: string
           description: >-
@@ -3345,8 +3370,6 @@ components:
           minItems: 1
           items:
             type: string
-      allOf:
-        - $ref: '#/components/schemas/udf_base'
     batch_job_result:
       title: Batch Job Results Response as STAC Item
       type: object
