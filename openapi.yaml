@@ -455,9 +455,12 @@ tags:
 
       ## STAC
       
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC API 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
+
+      **Important:** [STAC specification](https://github.com/radiantearth/stac-spec) and [STAC API](https://github.com/radiantearth/stac-api-spec) are different specifications and have different version numbers after version 0.9.0.
+      The openEO API only implements [STAC API version 0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
       
       ### Content Extensions
       
@@ -473,7 +476,7 @@ tags:
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec) and in the corresponding [OpenAPI specification](https://stacspec.org/STAC-api.html).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -3627,7 +3630,6 @@ components:
         - stac_version
         - id
         - type
-        - bbox
         - geometry
         - properties
         - assets
@@ -3644,13 +3646,53 @@ components:
           enum:
             - Feature
         bbox:
-          $ref: '#/components/schemas/bbox'
+          description: |-
+            Potential *spatial extent* covered by the data.
+            
+            The bounding box is provided as four or six numbers. Six numbers are
+            specified, if the coordinate reference system includes a vertical axis
+            (height or depth). The order of the elements in the array:
+
+            - West (lower left corner, coordinate axis 1)
+            - South (lower left corner, coordinate axis 2)
+            - Base (optional, lower left corner, coordinate axis 3)
+            - East (upper right corner, coordinate axis 1)
+            - North (upper right corner, coordinate axis 2)
+            - Height (optional, upper right corner, coordinate axis 3)
+
+            The coordinate reference system of the values is WGS84
+            longitude/latitude.
+
+            Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
+            but can be omitted if the result is unlocated and the `geometry`
+            is set to `null`.
+          type: array
+          oneOf:
+            - title: 4 elements
+              minItems: 4
+              maxItems: 4
+            - title: 6 elements
+              minItems: 6
+              maxItems: 6
+          items:
+            type: number
+          example:
+            - -180
+            - -90
+            - 180
+            - 90
         geometry:
           description: >-
             Defines the full footprint of the asset represented by this item as
             GeoJSON Geometry.
-          allOf:
+
+            Results without a known location can set this value to `null`.
+          oneOf:
             - $ref: '#/components/schemas/GeoJsonGeometry'
+            - title: Unlocated result
+              nullable: true
+              enum:
+                - null
           example:
             type: Polygon
             coordinates:
@@ -3683,7 +3725,7 @@ components:
 
                 If this field is set to `null` (usually for larger time ranges),
                 it is STRONGLY RECOMMENDED to specify both `start_datetime` and
-                `end_datetime` to be a valid STAC Item.
+                `end_datetime` for STAC compliance.
               type: string
               format: date-time
               nullable: true
@@ -3723,9 +3765,12 @@ components:
         assets:
           type: object
           title: Assets
-          description: >-
+          description: |-
             Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
+
+            It is RECOMMENDED to link to a copy of this STAC Item with relative links in the assets,
+            which allows users to easily publish their processed data with a basic set of metadata.
           additionalProperties:
             $ref: '#/components/schemas/asset'
           example:
@@ -4085,23 +4130,17 @@ components:
                   type: array
                   minItems: 1
                   items:
-                    description: >-
+                    description: |-
                       Each bounding box is provided as four or six numbers,
                       depending on whether the coordinate reference system
                       includes a vertical axis (height or depth):
 
                       * West (lower left corner, coordinate axis 1)
-
                       * South (lower left corner, coordinate axis 2)
-
                       * Base (optional, minimum value, coordinate axis 3)
-
                       * East (upper right corner, coordinate axis 1)
-
                       * North (upper right corner, coordinate axis 2)
-
                       * Height (optional, maximum value, coordinate axis 3)
-
 
                       The coordinate reference system of the values is WGS 84
                       longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
@@ -4121,8 +4160,13 @@ components:
                       is the decision of the server whether only a single spatial geometry
                       property is used to determine the extent or all relevant geometries.
                     type: array
-                    minItems: 4
-                    maxItems: 6
+                    oneOf:
+                      - title: 4 elements
+                        minItems: 4
+                        maxItems: 4
+                      - title: 6 elements
+                        minItems: 6
+                        maxItems: 6
                     items:
                       type: number
                     example:
@@ -4208,9 +4252,10 @@ components:
             $ref: '#/components/schemas/link'
     stac_version:
       type: string
-      description: The STAC version implemented.
-      enum:
-        - 0.9.0
+      description: >-
+        The [version of the STAC specification](https://github.com/radiantearth/stac-spec/releases),
+        which MAY not be equal to the [STAC API version](#section/STAC).
+        Supports versions 0.9.x and 1.x.x.
     stac_extensions:
       type: array
       description: >-
@@ -5299,38 +5344,6 @@ components:
             Date and time the file has lastly been modified, formatted as a [RFC
             3339](https://www.ietf.org/rfc/rfc3339) date-time.
           example: '2018-01-03T10:55:29Z'
-    bbox:
-      description: >-
-        Potential *spatial extent* covered by the data. The bounding box is
-        provided as four or six numbers, depending on whether the coordinate
-        reference system includes a vertical axis (height or depth):
-
-
-        - West (lower left corner, coordinate axis 1)
-
-        - South (lower left corner, coordinate axis 2)
-
-        - Base (optional, lower left corner, coordinate axis 3)
-
-        - East (upper right corner, coordinate axis 1)
-
-        - North (upper right corner, coordinate axis 2)
-
-        - Height (optional, upper right corner, coordinate axis 3)
-
-
-        The coordinate reference system of the values is WGS84
-        longitude/latitude.
-      type: array
-      minItems: 4
-      maxItems: 6
-      items:
-        type: number
-      example:
-        - -180
-        - -90
-        - 180
-        - 90
     GeoJsonPoint3D:
       type: array
       description: Point in 3D space

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
 - `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
+- Allow all STAC versions that are compatible to STAC 0.9.0.
 - Added `format: commonmark` to all properties supporting CommonMark formatting.
 - `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
     - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
@@ -42,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `/.well-known/openeo`:
     - Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
     - Clarified that non-production ready versions should be connected to if no production-ready version is supported. [#289](https://github.com/Open-EO/openeo-api/issues/289)
+- `GET /jobs/{job_id}/results`: Clarified that unlocated results set `geometry` to `null` and omit the `bbox` property.
+- Formally forbid 5 elements in bounding boxes.
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
 - `GET /service/{service_id}`: Property `configuration` is required instead of a non-existing property named `parameters`.
 - Re-use corresponding schema for header `OpenEO-Identifier` (adds `pattern`).
@@ -75,6 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that back-ends not supporting pagination will return all resources.
 - Clarified how `from_parameter` is resolved in case no value is given.
 - Clarified `GET .../logs` endpoint behaviour.
+- Clarify difference between STAC specification and STAC API.
+- Clarify that a copy of the STAC Item is recommended to be part of the assets in a batch job download.
 - Removed outdated error codes from `errors.json`.
 
 ## 1.0.0-rc.1 - 2020-01-31
