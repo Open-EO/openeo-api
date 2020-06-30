@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /collections/{collection_id}` and `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 - `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to visualizations for example. [#211](https://github.com/Open-EO/openeo-api/issues/211)
-- `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
+- `GET /collections`, `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
 - subtype-schemas.json:
     - `year` subtype added. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
     - `metadata-filter` subtype added. [pg-parser-python#20](https://github.com/Open-EO/openeo-pg-parser-python/issues/20)
