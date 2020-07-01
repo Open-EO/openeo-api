@@ -530,7 +530,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Capabilities Response
+                title: Capabilities
                 type: object
                 required:
                   - id
@@ -865,7 +865,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Well Known Discovery Response
+                title: Well Known Discovery
                 type: object
                 required:
                   - versions
@@ -963,14 +963,14 @@ paths:
           content:
             application/json:
               schema:
-                title: Format Overview Response
+                title: File Formats
                 type: object
                 required:
                   - input
                   - output
                 properties:
                   input:
-                    title: Input Formats Response
+                    title: Input File Formats
                     type: object
                     description: >-
                       Map of supported input file formats, i.e. file formats a
@@ -980,7 +980,7 @@ paths:
                     additionalProperties:
                       $ref: '#/components/schemas/file_format'
                   output:
-                    title: Output Formats Response
+                    title: Output File Formats
                     type: object
                     description: >-
                       Map of supported output file formats, i.e. file formats a
@@ -1090,7 +1090,7 @@ paths:
           content:
             application/json:
               schema:
-                title: OGC Conformance Response
+                title: OGC Conformance Classes
                 type: object
                 required:
                   - conformsTo
@@ -1110,13 +1110,14 @@ paths:
     get:
       summary: Basic metadata for all datasets
       operationId: list-collections
-      description: >-
+      description: |-
         Lists available collections with at least the required information.
         
-        
-        Back-ends can choose which optional information are not send, but should ensure the responses don't get overly large.
-        To retrieve all information clients must make a request to `GET /collections/{collection_id}`.
-
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting larger optional values from the objects in `collections` (e.g. the
+        `summaries` and `cube:dimensions` properties).
+        To get the full metadata for a collection clients MUST
+        request `GET /collections/{collection_id}`.
 
         This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
@@ -1137,7 +1138,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Collections Response
+                title: Collections
                 type: object
                 required:
                   - collections
@@ -1246,10 +1247,9 @@ paths:
     get:
       summary: Full metadata for a specific dataset
       operationId: describe-collection
-      description: >-
+      description: |-
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
-
 
         This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
@@ -1264,314 +1264,23 @@ paths:
         - Bearer: []
       responses:
         '200':
-          description: JSON object with metadata about the collection.
+          description: JSON object with the full collection metadata.
           content:
             application/json:
               schema:
+                type: object
+                required:
+                  - 'cube:dimensions'
+                  - summaries
                 allOf:
                   - $ref: '#/components/schemas/collection'
-                  - type: object
-                    required:
-                      - 'cube:dimensions'
-                      - summaries
-                    properties:
-                      'cube:dimensions':
-                        title: STAC Collection Cube Dimensions
-                        description: |-
-                          Uniquely named dimensions of the data cube.
-
-                          The keys of the object are the dimension names. For
-                          interoperability, it is RECOMMENDED to use the
-                          following dimension names if there is only a single
-                          dimension with the specified criteria:
-
-                          * `x` for the dimension of type `spatial` with the axis set to `x`
-                          * `y` for the dimension of type `spatial` with the axis set to `y`
-                          * `z` for the dimension of type `spatial` with the axis set to `z`
-                          * `t` for the dimension of type `temporal`
-                          * `bands` for dimensions of type `bands`
-
-                          This property REQUIRES to add `datacube` to the list
-                          of `stac_extensions`.
-                        type: object
-                        additionalProperties:
-                          x-additionalPropertiesName: Dimension Name
-                          anyOf:
-                            - title: Additional Dimension
-                              description: An additional dimension that is not `spatial`.
-                              type: object
-                              required:
-                                - type
-                              anyOf:
-                                - title: Additional Dimension with Extent
-                                  required:
-                                    - extent
-                                - title: Additional Dimension with Values
-                                  required:
-                                    - values
-                              properties:
-                                type:
-                                  description: >-
-                                    Custom type of the dimension, MUST NOT be
-                                    `spatial`.
-                                  type: string
-                                description:
-                                  $ref: '#/components/schemas/description'
-                                extent:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_extent_open
-                                values:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_values
-                                step:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_step
-                                unit:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_unit
-                                reference_system:
-                                  description: The reference system for the data.
-                                  type: string
-                            - title: Band Dimension
-                              description: >-
-                                A dimension for the bands.
-
-
-                                The band dimension only specifies the band names
-                                as dimension labels. Further information to the
-                                bands are available in either `sar:bands` or
-                                `eo:bands` in the `summaries` property.
-                              type: object
-                              required:
-                                - type
-                                - values
-                              properties:
-                                type:
-                                  description: 'Type of the dimension, always `bands`.'
-                                  type: string
-                                  enum:
-                                    - bands
-                                description:
-                                  $ref: '#/components/schemas/description'
-                                values:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_values
-                            - title: Horizontal Spatial Dimension
-                              description: >-
-                                A spatial dimension in one of the horizontal (x
-                                or y) directions.
-                              type: object
-                              required:
-                                - type
-                                - axis
-                                - extent
-                              properties:
-                                type:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_type_spatial
-                                axis:
-                                  description: 'Axis of the spatial dimension (`x`, `y`).'
-                                  type: string
-                                  enum:
-                                    - x
-                                    - 'y'
-                                description:
-                                  $ref: '#/components/schemas/description'
-                                extent:
-                                  description: >-
-                                    Extent (lower and upper bounds) of the
-                                    dimension as two-dimensional array. Open
-                                    intervals with `null` are not allowed.
-                                  type: array
-                                  minItems: 2
-                                  maxItems: 2
-                                  items:
-                                    type: number
-                                values:
-                                  description: 'Optionally, a set of all potential values.'
-                                  type: array
-                                  minItems: 1
-                                  items:
-                                    type: number
-                                step:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_step
-                                reference_system:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_reference_system_spatial
-                            - title: Vertical Spatial Dimension
-                              description: A spatial dimension in vertical (z) direction.
-                              type: object
-                              required:
-                                - type
-                                - axis
-                              anyOf:
-                                - title: Vertical Spatial Dimension with Extent
-                                  required:
-                                    - extent
-                                - title: Vertical Spatial Dimension with Values
-                                  required:
-                                    - values
-                              properties:
-                                type:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_type_spatial
-                                axis:
-                                  description: 'Axis of the spatial dimension, always `z`.'
-                                  type: string
-                                  enum:
-                                    - z
-                                description:
-                                  $ref: '#/components/schemas/description'
-                                extent:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_extent_open
-                                values:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_values
-                                step:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_step
-                                unit:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_unit
-                                reference_system:
-                                  $ref: >-
-                                    #/components/schemas/collection_dimension_reference_system_spatial
-                            - title: Temporal Dimension
-                              description: >-
-                                A temporal dimension based on the ISO 8601
-                                standard. The temporal reference system for the
-                                data is expected to be ISO 8601 compliant
-                                (Gregorian calendar / UTC). Data not compliant
-                                with ISO 8601 can be represented as an
-                                *Additional Dimension Object* with `type` set to
-                                `temporal`.
-                              type: object
-                              required:
-                                - type
-                                - extent
-                              properties:
-                                type:
-                                  description: 'Type of the dimension, always `temporal`.'
-                                  type: string
-                                  enum:
-                                    - temporal
-                                description:
-                                  $ref: '#/components/schemas/description'
-                                values:
-                                  description: >-
-                                    If the dimension consists of set of specific
-                                    values they can be listed here. The dates
-                                    and/or times must be strings compliant to
-                                    [ISO
-                                    8601](https://en.wikipedia.org/wiki/ISO_8601).
-                                  type: array
-                                  minItems: 1
-                                  items:
-                                    type: string
-                                extent:
-                                  description: >-
-                                    Extent (lower and upper bounds) of the
-                                    dimension as two-dimensional array. The
-                                    dates and/or times must be strings compliant
-                                    to [ISO
-                                    8601](https://en.wikipedia.org/wiki/ISO_8601).
-                                    `null` is allowed for open date ranges.
-                                  type: array
-                                  minItems: 2
-                                  maxItems: 2
-                                  items:
-                                    type: string
-                                    nullable: true
-                                step:
-                                  description: >-
-                                    The space between the temporal instances as
-                                    [ISO 8601
-                                    duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
-                                    e.g. `P1D`. Use `null` for irregularly
-                                    spaced steps.
-                                  type: string
-                                  nullable: true
-                      summaries:
-                        title: STAC Summaries (Collection Properties)
-                        description: |-
-                          Collection properties from STAC extensions (e.g. EO,
-                          SAR, Satellite or Scientific) or even custom extensions.
-
-                          Summaries are either a unique set of all available
-                          values *or* statistics. Statistics by default only
-                          specify the range (minimum and maximum values), but
-                          can optionally be accompanied by additional
-                          statistical values. The range can specify the
-                          potential range of values, but it is recommended to be
-                          as precise as possible. The set of values must contain
-                          at least one element and it is strongly recommended to
-                          list all values. It is recommended to list as many
-                          properties as reasonable so that consumers get a full
-                          overview of the Collection. Properties that are
-                          covered by the Collection specification (e.g.
-                          `providers` and `license`) may not be repeated in the
-                          summaries.
-
-                          Potential fields for the summaries can be found here:
-
-                          * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec/common-metadata.md)**:
-                            A list of commonly used fields throughout all domains
-                          * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/README.md#list-of-content-extensions)**:
-                            Domain-specific fields for domains such as EO, SAR and point clouds.
-                          * **Custom Properties**:
-                            It is generally allowed to add custom fields.
-                        type: object
-                        additionalProperties:
-                          oneOf:
-                            - type: array
-                              title: Set of values
-                              items:
-                                description: A value of any type.
-                            - type: object
-                              title: Statistics
-                              description: >-
-                                By default, only ranges with a minimum and a
-                                maximum value can be specified. Ranges can be
-                                specified for ordinal values only, which means
-                                they need to have a rank order. Therefore,
-                                ranges can only be specified for numbers and
-                                some special types of strings. Examples: grades
-                                (A to F), dates or times. Implementors are free
-                                to add other derived statistical values to the
-                                object, for example `mean` or `stddev`.
-                              required:
-                                - min
-                                - max
-                              properties:
-                                min:
-                                  anyOf:
-                                    - type: string
-                                    - type: number
-                                max:
-                                  anyOf:
-                                    - type: string
-                                    - type: number
-                      assets:
-                        type: object
-                        title: Assets
-                        description: >-
-                          Dictionary of asset objects for data that can be downloaded,
-                          each with a unique key.
-                          The keys MAY be used by clients as file names.
-
-                          Implementing this property REQUIRES to add `collection-assets`
-                          to the list of `stac_extensions`.
-                        additionalProperties:
-                          $ref: '#/components/schemas/asset'
                 example:
                   stac_version: 0.9.0
                   stac_extensions:
-                   - collection-assets
-                   - datacube
-                   - scientific
-                   - version
+                    - collection-assets
+                    - datacube
+                    - scientific
+                    - version
                   id: Sentinel-2
                   title: Sentinel-2 MSI L2A
                   description: >-
@@ -1771,7 +1480,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Processes Response
+                title: Processes
                 type: object
                 required:
                   - processes
@@ -1782,13 +1491,14 @@ paths:
                     items:
                       title: Pre-Defined Process
                       description: A pre-defined process made available by the back-end.
+                      type: object
+                      required:
+                        - id
+                        - description
+                        - parameters
+                        - returns
                       allOf:
                         - $ref: '#/components/schemas/process'
-                        - required:
-                            - id
-                            - description
-                            - parameters
-                            - returns
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -1901,7 +1611,7 @@ paths:
           content:
             application/json:
               schema:
-                title: UDF Runtimes Response
+                title: UDF Runtimes
                 type: object
                 description: >-
                   Map of available runtime environments. Each runtime
@@ -1911,108 +1621,10 @@ paths:
                   meaningful (see example). Runtime environments can be either a
                   programming language environment or Docker-based.
                 additionalProperties:
-                  x-additionalPropertiesName: UDF Runtime Name
+                  x-additionalPropertiesName: UDF Runtime name
                   oneOf:
-                    - title: Programming language
-                      type: object
-                      required:
-                        - default
-                        - versions
-                      properties:
-                        title:
-                          $ref: '#/components/schemas/object_title'
-                        description:
-                          $ref: '#/components/schemas/description'
-                        default:
-                          description: The default version. MUST be one of the keys in the `versions` object.
-                          type: string
-                        versions:
-                          title: Programming language versions
-                          description: Versions available for the programming language.
-                          type: object
-                          additionalProperties:
-                            x-additionalPropertiesName: Programming Language Version
-                            title: Programming language version
-                            type: object
-                            required:
-                              - libraries
-                            properties:
-                              libraries:
-                                description: >-
-                                  Map of installed libraries, modules, packages
-                                  or extensions for the programming language.
-                                  The names of them are used as the property keys.
-                                additionalProperties:
-                                  x-additionalPropertiesName: Library Name
-                                  title: Programming language library
-                                  type: object
-                                  required:
-                                    - version
-                                  properties:
-                                    version:
-                                      type: string
-                                      description: Version number of the library.
-                                    deprecated:
-                                      type: boolean
-                                      default: false
-                                      description: |-
-                                        Specifies that the library is deprecated with the potential to be
-                                        removed in any of the next versions. It should be transitioned out
-                                        of usage as soon as possible and users should refrain from using it
-                                        in new implementations.
-
-                                        A link with relation type `latest-version` SHOULD be added to the
-                                        `links` and MUST refer to the library or library version that can be
-                                        used instead.
-                                    links:
-                                      type: array
-                                      description: |-
-                                        Additional links related to this library,
-                                        e.g. external documentation for this library.
-
-                                        It is highly RECOMMENDED to provide links with
-                                        the following `rel` (relation) types:
-
-                                        1. `about`: A resource that further explains the library,
-                                        e.g. a user guide or the documentation.
-
-                                        2. `latest-version`: If a library has been marked as deprecated,
-                                        a link should point to either a new library replacing the deprecated
-                                        library or a latest version of the library available at the back-end.
-
-                                        For additional relation types see also the lists of
-                                        [common relation types in openEO](#section/API-Principles/Web-Linking).
-                                      items:
-                                        $ref: '#/components/schemas/link'
-                        links:
-                          $ref: '#/components/schemas/udf_links'
-                    - title: Docker container
-                      type: object
-                      required:
-                        - docker
-                        - default
-                        - tags
-                      properties:
-                        title:
-                          $ref: '#/components/schemas/object_title'
-                        description:
-                          $ref: '#/components/schemas/description'
-                        docker:
-                          type: string
-                          description: >-
-                            Identifier of a Docker image on Docker Hub or a
-                            private repository, i.e. the docker image name.
-                        default:
-                          description: The default tag. MUST be one of the values in the `tags` array.
-                          type: string
-                        tags:
-                          type: array
-                          description: The docker tags that are supported.
-                          minItems: 1
-                          items:
-                            type: string
-                        links:
-                          $ref: '#/components/schemas/udf_links'
+                    - $ref: '#/components/schemas/udf_programming_language'
+                    - $ref: '#/components/schemas/udf_docker'
                 example:
                   PHP7:
                     title: PHP v7.x
@@ -2111,7 +1723,7 @@ paths:
           content:
             application/json:
               schema:
-                title: OpenID Provider List
+                title: OpenID Providers
                 type: object
                 required:
                   - providers
@@ -2120,6 +1732,7 @@ paths:
                     type: array
                     minItems: 1
                     items:
+                      title: OpenID Provider
                       type: object
                       required:
                         - id
@@ -2243,7 +1856,7 @@ paths:
           content:
             application/json:
               schema:
-                title: HTTP Basic Authentication Response
+                title: HTTP Basic Access Token
                 type: object
                 required:
                   - access_token
@@ -2302,7 +1915,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Validation Response
+                title: Validation Result
                 type: object
                 required:
                   - errors
@@ -2399,8 +2012,8 @@ paths:
         authenticated user that are stored at the back-end.
         
         It is **strongly RECOMMENDED** to keep the response size small by
-        omitting larger values from the objects in `processes` (e.g. the
-        `exceptions`, `examples` and `links` properties).
+        omitting larger optional values from the objects in `processes`
+        (e.g. the `exceptions`, `examples` and `links` properties).
         To get the full metadata for a secondary web service clients MUST
         request `GET /services/{service_id}`.
       tags:
@@ -2416,7 +2029,7 @@ paths:
           content:
             application/json:
               schema:
-                title: User Defined Processes Response
+                title: User-Defined Processes
                 type: object
                 required:
                   - processes
@@ -2426,11 +2039,7 @@ paths:
                     description: Array of user-defined processes
                     type: array
                     items:
-                      allOf:
-                        - $ref: '#/components/schemas/process'
-                        - $ref: '#/components/schemas/nullable_process'
-                        - required:
-                            - id
+                      $ref: '#/components/schemas/user_defined_process_meta'
                   links:
                     $ref: '#/components/schemas/links_pagination'
                 example:
@@ -2502,12 +2111,11 @@ paths:
               schema:
                 title: User-Defined Process
                 description: A user-defined process with processing instructions as process graph.
+                type: object
+                required:
+                  - process_graph
                 allOf:
-                  - $ref: '#/components/schemas/process'
-                  - $ref: '#/components/schemas/nullable_process'
-                  - required:
-                      - id
-                      - process_graph
+                  - $ref: '#/components/schemas/user_defined_process_meta'
               examples:
                 evi_user_defined_process:
                   $ref: '#/components/examples/evi_user_defined_process'
@@ -2614,7 +2222,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Service Types Response
+                title: Service Types
                 type: object
                 description: Map of supported secondary web services.
                 additionalProperties:
@@ -2722,8 +2330,8 @@ paths:
         by a user.
         
         It is **strongly RECOMMENDED** to keep the response size small by
-        omitting all non-scalar values from services (i.e. the `process`,
-        `configuration` and `attributes` properties).
+        omitting all optional non-scalar values from objects in`services`
+        (i.e. the `process`, `configuration` and `attributes` properties).
         To get the full metadata for a secondary web service clients MUST
         request `GET /services/{service_id}`.
       tags:
@@ -2738,7 +2346,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Secondary Web Services List Response
+                title: Secondary Web Services
                 type: object
                 required:
                   - services
@@ -2887,12 +2495,13 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                required:
+                  - process
+                  - configuration
+                  - attributes
                 allOf:
                   - $ref: '#/components/schemas/service' 
-                  - required:
-                    - process
-                    - configuration
-                    - attributes
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2954,7 +2563,7 @@ paths:
         Requests to this endpoint will list all batch jobs submitted by a user.
         
         It is **strongly RECOMMENDED** to keep the response size small by
-        omitting all non-scalar values from jobs (i.e. the `process` property).
+        omitting all optional non-scalar values from objects in `jobs` (i.e. the `process` property).
         To get the full metadata for a job clients MUST request `GET /jobs/{job_id}`.
       tags:
         - Data Processing
@@ -2969,7 +2578,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Batch Job List Response
+                title: Batch Jobs
                 type: object
                 required:
                   - jobs
@@ -2978,7 +2587,7 @@ paths:
                   jobs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/job'
+                      $ref: '#/components/schemas/batch_job'
                   links:
                     $ref: '#/components/schemas/links_pagination'
         4XX:
@@ -3105,10 +2714,11 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                required:
+                  - process
                 allOf:
-                  - $ref: '#/components/schemas/job' 
-                  - required:
-                      - process
+                  - $ref: '#/components/schemas/batch_job'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3161,7 +2771,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Batch Job Estimate Response
+                title: Batch Job Estimate
                 type: object
                 properties:
                   costs:
@@ -3281,10 +2891,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/job_result'
+                $ref: '#/components/schemas/batch_job_result'
             application/geo+json:
               schema:
-                $ref: '#/components/schemas/job_result'
+                $ref: '#/components/schemas/batch_job_result'
         '424':
           description: >-
             The request can't be fulfilled as the batch job failed. This request
@@ -3394,7 +3004,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Workspace Files List Response
+                title: Workspace Files
                 type: object
                 required:
                   - files
@@ -3547,7 +3157,7 @@ paths:
           content:
             application/json:
               schema:
-                title: User Data Response
+                title: User Data
                 description: >-
                   Holds user information. If no budget or storage limit applies
                   to the user account the corresponding properties MUST be set
@@ -3623,7 +3233,121 @@ paths:
           $ref: '#/components/responses/server_error'
 components:
   schemas:
-    job_result:
+    udf_runtime:
+      type: object
+      properties:
+        title:
+          $ref: '#/components/schemas/object_title'
+        description:
+          $ref: '#/components/schemas/description'
+        default:
+          type: string
+        links:
+          type: array
+          description: |-
+            Links related to this runtime, e.g. external documentation.
+
+            It is highly RECOMMENDED to provide at least links with
+            the following `rel` (relation) types:
+
+            1. `about`: A resource that further explains the runtime,
+            e.g. a user guide or the documentation.
+
+            For additional relation types see also the lists of
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
+          items:
+            $ref: '#/components/schemas/link'
+    udf_programming_language:
+      title: Programming language
+      allOf:
+        - $ref: '#/components/schemas/udf_runtime'
+        - required:
+            - default
+            - versions
+          properties:
+            default:
+              description: The default version. MUST be one of the keys in the `versions` object.
+            versions:
+              title: Programming language versions
+              description: Versions available for the programming language.
+              type: object
+              additionalProperties:
+                x-additionalPropertiesName: Programming Language Version
+                title: Programming language version
+                type: object
+                required:
+                  - libraries
+                properties:
+                  libraries:
+                    description: >-
+                      Map of installed libraries, modules, packages
+                      or extensions for the programming language.
+                      The names of them are used as the property keys.
+                    additionalProperties:
+                      x-additionalPropertiesName: Library Name
+                      title: Programming language library
+                      type: object
+                      required:
+                        - version
+                      properties:
+                        version:
+                          type: string
+                          description: Version number of the library.
+                        deprecated:
+                          type: boolean
+                          default: false
+                          description: |-
+                            Specifies that the library is deprecated with the potential to be
+                            removed in any of the next versions. It should be transitioned out
+                            of usage as soon as possible and users should refrain from using it
+                            in new implementations.
+
+                            A link with relation type `latest-version` SHOULD be added to the
+                            `links` and MUST refer to the library or library version that can be
+                            used instead.
+                        links:
+                          type: array
+                          description: |-
+                            Additional links related to this library,
+                            e.g. external documentation for this library.
+
+                            It is highly RECOMMENDED to provide links with
+                            the following `rel` (relation) types:
+
+                            1. `about`: A resource that further explains the library,
+                            e.g. a user guide or the documentation.
+
+                            2. `latest-version`: If a library has been marked as deprecated,
+                            a link should point to either a new library replacing the deprecated
+                            library or a latest version of the library available at the back-end.
+
+                            For additional relation types see also the lists of
+                            [common relation types in openEO](#section/API-Principles/Web-Linking).
+                          items:
+                            $ref: '#/components/schemas/link'
+    udf_docker:
+      title: Docker container
+      allOf:
+        - $ref: '#/components/schemas/udf_runtime'
+        - required:
+            - docker
+            - default
+            - tags
+          properties:
+            docker:
+              type: string
+              description: >-
+                Identifier of a Docker image on Docker Hub or a
+                private repository, i.e. the docker image name.
+            default:
+              description: The default tag. MUST be one of the values in the `tags` array.
+            tags:
+              type: array
+              description: The docker tags that are supported.
+              minItems: 1
+              items:
+                type: string
+    batch_job_result:
       title: Batch Job Results Response as STAC Item
       type: object
       required:
@@ -3682,17 +3406,14 @@ components:
             - 180
             - 90
         geometry:
-          description: >-
+          description: |-
             Defines the full footprint of the asset represented by this item as
             GeoJSON Geometry.
 
             Results without a known location can set this value to `null`.
-          oneOf:
+          nullable: true
+          allOf:
             - $ref: '#/components/schemas/GeoJsonGeometry'
-            - title: Unlocated result
-              nullable: true
-              enum:
-                - null
           example:
             type: Polygon
             coordinates:
@@ -3891,21 +3612,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/link'
-    udf_links:
-      type: array
-      description: |-
-        Links related to this runtime, e.g. external documentation.
-
-        It is highly RECOMMENDED to provide at least links with
-        the following `rel` (relation) types:
-
-        1. `about`: A resource that further explains the runtime,
-        e.g. a user guide or the documentation.
-
-        For additional relation types see also the lists of
-        [common relation types in openEO](#section/API-Principles/Web-Linking).
-      items:
-        $ref: '#/components/schemas/link'
     link:
       title: Link
       description: >-
@@ -3940,6 +3646,7 @@ components:
           description: Used as a human-readable label for a link.
           example: openEO
     asset:
+      title: STAC Asset
       type: object
       required:
         - href
@@ -4046,7 +3753,7 @@ components:
         insensitive*.
       example: free
     collection:
-      title: STAC Collection
+      title: Collection
       type: object
       required:
         - stac_version
@@ -4105,7 +3812,7 @@ components:
           $ref: '#/components/schemas/stac_providers'
         extent:
           type: object
-          title: STAC Collection Extent
+          title: Collection Extent
           description: >-
             The extent of the features in the collection. Additional members MAY
             be added to represent other extents, for example, thermal or
@@ -4115,6 +3822,7 @@ components:
             - temporal
           properties:
             spatial:
+              title: Collection Spatial Extent
               description: >-
                 The *potential* spatial extent of the features in the
                 collection.
@@ -4175,6 +3883,7 @@ components:
                       - 180
                       - 90
             temporal:
+              title: Collection Temporal Extent
               description: >-
                 The *potential* temporal extent of the features in the
                 collection.
@@ -4250,6 +3959,78 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/link'
+        'cube:dimensions':
+          title: STAC Collection Cube Dimensions
+          description: |-
+            Uniquely named dimensions of the data cube.
+
+            The keys of the object are the dimension names. For
+            interoperability, it is RECOMMENDED to use the
+            following dimension names if there is only a single
+            dimension with the specified criteria:
+
+            * `x` for the dimension of type `spatial` with the axis set to `x`
+            * `y` for the dimension of type `spatial` with the axis set to `y`
+            * `z` for the dimension of type `spatial` with the axis set to `z`
+            * `t` for the dimension of type `temporal`
+            * `bands` for dimensions of type `bands`
+
+            This property REQUIRES to add `datacube` to the list
+            of `stac_extensions`.
+          type: object
+          additionalProperties:
+            x-additionalPropertiesName: Dimension Name
+            allOf:
+              - $ref: '#/components/schemas/dimension'
+        summaries:
+          title: STAC Summaries (Collection Properties)
+          description: |-
+            Collection properties from STAC extensions (e.g. EO,
+            SAR, Satellite or Scientific) or even custom extensions.
+
+            Summaries are either a unique set of all available
+            values *or* statistics. Statistics by default only
+            specify the range (minimum and maximum values), but
+            can optionally be accompanied by additional
+            statistical values. The range can specify the
+            potential range of values, but it is recommended to be
+            as precise as possible. The set of values must contain
+            at least one element and it is strongly recommended to
+            list all values. It is recommended to list as many
+            properties as reasonable so that consumers get a full
+            overview of the Collection. Properties that are
+            covered by the Collection specification (e.g.
+            `providers` and `license`) may not be repeated in the
+            summaries.
+
+            Potential fields for the summaries can be found here:
+
+            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec/common-metadata.md)**:
+              A list of commonly used fields throughout all domains
+            * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/README.md#list-of-content-extensions)**:
+              Domain-specific fields for domains such as EO, SAR and point clouds.
+            * **Custom Properties**:
+              It is generally allowed to add custom fields.
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: array
+                title: Set of values
+                items:
+                  description: A value of any type.
+              - $ref: '#/components/schemas/collection_summary_stats'
+        assets:
+          type: object
+          title: Assets
+          description: >-
+            Dictionary of asset objects for data that can be downloaded,
+            each with a unique key.
+            The keys MAY be used by clients as file names.
+
+            Implementing this property REQUIRES to add `collection-assets`
+            to the list of `stac_extensions`.
+          additionalProperties:
+            $ref: '#/components/schemas/asset'
     stac_version:
       type: string
       description: >-
@@ -4356,6 +4137,31 @@ components:
             type: string
             format: uri
             example: http://cool-eo-cloud-corp.com
+    collection_summary_stats:
+      type: object
+      title: Statistics
+      description: >-
+        By default, only ranges with a minimum and a
+        maximum value can be specified. Ranges can be
+        specified for ordinal values only, which means
+        they need to have a rank order. Therefore,
+        ranges can only be specified for numbers and
+        some special types of strings. Examples: grades
+        (A to F), dates or times. Implementors are free
+        to add other derived statistical values to the
+        object, for example `mean` or `stddev`.
+      required:
+        - min
+        - max
+      properties:
+        min:
+          anyOf:
+            - type: string
+            - type: number
+        max:
+          anyOf:
+            - type: string
+            - type: number
     collection_id:
       type: string
       description: >-
@@ -4363,11 +4169,179 @@ components:
         pattern.
       pattern: '^[\w\-\.~\/]+$'
       example: Sentinel-2A
-    collection_dimension_type_spatial:
-      description: 'Type of the dimension, always `spatial`.'
-      type: string
-      enum:
-        - spatial
+    dimension:
+      title: Dimension
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          description: 'Type of the dimension.'
+          type: string
+          enum:
+            - spatial
+            - temporal
+            - bands
+            - other
+        description:
+          $ref: '#/components/schemas/description'
+      discriminator:
+        propertyName: type
+        mapping:
+          spatial: '#/components/schemas/dimension_spatial'
+          temporal: '#/components/schemas/dimension_temporal'
+          bands: '#/components/schemas/dimension_bands'
+          other: '#/components/schemas/dimension_other'
+    dimension_other:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Additional Dimension
+          type: object
+          properties:
+            extent:
+              $ref: '#/components/schemas/collection_dimension_extent_open'
+            values:
+              $ref: '#/components/schemas/collection_dimension_values'
+            step:
+              $ref: '#/components/schemas/collection_dimension_step'
+            unit:
+              $ref: '#/components/schemas/collection_dimension_unit'
+            reference_system:
+              description: The reference system for the data.
+              type: string
+    dimension_bands:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Band Dimension
+          description: |-
+            A dimension for the bands.
+
+            The band dimension only specifies the band names
+            as dimension labels. Further information to the
+            bands are available in either `sar:bands` or
+            `eo:bands` in the `summaries` property.
+          type: object
+          required:
+            - values
+          properties:
+            values:
+              $ref: '#/components/schemas/collection_dimension_values'
+    dimension_spatial:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Spatial Dimension
+          description: A spatial dimension in one of the horizontal (x or y) or vertical (z) directions.
+          type: object
+          required:
+            - axis
+          properties:
+            axis:
+              description: 'Axis of the spatial dimension (`x`, `y` or `z`).'
+              type: string
+              enum:
+                - 'x'
+                - 'y'
+                - 'z'
+            extent:
+              description: >-
+                Extent (lower and upper bounds) of the
+                dimension as two-dimensional array. Open
+                intervals with `null` are not allowed.
+              type: array
+              minItems: 2
+              maxItems: 2
+              items:
+                type: number
+            values:
+              description: 'A set of all potential values.'
+              type: array
+              minItems: 1
+              items:
+                type: number
+            step:
+              $ref: '#/components/schemas/collection_dimension_step'
+            reference_system:
+              description: >-
+                The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
+              oneOf:
+                - type: string
+                  description: WKT2 or PROJ definition
+                - type: number
+                  default: 4326
+                  description: EPSG code
+          discriminator:
+            propertyName: axis
+            mapping:
+              x: '#/components/schemas/dimension_spatial_horizontal'
+              y: '#/components/schemas/dimension_spatial_horizontal'
+              z: '#/components/schemas/dimension_spatial_vertical'
+    dimension_spatial_horizontal:
+      allOf:
+        - $ref: '#/components/schemas/dimension_spatial'
+        - title: Horizontal Spatial Dimension
+          required:
+          - extent
+    dimension_spatial_vertical:
+      allOf:
+        - $ref: '#/components/schemas/dimension_spatial'
+        - title: Vertical Spatial Dimension
+          anyOf:
+            - title: Vertical Spatial Dimension with Extent
+              required:
+                - extent
+            - title: Vertical Spatial Dimension with Values
+              required:
+                - values
+    dimension_temporal:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Temporal Dimension
+          description: >-
+            A temporal dimension based on the ISO 8601
+            standard. The temporal reference system for the
+            data is expected to be ISO 8601 compliant
+            (Gregorian calendar / UTC). Data not compliant
+            with ISO 8601 can be represented as an
+            *Additional Dimension Object* with `type` set to
+            `temporal`.
+          type: object
+          required:
+            - extent
+          properties:
+            values:
+              description: >-
+                If the dimension consists of set of specific
+                values they can be listed here. The dates
+                and/or times must be strings compliant to
+                [ISO
+                8601](https://en.wikipedia.org/wiki/ISO_8601).
+              type: array
+              minItems: 1
+              items:
+                type: string
+            extent:
+              description: >-
+                Extent (lower and upper bounds) of the
+                dimension as two-dimensional array. The
+                dates and/or times must be strings compliant
+                to [ISO
+                8601](https://en.wikipedia.org/wiki/ISO_8601).
+                `null` is allowed for open date ranges.
+              type: array
+              minItems: 2
+              maxItems: 2
+              items:
+                type: string
+                nullable: true
+            step:
+              description: >-
+                The space between the temporal instances as
+                [ISO 8601
+                duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
+                e.g. `P1D`. Use `null` for irregularly
+                spaced steps.
+              type: string
+              nullable: true
     collection_dimension_extent_open:
       description: >-
         If the dimension consists of
@@ -4411,15 +4385,6 @@ components:
         [SI](https://physics.nist.gov/cuu/Units/units.html) or
         [UDUNITS](https://ncics.org/portfolio/other-resources/udunits2/).
       type: string
-    collection_dimension_reference_system_spatial:
-      description: >-
-        The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
-      oneOf:
-        - type: string
-          description: WKT2 or PROJ definition
-        - type: number
-          default: 4326
-          description: EPSG code
     process_arguments:
       title: Process Arguments
       type: object
@@ -4692,18 +4657,27 @@ components:
           nullable: true
         returns:
           nullable: true
+      allOf:
+        - $ref: '#/components/schemas/process'
+    user_defined_process_meta:
+      title: User-defined Process Metadata
+      description: A user-defined process, may only contain metadata and no process graph.
+      type: object
+      required:
+        - id
+      allOf:
+        - $ref: '#/components/schemas/nullable_process'
     process_graph_with_metadata:
       title: Process Graph with metadata
       description: A process graph, optionally enriched with process metadata.
+      type: object
+      required:
+        - process_graph
+      properties:
+        id:
+          nullable: true
       allOf:
-        - $ref: '#/components/schemas/process'
         - $ref: '#/components/schemas/nullable_process'
-        - type: object
-          required:
-            - process_graph
-          properties:
-            id:
-              nullable: true
     process_id:
       type: string
       description: |-
@@ -4859,25 +4833,25 @@ components:
           nullable: true
     parameter:
       title: Parameter
+      type: object
+      required:
+        - schema
+      properties:
+        schema:
+          $ref: '#/components/schemas/data_type_schema'
       allOf:
         - $ref: '#/components/schemas/base_parameter'
-        - type: object
-          required:
-            - schema
-          properties:
-            schema:
-              $ref: '#/components/schemas/data_type_schema'
     process_parameter:
       title: Process Parameter
+      type: object
+      required:
+        - schema
+      properties:
+        schema:
+          $ref: '#/components/schemas/parameter_schema'
       allOf:
         - $ref: '#/components/schemas/base_parameter'
-        - type: object
-          required:
-            - schema
-          properties:
-            schema:
-              $ref: '#/components/schemas/parameter_schema'
-    job:
+    batch_job:
       title: Batch Job
       description: >-
         The metadata of a batch jobs that has been submitted by the
@@ -5243,19 +5217,19 @@ components:
             $ref: '#/components/schemas/parameter_json_schema'
     parameter_json_schema:
       title: Single Data Type
+      type: object
+      properties:
+        parameters:
+          type: array
+          description: |-
+            A list of parameters passed to the child process graph.
+
+            The order in the array corresponds to the parameter order to
+            be used in clients that don't support named parameters.
+          items:
+            $ref: '#/components/schemas/parameter'
       allOf:
         - $ref: '#/components/schemas/json_schema'
-        - type: object
-          properties:
-            parameters:
-              type: array
-              description: |-
-                A list of parameters passed to the child process graph.
-
-                The order in the array corresponds to the parameter order to
-                be used in clients that don't support named parameters.
-              items:
-                $ref: '#/components/schemas/parameter'
     json_schema:
       type: object
       title: Single data type
@@ -5381,7 +5355,7 @@ components:
             - MultiPolygon
             - GeometryCollection
       discriminator:
-        propertyName: type 
+        propertyName: type
         mapping:
           Point: '#/components/schemas/GeoJsonPoint'
           LineString: '#/components/schemas/GeoJsonLineString'
@@ -5390,112 +5364,86 @@ components:
           MultiLineString: '#/components/schemas/GeoJsonMultiLineString'
           MultiPolygon: '#/components/schemas/GeoJsonMultiPolygon'
           GeometryCollection: '#/components/schemas/GeoJsonGeometryCollection'
-      oneOf:
-        - $ref: '#/components/schemas/GeoJsonPoint'
-        - $ref: '#/components/schemas/GeoJsonLineString'
-        - $ref: '#/components/schemas/GeoJsonPolygon'
-        - $ref: '#/components/schemas/GeoJsonMultiPoint'
-        - $ref: '#/components/schemas/GeoJsonMultiLineString'
-        - $ref: '#/components/schemas/GeoJsonMultiPolygon'
-        - $ref: '#/components/schemas/GeoJsonGeometryCollection'
     GeoJsonLineString:
-      type: object
-      title: GeoJSON LineString
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - LineString
-        coordinates:
-          type: array
-          items:
-            $ref: '#/components/schemas/GeoJsonPoint3D'
-    GeoJsonPolygon:
-      type: object
-      title: GeoJSON Polygon
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - Polygon
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/GeoJsonPoint3D'
-    GeoJsonMultiPoint:
-      type: object
-      title: GeoJSON MultiPoint
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - MultiPoint
-        coordinates:
-          type: array
-          items:
-            $ref: '#/components/schemas/GeoJsonPoint3D'
-    GeoJsonMultiLineString:
-      type: object
-      title: GeoJSON MultiLineString
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - MultiLineString
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/GeoJsonPoint3D'
-    GeoJsonMultiPolygon:
-      type: object
-      title: GeoJSON MultiPolygon
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - MultiPolygon
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON LineString
+          required:
+            - coordinates
+          properties:
+            coordinates:
               type: array
               items:
                 $ref: '#/components/schemas/GeoJsonPoint3D'
+    GeoJsonPolygon:
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON Polygon
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeoJsonPoint3D'
+    GeoJsonMultiPoint:
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON MultiPoint
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                $ref: '#/components/schemas/GeoJsonPoint3D'
+    GeoJsonMultiLineString:
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON MultiLineString
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeoJsonPoint3D'
+    GeoJsonMultiPolygon:
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON MultiPolygon
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GeoJsonPoint3D'
     GeoJsonGeometryCollection:
-      type: object
-      title: GeoJSON GeometryCollection
-      required:
-        - type
-        - geometries
-      properties:
-        type:
-          type: string
-          enum:
-            - GeometryCollection
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/GeoJsonGeometry'
+      allOf:
+        - $ref: '#/components/schemas/GeoJsonGeometry'
+        - type: object
+          title: GeoJSON GeometryCollection
+          required:
+            - geometries
+          properties:
+            geometries:
+              type: array
+              items:
+                $ref: '#/components/schemas/GeoJsonGeometry'
     log_entry:
       title: Log Entry
       description: >-
@@ -5572,7 +5520,7 @@ components:
       content:
         application/json:
           schema:
-            title: Log Entries Response
+            title: Log Entries
             type: object
             required:
               - logs
