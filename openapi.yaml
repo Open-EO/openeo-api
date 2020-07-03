@@ -5616,23 +5616,24 @@ components:
       name: limit
       description: |-
         This parameter enables pagination for the endpoint and specifies the maximum number of
-        elements that arrays in the top-level object (e.g. jobs or log entries) are allowed to contain.
-        The only exception is the `links` array, which MUST NOT be paginated as otherwise the
-        pagination links may be missing ins responses.
+        elements that arrays in the top-level object (e.g. collections, processes, batch jobs,
+        secondary services, log entries, etc.) are allowed to contain.
+        The `links` array MUST NOT be paginated like the resources,
+        but instead contain links related to the paginated resources
+        or the pagination itself (e.g. a link to the next page).
         If the parameter is not provided or empty, all elements are returned.
-        
-        Pagination is OPTIONAL and back-ends and clients may not support it.
+
+        Pagination is OPTIONAL: back-ends or clients may not support it.
         Therefore it MUST be implemented in a way that clients not supporting
-        pagination get all resources regardless. Back-ends not supporting 
-        pagination will return all resources.
-        
-        If the response is paginated, the links array MUST be used to propagate the 
-        links for pagination with pre-defined `rel` types. See the links array schema
+        pagination get all resources regardless. Back-ends not supporting
+        pagination MUST return all resources.
+
+        If the response is paginated, the `links` array MUST be used to communicate the
+        links for browsing the pagination with pre-defined `rel` types. See the `links` array schema
         for supported `rel` types.
-        
-        *Note:* Implementations can use all kind of pagination techniques, depending on what is
-        supported best by their infrastructure. So it doesn't care whether it is page-based,
-        offset-based or uses tokens for pagination. The clients will use whatever is specified
+        Backend implementations can, unless specified otherwise, use all kind of pagination techniques,
+        depending on what is supported best by their infrastructure: page-based, offset-based, token-based
+        or something else. The clients SHOULD use whatever is specified
         in the links with the corresponding `rel` types.
       in: query
       allowEmptyValue: true
