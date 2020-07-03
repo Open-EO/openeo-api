@@ -3238,6 +3238,7 @@ components:
       type: object
       required:
         - type
+        - default
       properties:
         title:
           $ref: '#/components/schemas/object_title'
@@ -3280,10 +3281,10 @@ components:
         - $ref: '#/components/schemas/udf_runtime'
         - title: Programming language
           required:
-            - default
             - versions
           properties:
             default:
+              type: string
               description: The default version. MUST be one of the keys in the `versions` object.
             versions:
               title: Programming language versions
@@ -3349,7 +3350,6 @@ components:
         - title: Docker container
           required:
             - docker
-            - default
             - tags
           properties:
             docker:
@@ -3358,6 +3358,7 @@ components:
                 Identifier of a Docker image on Docker Hub or a
                 private repository, i.e. the docker image name.
             default:
+              type: string
               description: The default tag. MUST be one of the values in the `tags` array.
             tags:
               type: array
@@ -4664,8 +4665,12 @@ components:
             $ref: '#/components/schemas/link'
         process_graph:
           $ref: '#/components/schemas/process_graph'
-    nullable_process:
+    user_defined_process_meta:
+      title: User-defined Process Metadata
+      description: A user-defined process, may only contain metadata and no process graph.
       type: object
+      required:
+        - id
       properties:
         summary:
           nullable: true
@@ -4677,14 +4682,6 @@ components:
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
-    user_defined_process_meta:
-      title: User-defined Process Metadata
-      description: A user-defined process, may only contain metadata and no process graph.
-      type: object
-      required:
-        - id
-      allOf:
-        - $ref: '#/components/schemas/nullable_process'
     process_graph_with_metadata:
       title: Process Graph with metadata
       description: A process graph, optionally enriched with process metadata.
@@ -4694,8 +4691,16 @@ components:
       properties:
         id:
           nullable: true
+        summary:
+          nullable: true
+        description:
+          nullable: true
+        parameters:
+          nullable: true
+        returns:
+          nullable: true
       allOf:
-        - $ref: '#/components/schemas/nullable_process'
+        - $ref: '#/components/schemas/process'
     process_id:
       type: string
       description: |-
