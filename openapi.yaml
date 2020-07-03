@@ -1622,13 +1622,13 @@ paths:
                   programming language environment or Docker-based.
                 additionalProperties:
                   x-additionalPropertiesName: UDF Runtime name
-                  oneOf:
-                    - $ref: '#/components/schemas/udf_programming_language'
-                    - $ref: '#/components/schemas/udf_docker'
+                  allOf:
+                    - $ref: '#/components/schemas/udf_runtime'
               example:
                 PHP7:
                   title: PHP v7.x
                   description: Just an example how to reference a docker image.
+                  type: docker
                   docker: openeo/udf-php7
                   default: latest
                   tags:
@@ -1642,6 +1642,7 @@ paths:
                 R:
                   title: R v3.x for Statistical Computing
                   description: R programming language with `Rcpp` and `rmarkdown` extensions installed.
+                  type: language
                   default: 3.5.2
                   versions:
                     3.1.0:
@@ -3236,12 +3237,23 @@ components:
     udf_runtime:
       type: object
       required:
+        - type
         - default
       properties:
         title:
           $ref: '#/components/schemas/object_title'
         description:
           $ref: '#/components/schemas/description'
+        type:
+          type: string
+          description: |-
+            The type of the UDF runtime.
+
+            Pre-defined types are:
+            * `language` for Programming Languages and
+            * `docker` for Docker Containers.
+            
+            The types can potentially be extended by back-ends.
         default:
           type: string
         links:
@@ -3259,8 +3271,12 @@ components:
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+      discriminator:
+        propertyName: type
+        mapping:
+          language: '#/components/schemas/udf_programming_language'
+          docker: '#/components/schemas/udf_docker'
     udf_programming_language:
-      title: Programming language
       allOf:
         - $ref: '#/components/schemas/udf_runtime'
         - title: Programming language
@@ -3329,10 +3345,10 @@ components:
                           items:
                             $ref: '#/components/schemas/link'
     udf_docker:
-      title: Docker container
       allOf:
         - $ref: '#/components/schemas/udf_runtime'
-        - required:
+        - title: Docker container
+          required:
             - docker
             - tags
           properties:
