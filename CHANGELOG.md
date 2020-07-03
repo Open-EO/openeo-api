@@ -16,10 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /collections/{collection_id}` and `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 - `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to visualizations for example. [#211](https://github.com/Open-EO/openeo-api/issues/211)
 - `GET /collections`, `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
-- subtype-schemas.json:
-    - `year` subtype added. `year` was also added to subtypes `temporal-interval` and `temporal-intervals`. [#267](https://github.com/Open-EO/openeo-api/issues/267)
-    - `metadata-filter` subtype added. [pg-parser-python#20](https://github.com/Open-EO/openeo-pg-parser-python/issues/20)
-    - `process-graph`: Basic schema of required fields added.
 
 ### Changes
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
@@ -41,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `GET /processes`: Examples containing process graphs. Use links with `rel` type `example` and `type` set to `application/json` instead. [#285](https://github.com/Open-EO/openeo-api/issues/285)
+- `subtype-schemas.json`. It's now published as part of [openeo-processes](https://github.com/Open-EO/openeo-processes/blob/master/meta/subtype-schemas.json).
 
 ### Fixed
 - `/.well-known/openeo`:
