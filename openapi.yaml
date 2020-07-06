@@ -269,11 +269,11 @@ info:
       "result": true / false
     }
     ```
-    A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description` and a `namespace`.
+    A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description`.
 
     One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
 
-    `process_id` MUST be a valid process ID in the namespace given. By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`. The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`. Additional namespaces may be introduced later.
+    `process_id` MUST be a valid process ID in the `namespace` given. By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`. The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`. Additional namespaces may be introduced later.
 
     ### Arguments
 
@@ -404,7 +404,7 @@ info:
     Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
 
     1. Validate whether there's exactly one `result: true` per process graph.
-    2. Check whether the process names that are referenced in the field `process_id` are actually available in the namespace. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+    2. Check whether the process names that are referenced in the field `process_id` are actually available in the corresponding `namespace`.
     3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
     4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
     5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
@@ -4476,15 +4476,7 @@ components:
           process_id:
             $ref: '#/components/schemas/process_id'
           namespace:
-            type: string
-            nullable: true
-            default: null
-            description: |-
-              The namespace the `process_id` is valid for.
-              
-              By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`.
-              The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`.
-              Additional namespaces may be introduced by back-ends or in a future version of the API.
+            $ref: '#/components/schemas/process_namespace'
           result:
             type: boolean
             description: >-
@@ -4712,6 +4704,17 @@ components:
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
+    process_namespace:
+      type: string
+      nullable: true
+      default: null
+      example: null
+      description: |-
+        The namespace the `process_id` is valid for.
+        
+        By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`.
+        The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`.
+        Additional namespaces may be introduced by back-ends or in a future version of the API.
     process_id:
       type: string
       description: |-
@@ -5538,9 +5541,7 @@ components:
                 type: string
                 example: run_udf
               namespace:
-                type: string
-                nullable: true
-                example: null
+                $ref: '#/components/schemas/process_namespace'
               parameter:
                 type: string
                 nullable: true
