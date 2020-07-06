@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-use corresponding schema for header `OpenEO-Identifier` (adds `pattern`).
 - Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
+- Clarified the expected behavior for process parameters, if a default value is given and the parameter is implicitly set to be required. [#303](https://github.com/Open-EO/openeo-api/issues/303)
 - Several clarifications and improvements for the documentation.
 
 ## 1.0.0-rc.2 - 2020-02-20
