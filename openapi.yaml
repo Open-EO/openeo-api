@@ -4852,7 +4852,11 @@ components:
           $ref: '#/components/schemas/process_description'
         optional:
           type: boolean
-          description: Determines whether this parameter is optional to be specified.
+          description: >-
+            Determines whether this parameter is optional to be specified even when no default is specified.
+            
+            Clients SHOULD automatically set this parameter to `true`, if a default value is specified.
+            Back-ends SHOULD NOT fail, if a default value is specified and this flag is missing.
           default: false
         deprecated:
           $ref: '#/components/schemas/process_deprecated'
@@ -5536,14 +5540,17 @@ components:
             properties:
               node_id:
                 type: string
+                description: The id of the node the log entry originates from.
                 example: runudf1
               process_id:
-                type: string
-                example: run_udf
+                $ref: '#/components/schemas/process_id'
               namespace:
                 $ref: '#/components/schemas/process_namespace'
               parameter:
                 type: string
+                description: >-
+                  If applicable, the name of the parameter the log entry corresponds to.
+                pattern: '^\w+$'
                 nullable: true
                 example: udf
         links:
