@@ -263,16 +263,17 @@ info:
     ```
     <ProcessNode> := {
       "process_id": <string>,
+      "namespace": <string> / null,
       "description": <string>,
       "arguments": <Arguments>,
       "result": true / false
     }
     ```
-    A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description`.
+    A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description` and a `namespace`.
 
     One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
 
-    `process_id` MUST be any of the pre-defined or user-defined process IDs, which are all listed at `GET /processes` and `GET /process_graphs`. An example is `load_collection` to retrieve data from a specific collection for processing.
+    `process_id` MUST be a valid process ID in the namespace given. By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`. The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`. Additional namespaces may be introduced later.
 
     ### Arguments
 
@@ -403,7 +404,7 @@ info:
     Process graph validation is a quite complex task. There's a [JSON schema](assets/pg-schema.json) for basic process graph validation. It checks the general structure of a process graph, but only checking against the schema is not fully validating a process graph. Note that this JSON Schema is probably good enough for a first version, but should be revised and improved for production. There are further steps to do:
 
     1. Validate whether there's exactly one `result: true` per process graph.
-    2. Check whether the process names that are referenced in the field `process_id` are actually available. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
+    2. Check whether the process names that are referenced in the field `process_id` are actually available in the namespace. There's a custom format `process-id`, which can be used to check the value directly during validation against the JSON Schema.
     3. Validate all arguments for each process against the JSON schemas that are specified in the corresponding process specifications.
     4. Check whether the values specified for `from_node` have a corresponding node in the same process graph.
     5. Validate whether the return value and the arguments requesting a return value with `from_node` are compatible.
@@ -4474,6 +4475,16 @@ components:
         properties:
           process_id:
             $ref: '#/components/schemas/process_id'
+          namespace:
+            type: string
+            nullable: true
+            default: null
+            description: |-
+              The namespace the `process_id` is valid for.
+              
+              By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`.
+              The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`.
+              Additional namespaces may be introduced by back-ends or in a future version of the API.
           result:
             type: boolean
             description: >-
@@ -4706,12 +4717,7 @@ components:
       description: |-
         Unique identifier for the process.
         
-        MUST be unique across all predefined and user-defined processes available for the authenticated user.
-        If a back-end adds a process with the name of a user-defined process, the user-defined process takes
-        preference over predefined processes in execution to not break existing process graphs.
-        
-        Back-ends may choose to enforce a prefix for user-defined processes while storing the process, e.g.
-        `user_ndvi` with `user_` being the prefix. Prefixes must still follow the pattern.
+        MUST be unique across its namespace (e.g. pre-defined processes or user-defined processes).
       pattern: '^\w+$'
       example: ndvi
     process_summary:
@@ -5531,6 +5537,10 @@ components:
               process_id:
                 type: string
                 example: run_udf
+              namespace:
+                type: string
+                nullable: true
+                example: null
               parameter:
                 type: string
                 nullable: true
