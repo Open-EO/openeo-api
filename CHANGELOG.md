@@ -20,7 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
 - `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
-- `GET /collections` and `GET /collections/{collection_id}`: Additional dimensions in `cube:properties` can only be of type `other`.
+- `GET /collections` and `GET /collections/{collection_id}`:
+    - Additional dimensions in `cube:properties` can only be of type `other`.
+    - The extents `interval` and `bbox` can have multiple entries.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
 - Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The old behavior to prioritize user-defined over pre-defined processes has been removed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
 - Added `format: commonmark` to all properties supporting CommonMark formatting.
