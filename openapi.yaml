@@ -4711,10 +4711,17 @@ components:
       example: null
       description: |-
         The namespace the `process_id` is valid for.
+
+        The following options are pre-defined by the openEO API, but additional
+        namespaces may be introduced by back-ends or in a future version of the API.
         
-        By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`.
-        The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`.
-        Additional namespaces may be introduced by back-ends or in a future version of the API.
+        * `null` (default): Checks both user-defined and pre-defined processes,
+           but prefers user-defined processes if both are available.
+           This allows users to replace missing pre-defined processes with
+           user-defined processes, e.g. processes from https://processes.openeo.org
+           that have a process graph included.
+        * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
+        * `user`: Uses exclusively the user-defined processes listed at  listed as `GET /process_graphs`.  
     process_id:
       type: string
       description: |-
