@@ -2187,23 +2187,23 @@ paths:
     get:
       summary: Supported secondary web service protocols
       operationId: list-service-types
-      description: |-
+      description: >-
         The request will ask the back-end for supported secondary web service
         protocols, e.g. WMS or WCS. The response is an object of all available
-        secondary web service protocols,supported configuration settings and
-        process parameters.
+        secondary web service protocols with their supported configuration settings
+        and expected process parameters.
 
-        Configuration settings for the service need to be defined upon
-        creation of a service and the service will be set up accordingly.
+        * The configuration settings for the service SHOULD be defined upon
+          creation of a service and the service will be set up accordingly.
 
-        A list of process parameters is also available. This parameters can
-        be used by users in a user-defined process that is used to compute web service
-        results. The objects can directly be used inside the process graph with 
-        a `from_parameter` reference. Such parameters are usually things that
-        have to be injected into the user-defined process from the context of the web
-        service during runtime. For example, a map service such as a WMS would
-        need to inject the spatial extent into the user-defined process so that the
-        back-end can compute the corresponding tile correctly.
+        * The process parameters SHOULD be referenced (with a `from_parameter`
+          reference) in the user-defined process that is used to compute web service
+          results.
+          The appropriate arguments MUST be provided to the user-defined process,
+          usually at runtime from the context of the web service,
+          For example, a map service such as a WMS would
+          need to inject the spatial extent into the user-defined process so that the
+          back-end can compute the corresponding tile correctly.
 
         To improve interoperability between back-ends common names for the
         services SHOULD be used, e.g. the abbreviations used in the official
@@ -2239,7 +2239,7 @@ paths:
                       $ref: '#/components/schemas/description'
                     configuration:
                       title: Service Configuration
-                      description: Map of supported configuration settings made available to the creator the service.
+                      description: Map of supported configuration settings made available to the creator of the service.
                       type: object
                       additionalProperties:
                         $ref: '#/components/schemas/argument'
@@ -2370,11 +2370,12 @@ paths:
       operationId: create-service
       description: >-
         Calling this endpoint will create a secondary web service such as WMTS,
-        TMS or WCS. The underlying data is processes on-demand, but a process
-        graph may simply access results from a batch job. Computations should be
-        performed in the sense that it is only evaluated for the requested
-        spatial / temporal extent and resolution.
-
+        TMS or WCS. The secondary web service SHOULD process the underlying
+        data on demand, based on process parameters provided to the
+        user-defined process (through `from_parameter` references) at run-time,
+        for example for the spatial/temporal extent, resolution, etc.
+        The available process parameters are specified per
+        service type at `GET /service_types`.
 
         **Note:** Costs incurred by shared secondary web services are usually
         paid by the owner, but this depends on the service type and whether it
@@ -5083,9 +5084,9 @@ components:
       type: object
       title: Service Configuration
       description: >-
-        Map of arguments, i.e. the parameter names supported by the secondary
+        Map of configuration settings, i.e. the setting names supported by the secondary
         web service combined with actual values. See `GET /service_types` for
-        supported parameters and valid arguments. For example, this could
+        supported configuration settings. For example, this could
         specify the required version of the service, visualization details or
         any other service dependant configuration.
       example:
