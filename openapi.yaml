@@ -1878,26 +1878,24 @@ paths:
     post:
       summary: Validate a user-defined process (graph)
       operationId: validate-custom-process
-      description: >-
+      description: |-
         Validates a user-defined process without executing it. A user-defined process is
         considered valid unless the `errors` array in the response contains at
         least one error.
 
-
         Checks whether the user-defined process is schematically correct and the
         processes are supported by the back-end. It MUST also checks the
-        parameter values against the schema, but checking whether the values are
+        arguments against the schema, but checking whether the arguments are
         adequate in the context of data is OPTIONAL. For example, a non-existing
         band name may get rejected only by a few back-ends.
 
+        The validation MUST NOT throw an error for unresolvable process parameters.
 
         Errors that usually occur during processing MAY NOT get reported, e.g.
         if a referenced file is accessible at the time of execution.
 
-
         Back-ends can either report all errors at once or stop the validation
         once they found the first error. 
-
 
         Please note that a validation always returns with HTTP status code 200.
         Error codes in the 4xx and 5xx ranges MUST be returned only when the
@@ -1905,6 +1903,7 @@ paths:
         in the request body are missing), but never if an error was found during
         validation of the user-defined process (e.g. an unsupported process).
       tags:
+        - Data Processing
         - User-Defined Processes
       security:
         - {}
@@ -2817,13 +2816,13 @@ paths:
       description: |-
         Shows log entries for the batch job, usually for debugging purposes.
         
-        Back-ends can log any information that may be relevant for a user.
+        Back-ends can log any information that may be relevant for a user
+        at any stage (status) of the batch job.
         Users can log information during data processing using respective
         processes such as `debug`.
 
-        If requested consecutively while a job is running, it is RECOMMENDED
-        that clients use the offset parameter to get only the entries they have
-        not received yet.
+        If requested consecutively, it is RECOMMENDED that clients use the offset
+        parameter to get only the entries they have not received yet.
 
         While pagination itself is OPTIONAL, the `offset` parameter is REQUIRED
         to be implemented by back-ends.
