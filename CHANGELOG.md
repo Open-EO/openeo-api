@@ -47,9 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
     - Clarified that non-production ready versions should be connected to if no production-ready version is supported. [#289](https://github.com/Open-EO/openeo-api/issues/289)
 - `GET /jobs/{job_id}/results`: Clarified that unlocated results set `geometry` to `null` and omit the `bbox` property.
-- Formally forbid 5 elements in bounding boxes.
+- `GET /jobs/{job_id}/logs`: Clarified that back-ends can log at any stage of the job. [#315](https://github.com/Open-EO/openeo-api/issues/315)
 - `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
 - `GET /service/{service_id}`: Property `configuration` is required instead of a non-existing property named `parameters`.
+- `POST /validation`: Clarify that unresolvable process parameters must not throw. [#314](https://github.com/Open-EO/openeo-api/issues/314)
+- Formally forbid 5 elements in bounding boxes.
 - Re-use corresponding schema for header `OpenEO-Identifier` (adds `pattern`).
 - Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
 - Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
