@@ -395,7 +395,7 @@ info:
 
     1. Results can be pre-computed by creating a ***batch job***. They are submitted to the back-end's processing system, but will remain inactive until explicitly put into the processing queue. They will run only once and store results after execution. Results can be downloaded. Batch jobs are typically time consuming and user interaction is not possible although log files are generated for them. This is the only mode that allows to get an estimate about time, volume and costs beforehand.
     
-    2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms) (Open Geospatial Consortium Web Map Service), [OGC WCS](http://www.opengeospatial.org/standards/wcs) (Web Coverage Service) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). These protocols usually allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
+    2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs), [OGC API - Features](https://www.ogc.org/standards/ogcapi-features) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). Some protocols such as the OGC WMS or XYZ tiles allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
     
     3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
 
@@ -2187,15 +2187,17 @@ paths:
     get:
       summary: Supported secondary web service protocols
       operationId: list-service-types
-      description: >-
+      description: |-
         The request will ask the back-end for supported secondary web service
-        protocols, e.g. WMS or WCS. The response is an object of all available
-        secondary web service protocols with their supported configuration settings
-        and expected process parameters.
+        protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms),
+        [OGC WCS](http://www.opengeospatial.org/standards/wcs),
+        [OGC API - Features](https://www.ogc.org/standards/ogcapi-features)
+        or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames).
+        The response is an object of all available secondary web service protocols
+        with their supported configuration settings and expected process parameters.
 
         * The configuration settings for the service SHOULD be defined upon
           creation of a service and the service will be set up accordingly.
-
         * The process parameters SHOULD be referenced (with a `from_parameter`
           reference) in the user-defined process that is used to compute web service
           results.
@@ -2296,26 +2298,28 @@ paths:
                     - href: 'https://www.opengeospatial.org/standards/wms'
                       rel: about
                       title: OGC Web Map Service Standard
-                WFS:
-                  title: OGC Web Feature Service
+                OGCAPI-FEATURES:
+                  title: OGC API - Features
                   description: >-
-                    Exposes a OGC-compliant WFS service.
-                    Note: This is NOT compliant to OGC API - Features.
+                    Exposes a OGC API - Features in version 1.0 of the specification (successor of OGC WFS 3.0).
                   configuration:
-                    version:
+                    title:
                       type: string
-                      description: The WFS version offered to consumers of the service.
-                      default: 2.0.0
+                      description: The title for the OGC API - Features landing page
+                    description:
+                      type: string
+                      description: The description for the OGC API - Features landing page
+                    conformsTo:
+                      type: array
+                      description: >-
+                        The OGC API - Features conformance classes to enable for this service.
+
+                        `http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core` is always enabled.
                       enum:
-                        - 1.0.0
-                        - 1.1.0
-                        - 2.0.0
-                    maxFeatures:
-                      type: integer
-                      description: Maximum number of features (since WFS 2.0.0 only).
-                      default: 10000
-                      minimum: 1
-                      maximum: 100000
+                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
+                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html
+                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
+                        - http://www.opengis.net/spec/ogcapi-features-2/1.0/conf/crs
                   links:
                     - href: 'https://www.opengeospatial.org/standards/wfs'
                       rel: about
@@ -2368,9 +2372,14 @@ paths:
     post:
       summary: Publish a new service
       operationId: create-service
-      description: >-
-        Calling this endpoint will create a secondary web service such as WMTS,
-        TMS or WCS. The secondary web service SHOULD process the underlying
+      description: |-
+        Calling this endpoint will create a secondary web service such as
+        [OGC WMS](http://www.opengeospatial.org/standards/wms),
+        [OGC WCS](http://www.opengeospatial.org/standards/wcs),
+        [OGC API - Features](https://www.ogc.org/standards/ogcapi-features)
+        or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames).
+        
+        The secondary web service SHOULD process the underlying
         data on demand, based on process parameters provided to the
         user-defined process (through `from_parameter` references) at run-time,
         for example for the spatial/temporal extent, resolution, etc.
