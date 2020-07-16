@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+
+## 1.0.0 - 2020-07-17
+
 ### Added
 - `GET /me`: Added optional `name` property to better separate an internal user id from a displayable user name. Adopted description of `user_id` accordingly.
 - `GET /udf_runtimes`: 
