@@ -4721,25 +4721,21 @@ components:
            user-defined processes for portability, e.g. common processes from
            [processes.openeo.org](https://processes.openeo.org) that have a process graph
            included.
+           If a user-defined process is prioritized over a pre-defined process,
+           a log entry SHOULD be added.
+           To ensure reproducibility, back-ends SHOULD persist the namespace that
+           is prioritized at the time the process is submitted so that adding or
+           removing processes doesn't change the processing results in the future.
         * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
         * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
-
-        Note on collisions: The only way a collision between user-defined processes and
-        pre-defined processes can occur is when back-ends introduce a new process with an
-        identifier already used by users. User-defined processes with an identifier used by
-        a pre-defined process MUST be rejected. To ensure reproducibility, back-ends SHOULD
-        persist the namespace that is prioritized at the time the process is submitted.
-        If a collision occurs after a has back-end introduced a new pre-defined process
-        (i.e. a user-defined process is prioritized over a pre-defined process),
-        a log entry should be added so that the user is informed about the availability of the
-        new process.
     process_id:
       type: string
       description: |-
         Unique identifier for the process.
         
         MUST be unique across its namespace (e.g. pre-defined processes or user-defined processes).
-        Additionally, user-defined processes with an identifier equal to any pre-defined process MUST be rejected.
+        Clients SHOULD warn the user if a user-defined process is added with an identifier that
+        exists in the pre-defined processes.
       pattern: '^\w+$'
       example: ndvi
     process_summary:
