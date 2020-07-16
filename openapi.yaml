@@ -2243,7 +2243,7 @@ paths:
                       description: Map of supported configuration settings made available to the creator of the service.
                       type: object
                       additionalProperties:
-                        $ref: '#/components/schemas/argument'
+                        $ref: '#/components/schemas/resource_parameter'
                     process_parameters:
                       title: Process Parameters
                       description: List of parameters made available to user-defined processes.
@@ -2314,11 +2314,13 @@ paths:
                         The OGC API - Features conformance classes to enable for this service.
 
                         `http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core` is always enabled.
-                      enum:
-                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
-                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html
-                        - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
-                        - http://www.opengis.net/spec/ogcapi-features-2/1.0/conf/crs
+                      items:
+                        type: string
+                        enum:
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
+                          - http://www.opengis.net/spec/ogcapi-features-2/1.0/conf/crs
                   links:
                     - href: 'https://www.opengeospatial.org/standards/wfs'
                       rel: about
@@ -3604,7 +3606,7 @@ components:
           description: Specifies the supported parameters for this file format.
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/argument'
+            $ref: '#/components/schemas/resource_parameter'
         links:
           type: array
           description: |-
@@ -5118,67 +5120,43 @@ components:
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
-    argument:
+    resource_parameter:
       x-additionalPropertiesName: Parameter Name
       type: object
-      title: Argument
-      description: Describes a general argument for various entities.
+      title: Resource Parameter
+      description: |-
+        Describes a parameter for various resources (e.g. file formats, service types).
+
+        The parameters are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
+        See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
+
+        The following more complex JSON Schema keywords SHOULD NOT be used:
+        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
+
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        Clients are not expected to support dereferencing `$refs`.
+
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       required:
         - description
       properties:
-        type:
-          type: string
-          description: >-
-            The type is the expected data type for the content of the parameter.
-            `null` is allowed for all types. If no type is specified, any type is
-            allowed to be passed.
-          enum:
-            - string
-            - number
-            - integer
-            - boolean
-            - array
-            - object
         description:
           type: string
-          description: A brief description of the argument.
+          description: A brief description of the parameter according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.1).
         required:
           type: boolean
-          description: Determines whether this argument is mandatory.
+          description: Determines whether this parameter is mandatory.
           default: false
         default:
           description: >-
             The default value represents what would be assumed by the consumer
-            of the input as the value of the argument if none is provided. The
-            value MUST conform to the defined type for the argument defined at
+            of the input as the value of the parameter if none is provided. The
+            value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
-            "foo" but cannot be 1.
+            "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.2).
           nullable: true
-        minimum:
-          type: number
-          description: Minimum value allowed for numeric arguments.
-        maximum:
-          type: number
-          description: Maximum value allowed for numeric arguments.
-        enum:
-          type: array
-          description: >-
-            List of allowed values for this argument. To represent examples that
-            cannot be naturally represented in JSON, a string value can be used
-            to contain the example with escaping where necessary.
-          items:
-            description: A single value allowed for this argument.
-        example:
-          description: >-
-            A free-form property to include an example for this argument. To
-            represent examples that cannot be naturally represented in JSON, a
-            string value can be used to contain the example with escaping where
-            necessary.
-      example:
-        description: A percentage between 0 and 100.
-        required: true
-        minimum: 0
-        maximum: 100
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
     error:
       title: General Error
       description: >-
@@ -5278,10 +5256,10 @@ components:
         The data types are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
         See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
 
-        JSON Schemas SHOULD NOT contain `default`, `anyOf`, `oneOf`, `allOf` or `not` properties at the top-level of the schema.
+        JSON Schemas SHOULD NOT contain `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
         Instead specify each data type in a separate array element.
 
-        It is RECOMMENDED to refrain from using the following more complex JSON Schema keywords:
+        The following more complex JSON Schema keywords SHOULD NOT be used:
         `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
 
         JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
@@ -5290,6 +5268,10 @@ components:
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
         type:
+          description: |-
+            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+
+            If this property is not present, all data types are allowed.
           oneOf:
             - $ref: '#/components/schemas/json_schema_type'
             - type: array
@@ -5299,24 +5281,32 @@ components:
                 $ref: '#/components/schemas/json_schema_type'
         subtype:
           type: string
+          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
         pattern:
           type: "string"
           format: "regex"
+          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.3.3).
         enum:
           type: array
           items: {}
+          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
         minimum:
           type: number
+          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.4).
         maximum:
           type: number
+          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.2).
         minItems:
           type: number
           minimum: 0
           default: 0
+          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.2).
         maxItems:
           type: number
           minimum: 0
+          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.1).
         items:
+          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.9.3.1.1).
           anyOf:
             - type: array
               minItems: 1

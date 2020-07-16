@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
 - `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
 - `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: `path` property is not required any longer. [#320](https://github.com/Open-EO/openeo-api/issues/320)
+- `GET /service_types` and `GET /file_formats`:
+    - Allow full JSON Schema for parameters, instead of a very limited subset.
+    - Instead of the proprietary property `example` use `examples` from JSON Schema instead.
 - `GET /collections` and `GET /collections/{collection_id}`:
     - Additional dimensions in `cube:properties` can only be of type `other`.
     - The extents `interval` and `bbox` can have multiple entries.
