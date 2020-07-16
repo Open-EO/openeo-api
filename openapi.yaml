@@ -4718,10 +4718,21 @@ components:
         * `null` (default): Checks both user-defined and pre-defined processes,
            but prefers user-defined processes if both are available.
            This allows users to replace missing pre-defined processes with
-           user-defined processes, e.g. processes from https://processes.openeo.org
-           that have a process graph included.
+           user-defined processes for portability, e.g. common processes from
+           [processes.openeo.org](https://processes.openeo.org) that have a process graph
+           included.
         * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
-        * `user`: Uses exclusively the user-defined processes listed at  listed as `GET /process_graphs`.  
+        * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
+
+        Note on collisions: The only way a collision between user-defined processes and
+        pre-defined processes can occur is when back-ends introduce a new process with an
+        identifier already used by users. User-defined processes with an identifier used by
+        a pre-defined process MUST be rejected. To ensure reproducibility, back-ends SHOULD
+        persist the namespace that is prioritized at the time the process is submitted.
+        If a collision occurs after a has back-end introduced a new pre-defined process
+        (i.e. a user-defined process is prioritized over a pre-defined process),
+        a log entry should be added so that the user is informed about the availability of the
+        new process.
     process_id:
       type: string
       description: |-
