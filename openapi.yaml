@@ -9,7 +9,7 @@ info:
 
     ## Language
 
-    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119).
+    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119) and [RFC 8174](http://tools.ietf.org/html/rfc8174).
 
     ## Casing
 
@@ -319,7 +319,7 @@ info:
     In this simple example, the "child" process graph defining the user-defined process
     consists of a single process `absolute`, but it can be arbitrairy complex in general.
 
-    A `<UserDefinedProcess>` argument must at least consist of an object with a key `process_graph`.
+    A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
     When embedded in a process graph, these additional properties of a user-defined process are usually not used, except for validation purposes.
 
@@ -376,7 +376,7 @@ info:
     **Important:** `<ParameterReferenceName>` is less strictly scoped than `<ProcessNodeIdentifier>`.
     `<ParameterReferenceName>` can be any parameter from the process graph or any of its parents.
 
-    The value for the parameter must be resolved as follows:
+    The value for the parameter MUST be resolved as follows:
     1. In general the most specific parameter value is used. This means the parameter value is resolved starting from the current scope and then checking each parent for a suitable parameter value until a parameter values is found or the "root" process graph has been reached.
     2. In case a parameter value is not available, the most unspecific default value from the process graph parameter definitions are used. For example, if default values are available for the root process graph and all children, the default value from the root process graph is used.
     3. If no default values are available either, the error `ProcessParameterMissing` must be thrown.
@@ -615,9 +615,8 @@ paths:
                           type: string
                         methods:
                           description: >-
-                            Supported HTTP verbs in uppercase. It is not
-                            required to list OPTIONS as method (see the
-                            documentation regarding CORS).
+                            Supported HTTP verbs in uppercase. It is OPTIONAL to
+                            list OPTIONS as method (see the [CORS section](#section/Cross-Origin-Resource-Sharing-(CORS))).
                           type: array
                           items:
                             type: string
@@ -1082,7 +1081,7 @@ paths:
         server conforms to.
 
         This endpoint is only required if full compliance with OGC API standards is desired.
-        Therefore, openEO back-ends may implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+        Therefore, openEO back-ends MAY implement it for compatibility with OGC API clients and openEO clients don't need to request it.
       tags:
         - Capabilities
       responses:
@@ -1758,7 +1757,7 @@ paths:
                             1. After appending `/.well-known/openid-configuration` to the URL, a
                             [HTTP/1.1 GET
                             request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest)
-                            to the concatenated URL must return a [OpenID Discovery Configuration
+                            to the concatenated URL MUST return a [OpenID Discovery Configuration
                             Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
                             The response provides all information required to authenticate using
                             OpenID Connect.
@@ -1830,7 +1829,7 @@ paths:
         for valid credentials.
 
 
-        The credentials (username and password) must be sent in the HTTP header
+        The credentials (username and password) MUST be sent in the HTTP header
         `Authorization` with type `Basic` and the Base64 encoded string
         consisting of username and password separated by a double colon `:`. The
         header would look as follows for username `user` and password `pw`:
@@ -2135,7 +2134,7 @@ paths:
         `process_graph_id` exists, the process is fully replaced. The id can't
         be changed for stored user-defined processes.
 
-        The id must be unique for the authenticated user, including all
+        The id MUST be unique for the authenticated user, including all
         pre-defined processes by the back-end.
 
         Partially updating user-defined processes is not supported.
@@ -2247,7 +2246,7 @@ paths:
                       description: Map of supported configuration settings made available to the creator of the service.
                       type: object
                       additionalProperties:
-                        $ref: '#/components/schemas/argument'
+                        $ref: '#/components/schemas/resource_parameter'
                     process_parameters:
                       title: Process Parameters
                       description: List of parameters made available to user-defined processes.
@@ -2324,6 +2323,13 @@ paths:
                         - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
                         - http://www.opengis.net/spec/ogcapi-features-2/1.0/conf/crs
                   process_parameters: []
+                      items:
+                        type: string
+                        enum:
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/html
+                          - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
+                          - http://www.opengis.net/spec/ogcapi-features-2/1.0/conf/crs
                   links:
                     - href: 'https://www.opengeospatial.org/standards/wfs'
                       rel: about
@@ -2951,7 +2957,7 @@ paths:
         * Once the data is available to download the status is set to
         `finished`.
             
-        * Whenever an error occurs during processing, the status must be set to
+        * Whenever an error occurs during processing, the status MUST be set to
         `error`.
       tags:
         - Data Processing
@@ -3054,7 +3060,12 @@ paths:
     parameters:
       - name: path
         in: path
-        description: "Path of the file, relative to the user's root directory.\r\n\r\n**Note:** Folder and file names in the path MUST be url-encoded. The path separator `/` and the file extension separator `.` MUST NOT be url-encoded. This may be shown incorrectly in rendered versions due to [OpenAPI 3 not supporting path parameters which contain slashes](https://github.com/OAI/OpenAPI-Specification/issues/892)."
+        description: |-
+          Path of the file, relative to the user's root directory. MAY include folders, but MUST not include relative references such as `.` and `..`.
+          
+          Folder and file names in the path MUST be url-encoded. The path separator `/` and the file extension separator `.` MUST NOT be url-encoded.
+
+          The URL-encoding may be shown incorrectly in rendered versions due to [OpenAPI 3 not supporting path parameters which contain slashes](https://github.com/OAI/OpenAPI-Specification/issues/892). This may also lead to OpenAPI validators not validating paths containing folders correctly.
         required: true
         schema:
           type: string
@@ -3605,7 +3616,7 @@ components:
           description: Specifies the supported parameters for this file format.
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/argument'
+            $ref: '#/components/schemas/resource_parameter'
         links:
           type: array
           description: |-
@@ -3625,7 +3636,7 @@ components:
         user explicitly confirmed to use a non-production implementation.
 
         This flag is part of `GET /.well-known/openeo` and `GET /`.
-        It must be used consistently in both endpoints.
+        It MUST be used consistently in both endpoints.
       default: false
     links_pagination:
       description: |-
@@ -3777,7 +3788,7 @@ components:
         to the default billing plan in `GET /`. If the default billing plan of
         the provider changes, the job or service MUST not be affected by the
         change, i.e. the default plan which is valid during job or service
-        creation must be permanently assigned to the job or service until the
+        creation MUST be permanently assigned to the job or service until the
         client requests to change it.
       example: free
       nullable: true
@@ -3955,7 +3966,7 @@ components:
 
             1. `root` and `parent`: URL to the data discovery endpoint at `/collections`.
 
-            2. `license`: A link to the license(s) should be specified if the `license`
+            2. `license`: A link to the license(s) SHOULD be specified if the `license`
             field is set to `proprietary` or `various`.
 
             3. `example`: Links to examples of processes that use this collection.
@@ -3967,7 +3978,7 @@ components:
             extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
             for more details.
 
-            6. `latest-version`: If a collection has been marked as deprecated, a link should
+            6. `latest-version`: If a collection has been marked as deprecated, a link SHOULD
             point to the latest version of the collection. The relation types `predecessor-version`
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
@@ -4018,13 +4029,13 @@ components:
             can optionally be accompanied by additional
             statistical values. The range can specify the
             potential range of values, but it is recommended to be
-            as precise as possible. The set of values must contain
-            at least one element and it is strongly recommended to
+            as precise as possible. The set of values MUST contain
+            at least one element and it is strongly RECOMMENDED to
             list all values. It is recommended to list as many
             properties as reasonable so that consumers get a full
             overview of the Collection. Properties that are
             covered by the Collection specification (e.g.
-            `providers` and `license`) may not be repeated in the
+            `providers` and `license`) SHOULD NOT be repeated in the
             summaries.
 
             Potential fields for the summaries can be found here:
@@ -4097,8 +4108,8 @@ components:
     stac_providers:
       type: array
       description: >-
-        A list of providers, which may include all organizations capturing or
-        processing the data or the hosting provider. Providers should be listed
+        A list of providers, which MAY include all organizations capturing or
+        processing the data or the hosting provider. Providers SHOULD be listed
         in chronological order with the most recent provider being the last
         element of the list.
       items:
@@ -4140,7 +4151,7 @@ components:
               derived product.
 
               * host: The host is the actual provider offering the data on their
-              storage. There should be no more than one host, specified as last
+              storage. There SHOULD be no more than one host, specified as last
               element of the list.
             type: array
             items:
@@ -4336,7 +4347,7 @@ components:
               description: >-
                 If the dimension consists of set of specific
                 values they can be listed here. The dates
-                and/or times must be strings compliant to
+                and/or times MUST be strings compliant to
                 [ISO
                 8601](https://en.wikipedia.org/wiki/ISO_8601).
               type: array
@@ -4347,7 +4358,7 @@ components:
               description: >-
                 Extent (lower and upper bounds) of the
                 dimension as two-dimensional array. The
-                dates and/or times must be strings compliant
+                dates and/or times MUST be strings compliant
                 to [ISO
                 8601](https://en.wikipedia.org/wiki/ISO_8601).
                 `null` is allowed for open date ranges.
@@ -4656,7 +4667,7 @@ components:
 
             It is RECOMMENDED to provide links with the following `rel` (relation) types:
 
-            1. `latest-version`: If a process has been marked as deprecated, a link should
+            1. `latest-version`: If a process has been marked as deprecated, a link SHOULD
             point to the preferred version of the process. The relation types `predecessor-version`
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
@@ -4664,7 +4675,7 @@ components:
             2. `example`: Links to examples of other processes that use this process.
 
             3. `cite-as`: For all DOIs associated with the process, the respective DOI
-            links should be added.
+            links SHOULD be added.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
@@ -4796,7 +4807,7 @@ components:
             description: >-
               Detailed description to explain the error to client
               users and back-end developers. This should not be shown in the
-              clients directly, but may be linked to in the errors `url`
+              clients directly, but MAY be linked to in the errors `url`
               property.
 
 
@@ -4807,7 +4818,7 @@ components:
             description: >-
               Explains the reason the server is rejecting the request. This
               message is intended to be displayed to the client user. For
-              "4xx" error codes the message should explain shortly how the
+              "4xx" error codes the message SHOULD explain shortly how the
               client needs to modify the request.
 
 
@@ -4928,7 +4939,7 @@ components:
             processing doesn't start instantly.
                 * Once the processing starts the status is set to `running`.
                 * Once the data is available to download the status is set to `finished`.
-                * Whenever an error occurs during processing, the status must be set to `error`.
+                * Whenever an error occurs during processing, the status MUST be set to `error`.
             * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
             the status was `running` beforehand and partial or preliminary results
             are available to be downloaded. Otherwise the status is set to
@@ -4942,7 +4953,7 @@ components:
 
             Can also be set for a job which stopped due to an error or was
             canceled by the user. In this case, the value indicates
-            the progress at which the job stopped. Property may not be
+            the progress at which the job stopped. The Property may not be
             available for the status codes `created` and `queued`.
 
             Submitted and queued jobs only allow the value `0`,
@@ -5119,67 +5130,43 @@ components:
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
-    argument:
+    resource_parameter:
       x-additionalPropertiesName: Parameter Name
       type: object
-      title: Argument
-      description: Describes a general argument for various entities.
+      title: Resource Parameter
+      description: |-
+        Describes a parameter for various resources (e.g. file formats, service types).
+
+        The parameters are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
+        See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
+
+        The following more complex JSON Schema keywords SHOULD NOT be used:
+        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
+
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        Clients are not expected to support dereferencing `$refs`.
+
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       required:
         - description
       properties:
-        type:
-          type: string
-          description: >-
-            The type is the expected data type for the content of the parameter.
-            `null` is allowed for all types. If no type is specified, any type is
-            allowed to be passed.
-          enum:
-            - string
-            - number
-            - integer
-            - boolean
-            - array
-            - object
         description:
           type: string
-          description: A brief description of the argument.
+          description: A brief description of the parameter according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.1).
         required:
           type: boolean
-          description: Determines whether this argument is mandatory.
+          description: Determines whether this parameter is mandatory.
           default: false
         default:
           description: >-
             The default value represents what would be assumed by the consumer
-            of the input as the value of the argument if none is provided. The
-            value MUST conform to the defined type for the argument defined at
+            of the input as the value of the parameter if none is provided. The
+            value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
-            "foo" but cannot be 1.
+            "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.2).
           nullable: true
-        minimum:
-          type: number
-          description: Minimum value allowed for numeric arguments.
-        maximum:
-          type: number
-          description: Maximum value allowed for numeric arguments.
-        enum:
-          type: array
-          description: >-
-            List of allowed values for this argument. To represent examples that
-            cannot be naturally represented in JSON, a string value can be used
-            to contain the example with escaping where necessary.
-          items:
-            description: A single value allowed for this argument.
-        example:
-          description: >-
-            A free-form property to include an example for this argument. To
-            represent examples that cannot be naturally represented in JSON, a
-            string value can be used to contain the example with escaping where
-            necessary.
-      example:
-        description: A percentage between 0 and 100.
-        required: true
-        minimum: 0
-        maximum: 100
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
     error:
       title: General Error
       description: >-
@@ -5197,7 +5184,7 @@ components:
         id:
           type: string
           description: >-
-            A back-end may add a unique identifier to the error response to be able
+            A back-end MAY add a unique identifier to the error response to be able
             to log and track errors with further non-disclosable details. A client
             could communicate this id to a back-end provider to get further
             information.
@@ -5279,18 +5266,22 @@ components:
         The data types are specified according to the [JSON Schema draft-07](http://json-schema.org/) specification.
         See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
 
-        It is discouraged to specify JSON Schemas with `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
+        JSON Schemas SHOULD NOT contain `default`, `anyOf`, `oneOf`, `allOf` or `not` at the top-level of the schema.
         Instead specify each data type in a separate array element.
 
-        It is recommended to refrain from using the following more complex JSON Schema keywords:
+        The following more complex JSON Schema keywords SHOULD NOT be used:
         `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
 
-        JSON Schemas should always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
         type:
+          description: |-
+            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+
+            If this property is not present, all data types are allowed.
           oneOf:
             - $ref: '#/components/schemas/json_schema_type'
             - type: array
@@ -5300,24 +5291,32 @@ components:
                 $ref: '#/components/schemas/json_schema_type'
         subtype:
           type: string
+          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
         pattern:
           type: "string"
           format: "regex"
+          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.3.3).
         enum:
           type: array
           items: {}
+          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
         minimum:
           type: number
+          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.4).
         maximum:
           type: number
+          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.2).
         minItems:
           type: number
           minimum: 0
           default: 0
+          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.2).
         maxItems:
           type: number
           minimum: 0
+          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.1).
         items:
+          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.9.3.1.1).
           anyOf:
             - type: array
               minItems: 1
@@ -5526,7 +5525,7 @@ components:
             Data of any type. It is the back-ends task to decide how to best
             present passed data to a user.
 
-            For example, a raster-cube passed to the `debug` should return the
+            For example, a raster-cube passed to the `debug` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
           nullable: true
         path:
@@ -5578,14 +5577,14 @@ components:
     client_error:
       description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
-        request is invalid. The client should not repeat the request without
+        request is invalid. The client SHOULD NOT repeat the request without
         modifications.
         
         The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC
         7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request
         usually does not respond with HTTP status codes 401 and 403 due to
-        missing authorization. HTTP status code 404 should be used if the value
+        missing authorization. HTTP status code 404 SHOULD be used if the value
         of a path parameter is invalid.
 
         See also:
@@ -5598,14 +5597,14 @@ components:
     client_error_auth:
       description: |-
         The request can't be fulfilled due to an error on client-side, i.e. the
-        request is invalid. The client should not repeat the request without
+        request is invalid. The client SHOULD NOT repeat the request without
         modifications.
         
         The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
         This request MUST respond with HTTP status codes 401 if authorization is required or
         403 if the authorization failed or access is forbidden in general to the
-        authenticated user. HTTP status code 404 should be used if the value of
+        authenticated user. HTTP status code 404 SHOULD be used if the value of
         a path parameter is invalid.
 
         See also:
