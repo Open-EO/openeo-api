@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Additional dimensions in `cube:properties` can only be of type `other`.
     - The extents `interval` and `bbox` can have multiple entries.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
-- Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The old behavior to prioritize user-defined over pre-defined processes has been removed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
+- Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
 - Added `format: commonmark` to all properties supporting CommonMark formatting.
 - `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
     - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.

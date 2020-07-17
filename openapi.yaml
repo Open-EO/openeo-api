@@ -205,7 +205,7 @@ info:
     
     **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](/#tag/Process-Discovery) to define new processes. This includes:
 
-    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Choosing a intuitive process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the pre-defined processes.
     * Defining the parameters and their exact (JSON) schemes.
     * Specifying the return value of a process also with a (JSON) schema.
     * Providing examples or compliance tests.
@@ -213,7 +213,7 @@ info:
     
     **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs`](/#tag/User-Defined-Processes) to define new processes. This includes:
 
-    * Choosing a intuitive and ideally unique name as process id, consisting of only letters (a-z), numbers and underscores.
+    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
     * Defining the algorithm as a process graph.
     * Optionally, specifying the additional metadata for processes.
 
@@ -273,7 +273,7 @@ info:
 
     One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
 
-    `process_id` MUST be a valid process ID in the `namespace` given. By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`. The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`. Additional namespaces may be introduced later.
+    `process_id` MUST be a valid process ID in the `namespace` given. Clients SHOULD warn the user if a user-defined process is added with the same identifier as one of the pre-defined process.
 
     ### Arguments
 
@@ -4724,16 +4724,29 @@ components:
       example: null
       description: |-
         The namespace the `process_id` is valid for.
+
+        The following options are pre-defined by the openEO API, but additional
+        namespaces may be introduced by back-ends or in a future version of the API.
         
-        By default, the namespace is `null`, which includes all pre-defined processes listed at `GET /processes`.
-        The namespace `user` refers to all user-defined processes listed as `GET /process_graphs`.
-        Additional namespaces may be introduced by back-ends or in a future version of the API.
+        * `null` (default): Checks both user-defined and pre-defined processes,
+           but prefers user-defined processes if both are available.
+           This allows users to add missing pre-defined processes for portability,
+           e.g. common processes from [processes.openeo.org](https://processes.openeo.org)
+           that have a process graph included.
+           It is RECOMMENDED to log the namespace selected by the back-end for debugging purposes.
+        * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
+        * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
+
+        If multiple processes with the same identifier exist, Clients SHOULD
+        inform the user that it's recommended to select a namespace.
     process_id:
       type: string
       description: |-
-        Unique identifier for the process.
-        
-        MUST be unique across its namespace (e.g. pre-defined processes or user-defined processes).
+        The identifier for the process. It MUST be unique across its namespace
+        (e.g. pre-defined processes or user-defined processes).
+
+        Clients SHOULD warn the user if a user-defined process is added with the 
+        same identifier as one of the pre-defined process.
       pattern: '^\w+$'
       example: ndvi
     process_summary:
