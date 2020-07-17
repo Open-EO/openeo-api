@@ -6,11 +6,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+
+## 1.0.0 - 2020-07-17
+
+### Added
+- `GET /me`: Added optional `name` property to better separate an internal user id from a displayable user name. Adopted description of `user_id` accordingly.
+- `GET /udf_runtimes`: 
+    - Added optional `title` property for UDF runtimes. [#266](https://github.com/Open-EO/openeo-api/issues/266)
+    - Added required `type` property for UDF runtimes to support better code generation.
+- `GET /service_types`: Added optional `title` and `description` properties for service types. [#266](https://github.com/Open-EO/openeo-api/issues/266)
+- `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
+- `GET /collections/{collection_id}` and `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
+- `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to visualizations for example. [#211](https://github.com/Open-EO/openeo-api/issues/211)
+- `GET /collections`, `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
+
+### Changed
+- `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
+- `GET /.well-known/openeo` and `GET /`: `production` fields default to `false` instead of `true`.
+- `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: `path` property is not required any longer. [#320](https://github.com/Open-EO/openeo-api/issues/320)
+- `GET /file_formats`: `parameters` is now required for each file format. [#318](https://github.com/Open-EO/openeo-api/issues/318)
+- `GET /service_types`: `configuration` and `process_parameters` are now required for each service. [#318](https://github.com/Open-EO/openeo-api/issues/318)
+- `GET /service_types` and `GET /file_formats`:
+    - Allow full JSON Schema for parameters, instead of a very limited subset.
+    - Instead of the proprietary property `example` use `examples` from JSON Schema instead.
+- `GET /collections` and `GET /collections/{collection_id}`:
+    - Additional dimensions in `cube:properties` can only be of type `other`.
+    - The extents `interval` and `bbox` can have multiple entries.
+- Allow all STAC versions that are compatible to STAC 0.9.0.
+- Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
+- Added `format: commonmark` to all properties supporting CommonMark formatting.
+- `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
+    - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
+    - Added variable `reason` to error `FilePathInvalid` and `type` to `FileTypeInvalid` and`ServiceUnsupported`.
+    - Replaced the following error messages. The variables in the messages may have changed, too.
+        - `ProcessArgumentUnsupported` -> `ProcessParameterUnsupported`
+        - `ProcessArgumentInvalid` -> `ProcessParameterInvalid`
+        - `ProcessParameterMissing` and `ProcessArgumentRequired` -> `ProcessParameterRequired`
+        - `ServiceArgumentUnsupported` -> `ServiceConfigUnsupported`
+        - `ServiceArgumentInvalid` -> `ServiceConfigInvalid`
+        - `ServiceArgumentRequired` -> `ServiceConfigRequired`
+    - Removed all error messages with tag `Processes` (`CRSInvalid`, `CoordinateOutOfBounds`) or related to storing file formats (`FormatUnsupported`, `FormatArgumentUnsupported`, `FormatArgumentInvalid`, `FormatUnsuitable`) as they are usually defined directly in the process specification as `exceptions`.
+
+### Removed
+- `GET /processes`: Examples containing process graphs. Use links with `rel` type `example` and `type` set to `application/json` instead. [#285](https://github.com/Open-EO/openeo-api/issues/285)
+- `subtype-schemas.json`. It's now published as part of [openeo-processes](https://github.com/Open-EO/openeo-processes/blob/master/meta/subtype-schemas.json).
+
+### Fixed
+- `/.well-known/openeo`:
+    - Clarified that version numbers must be unique. [#287](https://github.com/Open-EO/openeo-api/issues/287)
+    - Clarified that non-production ready versions should be connected to if no production-ready version is supported. [#289](https://github.com/Open-EO/openeo-api/issues/289)
+- `GET /jobs/{job_id}/results`: Clarified that unlocated results set `geometry` to `null` and omit the `bbox` property.
+- `GET /jobs/{job_id}/logs`: Clarified that back-ends can log at any stage of the job. [#315](https://github.com/Open-EO/openeo-api/issues/315)
+- `POST /jobs` and `POST /services`: Clarified definition of `Location` header in `HTTP 201` responses. [#269](https://github.com/Open-EO/openeo-api/issues/269)
+- `GET /service/{service_id}`: Property `configuration` is required instead of a non-existing property named `parameters`.
+- `POST /validation`: Clarify that unresolvable process parameters must not throw. [#314](https://github.com/Open-EO/openeo-api/issues/314)
+- Formally forbid 5 elements in bounding boxes.
+- Re-use corresponding schema for header `OpenEO-Identifier` (adds `pattern`).
+- Parameters passed to child process graphs are not defined recursively any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
+- Parameters for child process graphs are not specified for return values and service type parameters any longer. [#268](https://github.com/Open-EO/openeo-api/issues/268)
+- Clarified the expected behavior for process parameters, if a default value is given and the parameter is implicitly set to be required. [#303](https://github.com/Open-EO/openeo-api/issues/303)
+- Several clarifications and improvements for the documentation.
+
 ## 1.0.0-rc.2 - 2020-02-20
 
 ### Added
 - `PUT /process_graphs/{process_graph_id}` to store and replace custom process-graphs. [#260](https://github.com/Open-EO/openeo-api/issues/260)
-- `/jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: Reintroduced the missing `offset` parameter.
+- `GET .../logs`: Reintroduced the missing `offset` parameter.
 
 ### Changed
 - For batch jobs (`/jobs`), services (`/services`) and sync. processing (`/result`) the property `process_graph` got replaced by `process`. It contains a process graph and optionally all process metadata. [#260](https://github.com/Open-EO/openeo-api/issues/260)
@@ -32,6 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that back-ends not supporting pagination will return all resources.
 - Clarified how `from_parameter` is resolved in case no value is given.
 - Clarified `GET .../logs` endpoint behaviour.
+- Clarify difference between STAC specification and STAC API.
+- Clarify that a copy of the STAC Item is recommended to be part of the assets in a batch job download.
 - Removed outdated error codes from `errors.json`.
 
 ## 1.0.0-rc.1 - 2020-01-31
