@@ -24,8 +24,8 @@
 		]
 	},
 	"InfrastructureMaintenance": {
-		"description": "Service is currently not available, but the infrastructure is currently undergoing maintenance work.",
-		"message": "Service is not available at the moment due to maintenance work. Please try again later.",
+		"description": "Service is currently not available as the infrastructure is currently undergoing maintenance work.",
+		"message": "Service is not available at the moment due to maintenance work. Please try again later or contact our support.",
 		"http": 503,
 		"tags": [
 			"General"
@@ -33,8 +33,16 @@
 	},
 	"InfrastructureBusy": {
 		"description": "Service is generally available, but the infrastructure can't handle it at the moment as too many requests are processed.",
-		"message": "Service is not available at the moment due to overloading. Please try again later.",
+		"message": "Service is not available at the moment due to overloading. Please try again later or contact our support.",
 		"http": 503,
+		"tags": [
+			"General"
+		]
+	},
+	"UnsupportedApiVersion": {
+		"description": "The service doesn't support the openEO API version specified in the request URL. Clients should check well-known document for supported versions.",
+		"message": "The requested API version '{version}' is not supported.",
+		"http": 404,
 		"tags": [
 			"General"
 		]
@@ -45,52 +53,35 @@
 		"http": 408,
 		"tags": [
 			"General",
-			"Job Management"
-		]
-	},
-	"CRSInvalid": {
-		"description": "Invalid or unsupported CRS specified.",
-		"message": "CRS '{crs}' is invalid.",
-		"http": 400,
-		"tags": [
-			"Processes"
-		]
-	},
-	"CoordinateOutOfBounds": {
-		"description": null,
-		"message": "Coordinate is out of bounds.",
-		"http": 400,
-		"tags": [
-			"Processes"
+			"Data Processing"
 		]
 	},
 	"BudgetInvalid": {
 		"description": "The budget is too low as it is either smaller than or equal to 0 or below the costs.",
-		"message": "The budget is too low.",
+		"message": "The specified budget is too low.",
 		"http": 400,
 		"tags": [
-			"Job Management",
-			"Secondary Services Management"
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
 		]
 	},
 	"NoDataForUpdate": {
 		"description": "For PATCH requests: No valid data specified at all.",
-		"message": "No valid data specified to be updated.",
+		"message": "No data specified to be updated.",
 		"http": 400,
 		"tags": [
-			"Job Management",
-			"Secondary Services Management",
-			"Process Graph Management"
+			"Batch Jobs",
+			"Secondary Services"
 		]
 	},
 	"PropertyNotEditable": {
 		"description": "For PATCH requests: The specified parameter can't be updated. It is read-only.",
-		"message": "Property '{property}' is read-only.",
+		"message": "The specified property '{property}' is read-only.",
 		"http": 400,
 		"tags": [
-			"Job Management",
-			"Secondary Services Management",
-			"Process Graph Management"
+			"Batch Jobs",
+			"Secondary Services"
 		]
 	},
 	"CollectionNotFound": {
@@ -98,26 +89,25 @@
 		"message": "Collection '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
-			"EO Data Discovery",
-			"Processes"
+			"EO Data Discovery"
 		]
 	},
 	"StorageFailure": {
 		"description": "Server couldn't store file(s) due to server-side reasons.",
-		"message": "Unable to store file(s).",
+		"message": "Unable to store files due to a server error. Please try again later or contact our support.",
 		"http": 500,
 		"tags": [
 			"File Management",
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"StorageQuotaExceeded": {
 		"description": "The storage quota has been exceeded by the user.",
-		"message": "Insufficient Storage.",
+		"message": "Your storage quota has been exceeded.",
 		"http": 400,
 		"tags": [
 			"File Management",
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"FileNotFound": {
@@ -125,21 +115,28 @@
 		"message": "File '{file}' does not exist.",
 		"http": 404,
 		"tags": [
-			"File Management",
-			"Processes"
+			"File Management"
 		]
 	},
 	"FilePathInvalid": {
 		"description": "The specified path is invalid or not accessible. Path could contain invalid characters, point to an existing folder or a location outside of the user folder.",
-		"message": "File path is invalid.",
+		"message": "File path is invalid: {reason}",
 		"http": 400,
 		"tags": [
 			"File Management"
 		]
 	},
 	"FileOperationUnsupported": {
-		"description": "The specified path is not a file and the operation is only supported for files. Path is likely a directory.",
-		"message": "Operation is only supported for files.",
+		"description": null,
+		"message": "The file operation is not supported for the specified path.",
+		"http": 400,
+		"tags": [
+			"File Management"
+		]
+	},
+	"FolderOperationUnsupported": {
+		"description": "The specified path is a folder and the operation is only supported for files.",
+		"message": "Operation is only supported for files, not folders.",
 		"http": 400,
 		"tags": [
 			"File Management"
@@ -155,8 +152,8 @@
 		]
 	},
 	"FileTypeInvalid": {
-		"description": "File format, file extension or media (MIME) type is not allowed.",
-		"message": "File type not allowed. Allowed file types: {types}",
+		"description": "File format or file extension is not allowed.",
+		"message": "File format {type} not allowed. Allowed file formats: {types}",
 		"http": 400,
 		"tags": [
 			"File Management"
@@ -175,165 +172,141 @@
 		"message": "File content is invalid.",
 		"http": 400,
 		"tags": [
-			"File Management",
-			"Processes"
+			"File Management"
 		]
 	},
 	"FileLocked": {
 		"description": "The file is locked by a running job or another process.",
-		"message": "File '{file}' is locked.",
+		"message": "File '{file}' is locked by another process.",
 		"http": 400,
 		"tags": [
 			"File Management"
 		]
 	},
 	"ProcessGraphNotFound": {
-		"description": "The requested user-defined process does not exist.",
+		"description": "The requested user-defined process does not exist. To be used for all endpoints starting with `/process_graphs`.",
 		"message": "User-defined process '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
-			"Process Graph Management"
+			"User-Defined Processes"
 		]
 	},
 	"ProcessGraphMissing": {
-		"description": null,
-		"message": "No valid process graph specified.",
+		"description": "The parameter `process` doesn't contain a valid process.",
+		"message": "Invalid process specified.",
 		"http": 400,
 		"tags": [
-			"Process Graph Management",
-			"Job Management",
-			"Secondary Services Management"
+			"User-Defined Processes",
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
+		]
+	},
+	"ProcessGraphIdDoesntMatch": {
+		"description": "If a user-defined process is stored and the ID in the request path and the JSON document are not equal.",
+		"message": "The ids in the path and in the document don't match.",
+		"http": 400,
+		"tags": [
+			"User-Defined Processes"
+		]
+	},
+	"PredefinedProcessExists": {
+		"description": "If a user wants to store a user-defined process with the id of a pre-defined process.",
+		"message": "A pre-defined process with the given identifier exists.",
+		"http": 400,
+		"tags": [
+			"User-Defined Processes"
 		]
 	},
 	"ProcessGraphComplexity": {
-		"description": "The process graph is too complex for synchronous processing and likely to time out. Please use a batch job instead.",
-		"message": "The process graph is too complex for for synchronous processing. Please use a batch job instead.",
+		"description": "The process graph is too complex for synchronous processing and will likely time out. Please use a batch job instead.",
+		"message": "The process is too complex for for synchronous processing. Please use a batch job instead.",
 		"http": 400,
 		"tags": [
-			"Job Management"
+			"Data Processing"
 		]
 	},
 	"ProcessUnsupported": {
-		"description": null,
-		"message": "Process '{process}' is not supported.",
+		"description": "A process (pre-defined or user-defined) with the specified identifier is not available. To be used when validating or executing process graphs.",
+		"message": "Process with identifier '{process}' is not available.",
 		"http": 400,
 		"tags": [
-			"Processes"
+			"Data Processing"
 		]
 	},
-	"ProcessArgumentUnsupported": {
+	"ProcessParameterUnsupported": {
 		"description": null,
-		"message": "Process '{process}' does not support argument '{argument}'.",
+		"message": "Process '{process}' does not support parameter '{parameter}'.",
 		"http": 400,
 		"tags": [
-			"Processes"
+			"Data Processing"
 		]
 	},
-	"ProcessArgumentInvalid": {
+	"ProcessParameterInvalid": {
 		"description": null,
-		"message": "The argument '{argument}' in process '{process}' is invalid: {reason}",
+		"message": "The value passed for parameter '{parameter}' in process '{process}' is invalid: {reason}",
 		"http": 400,
 		"tags": [
-			"Processes"
+			"Data Processing"
 		]
 	},
-	"ProcessArgumentRequired": {
+	"ProcessParameterRequired": {
 		"description": null,
-		"message": "Process '{process}' requires argument '{argument}'.",
+		"message": "Process '{process}' parameter '{parameter}' is required.",
 		"http": 400,
 		"tags": [
-			"Processes"
-		]
-	},
-	"ProcessParameterMissing": {
-		"description": null,
-		"message": "The process parameter '{parameter}' must be specified.",
-		"http": 400,
-		"tags": [
-			"Processes"
+			"Data Processing"
 		]
 	},
 	"JobNotFound": {
 		"description": "The requested job does not exist.",
-		"message": "The job '{identifier}' does not exist.",
+		"message": "The batch job '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
-			"Job Management",
-			"Processes"
-		]
-	},
-	"FormatUnsupported": {
-		"description": null,
-		"message": "Output format not supported.",
-		"http": 400,
-		"tags": [
-			"Job Management"
-		]
-	},
-	"FormatArgumentUnsupported": {
-		"description": null,
-		"message": "Output format argument '{argument}' is not supported.",
-		"http": 400,
-		"tags": [
-			"Job Management"
-		]
-	},
-	"FormatArgumentInvalid": {
-		"description": null,
-		"message": "The output format argument '{argument}' is invalid: {reason}",
-		"http": 400,
-		"tags": [
-			"Job Management"
-		]
-	},
-	"FormatUnsuitable": {
-		"description": null,
-		"message": "Data can't be transformed into the requested output format.",
-		"http": 400,
-		"tags": [
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"JobLocked": {
 		"description": "The job is currently locked due to a running batch computation and can't be modified meanwhile.",
-		"message": "Job is locked due to a queued or running batch computation.",
+		"message": "Batch job is locked due to a queued or running batch computation.",
 		"http": 400,
 		"tags": [
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"JobNotFinished": {
 		"description": null,
-		"message": "Job has not finished computing the results yet. Please try again later.",
+		"message": "Batch job has not finished computing the results yet. Please try again later or contact our support.",
 		"http": 400,
 		"tags": [
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"JobNotStarted": {
 		"description": "Job has not been queued or started yet or was canceled and not restarted by the user.",
-		"message": "Job hasn't been started yet.",
+		"message": "Batch job must be started first.",
 		"http": 400,
 		"tags": [
-			"Job Management"
+			"Batch Jobs"
 		]
 	},
 	"PaymentRequired": {
-		"description": "The budget required to fulfil the request are insufficient.",
-		"message": "Payment required.",
+		"description": "The budget required to fulfil the request is insufficient.",
+		"message": "The budget required to fulfil the request is not sufficient. A payment is required first.",
 		"http": 402,
 		"tags": [
-			"Job Management",
-			"Secondary Services Management"
+			"Batch Jobs",
+			"Secondary Services"
 		]
 	},
 	"BillingPlanInvalid": {
 		"description": "The billing plan is not on the list of available plans.",
-		"message": "The billing plan is not valid.",
+		"message": "The billing plan is invalid.",
 		"http": 400,
 		"tags": [
-			"Job Management",
-			"Secondary Services Management"
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
 		]
 	},
 	"AuthenticationRequired": {
@@ -353,8 +326,8 @@
 		]
 	},
 	"TokenInvalid": {
-		"description": "Authorization token invalid or expired.",
-		"message": "Session has expired.",
+		"description": null,
+		"message": "Authorization token has expired or is invalid. Please authenticate again.",
 		"http": 403,
 		"tags": [
 			"Account Management"
@@ -368,44 +341,52 @@
 			"Account Management"
 		]
 	},
+	"PermissionsInsufficient": {
+		"description": "Forbidden. The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.",
+		"message": "Forbidden. The permissions of the authenticated account do not allow to request the requested resource.",
+		"http": 403,
+		"tags": [
+			"Account Management"
+		]
+	},
 	"ServiceNotFound": {
 		"description": "The requested secondary service does not exist.",
 		"message": "Service '{identifier}' does not exist.",
 		"http": 404,
 		"tags": [
-			"Secondary Services Management"
+			"Secondary Services"
 		]
 	},
 	"ServiceUnsupported": {
 		"description": null,
-		"message": "Secondary service type is not supported.",
+		"message": "Service type '{type}' is not supported.",
 		"http": 400,
 		"tags": [
-			"Secondary Services Management"
+			"Secondary Services"
 		]
 	},
-	"ServiceArgumentUnsupported": {
-		"description": null,
-		"message": "Secondary service argument '{argument}' is not supported.",
+	"ServiceConfigUnsupported": {
+		"description": "Refers to the secondary service `configuration` object.",
+		"message": "Service parameter '{parameter}' is not supported.",
 		"http": 400,
 		"tags": [
-			"Secondary Services Management"
+			"Secondary Services"
 		]
 	},
-	"ServiceArgumentInvalid": {
-		"description": null,
-		"message": "The secondary service argument '{argument}' is invalid: {reason}",
+	"ServiceConfigInvalid": {
+		"description": "Refers to the secondary service `configuration` object.",
+		"message": "The value passed for the service parameter '{parameter}' is invalid: {reason}",
 		"http": 400,
 		"tags": [
-			"Secondary Services Management"
+			"Secondary Services"
 		]
 	},
-	"ServiceArgumentRequired": {
-		"description": null,
-		"message": "Required secondary service argument '{argument}' is missing.",
+	"ServiceConfigRequired": {
+		"description": "Refers to the secondary service `configuration` object.",
+		"message": "Service parameter '{parameter}' is required.",
 		"http": 400,
 		"tags": [
-			"Secondary Services Management"
+			"Secondary Services"
 		]
 	}
 }
