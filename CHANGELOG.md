@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /file_formats`: Added optional `description` property for file formats. [#266](https://github.com/Open-EO/openeo-api/issues/266)
 - `GET /collections/{collection_id}` and `GET /processes`: Mention of link `rel` type `example` to refer to examples. [#285](https://github.com/Open-EO/openeo-api/issues/285)
 - `GET /collections/{collection_id}`: Added optional `assets` property for collection-level assets. This may link to visualizations for example. [#211](https://github.com/Open-EO/openeo-api/issues/211)
-- `GET /collections`, `GET /jobs`, `GET /process_graphs`, `GET /Services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
+- `GET /collections`, `GET /jobs`, `GET /process_graphs`, `GET /services`: Allow all non-scalar properties to be part of the response although strongly discouraged.
 
 ### Changed
 - `GET /credentials/oidc`: field `scopes` is not required anymore, but when specified, it should contain the `openid` scope. [#288](https://github.com/Open-EO/openeo-api/pull/288)
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Allow full JSON Schema for parameters, instead of a very limited subset.
     - Instead of the proprietary property `example` use `examples` from JSON Schema instead.
 - `GET /collections` and `GET /collections/{collection_id}`:
-    - Additional dimensions in `cube:properties` can only be of type `other`.
+    - Additional dimensions in `cube:dimensions` can only be of type `other`.
     - The extents `interval` and `bbox` can have multiple entries.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
 - Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
