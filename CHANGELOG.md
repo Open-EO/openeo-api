@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `GET /`: Missing option `OPTIONS` added to allowed `methods` for the `endpoints`. [#324](https://github.com/Open-EO/openeo-api/issues/324)
+- For `PATCH` requests: Clarified that no default values apply (for `budget`, `enabled` and `plan`). Data is only changed on the back-end if new data is explicitly specified by the client.
+- For `POST` requests with a `plan` property: Clarify that the default value is `null`.
 - Cross-Origin Resource Sharing (CORS): Added missing `Link` header to `Access-Control-Expose-Headers`. [#331](https://github.com/Open-EO/openeo-api/issues/331)
 
 ## 1.0.0 - 2020-07-17

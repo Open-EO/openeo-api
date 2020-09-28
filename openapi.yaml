@@ -2007,9 +2007,9 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_default'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2449,13 +2449,13 @@ paths:
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
-                  $ref: '#/components/schemas/service_enabled'
+                  $ref: '#/components/schemas/service_enabled_default'
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_default'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_default'
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2497,7 +2497,7 @@ paths:
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget'
         description: The data to change for the specified secondary web service.
@@ -2672,9 +2672,9 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_default'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_default'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2717,7 +2717,7 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget'
         description: Specifies the job details to update.
@@ -3224,7 +3224,7 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget'
+                    $ref: '#/components/schemas/budget_default'
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -3745,17 +3745,19 @@ components:
       example: 12.98
       nullable: true
       default: null
+    budget_default:
+      allOf:
+        - $ref: '#/components/schemas/budget'
+        - default: null
     budget:
       type: number
       nullable: true
-      default: null
-      description: >-
+      description: |-
         Maximum amount of costs the request is allowed to produce. The value
         MUST be specified in the currency the back-end is working with. The
         currency can be retrieved by calling `GET /`. If no currency is set,
-        this field MUST NOT be a number.
-
-
+        this field MUST be `null`. Setting the budget to `null` means there
+        is no specified budget.
 
         If possible, back-ends SHOULD reject jobs with openEO error
         `PaymentRequired` if the budget is too low to process the request
@@ -3764,37 +3766,35 @@ components:
         discarded. Users SHOULD be warned by clients that reaching the budget
         MAY discard the results and that setting this value should be
         well-wrought.
-
-
-
-        Setting the budget to `null` means there is no specified budget.
       example: 100
-    billing_plan_defaultable:
+    billing_plan_null:
       type: string
-      description: >-
-        The billing plan to process and charge the job with.
-
+      description: |-
+        The billing plan to process and charge the job or service with.
 
         The plans and the default plan can be retrieved by calling `GET /`.
-
 
         Billing plans MUST be accepted *case insensitive*. Billing plans not on
         the list of available plans MUST be rejected with openEO error
         `BillingPlanInvalid`.
 
-
-        If no billing plan is specified by the client, the server MUST default
-        to the default billing plan in `GET /`. If the default billing plan of
-        the provider changes, the job or service MUST not be affected by the
-        change, i.e. the default plan which is valid during job or service
-        creation MUST be permanently assigned to the job or service until the
-        client requests to change it.
+        If the API defaults to `null` or `null` is specified by the client explicitly,
+        the server MUST default to the default billing plan in `GET /`.
+        
+        If the default billing plan of the provider changes, the job or service
+        MUST NOT be affected by the change, i.e. the default plan which is valid
+        during job or service creation MUST be permanently assigned to the job or
+        service until the client requests to change it.
       example: free
       nullable: true
+    billing_plan_default:
+      allOf:
+        - $ref: '#/components/schemas/billing_plan_null'
+        - default: null
     billing_plan:
       type: string
       description: >-
-        The billing plan to process and charge the job with. The plans can be
+        The billing plan to process and charge the job or service with. The plans can be
         retrieved by calling `GET /`. Billing plans MUST be accepted *case
         insensitive*.
       example: free
@@ -4982,7 +4982,7 @@ components:
         costs:
           $ref: '#/components/schemas/money'
         budget:
-          $ref: '#/components/schemas/budget'
+          $ref: '#/components/schemas/budget_default'
     job_id:
       type: string
       description: >-
@@ -5086,7 +5086,7 @@ components:
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
-          $ref: '#/components/schemas/service_enabled'
+          $ref: '#/components/schemas/service_enabled_default'
         process:
           $ref: '#/components/schemas/process_graph_with_metadata'
         configuration:
@@ -5109,7 +5109,7 @@ components:
         costs:
           $ref: '#/components/schemas/money'
         budget:
-          $ref: '#/components/schemas/budget'
+          $ref: '#/components/schemas/budget_default'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5128,13 +5128,15 @@ components:
         any other service dependant configuration.
       example:
         version: 1.3.0
+    service_enabled_default:
+      allOf:
+        - $ref: '#/components/schemas/service_enabled'
+        - default: true
     service_enabled:
       type: boolean
       description: >-
         Describes whether a secondary web service is responding to requests
-        (true) or not (false). Defaults to true. Disabled services don't produce
-        any costs.
-      default: true
+        (true) or not (false). Disabled services don't produce any costs.
     service_id:
       type: string
       description: >-
