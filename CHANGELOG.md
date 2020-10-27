@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Changed
+- Units for STAC dimensions in `cube:dimensions` should now be compliant to UDUNITS-2 units (singular) whenever available.
+
 ### Fixed
 - `GET /`: Missing option `OPTIONS` added to allowed `methods` for the `endpoints`. [#324](https://github.com/Open-EO/openeo-api/issues/324)
 - For `PATCH` requests: Clarified that no default values apply (for `budget`, `enabled` and `plan`). Data is only changed on the back-end if new data is explicitly specified by the client.
