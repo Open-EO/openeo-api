@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased / Draft
 
 ### Changed
-- Units for STAC dimensions in `cube:dimensions` should now be compliant to UDUNITS-2 units (singular) whenever available.
+- `GET /collections` and `GET /collections/{collection_id}`: Units for STAC dimensions in `cube:dimensions` should be compliant to UDUNITS-2 units (singular) whenever available.
+- `GET /file_formats`: It is recommended to at least specify one of the data types in `gis_data_types`. [#325](https://github.com/Open-EO/openeo-api/issues/325)
 
 ### Fixed
 - `GET /`: Missing option `OPTIONS` added to allowed `methods` for the `endpoints`. [#324](https://github.com/Open-EO/openeo-api/issues/324)
