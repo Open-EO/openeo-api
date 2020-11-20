@@ -1,4 +1,4 @@
-openapi: 3.0.2
+openapi: 3.0.3
 info:
   title: openEO API
   version: 1.0.0
@@ -1523,6 +1523,17 @@ paths:
                         - description
                         - parameters
                         - returns
+                      properties:
+                        id:
+                          $ref: '#/components/schemas/not_null'
+                        summary:
+                          $ref: '#/components/schemas/not_null'
+                        description:
+                          $ref: '#/components/schemas/not_null'
+                        parameters:
+                          $ref: '#/components/schemas/not_null'
+                        returns:
+                          $ref: '#/components/schemas/not_null'
                       allOf:
                         - $ref: '#/components/schemas/process'
                   links:
@@ -3486,8 +3497,10 @@ components:
             GeoJSON Geometry.
 
             Results without a known location can set this value to `null`.
-          nullable: true
-          allOf:
+          oneOf:
+            - title: Unlocated
+              enum:
+               - null
             - $ref: '#/components/schemas/GeoJsonGeometry'
           example:
             type: Polygon
@@ -4460,7 +4473,6 @@ components:
     process_argument_value:
       title: Process Argument Value
       description: Arguments for a process. See the API documentation for more information.
-      nullable: true
       anyOf:
         - type: object
           nullable: true
@@ -4657,11 +4669,19 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/process_id'
+          oneOf:
+            - $ref: '#/components/schemas/process_id'
+            - enum:
+              - null
         summary:
-          $ref: '#/components/schemas/process_summary'
+          type: string
+          nullable: true
+          description: A short summary of what the process does.
         description:
-          $ref: '#/components/schemas/process_description'
+          oneOf:
+            - $ref: '#/components/schemas/process_description'
+            - enum:
+              - null
         categories:
           $ref: '#/components/schemas/process_categories'
         parameters:
@@ -4691,7 +4711,7 @@ components:
               arguments:
                 $ref: '#/components/schemas/process_arguments'
               returns:
-                nullable: true
+                description: Any type is allowed, including `null`.
         links:
           type: array
           description: >-
@@ -4715,6 +4735,10 @@ components:
             $ref: '#/components/schemas/link'
         process_graph:
           $ref: '#/components/schemas/process_graph'
+    not_null:
+      not:
+        enum:
+          - null
     user_defined_process_meta:
       title: User-defined Process Metadata
       description: A user-defined process, may only contain metadata and no process graph.
@@ -4722,14 +4746,8 @@ components:
       required:
         - id
       properties:
-        summary:
-          nullable: true
-        description:
-          nullable: true
-        parameters:
-          nullable: true
-        returns:
-          nullable: true
+        id:
+          $ref: '#/components/schemas/not_null'
       allOf:
         - $ref: '#/components/schemas/process'
     process_graph_with_metadata:
@@ -4738,17 +4756,6 @@ components:
       type: object
       required:
         - process_graph
-      properties:
-        id:
-          nullable: true
-        summary:
-          nullable: true
-        description:
-          nullable: true
-        parameters:
-          nullable: true
-        returns:
-          nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
     process_namespace:
@@ -4783,9 +4790,6 @@ components:
         same identifier as one of the pre-defined process.
       pattern: '^\w+$'
       example: ndvi
-    process_summary:
-      type: string
-      description: A short summary of what the process does.
     process_categories:
       type: array
       description: A list of categories.
@@ -4794,6 +4798,7 @@ components:
         description: Name of the category.
     process_return_value:
       type: object
+      nullable: true
       title: Process Return Value
       description: Description of the data that is returned by this process.
       required:
@@ -4881,6 +4886,7 @@ components:
             default: 400
     process_parameters:
       type: array
+      nullable: true
       description: |-
         A list of parameters.
 
@@ -4925,8 +4931,11 @@ components:
         default:
           description: >-
             The default value for this parameter.
-            Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-          nullable: true
+
+            The value can be of any type, including `null`.
+
+            Required parameters SHOULD NOT specify a default value.
+            Optional parameters SHOULD always specify a default value.
     parameter:
       title: Parameter
       type: object
@@ -5211,7 +5220,6 @@ components:
             value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.2).
-          nullable: true
       allOf:
         - $ref: '#/components/schemas/json_schema'
     error:
@@ -5569,12 +5577,11 @@ components:
             Server responded with error 404.
         data:
           description: |-
-            Data of any type. It is the back-ends task to decide how to best
-            present passed data to a user.
+            Data of any type, including `null`.
+            It is the back-ends task to decide how to best present passed data to a user.
 
             For example, a raster-cube passed to the `debug` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
-          nullable: true
         path:
           description: |-
             Describes where the log entry originates from.
