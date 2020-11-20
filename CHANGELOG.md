@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased / Draft
 
 ### Changed
-- Units for STAC dimensions in `cube:dimensions` should now be compliant to UDUNITS-2 units (singular) whenever available.
+- `GET /collections` and `GET /collections/{collection_id}`: Units for STAC dimensions in `cube:dimensions` should be compliant to UDUNITS-2 units (singular) whenever available.
+- `GET /file_formats`: It is recommended to at least specify one of the data types in `gis_data_types`. [#325](https://github.com/Open-EO/openeo-api/issues/325)
 
 ### Fixed
 - Cross-Origin Resource Sharing (CORS):
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: Missing option `OPTIONS` added to allowed `methods` for the `endpoints`. [#324](https://github.com/Open-EO/openeo-api/issues/324)
 - For `PATCH` requests: Clarified that no default values apply (for `budget`, `enabled` and `plan`). Data is only changed on the back-end if new data is explicitly specified by the client.
 - For `POST` requests with a `plan` property: Clarify that the default value is `null`.
+- `GET /jobs/{job_id}/results`: Clarified the use of the `type` `Feature` in the GeoJSON result response. [#327](https://github.com/Open-EO/openeo-api/issues/327)
 
 ## 1.0.0 - 2020-07-17
 
