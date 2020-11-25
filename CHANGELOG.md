@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For `PATCH` requests: Clarified that no default values apply (for `budget`, `enabled` and `plan`). Data is only changed on the back-end if new data is explicitly specified by the client.
 - For `POST` requests with a `plan` property: Clarify that the default value is `null`.
 - `GET /jobs/{job_id}/results`: Clarified the use of the `type` `Feature` in the GeoJSON result response. [#327](https://github.com/Open-EO/openeo-api/issues/327)
+- Add missing `{namespace}` placeholder to `ProcessUnsupported` error message. [#328](https://github.com/Open-EO/openeo-api/pull/328)
 
 ## 1.0.0 - 2020-07-17
 
