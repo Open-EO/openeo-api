@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - For `POST` requests with a `plan` property: Clarify that the default value is `null`.
 - `GET /jobs/{job_id}/results`: Clarified the use of the `type` `Feature` in the GeoJSON result response. [#327](https://github.com/Open-EO/openeo-api/issues/327)
 - Add missing `{namespace}` placeholder to `ProcessUnsupported` error message. [#328](https://github.com/Open-EO/openeo-api/pull/328)
+- Fixed JSON Schema links to point to draft-07 instead of draft/2019-09.
 
 ## 1.0.0 - 2020-07-17
 
