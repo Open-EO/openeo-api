@@ -6,12 +6,13 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 ## Versions / Branches
 
-The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.0.0** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
+The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.0.1** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
 
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | *Unstable* - Next version. |
-| [**1.0.0**](https://api.openeo.org)                       | **current** | First stable version of openEO. [Changelog](CHANGELOG.md#100---2020-07-17). |
+| [**1.0.1**](https://api.openeo.org)                       | **current** | Clarifications, bugfixes and CORS improvements. [Changelog](CHANGELOG.md#101---2020-12-07). |
+| [1.0.0](https://api.openeo.org/1.0.0)                     | legacy      | First stable version of openEO. [Changelog](CHANGELOG.md#100---2020-07-17). |
 | [1.0.0-rc.2](https://api.openeo.org/1.0.0-rc.2)           | legacy      | Introduced user-defined processes. [Changelog](CHANGELOG.md#100-rc2---2020-02-20). |
 | [1.0.0-rc.1](https://api.openeo.org/1.0.0-rc.1)           | legacy      | Better UDF support, support for file import, support for processing logs, better alignment with STAC and upcoming OGC APIs. Removes WebSocket-based Subscription API. [Changelog](CHANGELOG.md#100-rc1---2020-01-31) |
 | [0.4.2](https://api.openeo.org/v/0.4.2)                   | legacy      | Bugfix release. [Changelog](CHANGELOG.md#042---2019-06-11). |
