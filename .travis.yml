@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-- "8"
+- "12"
 
 sudo: required
 
@@ -19,7 +19,7 @@ before_deploy:
   if [[ $TRAVIS_BRANCH == 'master' ]] ; then
     cp ../redoc.html index.html
     cp ../errors.json errors.json
-    cp -r ../assets assets
+    cp -rv ../assets/. assets/
   fi
 - |
   if [[ $TRAVIS_BRANCH == 'draft' ]] ; then
@@ -27,7 +27,7 @@ before_deploy:
     mkdir -p draft
     cp ../redoc.html draft/index.html
     cp ../errors.json draft/errors.json
-    cp -r ../assets draft/assets
+    cp -rv ../assets/. draft/assets/
   fi
 - |
   if [ -n "$TRAVIS_TAG" ] ; then
@@ -35,7 +35,7 @@ before_deploy:
     mkdir -p $TRAVIS_TAG
     cp ../redoc.html $TRAVIS_TAG/index.html
     cp ../errors.json $TRAVIS_TAG/errors.json
-    cp -r ../assets $TRAVIS_TAG/assets
+    cp -rv ../assets/. $TRAVIS_TAG/assets/
   fi
 
 deploy:
