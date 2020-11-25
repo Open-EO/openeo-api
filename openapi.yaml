@@ -2026,9 +2026,9 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 budget:
-                  $ref: '#/components/schemas/budget_default'
+                  $ref: '#/components/schemas/budget'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_default'
+                  $ref: '#/components/schemas/billing_plan_null_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2471,9 +2471,9 @@ paths:
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_default'
+                  $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
-                  $ref: '#/components/schemas/budget_default'
+                  $ref: '#/components/schemas/budget'
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2519,7 +2519,7 @@ paths:
                 plan:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_update'
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
@@ -2639,10 +2639,9 @@ paths:
     post:
       summary: Create a new batch job
       operationId: create-job
-      description: >-
+      description: |-
         Creates a new batch processing task (job) from one or more (chained)
         processes at the back-end.
-
 
         Processing the data doesn't start yet. The job status gets initialized
         as `created` by default.
@@ -2692,9 +2691,9 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_default'
+                  $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
-                  $ref: '#/components/schemas/budget_default'
+                  $ref: '#/components/schemas/budget'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2739,7 +2738,7 @@ paths:
                 plan:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_update'
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
@@ -2958,29 +2957,31 @@ paths:
     post:
       summary: Start processing a batch job
       operationId: start-job
-      description: >-
+      description: |-
         Adds a batch job to the processing queue to compute the results.
 
-
-        The result will be stored in the format specified in the process graph.
+        The result will be stored in the format specified in the process.
         To specify the format use a process such as `save_result`.
-
 
         This endpoint has no effect if the job status is already `queued` or
         `running`. In particular, it doesn't restart a running job. Processing
         MUST be canceled before to restart it.
 
-
         The job status is set to `queued`, if processing doesn't start
         instantly.
 
         * Once the processing starts the status is set to `running`.
-         
         * Once the data is available to download the status is set to
         `finished`.
-            
         * Whenever an error occurs during processing, the status MUST be set to
         `error`.
+
+        Back-ends SHOULD reject queueing jobs with openEO error `PaymentRequired`,
+        if the back-end is able to detect that the budget is too low to fully
+        process the request. Alternatively, back-ends MAY provide partial results
+        once reaching the budget. If none of the alternatives is feasible, the
+        results are discarded. Thus, client SHOULD warn users that reaching the
+        budget may lead to partial or no results at all.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3249,7 +3250,7 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget_default'
+                    $ref: '#/components/schemas/budget'
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -3780,59 +3781,65 @@ components:
       example: 12.98
       nullable: true
       default: null
-    budget_default:
-      allOf:
-        - $ref: '#/components/schemas/budget'
-        - default: null
     budget:
       type: number
       nullable: true
       description: |-
-        Maximum amount of costs the request is allowed to produce. The value
-        MUST be specified in the currency the back-end is working with. The
-        currency can be retrieved by calling `GET /`. If no currency is set,
-        this field MUST be `null`. Setting the budget to `null` means there
-        is no specified budget.
-
-        If possible, back-ends SHOULD reject jobs with openEO error
-        `PaymentRequired` if the budget is too low to process the request
-        completely. Otherwise, when reaching the budget jobs MAY try to return
-        partial results if possible. Otherwise the request and results are
-        discarded. Users SHOULD be warned by clients that reaching the budget
-        MAY discard the results and that setting this value should be
-        well-wrought.
+        Maximum amount of costs the request is allowed to produce.
+        The value MUST be specified in the currency of the back-end.
+        No limits apply, if the value is `null` or the back-end has no currency
+        set in `GET /`.
       example: 100
+      default: null
+    budget_update:
+      type: number
+      nullable: true
+      description: |-
+        Maximum amount of costs the request is allowed to produce.
+        The value MUST be specified in the currency of the back-end.
+        No limits apply, if the value is `null`.
+      example: 100
+    billing_plan:
+      type: string
+      description: |-
+        The billing plan to process and charge the job or service with.
+
+        Billing plans are allowed to be *case insensitive*.
+        
+        The plans can be retrieved from `GET /`, but the value returned here may
+        not be in the list of plans any longer.
+      example: free
     billing_plan_null:
       type: string
       description: |-
         The billing plan to process and charge the job or service with.
 
-        The plans and the default plan can be retrieved by calling `GET /`.
+        Billing plans MUST be accepted *case insensitive*. If `null` is specified
+        by the client explicitly, the server MUST store the default plan and
+        persist it regardless of any changes to the default billing plan in the
+        future.
 
-        Billing plans MUST be accepted *case insensitive*. Billing plans not on
-        the list of available plans MUST be rejected with openEO error
-        `BillingPlanInvalid`.
-
-        If the API defaults to `null` or `null` is specified by the client explicitly,
-        the server MUST default to the default billing plan in `GET /`.
-        
-        If the default billing plan of the provider changes, the job or service
-        MUST NOT be affected by the change, i.e. the default plan which is valid
-        during job or service creation MUST be permanently assigned to the job or
-        service until the client requests to change it.
+        The list of plans and the default plan can be retrieved from `GET /`.
+        Billing plans not on the list of available plans MUST be rejected with
+        openEO error `BillingPlanInvalid`.
       example: free
       nullable: true
-    billing_plan_default:
-      allOf:
-        - $ref: '#/components/schemas/billing_plan_null'
-        - default: null
-    billing_plan:
+    billing_plan_null_default:
       type: string
-      description: >-
-        The billing plan to process and charge the job or service with. The plans can be
-        retrieved by calling `GET /`. Billing plans MUST be accepted *case
-        insensitive*.
+      description: |-
+        The billing plan to process and charge the job or service with.
+
+        Billing plans MUST be accepted *case insensitive*. If `null` is given
+        implicitly (through the default value) or explicitly by the client,
+        the server MUST store the default plan and persist it regardless of any
+        changes to the default billing plan in the future.
+
+        The list of plans and the default plan can be retrieved from `GET /`.
+        Billing plans not on the list of available plans MUST be rejected with
+        openEO error `BillingPlanInvalid`.
       example: free
+      nullable: true
+      default: null
     collection:
       title: Collection
       type: object
@@ -5015,7 +5022,7 @@ components:
         costs:
           $ref: '#/components/schemas/money'
         budget:
-          $ref: '#/components/schemas/budget_default'
+          $ref: '#/components/schemas/budget'
     job_id:
       type: string
       description: >-
@@ -5142,7 +5149,7 @@ components:
         costs:
           $ref: '#/components/schemas/money'
         budget:
-          $ref: '#/components/schemas/budget_default'
+          $ref: '#/components/schemas/budget'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5162,9 +5169,11 @@ components:
       example:
         version: 1.3.0
     service_enabled_default:
-      allOf:
-        - $ref: '#/components/schemas/service_enabled'
-        - default: true
+      type: boolean
+      description: >-
+        Describes whether a secondary web service is responding to requests
+        (true) or not (false). Disabled services don't produce any costs.
+      default: true
     service_enabled:
       type: boolean
       description: >-
