@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: openEO API
-  version: 1.0.0
+  version: 1.0.1
   description: |-
     The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.
 
@@ -138,18 +138,51 @@ info:
     Source: [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
     
     openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library and any browser-based application can't access back-ends. Therefore, all back-end providers SHOULD support CORS to enable browser-based applications to access back-ends. [CORS is a recommendation of the W3C organization](https://www.w3.org/TR/cors/). The following chapters will explain how back-end providers can implement CORS support.
+
+    **Tip**: Most servers can send the required headers and the responses to the OPTIONS requests automatically for all endpoints. Otherwise you may also use a proxy server to add the headers and OPTIONS responses.
     
-    ## OPTIONS method
+    ## CORS headers
     
-    All endpoints must respond to the `OPTIONS` HTTP method. This is a response for the preflight requests made by the browsers. It needs to respond with a status code of `204` and send the HTTP headers shown in the table below. No body needs to be provided.
+    The following headers MUST be included with every response:
     
     | Name                             | Description                                                  | Example |
     | -------------------------------- | ------------------------------------------------------------ | ------- |
-    | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is RECOMMENDED to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers SHOULD NOT be sent at all. | `http://client.isp.com:80` |
-    | Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value MUST be `true`. | `true` |
-    | Access-Control-Allow-Headers     | Comma-separated list of HTTP headers allowed to be send. MUST contain at least `Authorization` if authorization is implemented by the back-end. | ` Authorization, Content-Type` |
-    | Access-Control-Allow-Methods     | Comma-separated list of HTTP methods allowed to be requested. Back-ends MUST list all implemented HTTP methods for the endpoint here. | `OPTIONS, GET, POST, PATCH, PUT, DELETE` |
-    | Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `Location, OpenEO-Identifier, OpenEO-Costs`. | `Location, OpenEO-Identifier, OpenEO-Costs` |
+    | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port or `*` for all origins. It is RECOMMENDED to return the value `*` to allow requests from browser-based implementations such as the Web Editor. | `*` |
+    | Access-Control-Expose-Headers    | Some endpoints require to send additional HTTP response headers such as `OpenEO-Identifier` and `Location`. To make these headers available to browser-based clients, they MUST be white-listed with this CORS header. The following HTTP headers are white-listed by browsers and MUST NOT be included: `Cache-Control`, `Content-Language`, `Content-Length`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma`. At least the following headers MUST be listed in this version of the openEO API: `Link`, `Location`, `OpenEO-Costs` and `OpenEO-Identifier`. | `Link, Location, OpenEO-Costs, OpenEO-Identifier` |
+    
+    
+    
+    ### Example request and response
+    
+    Request:
+    
+    ```http
+    POST /api/v1/jobs HTTP/1.1
+    Host: openeo.cloudprovider.com
+    Origin: https://client.org:8080
+    Authorization: Bearer basic//ZXhhbXBsZTpleGFtcGxl
+    ```
+    
+    Response:
+    
+    ```http
+    HTTP/1.1 201 Created
+    Access-Control-Allow-Origin: *
+    Access-Control-Expose-Headers: Location, OpenEO-Identifier, OpenEO-Costs, Link
+    Content-Type: application/json
+    Location: https://openeo.cloudprovider.com/api/v1/jobs/abc123
+    OpenEO-Identifier: abc123
+    ```
+    
+    ## OPTIONS method
+    
+    All endpoints must respond to the `OPTIONS` HTTP method. This is a response for the preflight requests made by web browsers before sending the actual request (e.g. `POST /jobs`). It needs to respond with a status code of `204` and no response body.
+    **In addition** to the HTTP headers shown in the table above, the following HTTP headers MUST be included with every response to an `OPTIONS` request:
+    
+    | Name                             | Description                                                  | Example |
+    | -------------------------------- | ------------------------------------------------------------ | ------- |
+    | Access-Control-Allow-Headers     | Comma-separated list of HTTP headers allowed to be sent with the actual (non-preflight) request. MUST contain at least `Authorization` if any kind of authorization is implemented by the back-end. | `Authorization, Content-Type` |
+    | Access-Control-Allow-Methods     | Comma-separated list of HTTP methods allowed to be requested. Back-ends MUST list all implemented HTTP methods for the endpoint. | `OPTIONS, GET, POST, PATCH, PUT, DELETE` |
     | Content-Type                     | SHOULD return the content type delivered by the request that the permission is requested for. | `application/json` |
     
     ### Example request and response
@@ -159,34 +192,23 @@ info:
     ```http
     OPTIONS /api/v1/jobs HTTP/1.1
     Host: openeo.cloudprovider.com
-    Origin: http://client.org:8080
+    Origin: https://client.org:8080
     Access-Control-Request-Method: POST 
     Access-Control-Request-Headers: Authorization, Content-Type
     ```
     
+    Note that the `Access-Control-Request-*` headers are automatically attached to the requests by the browsers.
+
     Response:
     
     ```http
     HTTP/1.1 204 No Content
-    Access-Control-Allow-Origin: http://client.org:8080
-    Access-Control-Allow-Credentials: true
+    Access-Control-Allow-Origin: *
     Access-Control-Allow-Methods: OPTIONS, GET, POST, PATCH, PUT, DELETE
     Access-Control-Allow-Headers: Authorization, Content-Type
+    Access-Control-Expose-Headers: Location, OpenEO-Identifier, OpenEO-Costs, Link
     Content-Type: application/json
     ```
-    
-    ## CORS headers
-    
-    The following headers MUST be included with every response:
-    
-    | Name                             | Description                                                  | Example |
-    | -------------------------------- | ------------------------------------------------------------ | ------- |
-    | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port. It is RECOMMENDED to return the value of the request's origin header. If no `Origin` is sent to the back-end CORS headers SHOULD NOT be sent at all. | `http://client.isp.com:80` |
-    | Access-Control-Allow-Credentials | If authorization is implemented by the back-end the value MUST be `true`. | `true` |
-    | Access-Control-Expose-Headers    | Some endpoints send non-safelisted HTTP response headers such as `OpenEO-Identifier` and `OpenEO-Costs`. All headers except `Cache-Control`, `Content-Language`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma` must be listed in this header. Currently, the openEO API requires at least the following headers to be listed: `Location, OpenEO-Identifier, OpenEO-Costs`. | `Location, OpenEO-Identifier, OpenEO-Costs` |
-    
-    
-    **Tip**: Most server can send the required headers and the responses to the OPTIONS requests globally. Otherwise you may want to use a proxy server to add the headers and OPTIONS responses.
 
     # Processes
 
@@ -230,8 +252,8 @@ info:
     ### Subtypes
 
     JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
-    To support more fine grained data types, a custom [JSON Schema keyword](https://tools.ietf.org/html/draft-handrews-json-schema-01#section-6.4) has been defined: `subtype`.
-    It works similarly as the JSON Schema keyword [`format`](https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7) and defines a number of subtypes for the native data types.
+    To support more fine grained data types, a custom [JSON Schema keyword](https://json-schema.org/draft-07/json-schema-core.html#rfc.section.6.4) has been defined: `subtype`.
+    It works similarly as the JSON Schema keyword [`format`](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.7) and defines a number of subtypes for the native data types.
     These should be re-used in process schema definitions whenever suitable.
     
     If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
@@ -314,10 +336,10 @@ info:
     A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
 
     **Example**: You want to calculate the absolute value of each pixel in a data cube.
-    This can be achieved in openeEO by executing the `apply` process and pass it
+    This can be achieved in openEO by executing the `apply` process and pass it
     a user-defined process as the "operator" to apply to each pixel.
     In this simple example, the "child" process graph defining the user-defined process
-    consists of a single process `absolute`, but it can be arbitrairy complex in general.
+    consists of a single process `absolute`, but it can be arbitrary complex in general.
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
@@ -421,7 +443,7 @@ info:
   contact:
     name: openEO Consortium
     url: 'https://openeo.org'
-    email: openeo@list.tuwien.ac.at
+    email: openeo.psc@uni-muenster.de
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
@@ -516,7 +538,7 @@ paths:
       summary: Information about the back-end
       operationId: capabilities
       description: >-
-        Returns general information about the back-end, including which version
+        Lists general information about the back-end, including which version
         and endpoints of the openEO API are supported. May also include billing
         information.
       tags:
@@ -551,7 +573,7 @@ paths:
                       Version number of the openEO specification this back-end
                       implements.
                     enum:
-                      - 1.0.0
+                      - 1.0.1
                   backend_version:
                     type: string
                     description: >-
@@ -621,7 +643,7 @@ paths:
                         methods:
                           description: >-
                             Supported HTTP verbs in uppercase. It is OPTIONAL to
-                            list OPTIONS as method (see the [CORS section](#section/Cross-Origin-Resource-Sharing-(CORS))).
+                            list `OPTIONS` as method (see the [CORS section](#section/Cross-Origin-Resource-Sharing-(CORS))).
                           type: array
                           items:
                             type: string
@@ -631,6 +653,7 @@ paths:
                               - PATCH
                               - PUT
                               - DELETE
+                              - OPTIONS
                     example:
                       - path: /collections
                         methods:
@@ -819,9 +842,9 @@ paths:
       summary: Supported openEO versions
       operationId: connect
       description: |-
-        Well-Known URI (see [RFC 5785](https://tools.ietf.org/html/rfc5785))
-        for openEO, listing all implemented openEO versions supported by the
-        service provider.
+        Lists all implemented openEO versions supported by the
+        service provider. This endpoint is the Well-Known URI
+        (see [RFC 5785](https://tools.ietf.org/html/rfc5785)) for openEO.
 
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
@@ -914,10 +937,9 @@ paths:
       summary: Supported file formats
       operationId: list-file-types
       description: >-
-        The request will ask the back-end for supported input and output file
-        formats. *Input* file formats specify which file a back-end can *read*
-        from. *Output* file formats specify which file a back-end can *write*
-        to.
+        Lists supported input and output file formats.
+        *Input* file formats specify which file a back-end can *read* from.
+        *Output* file formats specify which file a back-end can *write* to.
 
 
         The response to this request is an object listing all available input
@@ -1081,7 +1103,7 @@ paths:
       summary: OGC specifications this API conforms to
       operationId: conformance
       description: >-
-        A list of all conformance classes specified in OGC standards that the
+        Lists all conformance classes specified in OGC standards that the
         server conforms to.
 
         This endpoint is only required if full compliance with OGC API standards is desired.
@@ -1241,13 +1263,6 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
   '/collections/{collection_id}':
-    parameters:
-      - name: collection_id
-        in: path
-        description: Collection identifier
-        required: true
-        schema:
-          $ref: '#/components/schemas/collection_id'
     get:
       summary: Full metadata for a specific dataset
       operationId: describe-collection
@@ -1266,6 +1281,13 @@ paths:
       security:
         - {}
         - Bearer: []
+      parameters:
+        - name: collection_id
+          in: path
+          description: Collection identifier
+          required: true
+          schema:
+            $ref: '#/components/schemas/collection_id'
       responses:
         '200':
           description: JSON object with the full collection metadata.
@@ -1469,7 +1491,7 @@ paths:
       summary: Supported predefined processes
       operationId: list-processes
       description: >-
-        The request asks the back-end for available predefined processes and returns
+        Lists all predefined processes and returns
         detailed process descriptions, including parameters and return values.
       tags:
         - Process Discovery
@@ -1600,7 +1622,7 @@ paths:
       summary: Supported UDF runtimes
       operationId: list-udf-runtimes
       description: >-
-        Returns the supported runtimes for user-defined functions (UDFs),
+        Lists the supported runtimes for user-defined functions (UDFs),
         which includes either the programming languages including version
         numbers and available libraries including version numbers or docker
         containers.
@@ -1686,9 +1708,8 @@ paths:
       summary: OpenID Connect authentication
       operationId: authenticate-oidc
       description: >-
-        This endpoint lists the supported [OpenID
-        Connect](http://openid.net/connect/) providers (OP). OpenID Providers
-        MUST support [OpenID Connect
+        Lists the supported [OpenID Connect](http://openid.net/connect/)
+        providers (OP). OpenID Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
 
@@ -1827,10 +1848,9 @@ paths:
       summary: HTTP Basic authentication
       operationId: authenticate-basic
       description: >-
-        This request checks the credentials provided through [HTTP Basic
-        Authentication according to RFC
-        7617](https://tools.ietf.org/html/rfc7617) and returns an access token
-        for valid credentials.
+        Checks the credentials provided through [HTTP Basic Authentication
+        according to RFC 7617](https://tools.ietf.org/html/rfc7617) and returns
+        an access token for valid credentials.
 
 
         The credentials (username and password) MUST be sent in the HTTP header
@@ -1950,7 +1970,7 @@ paths:
       summary: Process and download data synchronously
       operationId: compute-result
       description: >-
-        A user-defined process will be executed directly and the result will be
+        Executes a user-defined process directly (synchronously) and the result will be
         downloaded in the format specified in the process graph. This endpoint
         can be used to generate small previews or test user-defined processes before
         starting a batch job.
@@ -2008,13 +2028,13 @@ paths:
                 budget:
                   $ref: '#/components/schemas/budget'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
       operationId: list-custom-processes
       description: |-
-        This service lists all user-defined processes (process graphs) of the
+        Lists all user-defined processes (process graphs) of the
         authenticated user that are stored at the back-end.
         
         It is **strongly RECOMMENDED** to keep the response size small by
@@ -2103,7 +2123,7 @@ paths:
     get:
       summary: Full metadata for a user-defined process
       operationId: describe-custom-process
-      description: Returns all information about a user-defined process, including its process graph.
+      description: Lists all information about a user-defined process, including its process graph.
       tags:
         - User-Defined Processes
         - Process Discovery
@@ -2191,8 +2211,8 @@ paths:
       summary: Supported secondary web service protocols
       operationId: list-service-types
       description: |-
-        The request will ask the back-end for supported secondary web service
-        protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms),
+        Lists supported secondary web service protocols such as
+        [OGC WMS](http://www.opengeospatial.org/standards/wms),
         [OGC WCS](http://www.opengeospatial.org/standards/wcs),
         [OGC API - Features](https://www.ogc.org/standards/ogcapi-features)
         or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames).
@@ -2341,8 +2361,7 @@ paths:
       summary: List all web services
       operationId: list-services
       description: |-
-        Requests to this endpoint will list all secondary web services submitted
-        by a user.
+        Lists all secondary web services submitted by a user.
         
         It is **strongly RECOMMENDED** to keep the response size small by
         omitting all optional non-scalar values from objects in`services`
@@ -2381,7 +2400,7 @@ paths:
       summary: Publish a new service
       operationId: create-service
       description: |-
-        Calling this endpoint will create a secondary web service such as
+        Creates a new secondary web service such as a
         [OGC WMS](http://www.opengeospatial.org/standards/wms),
         [OGC WCS](http://www.opengeospatial.org/standards/wcs),
         [OGC API - Features](https://www.ogc.org/standards/ogcapi-features)
@@ -2448,11 +2467,11 @@ paths:
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
-                  $ref: '#/components/schemas/service_enabled'
+                  $ref: '#/components/schemas/service_enabled_default'
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
         description: The base data for the secondary web service to create
@@ -2463,9 +2482,11 @@ paths:
       summary: Modify a service
       operationId: update-service
       description: >-
-        Calling this endpoint will change the specified secondary web service,
-        but maintain its identifier. Changes can be grouped in a single request.
-        To change the service type create a new service.
+        Modifies an existing secondary web service at the back-end,
+        but maintain the identifier. Changes can be grouped in a single request.
+
+
+        User have to create a new service to change the service type.
       tags:
         - Secondary Services
       security:
@@ -2496,16 +2517,14 @@ paths:
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_update'
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
       operationId: describe-service
-      description: >-
-        Requests to this endpoint will return JSON description of the secondary
-        web service.
+      description: Lists all information about a secondary web service.
       tags:
         - Secondary Services
       security:
@@ -2531,8 +2550,10 @@ paths:
       summary: Delete a service
       operationId: delete-service
       description: >-
-        Calling this endpoint will stop a given secondary web service to access
-        result data.
+        Deletes all data related to this secondary web service.
+        Computations are stopped, computed results are deleted and access to
+        this is not possible any more. This service won't generate additional
+        costs.
       tags:
         - Secondary Services
       security:
@@ -2549,7 +2570,7 @@ paths:
       summary: Logs for a secondary service
       operationId: debug-service
       description: >-
-        Shows log entries for the secondary service, usually for debugging purposes.
+        Lists log entries for the secondary service, usually for debugging purposes.
         
         Back-ends can log any information that may be relevant for a user.
         Users can log information during data processing using respective
@@ -2581,7 +2602,7 @@ paths:
       summary: List all batch jobs
       operationId: list-jobs
       description: |-
-        Requests to this endpoint will list all batch jobs submitted by a user.
+        Lists all batch jobs submitted by a user.
         
         It is **strongly RECOMMENDED** to keep the response size small by
         omitting all optional non-scalar values from objects in `jobs` (i.e. the `process` property).
@@ -2618,10 +2639,9 @@ paths:
     post:
       summary: Create a new batch job
       operationId: create-job
-      description: >-
+      description: |-
         Creates a new batch processing task (job) from one or more (chained)
         processes at the back-end.
-
 
         Processing the data doesn't start yet. The job status gets initialized
         as `created` by default.
@@ -2671,7 +2691,7 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
@@ -2682,7 +2702,7 @@ paths:
       summary: Modify a batch job
       operationId: update-job
       description: >-
-        Modifies an existing job at the back-end but maintains the identifier.
+        Modifies an existing job at the back-end, but maintains the identifier.
         Changes can be grouped in a single request.
 
 
@@ -2716,14 +2736,14 @@ paths:
                 process:
                   $ref: '#/components/schemas/process_graph_with_metadata'
                 plan:
-                  $ref: '#/components/schemas/billing_plan_defaultable'
+                  $ref: '#/components/schemas/billing_plan_null'
                 budget:
-                  $ref: '#/components/schemas/budget'
+                  $ref: '#/components/schemas/budget_update'
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
       operationId: describe-job
-      description: Returns all information about a submitted batch job.
+      description: Lists all information about a submitted batch job.
       tags:
         - Data Processing
         - Batch Jobs
@@ -2768,7 +2788,7 @@ paths:
       summary: Get an estimate for a batch job
       operationId: estimate-job
       description: >-
-        Clients can ask for an estimate for a batch job. Back-ends can decide to
+        Calculates an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
         them. This MUST be the upper limit of the incurring costs. Clients can
         be charged less than specified, but never more. Back-end providers MAY
@@ -2794,6 +2814,13 @@ paths:
               schema:
                 title: Batch Job Estimate
                 type: object
+                anyOf:
+                  - required:
+                    - "costs"
+                  - required:
+                    - "duration"
+                  - required:
+                    - "size"
                 properties:
                   costs:
                     $ref: '#/components/schemas/money'
@@ -2834,7 +2861,7 @@ paths:
       summary: Logs for a batch job
       operationId: debug-job
       description: |-
-        Shows log entries for the batch job, usually for debugging purposes.
+        Lists log entries for the batch job, usually for debugging purposes.
         
         Back-ends can log any information that may be relevant for a user
         at any stage (status) of the batch job.
@@ -2869,10 +2896,13 @@ paths:
       summary: Download results for a completed batch job
       operationId: list-results
       description: >-
-        After finishing processing, this request will provide signed URLs to the
-        processed files of the batch job with some additional metadata. The
-        response is a [STAC Item (version
-        0.9.0)](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
+        Lists signed URLs pointing to the processed files after the batch job
+        has finished. Back-ends may also point to intermediate results after the
+        job has stopped due to an error.
+        
+
+        The response includes additional metadata. It is a valid
+        [STAC Item (version 0.9.0)](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
         if it has spatial and temporal references included.
 
 
@@ -2934,29 +2964,31 @@ paths:
     post:
       summary: Start processing a batch job
       operationId: start-job
-      description: >-
+      description: |-
         Adds a batch job to the processing queue to compute the results.
 
-
-        The result will be stored in the format specified in the process graph.
+        The result will be stored in the format specified in the process.
         To specify the format use a process such as `save_result`.
-
 
         This endpoint has no effect if the job status is already `queued` or
         `running`. In particular, it doesn't restart a running job. Processing
         MUST be canceled before to restart it.
 
-
         The job status is set to `queued`, if processing doesn't start
         instantly.
 
         * Once the processing starts the status is set to `running`.
-         
         * Once the data is available to download the status is set to
         `finished`.
-            
         * Whenever an error occurs during processing, the status MUST be set to
         `error`.
+
+        Back-ends SHOULD reject queueing jobs with openEO error `PaymentRequired`,
+        if the back-end is able to detect that the budget is too low to fully
+        process the request. Alternatively, back-ends MAY provide partial results
+        once reaching the budget. If none of the alternatives is feasible, the
+        results are discarded. Thus, client SHOULD warn users that reaching the
+        budget may lead to partial or no results at all.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3006,8 +3038,7 @@ paths:
       summary: List all files in the workspace
       operationId: list-files
       description: >-
-        This service lists all user-uploaded files that are stored at the
-        back-end.
+        Lists all user-uploaded files that are stored at the back-end.
       tags:
         - File Storage
       security:
@@ -3082,8 +3113,8 @@ paths:
       summary: Download a file from the workspace
       operationId: download-file
       description: >-
-        This service downloads a user files identified by its path relative to
-        the user's root directory.
+        Offers a file from the user workspace for download.
+        The file is identified by its path relative to the user's root directory.
 
         If a folder is specified as path a `FileOperationUnsupported` error MUST
         be sent as response.
@@ -3107,7 +3138,8 @@ paths:
       summary: Upload a file to the workspace
       operationId: upload-file
       description: >-
-        This service uploads a new or updates an existing file at a given path.
+        Uploads a new file to the given path or updates an existing file if a
+        file at the path exists.
 
 
         Folders are created once required by a file upload. Empty folders can't
@@ -3138,7 +3170,7 @@ paths:
       summary: Delete a file from the workspace
       operationId: delete-file
       description: >-
-        This service deletes an existing user-uploaded file specified by its
+        Deletes an existing user-uploaded file specified by its
         path. Resulting empty folders MUST be deleted automatically.
 
 
@@ -3161,8 +3193,10 @@ paths:
       summary: Information about the authenticated user
       operationId: describe-account
       description: >-
-        This endpoint always returns the user id and MAY return the disk quota
-        available to the user. It MAY also return links related to user management
+        Lists information about the authenticated user, e.g. the user id.
+
+        The endpoint MAY return the disk quota available to the user.
+        The endpoint MAY also return links related to user management
         and the user profile, e.g. where payments are handled or the user profile
         could be edited.
 
@@ -3411,6 +3445,11 @@ components:
           $ref: '#/components/schemas/job_id'
         type:
           type: string
+          description: >-
+            The GeoJSON type that applies to this metadata document,
+            which MUST always be a "Feature" according to the STAC specification.
+
+            This type does **not** describe the spatial data type of the assets.
           enum:
             - Feature
         bbox:
@@ -3601,7 +3640,12 @@ components:
           $ref: '#/components/schemas/description'
         gis_data_types:
           type: array
-          description: Specifies the supported GIS spatial data type for this format.
+          description: >-
+            Specifies the supported GIS spatial data types for this format.
+
+            It is RECOMMENDED to specify at least one of the data types, which
+            will likely become a requirement in a future API version.
+        # minItems: 1
           items:
             type: string
             enum:
@@ -3747,56 +3791,62 @@ components:
     budget:
       type: number
       nullable: true
-      default: null
-      description: >-
-        Maximum amount of costs the request is allowed to produce. The value
-        MUST be specified in the currency the back-end is working with. The
-        currency can be retrieved by calling `GET /`. If no currency is set,
-        this field MUST NOT be a number.
-
-
-
-        If possible, back-ends SHOULD reject jobs with openEO error
-        `PaymentRequired` if the budget is too low to process the request
-        completely. Otherwise, when reaching the budget jobs MAY try to return
-        partial results if possible. Otherwise the request and results are
-        discarded. Users SHOULD be warned by clients that reaching the budget
-        MAY discard the results and that setting this value should be
-        well-wrought.
-
-
-
-        Setting the budget to `null` means there is no specified budget.
+      description: |-
+        Maximum amount of costs the request is allowed to produce.
+        The value MUST be specified in the currency of the back-end.
+        No limits apply, if the value is `null` or the back-end has no currency
+        set in `GET /`.
       example: 100
-    billing_plan_defaultable:
-      type: string
-      description: >-
-        The billing plan to process and charge the job with.
-
-
-        The plans and the default plan can be retrieved by calling `GET /`.
-
-
-        Billing plans MUST be accepted *case insensitive*. Billing plans not on
-        the list of available plans MUST be rejected with openEO error
-        `BillingPlanInvalid`.
-
-
-        If no billing plan is specified by the client, the server MUST default
-        to the default billing plan in `GET /`. If the default billing plan of
-        the provider changes, the job or service MUST not be affected by the
-        change, i.e. the default plan which is valid during job or service
-        creation MUST be permanently assigned to the job or service until the
-        client requests to change it.
-      example: free
+      default: null
+    budget_update:
+      type: number
       nullable: true
+      description: |-
+        Maximum amount of costs the request is allowed to produce.
+        The value MUST be specified in the currency of the back-end.
+        No limits apply, if the value is `null`.
+      example: 100
     billing_plan:
       type: string
-      description: >-
-        The billing plan to process and charge the job with. The plans can be
-        retrieved by calling `GET /`. Billing plans MUST be accepted *case
-        insensitive*.
+      description: |-
+        The billing plan to process and charge the job or service with.
+
+        Billing plans are allowed to be *case insensitive*.
+        
+        The plans can be retrieved from `GET /`, but the value returned here may
+        not be in the list of plans any longer.
       example: free
+    billing_plan_null:
+      type: string
+      description: |-
+        The billing plan to process and charge the job or service with.
+
+        Billing plans MUST be accepted *case insensitive*. If `null` is specified
+        by the client explicitly, the server MUST store the default plan and
+        persist it regardless of any changes to the default billing plan in the
+        future.
+
+        The list of plans and the default plan can be retrieved from `GET /`.
+        Billing plans not on the list of available plans MUST be rejected with
+        openEO error `BillingPlanInvalid`.
+      example: free
+      nullable: true
+    billing_plan_null_default:
+      type: string
+      description: |-
+        The billing plan to process and charge the job or service with.
+
+        Billing plans MUST be accepted *case insensitive*. If `null` is given
+        implicitly (through the default value) or explicitly by the client,
+        the server MUST store the default plan and persist it regardless of any
+        changes to the default billing plan in the future.
+
+        The list of plans and the default plan can be retrieved from `GET /`.
+        Billing plans not on the list of available plans MUST be rejected with
+        openEO error `BillingPlanInvalid`.
+      example: free
+      nullable: true
+      default: null
     collection:
       title: Collection
       type: object
@@ -4414,9 +4464,7 @@ components:
       nullable: true
     collection_dimension_unit:
       description: >-
-        The unit of measurement for the data, preferably the symbols from
-        [SI](https://physics.nist.gov/cuu/Units/units.html) or
-        [UDUNITS](https://ncics.org/portfolio/other-resources/udunits2/).
+        The unit of measurement for the data, preferably compliant to [UDUNITS-2](https://ncics.org/portfolio/other-resources/udunits2/) units (singular).
       type: string
     process_arguments:
       title: Process Arguments
@@ -4761,7 +4809,7 @@ components:
     process_return_value:
       type: object
       title: Process Return Value
-      description: The data that is returned from this process.
+      description: Description of the data that is returned by this process.
       required:
         - schema
       properties:
@@ -5000,7 +5048,7 @@ components:
       type: string
       format: date-time
       description: >-
-        Date and time of last status change, formatted as a [RFC
+        Date and time of the last status change, formatted as a [RFC
         3339](https://www.ietf.org/rfc/rfc3339) date-time.
       example: '2017-01-01T09:36:18Z'
     user_id:
@@ -5085,7 +5133,7 @@ components:
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
-          $ref: '#/components/schemas/service_enabled'
+          $ref: '#/components/schemas/service_enabled_default'
         process:
           $ref: '#/components/schemas/process_graph_with_metadata'
         configuration:
@@ -5127,13 +5175,17 @@ components:
         any other service dependant configuration.
       example:
         version: 1.3.0
+    service_enabled_default:
+      type: boolean
+      description: >-
+        Describes whether a secondary web service is responding to requests
+        (true) or not (false). Disabled services don't produce any costs.
+      default: true
     service_enabled:
       type: boolean
       description: >-
         Describes whether a secondary web service is responding to requests
-        (true) or not (false). Defaults to true. Disabled services don't produce
-        any costs.
-      default: true
+        (true) or not (false). Disabled services don't produce any costs.
     service_id:
       type: string
       description: >-
@@ -5163,7 +5215,7 @@ components:
       properties:
         description:
           type: string
-          description: A brief description of the parameter according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.1).
+          description: A brief description of the parameter according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.1).
         required:
           type: boolean
           description: Determines whether this parameter is mandatory.
@@ -5174,7 +5226,7 @@ components:
             of the input as the value of the parameter if none is provided. The
             value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
-            "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.9.2).
+            "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
           nullable: true
       allOf:
         - $ref: '#/components/schemas/json_schema'
@@ -5290,7 +5342,7 @@ components:
       properties:
         type:
           description: |-
-            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.1).
 
             If this property is not present, all data types are allowed.
           oneOf:
@@ -5306,28 +5358,28 @@ components:
         pattern:
           type: "string"
           format: "regex"
-          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.3.3).
+          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.3.3).
         enum:
           type: array
           items: {}
-          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
+          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.2).
         minimum:
           type: number
-          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.4).
+          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.4).
         maximum:
           type: number
-          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.2.2).
+          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.2).
         minItems:
           type: number
           minimum: 0
           default: 0
-          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.2).
+          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.4).
         maxItems:
           type: number
           minimum: 0
-          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.4.1).
+          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.3).
         items:
-          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.9.3.1.1).
+          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.1).
           anyOf:
             - type: array
               minItems: 1
@@ -5673,7 +5725,7 @@ components:
         minimum: 1
     log_offset:
       name: offset
-      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occured after the specified identifier. If not provided or empty, start with the first entry.
+      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occurred after the specified identifier. If not provided or empty, start with the first entry.
       in: query
       allowEmptyValue: true
       example: "log1234"
