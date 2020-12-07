@@ -225,7 +225,7 @@ info:
 
     Back-ends and users MAY define new proprietary processes for their domain. 
     
-    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](/#tag/Process-Discovery) to define new processes. This includes:
+    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](#operation/list-processes) to define new processes. This includes:
 
     * Choosing a intuitive process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the pre-defined processes.
     * Defining the parameters and their exact (JSON) schemes.
@@ -233,7 +233,7 @@ info:
     * Providing examples or compliance tests.
     * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
     
-    **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs`](/#tag/User-Defined-Processes) to define new processes. This includes:
+    **Users** MUST follow the schema for user-defined processes as in [`GET /processes/{namespace}/{process_id}`](#operation/describe-custom-process) to define new processes. This includes:
 
     * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
     * Defining the algorithm as a process graph.
@@ -1525,6 +1525,21 @@ paths:
                         - returns
                       allOf:
                         - $ref: '#/components/schemas/process'
+                  namespaces:
+                    type: array
+                    description: |-
+                      A list of namespaces the user has access too.
+
+                      The following namespaces are usually listed:
+                      * `backend`
+                      * `user`: only if authenticated
+                      * `@` + other user id: A list of namespaces of *other* users
+                        which share at least one process accessible by the user.
+                        The namespace with the authenticated user id MUST NOT be listed.
+
+                      For non-authenticated users public processes are taken into account.
+                    items:
+                      $ref: '#/components/schemas/process_namespace'
                   links:
                     $ref: '#/components/schemas/links_pagination'
               example:
@@ -1613,6 +1628,187 @@ paths:
                     href: 'https://provider.com/processes'
                     type: text/html
                     title: HTML version of the processes
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+  '/processes/{namespace}':
+    get:
+      summary: List all user-defined processes in a namespace
+      operationId: list-custom-processes
+      description: |-
+        Lists all user-defined processes (process graphs) of the
+        namespace that are stored at the back-end and accessible to the user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting larger optional values from the objects in `processes`
+        (e.g. the `exceptions`, `examples` and `links` properties).
+        To get the full metadata for a user-defined process clients MUST
+        request `GET /processes/{namespace}/{process_id}`.
+      tags:
+        - User-Defined Processes
+        - Process Discovery
+      security:
+        - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/process_namespace'
+        - $ref: '#/components/parameters/pagination_limit'
+      responses:
+        '200':
+          description: JSON array with user-defined processes.
+          content:
+            application/json:
+              schema:
+                title: User-Defined Processes
+                type: object
+                required:
+                  - processes
+                  - links
+                properties:
+                  processes:
+                    description: Array of user-defined processes
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/user_defined_process_meta'
+                  links:
+                    $ref: '#/components/schemas/links_pagination'
+              example:
+                processes:
+                  - id: evi
+                    summary: Enhanced Vegetation Index
+                    description: >-
+                      Computes the Enhanced Vegetation Index (EVI).
+                      It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
+                    parameters:
+                      - name: red
+                        description: Value from the red band.
+                        schema: 
+                          type: number
+                      - name: blue
+                        description: Value from the blue band.
+                        schema: 
+                          type: number
+                      - name: nir
+                        description: Value from the near infrared band.
+                        schema: 
+                          type: number
+                    returns:
+                      description: Computed EVI.
+                      schema:
+                        type: number
+                  - id: ndsi
+                    summary: Normalized-Difference Snow Index
+                    parameters:
+                      - name: green
+                        description: Value from the Visible Green (0.53 - 0.61 micrometers) band.
+                        schema: 
+                          type: number
+                      - name: swir
+                        description: Value from the Short Wave Infrared (1.55 - 1.75 micrometers) band.
+                        schema: 
+                          type: number
+                    returns:
+                      schema:
+                        type: number
+                  - id: my_custom_process
+                links: []
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+  '/processes/{namespace}/{process_id}':
+    parameters:
+      - $ref: '#/components/parameters/process_namespace'
+      - name: process_id
+        in: path
+        description: Unique identifier for a user-defined process.
+        required: true
+        schema:
+          $ref: '#/components/schemas/process_id'
+    get:
+      summary: Full metadata for a user-defined process
+      operationId: describe-custom-process
+      description: >-
+        Lists all information about a user-defined process in a namespace,
+        including its process graph.
+      tags:
+        - User-Defined Processes
+        - Process Discovery
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: The user-defined process with process graph.
+          content:
+            application/json:
+              schema:
+                title: User-Defined Process
+                description: A user-defined process with processing instructions as process graph.
+                type: object
+                required:
+                  - process_graph
+                allOf:
+                  - $ref: '#/components/schemas/user_defined_process_meta'
+              examples:
+                evi_user_defined_process:
+                  $ref: '#/components/examples/evi_user_defined_process'
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+    put:
+      summary: Store a user-defined process
+      operationId: store-custom-process
+      description: |-
+        Stores a provided user-defined process with process graph that can be
+        reused in other processes. If a process with the specified 
+        `process_graph_id` exists, the process is fully replaced. The id can't
+        be changed for stored user-defined processes.
+
+        The id MUST be unique for the authenticated user, including all
+        pre-defined processes by the back-end.
+
+        Partially updating user-defined processes is not supported.
+
+        To simplify exchanging user-defined processes, the property `id` can be part of
+        the request body. If the values don't match, the value for `id` gets
+        replaced with the value from the `process_graph_id` parameter in the
+        path.
+      tags:
+        - User-Defined Processes
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: The user-defined process has been stored successfully.
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+      requestBody:
+        required: true
+        description: Specifies the process graph with its meta data.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/process_graph_with_metadata'
+            examples:
+              evi_user_defined_process:
+                $ref: '#/components/examples/evi_user_defined_process'
+    delete:
+      summary: Delete a user-defined process
+      operationId: delete-custom-process
+      description: |-
+        Deletes the data related to this user-defined process, including its process graph.
+
+        Does NOT delete jobs or services that reference this user-defined process.
+      tags:
+        - User-Defined Processes
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The user-defined process has been successfully deleted
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2032,82 +2228,29 @@ paths:
   /process_graphs:
     get:
       summary: List all user-defined processes
-      operationId: list-custom-processes
+      operationId: list-custom-processes-legacy
+      deprecated: true
       description: |-
-        Lists all user-defined processes (process graphs) of the
+        Redirects to all user-defined processes of the
         authenticated user that are stored at the back-end.
-        
-        It is **strongly RECOMMENDED** to keep the response size small by
-        omitting larger optional values from the objects in `processes`
-        (e.g. the `exceptions`, `examples` and `links` properties).
-        To get the full metadata for a secondary web service clients MUST
-        request `GET /services/{service_id}`.
       tags:
         - User-Defined Processes
-        - Process Discovery
       security:
         - Bearer: []
-      parameters:
-        - $ref: '#/components/parameters/pagination_limit'
       responses:
-        '200':
-          description: JSON array with user-defined processes.
-          content:
-            application/json:
+        '308':
+          description: Redirects to user processes.
+          headers:
+            Location:
+              required: true
               schema:
-                title: User-Defined Processes
-                type: object
-                required:
-                  - processes
-                  - links
-                properties:
-                  processes:
-                    description: Array of user-defined processes
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/user_defined_process_meta'
-                  links:
-                    $ref: '#/components/schemas/links_pagination'
-              example:
-                processes:
-                  - id: evi
-                    summary: Enhanced Vegetation Index
-                    description: >-
-                      Computes the Enhanced Vegetation Index (EVI).
-                      It is computed with the following formula: `2.5 * (NIR - RED) / (1 + NIR + 6*RED + -7.5*BLUE)`.
-                    parameters:
-                      - name: red
-                        description: Value from the red band.
-                        schema: 
-                          type: number
-                      - name: blue
-                        description: Value from the blue band.
-                        schema: 
-                          type: number
-                      - name: nir
-                        description: Value from the near infrared band.
-                        schema: 
-                          type: number
-                    returns:
-                      description: Computed EVI.
-                      schema:
-                        type: number
-                  - id: ndsi
-                    summary: Normalized-Difference Snow Index
-                    parameters:
-                      - name: green
-                        description: Value from the Visible Green (0.53 - 0.61 micrometers) band.
-                        schema: 
-                          type: number
-                      - name: swir
-                        description: Value from the Short Wave Infrared (1.55 - 1.75 micrometers) band.
-                        schema: 
-                          type: number
-                    returns:
-                      schema:
-                        type: number
-                  - id: my_custom_process
-                links: []
+                description: |-
+                  Absolute URL to the list of user-defined processes.
+                  
+                  The URL points to the metadata endpoint `GET /processes/user`.
+                format: uri
+                type: string
+                example: 'https://example.openeo.org/api/processes/user'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2122,86 +2265,48 @@ paths:
           $ref: '#/components/schemas/process_id'
     get:
       summary: Full metadata for a user-defined process
-      operationId: describe-custom-process
-      description: Lists all information about a user-defined process, including its process graph.
+      operationId: describe-custom-process-legacy
+      deprecated: true
+      description: Redirects to all information about a user-defined process.
       tags:
         - User-Defined Processes
-        - Process Discovery
       security:
         - Bearer: []
       responses:
-        '200':
-          description: The user-defined process with process graph.
-          content:
-            application/json:
-              schema:
-                title: User-Defined Process
-                description: A user-defined process with processing instructions as process graph.
-                type: object
-                required:
-                  - process_graph
-                allOf:
-                  - $ref: '#/components/schemas/user_defined_process_meta'
-              examples:
-                evi_user_defined_process:
-                  $ref: '#/components/examples/evi_user_defined_process'
+        '308':
+          $ref: '#/components/responses/redirect_udp'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
     put:
       summary: Store a user-defined process
-      operationId: store-custom-process
-      description: |-
-        Stores a provided user-defined process with process graph that can be
-        reused in other processes. If a process with the specified 
-        `process_graph_id` exists, the process is fully replaced. The id can't
-        be changed for stored user-defined processes.
-
-        The id MUST be unique for the authenticated user, including all
-        pre-defined processes by the back-end.
-
-        Partially updating user-defined processes is not supported.
-
-        To simplify exchanging user-defined processes, the property `id` can be part of
-        the request body. If the values don't match, the value for `id` gets
-        replaced with the value from the `process_graph_id` parameter in the
-        path.
+      operationId: store-custom-process-legacy
+      deprecated: true
+      description: Redirects to the endpoint that stores a user-defined process.
       tags:
         - User-Defined Processes
       security:
         - Bearer: []
       responses:
-        '200':
-          description: The user-defined process has been stored successfully.
+        '308':
+          $ref: '#/components/responses/redirect_udp'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
-      requestBody:
-        required: true
-        description: Specifies the process graph with its meta data.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/process_graph_with_metadata'
-            examples:
-              evi_user_defined_process:
-                $ref: '#/components/examples/evi_user_defined_process'
     delete:
       summary: Delete a user-defined process
-      operationId: delete-custom-process
-      description: |-
-        Deletes the data related to this user-defined process, including its process graph.
-
-        Does NOT delete jobs or services that reference this user-defined process.
+      operationId: delete-custom-process-legacy
+      deprecated: true
+      description: Redirects to the endpoint that deletes a user-defined process.
       tags:
         - User-Defined Processes
       security:
         - Bearer: []
       responses:
-        '204':
-          description: The user-defined process has been successfully deleted
+        '308':
+          $ref: '#/components/responses/redirect_udp'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -4537,7 +4642,7 @@ components:
           process_id:
             $ref: '#/components/schemas/process_id'
           namespace:
-            $ref: '#/components/schemas/process_namespace'
+            $ref: '#/components/schemas/process_graph_namespace'
           result:
             type: boolean
             description: >-
@@ -4765,7 +4870,7 @@ components:
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
-    process_namespace:
+    process_graph_namespace:
       type: string
       nullable: true
       default: null
@@ -4783,10 +4888,29 @@ components:
            that have a process graph included.
            It is RECOMMENDED to log the namespace selected by the back-end for debugging purposes.
         * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
-        * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
+        * `user`: Uses exclusively the user-defined processes listed at `GET /processes/@{user_id}`
+          with `{user_id}` being the user id of the authenticated user. This is an alias for 
+          directly specifying `@{user_id}` as namespace.
 
         If multiple processes with the same identifier exist, Clients SHOULD
         inform the user that it's recommended to select a namespace.
+    process_namespace:
+      type: string
+      description: |-
+        The namespace for a process.
+
+        The API only defines a single type of predefined namespaces. That is for
+        user-defined processes stored at the back-end and defines a distinct
+        namespace for each individual user. They are prescribed with a leading
+        `@` followed by the unique identifier of a user.
+
+        The namespace `user` is an alias for `@` + user id of the authenticated user.
+        It can be used to retrieve the user-defined processes of the authenticated user.
+        
+        The namespace `backend` is an alias for predefined processes.
+
+        Back-end implementations MAY implement other namespaces that don't
+        conflict with any of the namespaces mentioned above.
     process_id:
       type: string
       description: |-
@@ -5053,10 +5177,13 @@ components:
       example: '2017-01-01T09:36:18Z'
     user_id:
       type: string
-      description: >-
+      description: |-
         Unique identifier of the user. MUST match the specified pattern.
-        This is usually a randomly generated internal identifier from the provider
-        not meant for displaying purposes.
+
+        For ease of use, it is NOT RECOMMENDED to use long randomly generated
+        identifiers. More readable user identifiers like `john_doe` support a
+        better user-experience as the user identifier is used in URIs for shared
+        processes, e.g. `https://example.org/api/v1.0/processes/@john_doe/my_ndvi`.
       pattern: '^[\w\-\.~]+$'
       example: john_doe
     description:
@@ -5609,7 +5736,7 @@ components:
               process_id:
                 $ref: '#/components/schemas/process_id'
               namespace:
-                $ref: '#/components/schemas/process_namespace'
+                $ref: '#/components/schemas/process_graph_namespace'
               parameter:
                 type: string
                 description: >-
@@ -5620,6 +5747,22 @@ components:
         links:
           $ref: '#/components/schemas/log_links'
   responses:
+    redirect_udp:
+      description: Redirects to the endpoint for a specific user-defined process.
+      headers:
+        Location:
+          required: true
+          schema:
+            description: |-
+              Absolute URL to a specific user-defined process.
+              
+              The URL points to the endpoint `/processes/user/{process_id}` and
+              MUST be requested with the same HTTP method, headers and request
+              body of this request. `{process_id}` MUST be the value given with
+              this request in the parameter `{process_graph_id}`.
+            format: uri
+            type: string
+            example: 'https://example.openeo.org/api/processes/user/my-ndvi'
     logs:
       description: Lists the requested log entries.
       content:
@@ -5745,6 +5888,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
+    process_namespace:
+      name: namespace
+      in: path
+      description: A process namespace.
+      required: true
+      schema:
+        $ref: '#/components/schemas/process_namespace'
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
