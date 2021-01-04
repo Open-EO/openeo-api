@@ -245,9 +245,10 @@ info:
 
     Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
 
-    Two custom keywords have been defined:
+    Three custom keywords have been defined:
     * `subtype` for more fine-grained data-types than JSON Schema supports.
     * `parameters` to specify parameters that processes can pass to other process graphs.
+    * `returns` to describe the return values that processes can get back from other process graphs.
 
     ### Subtypes
 
@@ -5313,6 +5314,7 @@ components:
       properties:
         parameters:
           type: array
+          title: Process Graph Parameters
           description: |-
             A list of parameters passed to the child process graph.
 
@@ -5320,6 +5322,19 @@ components:
             be used in clients that don't support named parameters.
           items:
             $ref: '#/components/schemas/parameter'
+        returns:
+          type: object
+          title: Process Graph Return Value
+          description: Description of the data that is returned by the child process graph.
+          required:
+            - schema
+          properties:
+            description:
+              $ref: '#/components/schemas/process_description'
+            schema:
+              $ref: '#/components/schemas/data_type_schema'
+          allOf:
+            - $ref: '#/components/schemas/json_schema'
       allOf:
         - $ref: '#/components/schemas/json_schema'
     json_schema:
