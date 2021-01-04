@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Fixed
+- Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+
 ## 1.0.1 - 2020-12-07
 
 ### Changed
