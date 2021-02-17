@@ -488,19 +488,19 @@ tags:
       
       ### Content Extensions
       
-      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
       
       Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
       
       - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
-      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
+      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/eo)
+      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/sar)
+      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/sat)
+      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/scientific)
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [corresponding specification](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -1146,11 +1146,11 @@ paths:
         To get the full metadata for a collection clients MUST
         request `GET /collections/{collection_id}`.
 
-        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions)
+        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1179,7 +1179,7 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
               example:
                 collections:
-                  - stac_version: 0.9.0
+                  - stac_version: 1.0.0-beta.2
                     id: Sentinel-2A
                     title: Sentinel-2A MSI L1C
                     description: >-
@@ -1221,7 +1221,7 @@ paths:
                       - rel: license
                         href: >-
                           https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
-                  - stac_version: 0.9.0
+                  - stac_version: 1.0.0-beta.2
                     id: MOD09Q1
                     title: >-
                       MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN
@@ -1271,11 +1271,11 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions)
+        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1302,7 +1302,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/collection'
               example:
-                stac_version: 0.9.0
+                stac_version: 1.0.0-beta.2
                 stac_extensions:
                   - collection-assets
                   - datacube
@@ -2903,9 +2903,25 @@ paths:
         
 
         The response includes additional metadata. It is a valid
-        [STAC Item (version 0.9.0)](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
-        if it has spatial and temporal references included.
+        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/item-spec)
+        (if it has spatial and temporal references included) or a valid
+        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/collection-spec)
+        (supported since openEO API version 1.1.0).
+        The assets to download are in both cases available in the property `assets`
+        and have the same structure. All additional metadata is not strictly required
+        to download the files, but are helpful for users to understand the data.
 
+        STAC Collections can either (1) add all assets as collection-level assets
+        or (2) link to STAC Catalogs and STAC Items, which will provide a full STAC
+        catalog structure a client has to go through. While (2) is overall the better 
+        architectural choice and allows a fine-grained description of the processed data,
+        (1) is not compliant with previous versions of the  openEO API.
+        **To maintain backward compatibility, it is REQUIRED for (2) to still copy
+        all assets in the STAC catalog structure into the collection-level assets.**
+        This requirement is planned to be removed in version openEO API version 2.0.0.
+        A client can enforce that the server returns a GeoJSON through content negotiation
+        with the media type `application/geo+json`, but the results may not contain very
+        meaningful metadata aside from the assets.
 
         URL signing is a way to protect files from unauthorized access with a
         key in the URL instead of HTTP header based authorization. The URL
@@ -2943,7 +2959,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/batch_job_result'
+                oneOf:
+                  - $ref: '#/components/schemas/batch_job_result'
+                  - title: Batch Job Results Response as STAC Collection
+                    type: object
+                    required:
+                      - assets
+                    allOf:
+                      - $ref: '#/components/schemas/collection'
             application/geo+json:
               schema:
                 $ref: '#/components/schemas/batch_job_result'
@@ -4020,19 +4043,12 @@ components:
 
             3. `example`: Links to examples of processes that use this collection.
 
-            4. `derived_from`: Allows linking to the data this collection was derived from.
-
-            5. `cite-as`: [DOI](https://www.doi.org/) links should be added. DOIs can also be 
-            listed in the STAC fields `sci:doi` and `sci:publications`, see the [STAC scientific
-            extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
-            for more details.
-
-            6. `latest-version`: If a collection has been marked as deprecated, a link SHOULD
+            4. `latest-version`: If a collection has been marked as deprecated, a link SHOULD
             point to the latest version of the collection. The relation types `predecessor-version`
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
 
-            7. `alternate`: An alternative representation of the collection.
+            5. `alternate`: An alternative representation of the collection.
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
@@ -4089,9 +4105,9 @@ components:
 
             Potential fields for the summaries can be found here:
 
-            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec/common-metadata.md)**:
+            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/item-spec/common-metadata.md)**:
               A list of commonly used fields throughout all domains
-            * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/README.md#list-of-content-extensions)**:
+            * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/README.md#list-of-content-extensions)**:
               Domain-specific fields for domains such as EO, SAR and point clouds.
             * **Custom Properties**:
               It is generally allowed to add custom fields.
@@ -4121,6 +4137,7 @@ components:
         The [version of the STAC specification](https://github.com/radiantearth/stac-spec/releases),
         which MAY not be equal to the [STAC API version](#section/STAC).
         Supports versions 0.9.x and 1.x.x.
+      pattern: '^(0\.9.\d+|1\.\d+.\d+)'
     stac_extensions:
       type: array
       description: >-
