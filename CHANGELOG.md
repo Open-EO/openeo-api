@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+- Clarified that job results schould be stored as valid STAC catalogs. [#363](https://github.com/Open-EO/openeo-api/issues/363)
+- Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
 
 ## 1.0.1 - 2020-12-07
 

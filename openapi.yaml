@@ -2896,12 +2896,11 @@ paths:
     get:
       summary: Download results for a completed batch job
       operationId: list-results
-      description: >-
+      description: |-
         Lists signed URLs pointing to the processed files after the batch job
         has finished. Back-ends may also point to intermediate results after the
         job has stopped due to an error.
         
-
         The response includes additional metadata. It is a valid
         [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/item-spec)
         (if it has spatial and temporal references included) or a valid
@@ -2923,6 +2922,10 @@ paths:
         with the media type `application/geo+json`, but the results may not contain very
         meaningful metadata aside from the assets.
 
+        Clients are RECOMMENDED to store this response and all potential sub-catalogs
+        and items with the assets so that the downloaded data is then a self-contained
+        STAC catalog user could publish easily with all the data and metadata.
+
         URL signing is a way to protect files from unauthorized access with a
         key in the URL instead of HTTP header based authorization. The URL
         signing key is similar to a password and its inclusion in the URL allows
@@ -2931,7 +2934,6 @@ paths:
         responsible to generate the URL signing keys and to manage their
         appropriate expiration. The back-end MAY indicate an expiration time by
         setting the `expires` property.
-
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
@@ -3538,8 +3540,8 @@ components:
           type: object
           title: Item Properties
           description: >-
-            MAY contain any additional properties, e.g. other STAC Item
-            properties, properties from STAC extensions or custom properties.
+            MAY contain additional properties other than the required property `datetime`,
+            e.g. custom properties or properties from the STAC specification or STAC extensions.
           required:
             - datetime
           additionalProperties: true
@@ -3596,9 +3598,6 @@ components:
           description: |-
             Dictionary of asset objects for data that can be downloaded, each with a
             unique key. The keys MAY be used by clients as file names.
-
-            It is RECOMMENDED to link to a copy of this STAC Item with relative links in the assets,
-            which allows users to easily publish their processed data with a basic set of metadata.
           additionalProperties:
             $ref: '#/components/schemas/asset'
           example:
