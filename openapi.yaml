@@ -2969,6 +2969,71 @@ paths:
                       - assets
                     allOf:
                       - $ref: '#/components/schemas/collection'
+                    example:
+                      stac_version: 1.0.0-beta.2
+                      stac_extensions:
+                        - collection-assets
+                      id: a3cca2b2aa1e3b5b
+                      title: NDVI based on Sentinel 2
+                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+                      license: Apache-2.0
+                      providers:
+                        - name: Cool EO Cloud Corp
+                          description: No further processing applied.
+                          roles:
+                            - producer
+                            - licensor
+                            - host
+                          url: http://cool-eo-cloud-corp.com
+                      extent:
+                        temporal:
+                          interval:
+                            - - 2019-08-24T14:15:22Z
+                              - 2019-08-24T14:15:22Z
+                        spatial:
+                          bbox:
+                            - - -180
+                              - -90
+                              - 180
+                              - 90
+                      assets:
+                        preview.png:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+                          type: image/png
+                          title: Thumbnail
+                          roles:
+                            - thumbnail
+                        process.json:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+                          type: application/json
+                          title: Original Process
+                          roles:
+                            - process
+                            - reproduction
+                        1.tif:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+                          type: image/tiff; application=geotiff
+                          roles:
+                            - data
+                        2.tif:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+                          type: image/tiff; application=geotiff
+                          roles:
+                            - data
+                        inspire.xml:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+                          type: application/xml
+                          title: INSPIRE metadata
+                          description: INSPIRE compliant XML metadata
+                          roles:
+                            - metadata
+                      links:
+                        - rel: item
+                          type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
+                        - rel: item
+                          type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
                 $ref: '#/components/schemas/batch_job_result'
@@ -3593,46 +3658,7 @@ components:
                 a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
               example: '2020-11-01T00:00:00Z'
         assets:
-          type: object
-          title: Assets
-          description: |-
-            Dictionary of asset objects for data that can be downloaded, each with a
-            unique key. The keys MAY be used by clients as file names.
-          additionalProperties:
-            $ref: '#/components/schemas/asset'
-          example:
-            preview.png:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
-              type: image/png
-              title: Thumbnail
-              roles:
-                - thumbnail
-            process.json:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
-              type: application/json
-              title: Original Process
-              roles:
-                - process
-                - reproduction
-            1.tif:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
-              type: image/tiff; application=geotiff
-              title: Band 1
-              roles:
-                - data
-            2.tif:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
-              type: image/tiff; application=geotiff
-              title: Band 2
-              roles:
-                - data
-            inspire.xml:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
-              type: application/xml
-              title: INSPIRE metadata
-              description: INSPIRE compliant XML metadata
-              roles:
-                - metadata
+          $ref: '#/components/schemas/stac_assets'
         links:
           type: array
           description: >-
@@ -4119,17 +4145,15 @@ components:
                   description: A value of any type.
               - $ref: '#/components/schemas/collection_summary_stats'
         assets:
-          type: object
-          title: Assets
-          description: >-
+          description: |-
             Dictionary of asset objects for data that can be downloaded,
             each with a unique key.
             The keys MAY be used by clients as file names.
 
             Implementing this property REQUIRES to add `collection-assets`
             to the list of `stac_extensions`.
-          additionalProperties:
-            $ref: '#/components/schemas/asset'
+          allOf:
+            - $ref: '#/components/schemas/stac_assets'
     stac_version:
       type: string
       description: >-
@@ -4237,6 +4261,47 @@ components:
             type: string
             format: uri
             example: http://cool-eo-cloud-corp.com
+    stac_assets:
+      type: object
+      title: Assets
+      description: |-
+        Dictionary of asset objects for data that can be downloaded, each with a
+        unique key. The keys MAY be used by clients as file names.
+      additionalProperties:
+        $ref: '#/components/schemas/asset'
+      example:
+        preview.png:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+          type: image/png
+          title: Thumbnail
+          roles:
+            - thumbnail
+        process.json:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+          type: application/json
+          title: Original Process
+          roles:
+            - process
+            - reproduction
+        1.tif:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+          type: image/tiff; application=geotiff
+          title: Band 1
+          roles:
+            - data
+        2.tif:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+          type: image/tiff; application=geotiff
+          title: Band 2
+          roles:
+            - data
+        inspire.xml:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+          type: application/xml
+          title: INSPIRE metadata
+          description: INSPIRE compliant XML metadata
+          roles:
+            - metadata
     collection_summary_stats:
       type: object
       title: Statistics
