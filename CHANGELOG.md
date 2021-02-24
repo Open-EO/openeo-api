@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+- Clarified that `POST /result` may return multiple files with a content type of `multipart/mixed`. [#349](https://github.com/Open-EO/openeo-api/issues/349)
 
 ## 1.0.1 - 2020-12-07
 
