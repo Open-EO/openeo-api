@@ -1997,12 +1997,19 @@ paths:
           description: Result data in the requested output format
           headers:
             Content-Type:
-              description: >-
+              description: |-
                 The appropriate media (MIME) type for the requested output
                 format MUST be sent, if the response contains a single file.
-                To send multiple files at once the media type MUST be
-                `multipart/mixed` with an appropriate response as defined
-                by [RFC 2046](https://www.rfc-editor.org/rfc/rfc2046.html).
+
+                To send multiple files at once it is RECOMMENDED to use the
+                [`tar` file format](https://www.gnu.org/software/tar/manual/html_node/Standard.html)
+                (media type: `application/x-tar`).
+                
+                To mimic the results of batch jobs, it is RECOMMENDED that 
+                1. clients extract the tar file directly after receiving it so that users
+                   can directly work on the contained files *and*
+                2. back-ends add STAC Items and/or Collections to the tar file
+                   so that users can make sense of the files.
               schema:
                 type: string
             OpenEO-Costs:
