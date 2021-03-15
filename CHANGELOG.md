@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+- Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 
 ## 1.0.1 - 2020-12-07
 
