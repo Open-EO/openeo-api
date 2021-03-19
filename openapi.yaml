@@ -1818,13 +1818,27 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
-                        default_client_id:
-                          type: string
+                        default_client:
+                          title: Default OpenID Connect Client
+                          type: object
                           description: |-
-                            Default client_id that clients can use for OpenID Connect authentication.
-                            The client MUST be usable without a secret, which limits the
-                            OAuth 2.0 Grant Flow options to "Authorization Code Grant with PKCE"
-                            and "Device flow with PKCE".
+                            Default OpenID Connect client that can be used for OpenID Connect authentication.
+
+                            The default OpenID Connect client is managed by the backend implementer.
+                            It MUST be configured to be usable without a client secret,
+                            which limits its applicability to OpenID Connect grant types like
+                            "Authorization Code Grant with PKCE" and "Device flow with PKCE"
+
+                            The default OpenID Connect client is provided without availability guarantees.
+                            The backend implementer CAN revoke, reset or update it any time.
+                            The default OpenID Connect client is intended to simplify authentication for novice users.
+                            For production use cases, it is RECOMMENDED to set up a dedicated OpenID Connect client.
+                          required:
+                            - id
+                          properties:
+                            id:
+                              type: string
+                              description: OpenID Connect client id
                         links:
                           type: array
                           description: |-
