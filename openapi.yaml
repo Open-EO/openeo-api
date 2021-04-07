@@ -9,13 +9,13 @@ info:
 
     ## Language
 
-    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119) and [RFC 8174](http://tools.ietf.org/html/rfc8174).
+    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174.html).
 
     ## Casing
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2).
 
     ## HTTP / REST
 
@@ -48,7 +48,7 @@ info:
 
     ## Error Handling
 
-    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
+    The success of requests MUST be indicated using [HTTP status codes](https://www.rfc-editor.org/rfc/rfc7231.html#section-6) according to [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html).
 
     If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
 
@@ -116,7 +116,7 @@ info:
 
     ## Temporal data
 
-    Date, time, intervals and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.ietf.org/rfc/rfc3339) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
+    Date, time, intervals and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
 
     # Authentication
 
@@ -254,8 +254,12 @@ info:
 
     JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
     To support more fine grained data types, a custom [JSON Schema keyword](https://json-schema.org/draft-07/json-schema-core.html#rfc.section.6.4) has been defined: `subtype`.
-    It works similarly as the JSON Schema keyword [`format`](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.7) and defines a number of subtypes for the native data types.
-    These should be re-used in process schema definitions whenever suitable.
+    It works similarly as the JSON Schema keyword [`format`](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.7)
+    and standardizes a number of openEO related data types that extend the native data types, for example:
+    `bounding-box` (object with at least `west`, `south`, `east` and `north` properties),
+    `date-time` (string representation of date and time following RFC 3339),
+    `raster-cube` (the type of data cubes), etc.
+    The subtypes should be re-used in process schema definitions whenever suitable.
     
     If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
     Clients should offer make passing subtypes as easy as passing a general data type.
@@ -500,7 +504,7 @@ tags:
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [corresponding specification](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -845,7 +849,7 @@ paths:
       description: |-
         Lists all implemented openEO versions supported by the
         service provider. This endpoint is the Well-Known URI
-        (see [RFC 5785](https://tools.ietf.org/html/rfc5785)) for openEO.
+        (see [RFC 5785](https://www.rfc-editor.org/rfc/rfc5785.html)) for openEO.
 
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
@@ -1710,7 +1714,7 @@ paths:
       operationId: authenticate-oidc
       description: >-
         Lists the supported [OpenID Connect](http://openid.net/connect/)
-        providers (OP). OpenID Providers MUST support [OpenID Connect
+        providers (OP). OpenID Connect Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
 
@@ -1721,9 +1725,9 @@ paths:
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
         about Bearer tokens in this document). Clients MUST NOT use the id token
-        or the authorization code. The access token provided by an OpenID
+        or the authorization code. The access token provided by an OpenID Connect
         Provider does not necessarily provide information about the issuer (i.e. the
-        OpenID provider) and therefore a prefix MUST be added to the Bearer
+        OpenID Connect provider) and therefore a prefix MUST be added to the Bearer
         Token sent in subsequent API calls to protected endpoints. The Bearer
         Token sent to protected endpoints MUST consist of the authentication
         method (here `oidc`), the provider ID and the access token itself. All
@@ -1732,25 +1736,25 @@ paths:
         endpoint.  The header in subsequent API calls for a provider with `id`
         `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
         (replace `TOKEN` with the actual access token received from the OpenID
-        Provider).
+        Connect Provider).
 
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
         using the access token (without the prefix described above). Therefore,
         both openEO client and openEO back-end are relying parties (clients) to
-        the OpenID Provider.
+        the OpenID Connect Provider.
       tags:
         - Account Management
       security:
         - {}
       responses:
         '200':
-          description: Lists the the OpenID Providers.
+          description: Lists the the OpenID Connect Providers.
           content:
             application/json:
               schema:
-                title: OpenID Providers
+                title: OpenID Connect Providers
                 type: object
                 required:
                   - providers
@@ -1759,7 +1763,7 @@ paths:
                     type: array
                     minItems: 1
                     items:
-                      title: OpenID Provider
+                      title: OpenID Connect Provider
                       type: object
                       required:
                         - id
@@ -1769,7 +1773,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A **unique** identifier for the OpenID Provider to
+                            A **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -1778,12 +1782,12 @@ paths:
                           description: >-
                             The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
                             (also referred to as 'authority' in some client libraries) is the URL of the
-                            OpenID provider, which conforms to a set of rules:
+                            OpenID Connect provider, which conforms to a set of rules:
 
                             1. After appending `/.well-known/openid-configuration` to the URL, a
                             [HTTP/1.1 GET
                             request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest)
-                            to the concatenated URL MUST return a [OpenID Discovery Configuration
+                            to the concatenated URL MUST return a [OpenID Connect Discovery Configuration
                             Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
                             The response provides all information required to authenticate using
                             OpenID Connect.
@@ -1794,7 +1798,7 @@ paths:
                         scopes:
                           type: array
                           description: >-
-                            A list of OpenID Connect scopes that the client MUST use.
+                            A list of OpenID Connect scopes that the client MUST include when requesting authorization.
                             If scopes are specified, the list MUST at least contain the `openid` scope.
                           items:
                             type: string
@@ -1802,7 +1806,7 @@ paths:
                           type: string
                           description: >-
                             The name that is publicly shown in clients for this
-                            OpenID provider.
+                            OpenID Connect provider.
                         description:
                           type: string
                           format: commonmark
@@ -1850,7 +1854,7 @@ paths:
       operationId: authenticate-basic
       description: >-
         Checks the credentials provided through [HTTP Basic Authentication
-        according to RFC 7617](https://tools.ietf.org/html/rfc7617) and returns
+        according to RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) and returns
         an access token for valid credentials.
 
 
@@ -2004,7 +2008,7 @@ paths:
                 $ref: '#/components/schemas/money'
             Link:
               description: >-
-                The header MAY indicate a link to a log file generated by the request. If provided, the link MUST be serialized according to [RFC 8288](https://tools.ietf.org/html/rfc8288#section-3) and MUST use the relation type `monitor`. The link MUST follow the specifications for the links `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`, except that is MUST NOT accept any parameters (limit/offset). Therefore, the link MUST be accessible with HTTP GET, MUST be secured using a Bearer token and MUST follow the corresponding request body schema.
+                The header MAY indicate a link to a log file generated by the request. If provided, the link MUST be serialized according to [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288.html#section-3) and MUST use the relation type `monitor`. The link MUST follow the specifications for the links `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`, except that is MUST NOT accept any parameters (limit/offset). Therefore, the link MUST be accessible with HTTP GET, MUST be secured using a Bearer token and MUST follow the corresponding request body schema.
               schema:
                 type: string
                 pattern: ^<[^>]+>;\s?rel="monitor"
@@ -2851,7 +2855,7 @@ paths:
                     format: date-time
                     description: >-
                       Time until which the estimate is valid, formatted as a
-                      [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                      [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
                     example: '2020-11-01T00:00:00Z'
         4XX:
           $ref: '#/components/responses/client_error_auth'
@@ -3615,7 +3619,7 @@ components:
               title: Date and Time
               description: >-
                 The searchable date/time of the data, in UTC. Formatted as a
-                [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
 
 
                 If this field is set to `null` (usually for larger time ranges),
@@ -3630,13 +3634,13 @@ components:
               description: >-
                 For time series: The first or start date and time for the data,
                 in UTC. Formatted as a [RFC
-                3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
             end_datetime:
               type: string
               format: date-time
               description: >-
                 For time series: The last or end date and time for the data, in
-                UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339)
+                UTC. Formatted as a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html)
                 date-time.
             title:
               $ref: '#/components/schemas/eo_title'
@@ -3655,7 +3659,7 @@ components:
               format: date-time
               description: >-
                 Time until which the assets are accessible, in UTC. Formatted as
-                a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
               example: '2020-11-01T00:00:00Z'
         assets:
           $ref: '#/components/schemas/stac_assets'
@@ -3754,7 +3758,7 @@ components:
       title: Link
       description: >-
         A link to another resource on the web. Bases on [RFC
-        5899](https://tools.ietf.org/html/rfc5988).
+        5899](https://www.rfc-editor.org/rfc/rfc5988.html).
       type: object
       required:
         - href
@@ -5126,14 +5130,14 @@ components:
       format: date-time
       description: >-
         Date and time of creation, formatted as a [RFC
-        3339](https://www.ietf.org/rfc/rfc3339) date-time.
+        3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
       example: '2017-01-01T09:32:12Z'
     updated:
       type: string
       format: date-time
       description: >-
         Date and time of the last status change, formatted as a [RFC
-        3339](https://www.ietf.org/rfc/rfc3339) date-time.
+        3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
       example: '2017-01-01T09:36:18Z'
     user_id:
       type: string
@@ -5516,7 +5520,7 @@ components:
           format: date-time
           description: >-
             Date and time the file has lastly been modified, formatted as a [RFC
-            3339](https://www.ietf.org/rfc/rfc3339) date-time.
+            3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
           example: '2018-01-03T10:55:29Z'
     GeoJsonPoint3D:
       type: array
@@ -5743,7 +5747,7 @@ components:
         
         The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC
-        7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request
+        7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6). This request
         usually does not respond with HTTP status codes 401 and 403 due to
         missing authorization. HTTP status code 404 SHOULD be used if the value
         of a path parameter is invalid.
@@ -5762,7 +5766,7 @@ components:
         modifications.
         
         The response body SHOULD contain a JSON error object.
-        MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
+        MUST be any HTTP status code specified in [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6).
         This request MUST respond with HTTP status codes 401 if authorization is required or
         403 if the authorization failed or access is forbidden in general to the
         authenticated user. HTTP status code 404 SHOULD be used if the value of
@@ -5782,7 +5786,7 @@ components:
         client to retry the exact same request that triggered this response.
         
         The response body SHOULD contain a JSON error object. MUST be any HTTP
-        status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
+        status code specified in [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6).
 
         See also:
         * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
