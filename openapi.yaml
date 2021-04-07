@@ -1817,6 +1817,15 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
+                        default:
+                          type: boolean
+                          default: false
+                          description: |-
+                            One of the OpenID Connect providers can be made the default provider
+                            for authentication by setting this option to `true`.
+
+                            Clients can either pre-select or directly use the default provider for authentication
+                            if the user doesn't specify a specific value.
                         default_clients:
                           title: Default OpenID Connect Clients
                           type: array
@@ -1891,6 +1900,24 @@ paths:
                             $ref: '#/components/schemas/link'
               example:
                 providers:
+                  - id: egi
+                    issuer: 'https://aai.egi.eu/oidc'
+                    title: EGI
+                    description: Login with your academic account.
+                    default: true
+                    scopes:
+                      - openid
+                      - profile
+                      - email
+                    default_clients:
+                      - id: KStcUzD5AIUA
+                        grant_types:
+                          - implicit
+                          - authorization_code+pkce
+                          - urn:ietf:params:oauth:grant-type:device_code+pkce
+                          - refresh_token
+                        redirect_urls:
+                          - https://editor.openeo.org/
                   - id: google
                     issuer: 'https://accounts.google.com'
                     title: Google

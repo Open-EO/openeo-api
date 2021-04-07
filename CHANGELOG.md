@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
 - `GET /credentials/oidc` can provide a set of default client ids for OpenID Connect. [#366](https://github.com/Open-EO/openeo-api/pull/366)
+- `GET /credentials/oidc` can specify a default provider for OpenID Connect.
 
 ### Changed
 
