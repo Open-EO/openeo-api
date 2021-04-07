@@ -1818,29 +1818,56 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
-                        default_client:
-                          title: Default OpenID Connect Client
-                          type: object
+                        default_clients:
+                          title: Default OpenID Connect Clients
+                          type: array
                           description: |-
-                            Default OpenID Connect client that can be used for OpenID Connect authentication.
+                            List of default OpenID Connect clients that can be used by an openEO client
+                            for OpenID Connect based authentication.
 
-                            The default OpenID Connect client is managed by the backend implementer.
+                            A default OpenID Connect client is managed by the backend implementer.
                             It MUST be configured to be usable without a client secret,
                             which limits its applicability to OpenID Connect grant types like
                             "Authorization Code Grant with PKCE" and "Device flow with PKCE"
 
-                            The default OpenID Connect client is provided without availability guarantees.
+                            A default OpenID Connect client is provided without availability guarantees.
                             The backend implementer CAN revoke, reset or update it any time.
                             As such, openEO clients SHOULD NOT store or cache default OpenID Connect client information
                             for long term usage.
-                            The default OpenID Connect client is intended to simplify authentication for novice users.
+                            A default OpenID Connect client is intended to simplify authentication for novice users.
                             For production use cases, it is RECOMMENDED to set up a dedicated OpenID Connect client.
-                          required:
-                            - id
-                          properties:
-                            id:
-                              type: string
-                              description: OpenID Connect client id
+                          items:
+                            title: Default OpenID Connect Client
+                            type: object
+                            required:
+                              - id
+                              - grant_types
+                            properties:
+                              id:
+                                type: string
+                                description: OpenID Connect client id
+                              grant_types:
+                                type: array
+                                description: |-
+                                  List of authorization flows (grant types) supported by the OpenID Connect client.
+                                  A flow descriptor consist of a OAuth 2.0 grant type,
+                                  with an additional `+pkce` suffix when the flow should be used with the PKCE extension.
+                                minItems: 1
+                                items:
+                                  type: string
+                                  enum:
+                                    - 'implicit'
+                                    - 'authorization_code+pkce'
+                                    - 'urn:ietf:params:oauth:grant-type:device_code+pkce'
+                                    - 'refresh_token'
+                              redirect_urls:
+                                type: array
+                                description: |-
+                                  List of redirect URLs that are whitelisted by the OpenID Connect client.
+                                  Redirect URLs MUST be provided when the OpenID Connect client supports
+                                  the `implicit` or `authorization_code+pkce` authorization flows.
+                                items:
+                                  type: string
                         links:
                           type: array
                           description: |-
