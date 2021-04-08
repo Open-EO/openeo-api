@@ -1708,15 +1708,13 @@ paths:
     get:
       summary: OpenID Connect authentication
       operationId: authenticate-oidc
-      description: >-
+      description: |-
         Lists the supported [OpenID Connect](http://openid.net/connect/)
         providers (OP). OpenID Connect Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
-
         It is highly RECOMMENDED to implement OpenID Connect for public services
         in favor of Basic authentication.
-
 
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
@@ -1733,7 +1731,6 @@ paths:
         `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
         (replace `TOKEN` with the actual access token received from the OpenID
         Connect Provider).
-
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
@@ -1757,6 +1754,10 @@ paths:
                 properties:
                   providers:
                     type: array
+                    description: >-
+                      The first provider in this list is the default provider for authentication.
+                      Clients can either pre-select or directly use the default provider for authentication
+                      if the user doesn't specify a specific value.
                     minItems: 1
                     items:
                       title: OpenID Connect Provider
@@ -1888,6 +1889,23 @@ paths:
                             $ref: '#/components/schemas/link'
               example:
                 providers:
+                  - id: egi
+                    issuer: 'https://aai.egi.eu/oidc'
+                    title: EGI (default)
+                    description: Login with your academic account.
+                    scopes:
+                      - openid
+                      - profile
+                      - email
+                    default_clients:
+                      - id: KStcUzD5AIUA
+                        grant_types:
+                          - implicit
+                          - authorization_code+pkce
+                          - urn:ietf:params:oauth:grant-type:device_code+pkce
+                          - refresh_token
+                        redirect_urls:
+                          - https://editor.openeo.org/
                   - id: google
                     issuer: 'https://accounts.google.com'
                     title: Google

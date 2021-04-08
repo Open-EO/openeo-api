@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
+- Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 
 ## 1.0.1 - 2020-12-07
