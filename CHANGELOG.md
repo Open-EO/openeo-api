@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - API doesn't discourage usage of `multipleOf` in JSON Schemas any longer.
 - `GET /jobs/{job_id}/results` supports to return a STAC Collection. [#343](https://github.com/Open-EO/openeo-api/issues/343)
+- Updated STAC schemas to better support versions 1.x.x.
 
 ### Fixed
 

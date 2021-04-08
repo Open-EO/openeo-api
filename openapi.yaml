@@ -492,15 +492,17 @@ tags:
       
       ### Content Extensions
       
-      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      STAC has several [extensions](https://stac-extensions.github.io) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
       
       Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
       
       - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/sar)
-      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/sat)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/scientific)
+      - [EO (Electro-Optical) extension](https://github.com/stac-extensions/eo)
+      - [Processing extension](https://github.com/stac-extensions/processing)
+      - [Raster extension](https://github.com/stac-extensions/raster)
+      - [SAR extension](https://github.com/stac-extensions/sar)
+      - [Satellite extension](https://github.com/stac-extensions/sat)
+      - [Scientific Citation extension](https://github.com/stac-extensions/scientific)
       
       ### Provide data for download
       
@@ -589,6 +591,13 @@ paths:
                     example: 1.1.2
                   stac_version:
                     $ref: '#/components/schemas/stac_version'
+                  type:
+                    type: string
+                    enum:
+                      - Catalog
+                    description: >-
+                      For STAC versions >= 1.0.0-rc.1 this field is required.
+                    example: Catalog
                   id: 
                     type: string
                     description: >-
@@ -1154,7 +1163,7 @@ paths:
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions)
+        [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1183,7 +1192,8 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
               example:
                 collections:
-                  - stac_version: 1.0.0-beta.2
+                  - stac_version: 1.0.0-rc.2
+                    type: Collection
                     id: Sentinel-2A
                     title: Sentinel-2A MSI L1C
                     description: >-
@@ -1225,7 +1235,8 @@ paths:
                       - rel: license
                         href: >-
                           https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
-                  - stac_version: 1.0.0-beta.2
+                  - stac_version: 1.0.0-rc.2
+                    type: Collection
                     id: MOD09Q1
                     title: >-
                       MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN
@@ -1279,7 +1290,7 @@ paths:
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions)
+        [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1306,12 +1317,10 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/collection'
               example:
-                stac_version: 1.0.0-beta.2
+                stac_version: 1.0.0-rc.2
                 stac_extensions:
-                  - collection-assets
-                  - datacube
-                  - scientific
-                  - version
+                  - https://stac-extensions.github.io/datacube/v1.0.0/schema.json
+                type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
                 description: >-
@@ -1324,7 +1333,6 @@ paths:
                   - esa
                   - msi
                   - sentinel
-                version: 20200106A
                 providers:
                   - name: European Space Agency (ESA)
                     roles:
@@ -1401,7 +1409,6 @@ paths:
                       - B10
                       - B11
                       - B12
-                'sci:citation': 'Copernicus Sentinel data [Year]'
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -2906,9 +2913,9 @@ paths:
         job has stopped due to an error.
         
         The response includes additional metadata. It is a valid
-        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/item-spec)
+        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/item-spec)
         (if it has spatial and temporal references included) or a valid
-        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/collection-spec)
+        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/collection-spec)
         (supported since openEO API version 1.1.0).
         The assets to download are in both cases available in the property `assets`
         and have the same structure. All additional metadata is not strictly required
@@ -2974,9 +2981,7 @@ paths:
                     allOf:
                       - $ref: '#/components/schemas/collection'
                     example:
-                      stac_version: 1.0.0-beta.2
-                      stac_extensions:
-                        - collection-assets
+                      stac_version: 1.0.0-rc.2
                       id: a3cca2b2aa1e3b5b
                       title: NDVI based on Sentinel 2
                       description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
@@ -3915,6 +3920,12 @@ components:
           $ref: '#/components/schemas/stac_version'
         stac_extensions:
           $ref: '#/components/schemas/stac_extensions'
+        type:
+          type: string
+          enum:
+            - Collection
+          description: >-
+            For STAC versions >= 1.0.0-rc.1 this field is required.
         id:
           $ref: '#/components/schemas/collection_id'
         title:
@@ -3939,8 +3950,9 @@ components:
           description: |-
             Version of the collection.
 
-            This property REQUIRES to add `version` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
+            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            to the list of `stac_extensions`.
         deprecated:
           type: boolean
           default: false
@@ -3952,8 +3964,9 @@ components:
             A link with relation type `latest-version` SHOULD be added to the
             links and MUST refer to the collection that can be used instead.
 
-            This property REQUIRES to add `version` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
+            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            to the list of `stac_extensions`.
         license:
           $ref: '#/components/schemas/stac_license'
         providers:
@@ -4134,9 +4147,9 @@ components:
 
             Potential fields for the summaries can be found here:
 
-            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/item-spec/common-metadata.md)**:
+            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/item-spec/common-metadata.md)**:
               A list of commonly used fields throughout all domains
-            * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v1.0.0-beta.2/extensions/README.md#list-of-content-extensions)**:
+            * **[Content Extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/extensions/README.md#list-of-content-extensions)**:
               Domain-specific fields for domains such as EO, SAR and point clouds.
             * **Custom Properties**:
               It is generally allowed to add custom fields.
@@ -4155,7 +4168,7 @@ components:
             The keys MAY be used by clients as file names.
 
             Implementing this property REQUIRES to add `collection-assets`
-            to the list of `stac_extensions`.
+            to the list of `stac_extensions` in STAC < 1.0.0-rc.1.
           allOf:
             - $ref: '#/components/schemas/stac_assets'
     stac_version:
@@ -4169,11 +4182,8 @@ components:
       type: array
       description: >-
         A list of implemented STAC extensions. The list contains URLs to the
-        JSON Schema files it can be validated against. For official extensions,
-        a "shortcut" can be used. This means you can specify the folder name of
-        the extension in the STAC repository, for example `sar` for the SAR
-        extension. If the versions of the extension and the collection diverge,
-        you can specify the URL of the JSON schema file.
+        JSON Schema files it can be validated against. For STAC < 1.0.0-rc.1 
+        shortcuts such as `sar` can be used instead of the schema URL.
       uniqueItems: true
       items:
         anyOf:
@@ -4181,7 +4191,7 @@ components:
             type: string
             format: uri
             example: 'https://www.example.com/stac/custom-extemsion/v1.0/schema.json'
-          - title: Reference to a core extension
+          - title: Reference to a core extension (STAC < 1.0.0-rc.1 only)
             type: string
             example: datacube
     stac_license:
