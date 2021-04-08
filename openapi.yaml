@@ -721,8 +721,7 @@ paths:
                         type: string
                         description: >-
                           Name of the default plan to use when the user doesn't
-                          specify a plan. Is allowed to be *case insensitive*
-                          throughout the API.
+                          specify a plan.
                         example: free
                       plans:
                         description: Array of plans
@@ -738,8 +737,8 @@ paths:
                             name:
                               type: string
                               description: >-
-                                Name of the plan. Is allowed to be *case
-                                insensitive* throughout the API.
+                                Name of the plan. It MUST be accepted in a *case
+                                insensitive* manner throughout the API.
                               example: free
                             description:
                               type: string
@@ -985,7 +984,7 @@ paths:
         `title`.
 
 
-        Format names are allowed to be *case insensitive* throughout the API.
+        Format names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
         - Capabilities
         - Data Processing
@@ -1825,6 +1824,68 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
+                        default_clients:
+                          title: Default OpenID Connect Clients
+                          type: array
+                          description: |-
+                            List of default OpenID Connect clients that can be used by an openEO client
+                            for OpenID Connect based authentication.
+
+                            A default OpenID Connect client is managed by the backend implementer.
+                            It MUST be configured to be usable without a client secret,
+                            which limits its applicability to OpenID Connect grant types like
+                            "Authorization Code Grant with PKCE" and "Device Authorization Grant with PKCE"
+
+                            A default OpenID Connect client is provided without availability guarantees.
+                            The backend implementer CAN revoke, reset or update it any time.
+                            As such, openEO clients SHOULD NOT store or cache default OpenID Connect client information
+                            for long term usage.
+                            A default OpenID Connect client is intended to simplify authentication for novice users.
+                            For production use cases, it is RECOMMENDED to set up a dedicated OpenID Connect client.
+                          uniqueItems: true
+                          items:
+                            title: Default OpenID Connect Client
+                            type: object
+                            required:
+                              - id
+                              - grant_types
+                            properties:
+                              id:
+                                type: string
+                                description: >-
+                                  The OpenID Connect Client ID to be used in the authentication procedure.
+                              grant_types:
+                                type: array
+                                description: |-
+                                  List of authorization grant types (flows) supported by the OpenID Connect client.
+                                  A grant type descriptor consist of a OAuth 2.0 grant type,
+                                  with an additional `+pkce` suffix when the grant type should be used with
+                                  the PKCE extension as defined in [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636.html).
+
+                                  Allowed values:
+                                  - `implicit`: Implicit Grant as specified in [RFC 6749, sec. 1.3.2](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3.2)
+                                  - `authorization_code+pkce`: Authorization Code Grant as specified in [RFC 6749, sec. 1.3.1](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3.1), with PKCE extension.
+                                  - `urn:ietf:params:oauth:grant-type:device_code+pkce`: Device Authorization Grant (aka Device Code Flow) as specified in [RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html), with PKCE extension. Note that the combination of this grant with the PKCE extension is *not standardized* yet.
+                                  - `refresh_token`: Refresh Token as specified in [RFC 6749, sec. 1.5](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.5)
+                                minItems: 1
+                                uniqueItems: true
+                                items:
+                                  type: string
+                                  enum:
+                                    - 'implicit'
+                                    - 'authorization_code+pkce'
+                                    - 'urn:ietf:params:oauth:grant-type:device_code+pkce'
+                                    - 'refresh_token'
+                              redirect_urls:
+                                type: array
+                                description: |-
+                                  List of redirect URLs that are whitelisted by the OpenID Connect client.
+                                  Redirect URLs MUST be provided when the OpenID Connect client supports
+                                  the `implicit` or `authorization_code+pkce` authorization flows.
+                                uniqueItems: true
+                                items:
+                                  type: string
+                                  format: uri
                         links:
                           type: array
                           description: |-
@@ -2247,7 +2308,7 @@ paths:
         [OGC Schema Repository](http://schemas.opengis.net/) for the respective
         services.
 
-        Service names are allowed to be *case insensitive* throughout the API.
+        Service names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
         - Capabilities
         - Secondary Services
@@ -3869,7 +3930,7 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans are allowed to be *case insensitive*.
+        Billing plans MUST be accepted in a *case insensitive* manner.
         
         The plans can be retrieved from `GET /`, but the value returned here may
         not be in the list of plans any longer.
@@ -3879,10 +3940,10 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted *case insensitive*. If `null` is specified
-        by the client explicitly, the server MUST store the default plan and
-        persist it regardless of any changes to the default billing plan in the
-        future.
+        Billing plans MUST be accepted in a *case insensitive* manner. If `null`
+        is specified by the client explicitly, the server MUST store the default
+        plan and persist it regardless of any changes to the default billing plan
+        in the future.
 
         The list of plans and the default plan can be retrieved from `GET /`.
         Billing plans not on the list of available plans MUST be rejected with
@@ -3894,8 +3955,8 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted *case insensitive*. If `null` is given
-        implicitly (through the default value) or explicitly by the client,
+        Billing plans MUST be accepted in a *case insensitive* manner. If `null`
+        is given implicitly (through the default value) or explicitly by the client,
         the server MUST store the default plan and persist it regardless of any
         changes to the default billing plan in the future.
 
@@ -5259,7 +5320,7 @@ components:
       description: >-
         Definition of the service type to access result data. All available
         service types can be retrieved via `GET /service_types`. Service types
-        MUST be accepted *case insensitive*.
+        MUST be accepted in a *case insensitive* manner.
       type: string
       example: wms
     service_configuration:
