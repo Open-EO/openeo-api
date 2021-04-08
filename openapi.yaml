@@ -940,17 +940,15 @@ paths:
     get:
       summary: Supported file formats
       operationId: list-file-types
-      description: >-
+      description: |-
         Lists supported input and output file formats.
         *Input* file formats specify which file a back-end can *read* from.
         *Output* file formats specify which file a back-end can *write* to.
-
 
         The response to this request is an object listing all available input
         and output file formats separately with their parameters and additional
         data. This endpoint does not include the supported secondary web
         services.
-
 
         **Note**: Format names and parameters MUST be fully aligned with the
         GDAL codes if available, see [GDAL Raster
@@ -960,20 +958,17 @@ paths:
         formats not available through GDAL may be defined centrally for openEO.
         Custom file formats or parameters MAY be defined.
 
-
         The format descriptions must describe how the file formats relate to 
         data cubes. Input file formats must describe how the files have to be
         structured to be transformed into data cubes. Output file formats must
         describe how the data cubes are stored at the back-end and how the 
         resulting file structure looks like.
 
-
         Back-ends MUST NOT support aliases, for example it is not allowed to
         support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY
         translate user input input for convenience (e.g. translate `geotiff` to
         `gtiff`). Also, for a better user experience the back-end can specify a
         `title`.
-
 
         Format names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
@@ -1658,6 +1653,7 @@ paths:
                 PHP7:
                   title: PHP v7.x
                   description: Just an example how to reference a docker image.
+                  experimental: true
                   type: docker
                   docker: openeo/udf-php7
                   default: latest
@@ -1676,6 +1672,7 @@ paths:
                   default: 3.5.2
                   versions:
                     3.1.0:
+                      deprecated: true
                       libraries:
                         Rcpp:
                           version: 1.0.10
@@ -2331,6 +2328,10 @@ paths:
                       $ref: '#/components/schemas/object_title'
                     description:
                       $ref: '#/components/schemas/description'
+                    deprecated:
+                      $ref: '#/components/schemas/deprecated'
+                    experimental:
+                      $ref: '#/components/schemas/experimental'
                     configuration:
                       title: Service Configuration
                       description: Map of supported configuration settings made available to the creator of the service.
@@ -3381,6 +3382,10 @@ components:
             The types can potentially be extended by back-ends.
         default:
           type: string
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         links:
           type: array
           description: |-
@@ -3422,6 +3427,10 @@ components:
                 required:
                   - libraries
                 properties:
+                  deprecated:
+                    $ref: '#/components/schemas/deprecated'
+                  experimental:
+                    $ref: '#/components/schemas/experimental'
                   libraries:
                     description: >-
                       Map of installed libraries, modules, packages
@@ -3438,17 +3447,9 @@ components:
                           type: string
                           description: Version number of the library.
                         deprecated:
-                          type: boolean
-                          default: false
-                          description: |-
-                            Specifies that the library is deprecated with the potential to be
-                            removed in any of the next versions. It should be transitioned out
-                            of usage as soon as possible and users should refrain from using it
-                            in new implementations.
-
-                            A link with relation type `latest-version` SHOULD be added to the
-                            `links` and MUST refer to the library or library version that can be
-                            used instead.
+                          $ref: '#/components/schemas/deprecated'
+                        experimental:
+                          $ref: '#/components/schemas/experimental'
                         links:
                           type: array
                           description: |-
@@ -3462,7 +3463,7 @@ components:
                             e.g. a user guide or the documentation.
 
                             2. `latest-version`: If a library has been marked as deprecated,
-                            a link should point to either a new library replacing the deprecated
+                            a link SHOULD point to either a new library replacing the deprecated
                             library or a latest version of the library available at the back-end.
 
                             For additional relation types see also the lists of
@@ -3719,6 +3720,10 @@ components:
               - vector
               - table
               - other
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         parameters:
           title: File Format Parameters
           description: Specifies the supported parameters for this file format.
@@ -4749,9 +4754,9 @@ components:
         returns:
           $ref: '#/components/schemas/process_return_value'
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         exceptions:
           $ref: '#/components/schemas/process_exceptions'
         examples:
@@ -4883,26 +4888,21 @@ components:
           $ref: '#/components/schemas/process_description'
         schema:
           $ref: '#/components/schemas/data_type_schema'
-    process_experimental:
+    experimental:
       type: boolean
       description: >-
-        Declares the process or parameter to be experimental, which means that
+        Declares that the specified entity is experimental, which means that
         it is likely to change or may produce unpredictable behaviour. Users
-        should refrain from using it in production,  but still feel encouraged
+        should refrain from using it in production, but still feel encouraged
         to try it out and give feedback.
       default: false
-    process_deprecated:
+    deprecated:
       type: boolean
-      description: >-
-        Specifies that the process or parameter is deprecated with the potential
+      description: |-
+        Declares that the specified entity is deprecated with the potential
         to be removed in any of the next versions. It should be transitioned out
         of usage as soon as possible and users should refrain from using it in
         new implementations.
-
-
-        For processes a link with relation type `latest-version` SHOULD be
-        added to the `links` and MUST refer to the process that can be used
-        instead.
       default: false
     process_exceptions:
       type: object
@@ -4931,12 +4931,11 @@ components:
           description:
             type: string
             format: commonmark
-            description: >-
+            description: |-
               Detailed description to explain the error to client
               users and back-end developers. This should not be shown in the
               clients directly, but MAY be linked to in the errors `url`
               property.
-
 
               [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
               for rich text representation.
@@ -5001,9 +5000,9 @@ components:
             Back-ends SHOULD NOT fail, if a default value is specified and this flag is missing.
           default: false
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value for this parameter.
@@ -5288,6 +5287,8 @@ components:
           type: boolean
           description: Determines whether this parameter is mandatory.
           default: false
+        experimental:
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value represents what would be assumed by the consumer
@@ -5468,6 +5469,8 @@ components:
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
       additionalProperties: true
     json_schema_type:
       type: string
