@@ -1711,15 +1711,13 @@ paths:
     get:
       summary: OpenID Connect authentication
       operationId: authenticate-oidc
-      description: >-
+      description: |-
         Lists the supported [OpenID Connect](http://openid.net/connect/)
         providers (OP). OpenID Connect Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
-
         It is highly RECOMMENDED to implement OpenID Connect for public services
         in favor of Basic authentication.
-
 
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
@@ -1736,7 +1734,6 @@ paths:
         `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
         (replace `TOKEN` with the actual access token received from the OpenID
         Connect Provider).
-
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
@@ -1760,6 +1757,10 @@ paths:
                 properties:
                   providers:
                     type: array
+                    description: >-
+                      The first provider in this list is the default provider for authentication.
+                      Clients can either pre-select or directly use the default provider for authentication
+                      if the user doesn't specify a specific value.
                     minItems: 1
                     items:
                       title: OpenID Connect Provider
@@ -1817,15 +1818,6 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
-                        default:
-                          type: boolean
-                          default: false
-                          description: |-
-                            One of the OpenID Connect providers can be made the default provider
-                            for authentication by setting this option to `true`.
-
-                            Clients can either pre-select or directly use the default provider for authentication
-                            if the user doesn't specify a specific value.
                         default_clients:
                           title: Default OpenID Connect Clients
                           type: array
@@ -1902,9 +1894,8 @@ paths:
                 providers:
                   - id: egi
                     issuer: 'https://aai.egi.eu/oidc'
-                    title: EGI
+                    title: EGI (default)
                     description: Login with your academic account.
-                    default: true
                     scopes:
                       - openid
                       - profile

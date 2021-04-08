@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
 - `GET /credentials/oidc` can provide a set of default client ids for OpenID Connect. [#366](https://github.com/Open-EO/openeo-api/pull/366)
-- `GET /credentials/oidc` can specify a default provider for OpenID Connect.
 
 ### Changed
 
@@ -19,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
+- Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 
 ## 1.0.1 - 2020-12-07
