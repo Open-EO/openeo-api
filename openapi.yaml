@@ -2980,16 +2980,14 @@ paths:
     get:
       summary: Download results for a completed batch job
       operationId: list-results
-      description: >-
+      description: |-
         Lists signed URLs pointing to the processed files after the batch job
         has finished. Back-ends may also point to intermediate results after the
         job has stopped due to an error.
-        
 
         The response includes additional metadata. It is a valid
-        [STAC Item (version 0.9.0)](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
+        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
         if it has spatial and temporal references included.
-
 
         URL signing is a way to protect files from unauthorized access with a
         key in the URL instead of HTTP header based authorization. The URL
@@ -2998,8 +2996,11 @@ paths:
         programs, e.g. web browsers or download managers. Back-ends are
         responsible to generate the URL signing keys and to manage their
         appropriate expiration. The back-end MAY indicate an expiration time by
-        setting the `expires` property.
-
+        setting the `expires` property in the reponse. Requesting this endpoint
+        SHOULD always return valid URLs. If the links generated for a previous
+        request have expired, the signed URLs SHOULD be renewed. 
+        Once the signed URLs have expired, the signed URLs MAY return the openEO
+        error `LinkExpired`.
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
