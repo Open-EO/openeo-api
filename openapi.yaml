@@ -3997,10 +3997,16 @@ components:
         extent:
           type: object
           title: Collection Extent
-          description: >-
-            The extent of the features in the collection. Additional members MAY
+          description: |-
+            The extent of the data in the collection. Additional members MAY
             be added to represent other extents, for example, thermal or
             pressure ranges.
+
+            The first items in the arrays always describe the overall extent of
+            the data. All subsequent extents can be used to provide a more precise
+            description of the extent and identify clusters of data.
+            Clients only interested in the overall extent will only need to
+            access the first item in each array.
           required:
             - spatial
             - temporal
@@ -4013,12 +4019,16 @@ components:
               type: object
               properties:
                 bbox:
-                  description: >-
+                  description: |-
                     One or more bounding boxes that describe the spatial extent
                     of the dataset.
 
-                    If multiple areas are provided, the union of the bounding
-                    boxes describes the spatial extent.
+                    The first bounding box always describes the overall spatial
+                    extent of the data. All subsequent bounding boxes can be
+                    used to provide a more precise description of the extent and
+                    identify clusters of data.
+                    Clients only interested in the overall spatial extent will
+                    only need to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
@@ -4070,18 +4080,25 @@ components:
               type: object
               properties:
                 interval:
-                  description: >-
+                  description: |-
                     One or more time intervals that describe the temporal extent
                     of the dataset.
 
-                    The value `null` is supported and indicates an open time
-                    interval.
+                    The first time interval always describes the overall
+                    temporal extent of the data. All subsequent time intervals
+                    can be used to provide a more precise description of the
+                    extent and identify clusters of data.
+                    Clients only interested in the overall extent will only need
+                    to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
-                    description: >-
+                    description: |-
                       Begin and end times of the time interval. The coordinate
                       reference system is the Gregorian calendar.
+
+                      The value `null` is supported and indicates an open time
+                      interval.
                     type: array
                     minItems: 2
                     maxItems: 2

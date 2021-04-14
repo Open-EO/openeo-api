@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - API doesn't discourage usage of `multipleOf` in JSON Schemas any longer.
+- The first extent in a Collection is always the overall extent, followed by more specific extents. [#369](https://github.com/Open-EO/openeo-api/issues/369)
 
 ### Fixed
 
