@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /credentials/oidc` can provide a set of default client ids for OpenID Connect. [#366](https://github.com/Open-EO/openeo-api/pull/366)
 - `experimental` and `deprecated` flags added for file formats, service types, udf runtimes, udf runtime versions, udf runtime libraries and all related parameters and schemas. [#354](https://github.com/Open-EO/openeo-api/issues/354)
 - `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: `time` property added. [#330](https://github.com/Open-EO/openeo-api/issues/330)
-- Added error `FileExpired`.  [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- Added error `ResultLinkExpired`.  [#379](https://github.com/Open-EO/openeo-api/issues/379)
 
 ### Changed
 

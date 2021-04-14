@@ -2997,10 +2997,10 @@ paths:
         responsible to generate the URL signing keys and to manage their
         appropriate expiration. The back-end MAY indicate an expiration time by
         setting the `expires` property in the reponse. Requesting this endpoint
-        SHOULD always return valid URLs. If the links generated for a previous
-        request have expired, the signed URLs SHOULD be renewed. 
-        Once the signed URLs have expired, the signed URLs MAY return the openEO
-        error `LinkExpired`.
+        SHOULD always return non-expired URLs. Signed URLs that were generated
+        for a previous request and already expired SHOULD NOT be reused,
+        but regenerated with new expiration time.
+        Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
