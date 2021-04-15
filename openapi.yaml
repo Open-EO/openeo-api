@@ -3118,6 +3118,41 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
+    patch:
+      summary: Revoke signed URLs in batch job results
+      operationId: update-job-results
+      description: |-
+        Revoke access to all previously generated signed URLs for batch job
+        results.
+
+        Note: The functionality may be extended in the future.
+      tags:
+        - Batch Jobs
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: Changes to the batch job results were applied successfully.
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+      requestBody:
+        description: Changes requested for the specified batch job results.
+        required: true
+        content:
+          application/json:
+            schema:
+              title: Update Batch Job Results
+              type: object
+              properties:
+                assets:
+                  description: >-
+                    Send the value `null` to revoke all previously
+                    generated signed URLs for batch job results.
+                  nullable: true
+                  enum:
+                    - null
   '/files':
     get:
       summary: List all files in the workspace
