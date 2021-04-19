@@ -949,17 +949,15 @@ paths:
     get:
       summary: Supported file formats
       operationId: list-file-types
-      description: >-
+      description: |-
         Lists supported input and output file formats.
         *Input* file formats specify which file a back-end can *read* from.
         *Output* file formats specify which file a back-end can *write* to.
-
 
         The response to this request is an object listing all available input
         and output file formats separately with their parameters and additional
         data. This endpoint does not include the supported secondary web
         services.
-
 
         **Note**: Format names and parameters MUST be fully aligned with the
         GDAL codes if available, see [GDAL Raster
@@ -969,20 +967,17 @@ paths:
         formats not available through GDAL may be defined centrally for openEO.
         Custom file formats or parameters MAY be defined.
 
-
         The format descriptions must describe how the file formats relate to 
         data cubes. Input file formats must describe how the files have to be
         structured to be transformed into data cubes. Output file formats must
         describe how the data cubes are stored at the back-end and how the 
         resulting file structure looks like.
 
-
         Back-ends MUST NOT support aliases, for example it is not allowed to
         support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY
         translate user input input for convenience (e.g. translate `geotiff` to
         `gtiff`). Also, for a better user experience the back-end can specify a
         `title`.
-
 
         Format names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
@@ -1665,6 +1660,7 @@ paths:
                 PHP7:
                   title: PHP v7.x
                   description: Just an example how to reference a docker image.
+                  experimental: true
                   type: docker
                   docker: openeo/udf-php7
                   default: latest
@@ -1683,6 +1679,7 @@ paths:
                   default: 3.5.2
                   versions:
                     3.1.0:
+                      deprecated: true
                       libraries:
                         Rcpp:
                           version: 1.0.10
@@ -1718,15 +1715,13 @@ paths:
     get:
       summary: OpenID Connect authentication
       operationId: authenticate-oidc
-      description: >-
+      description: |-
         Lists the supported [OpenID Connect](http://openid.net/connect/)
         providers (OP). OpenID Connect Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
 
-
         It is highly RECOMMENDED to implement OpenID Connect for public services
         in favor of Basic authentication.
-
 
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
@@ -1743,7 +1738,6 @@ paths:
         `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
         (replace `TOKEN` with the actual access token received from the OpenID
         Connect Provider).
-
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
@@ -1767,6 +1761,10 @@ paths:
                 properties:
                   providers:
                     type: array
+                    description: >-
+                      The first provider in this list is the default provider for authentication.
+                      Clients can either pre-select or directly use the default provider for authentication
+                      if the user doesn't specify a specific value.
                     minItems: 1
                     items:
                       title: OpenID Connect Provider
@@ -1898,6 +1896,23 @@ paths:
                             $ref: '#/components/schemas/link'
               example:
                 providers:
+                  - id: egi
+                    issuer: 'https://aai.egi.eu/oidc'
+                    title: EGI (default)
+                    description: Login with your academic account.
+                    scopes:
+                      - openid
+                      - profile
+                      - email
+                    default_clients:
+                      - id: KStcUzD5AIUA
+                        grant_types:
+                          - implicit
+                          - authorization_code+pkce
+                          - urn:ietf:params:oauth:grant-type:device_code+pkce
+                          - refresh_token
+                        redirect_urls:
+                          - https://editor.openeo.org/
                   - id: google
                     issuer: 'https://accounts.google.com'
                     title: Google
@@ -2338,6 +2353,10 @@ paths:
                       $ref: '#/components/schemas/object_title'
                     description:
                       $ref: '#/components/schemas/description'
+                    deprecated:
+                      $ref: '#/components/schemas/deprecated'
+                    experimental:
+                      $ref: '#/components/schemas/experimental'
                     configuration:
                       title: Service Configuration
                       description: Map of supported configuration settings made available to the creator of the service.
@@ -3005,7 +3024,11 @@ paths:
         programs, e.g. web browsers or download managers. Back-ends are
         responsible to generate the URL signing keys and to manage their
         appropriate expiration. The back-end MAY indicate an expiration time by
-        setting the `expires` property.
+        setting the `expires` property in the reponse. Requesting this endpoint
+        SHOULD always return non-expired URLs. Signed URLs that were generated
+        for a previous request and already expired SHOULD NOT be reused,
+        but regenerated with new expiration time.
+        Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
@@ -3476,6 +3499,10 @@ components:
             The types can potentially be extended by back-ends.
         default:
           type: string
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         links:
           type: array
           description: |-
@@ -3517,6 +3544,10 @@ components:
                 required:
                   - libraries
                 properties:
+                  deprecated:
+                    $ref: '#/components/schemas/deprecated'
+                  experimental:
+                    $ref: '#/components/schemas/experimental'
                   libraries:
                     description: >-
                       Map of installed libraries, modules, packages
@@ -3533,17 +3564,9 @@ components:
                           type: string
                           description: Version number of the library.
                         deprecated:
-                          type: boolean
-                          default: false
-                          description: |-
-                            Specifies that the library is deprecated with the potential to be
-                            removed in any of the next versions. It should be transitioned out
-                            of usage as soon as possible and users should refrain from using it
-                            in new implementations.
-
-                            A link with relation type `latest-version` SHOULD be added to the
-                            `links` and MUST refer to the library or library version that can be
-                            used instead.
+                          $ref: '#/components/schemas/deprecated'
+                        experimental:
+                          $ref: '#/components/schemas/experimental'
                         links:
                           type: array
                           description: |-
@@ -3557,7 +3580,7 @@ components:
                             e.g. a user guide or the documentation.
 
                             2. `latest-version`: If a library has been marked as deprecated,
-                            a link should point to either a new library replacing the deprecated
+                            a link SHOULD point to either a new library replacing the deprecated
                             library or a latest version of the library available at the back-end.
 
                             For additional relation types see also the lists of
@@ -3772,6 +3795,10 @@ components:
               - vector
               - table
               - other
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         parameters:
           title: File Format Parameters
           description: Specifies the supported parameters for this file format.
@@ -4035,10 +4062,16 @@ components:
         extent:
           type: object
           title: Collection Extent
-          description: >-
-            The extent of the features in the collection. Additional members MAY
+          description: |-
+            The extent of the data in the collection. Additional members MAY
             be added to represent other extents, for example, thermal or
             pressure ranges.
+
+            The first item in the array always describes the overall extent of
+            the data. All subsequent items describe more preciseextents,
+            e.g. to identify clusters of data.
+            Clients only interested in the overall extent will only need to
+            access the first item in each array.
           required:
             - spatial
             - temporal
@@ -4051,12 +4084,15 @@ components:
               type: object
               properties:
                 bbox:
-                  description: >-
+                  description: |-
                     One or more bounding boxes that describe the spatial extent
                     of the dataset.
 
-                    If multiple areas are provided, the union of the bounding
-                    boxes describes the spatial extent.
+                    The first bounding box describes the overall spatial extent
+                    of the data. All subsequent bounding boxes describe more
+                    precise bounding boxes, e.g. to identify clusters of data.
+                    Clients only interested in the overall spatial extent will
+                    only need to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
@@ -4108,18 +4144,24 @@ components:
               type: object
               properties:
                 interval:
-                  description: >-
+                  description: |-
                     One or more time intervals that describe the temporal extent
                     of the dataset.
 
-                    The value `null` is supported and indicates an open time
-                    interval.
+                    The first time interval describes the overall temporal extent
+                    of the data. All subsequent time intervals describe more
+                    precise time intervals, e.g. to identify clusters of data.
+                    Clients only interested in the overall extent will only need
+                    to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
-                    description: >-
+                    description: |-
                       Begin and end times of the time interval. The coordinate
                       reference system is the Gregorian calendar.
+
+                      The value `null` is supported and indicates an open time
+                      interval.
                     type: array
                     minItems: 2
                     maxItems: 2
@@ -4840,9 +4882,9 @@ components:
         returns:
           $ref: '#/components/schemas/process_return_value'
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         exceptions:
           $ref: '#/components/schemas/process_exceptions'
         examples:
@@ -4974,26 +5016,21 @@ components:
           $ref: '#/components/schemas/process_description'
         schema:
           $ref: '#/components/schemas/data_type_schema'
-    process_experimental:
+    experimental:
       type: boolean
       description: >-
-        Declares the process or parameter to be experimental, which means that
+        Declares that the specified entity is experimental, which means that
         it is likely to change or may produce unpredictable behaviour. Users
-        should refrain from using it in production,  but still feel encouraged
+        should refrain from using it in production, but still feel encouraged
         to try it out and give feedback.
       default: false
-    process_deprecated:
+    deprecated:
       type: boolean
-      description: >-
-        Specifies that the process or parameter is deprecated with the potential
+      description: |-
+        Declares that the specified entity is deprecated with the potential
         to be removed in any of the next versions. It should be transitioned out
         of usage as soon as possible and users should refrain from using it in
         new implementations.
-
-
-        For processes a link with relation type `latest-version` SHOULD be
-        added to the `links` and MUST refer to the process that can be used
-        instead.
       default: false
     process_exceptions:
       type: object
@@ -5022,12 +5059,11 @@ components:
           description:
             type: string
             format: commonmark
-            description: >-
+            description: |-
               Detailed description to explain the error to client
               users and back-end developers. This should not be shown in the
               clients directly, but MAY be linked to in the errors `url`
               property.
-
 
               [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
               for rich text representation.
@@ -5092,9 +5128,9 @@ components:
             Back-ends SHOULD NOT fail, if a default value is specified and this flag is missing.
           default: false
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value for this parameter.
@@ -5379,6 +5415,8 @@ components:
           type: boolean
           description: Determines whether this parameter is mandatory.
           default: false
+        experimental:
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value represents what would be assumed by the consumer
@@ -5559,6 +5597,8 @@ components:
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
       additionalProperties: true
     json_schema_type:
       type: string
@@ -5756,6 +5796,13 @@ components:
           example: >-
             Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
             Server responded with error 404.
+        time:
+          type: string
+          format: date-time
+          title: Date and Time
+          description: >-
+            The date and time the event happened, in UTC. Formatted as a
+            [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
         data:
           description: |-
             Data of any type. It is the back-ends task to decide how to best

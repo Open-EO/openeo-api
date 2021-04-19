@@ -9,12 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
 - `GET /credentials/oidc` can provide a set of default client ids for OpenID Connect. [#366](https://github.com/Open-EO/openeo-api/pull/366)
+- `experimental` and `deprecated` flags added for file formats, service types, udf runtimes, udf runtime versions, udf runtime libraries and all related parameters and schemas. [#354](https://github.com/Open-EO/openeo-api/issues/354)
+- `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`: `time` property added. [#330](https://github.com/Open-EO/openeo-api/issues/330)
+- Added error `ResultLinkExpired`.  [#379](https://github.com/Open-EO/openeo-api/issues/379)
 
 ### Changed
 
 - API doesn't discourage usage of `multipleOf` in JSON Schemas any longer.
 - `GET /jobs/{job_id}/results` supports to return a STAC Collection. [#343](https://github.com/Open-EO/openeo-api/issues/343)
 - Updated STAC schemas to better support versions 1.x.x.
+- The first extent in a Collection is always the overall extent, followed by more specific extents. [#369](https://github.com/Open-EO/openeo-api/issues/369)
 
 ### Fixed
 
@@ -22,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that job results schould be stored as valid STAC catalogs. [#363](https://github.com/Open-EO/openeo-api/issues/363)
 - Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
+- Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
+- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 
 ## 1.0.1 - 2020-12-07
