@@ -16,11 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - API doesn't discourage usage of `multipleOf` in JSON Schemas any longer.
+- `GET /jobs/{job_id}/results` supports to return a STAC Collection. [#343](https://github.com/Open-EO/openeo-api/issues/343)
+- Updated STAC schemas to better support versions 1.x.x.
 - The first extent in a Collection is always the overall extent, followed by more specific extents. [#369](https://github.com/Open-EO/openeo-api/issues/369)
 
 ### Fixed
 
 - Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+- Clarified that job results schould be stored as valid STAC catalogs. [#363](https://github.com/Open-EO/openeo-api/issues/363)
+- Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
 - Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
 - Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
