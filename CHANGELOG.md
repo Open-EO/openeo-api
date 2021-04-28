@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
 - Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
+- Clarified allowed characters in the `path` for uploaded user files.
 
 ## 1.0.1 - 2020-12-07
 

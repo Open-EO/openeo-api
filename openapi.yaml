@@ -5524,10 +5524,17 @@ components:
       properties:
         path:
           type: string
-          description: >-
-            Path of the file, relative to the user's root directory. MUST NOT
-            start with a slash and MUST NOT be url-encoded.
+          description: |-
+            Path of the file, relative to the root directory of the user's server-side workspace.
+            MUST NOT start with a slash `/` and MUST NOT be url-encoded.
+
+            The Windows-style path name component separator `\` is not supported,
+            always use `/` instead.
+
+            Note: The pattern only specifies a minimal subset of invalid characters.
+            The back-ends MAY enforce additional restrictions depending on their OS/environment.
           example: folder/file.txt
+          pattern: "^[^/\r\n\\:'\"][^\r\n\\:'\"]*$"
         size:
           type: integer
           description: File size in bytes.
