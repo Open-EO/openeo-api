@@ -5235,6 +5235,17 @@ components:
           $ref: '#/components/schemas/money'
         budget:
           $ref: '#/components/schemas/budget'
+        usage:
+          description: |-
+            Metrics about the resource usage of the batch job.
+            
+            Back-ends are not expected to update the metrics while processing data,
+            so the metrics can only be available after the job has been finished
+            or has errored.
+            For usage metrics during processing, metrics can better be added to the
+            logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
+          allOf:
+            - $ref: '#/components/schemas/usage'
     job_id:
       type: string
       description: >-
@@ -5362,6 +5373,16 @@ components:
           $ref: '#/components/schemas/money'
         budget:
           $ref: '#/components/schemas/budget'
+        usage:
+          description: |-
+            Metrics about the resource usage of the secondary web service.
+            
+            Back-ends are not expected to update the metrics in real-time.
+            For detailed usage metrics for individual processing steps, metrics
+            can be added to the logs (e.g. `GET /jobs/{job_id}/logs`) with the
+            same schema.
+          allOf:
+            - $ref: '#/components/schemas/usage'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5847,8 +5868,76 @@ components:
                 pattern: '^\w+$'
                 nullable: true
                 example: udf
+        usage:
+          $ref: '#/components/schemas/usage'
         links:
           $ref: '#/components/schemas/log_links'
+    usage:
+      title: Resource usage metrics
+      type: object
+      properties:
+        cpu:
+          description: |-
+            Specifies the CPU usage, usually in a unit such as `cpu-seconds`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        memory:
+          description: |-
+            Specifies the memory usage, usually in a unit such as `mb-seconds` or `gb-hours`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        duration:
+          description: |-
+            Specifies the wall time, usually in a unit such as `seconds`, `minutes` or `hours`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        network:
+          description: |-
+            Specifies the network transfer usage (incoming and outgoing), usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        disk:
+          description: |-
+            Specifies the amount of input (read) and output (write) operations on the storage such as disks, usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        storage:
+          description: |-
+            Specifies the usage of storage space, usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+      additionalProperties:
+          description: |-
+            Additional metrics.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+      example:
+        cpu: 
+          value: 40668
+          unit: cpu-seconds
+        duration:
+          value: 2611
+          unit: seconds
+        memory:
+          value: 108138811
+          unit: mb-seconds
+        network:
+          value: 0
+          unit: kb
+        storage:
+          value: 55
+          unit: mb
+    usage_metric:
+      type: object
+      required:
+        - value
+        - unit
+      properties:
+        value:
+          type: number
+          minimum: 0
+        unit:
+          type: string
   responses:
     logs:
       description: Lists the requested log entries.
