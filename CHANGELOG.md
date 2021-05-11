@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `time` property added. [#330](https://github.com/Open-EO/openeo-api/issues/330)
   - `usage` property added to log entries. [#370](https://github.com/Open-EO/openeo-api/issues/370)
 - Added error `ResultLinkExpired`. [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- `GET /me`: A default plan per user can be specified. [#375](https://github.com/Open-EO/openeo-api/issues/375)
 
 ### Changed
 
