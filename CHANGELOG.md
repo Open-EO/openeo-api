@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+## [1.1.0] - 2021-06-15
+
 ### Added
 - `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
 - Recommendation that `POST /result` returns a `tar` file if the result consists of multiple files. [#349](https://github.com/Open-EO/openeo-api/issues/349)
@@ -367,6 +369,7 @@ Initial version.
 
 
 [Unreleased]: <https://github.com/Open-EO/openeo-api/compare/master...dev>
+[1.1.0]: <https://github.com/Open-EO/openeo-api/compare/1.0.1...1.1.0>
 [1.0.1]: <https://github.com/Open-EO/openeo-api/compare/1.0.0...1.0.1>
 [1.0.0]: <https://github.com/Open-EO/openeo-api/compare/0.4.2...1.0.0>
 [0.4.2]: <https://github.com/Open-EO/openeo-api/compare/0.4.1...0.4.2>
