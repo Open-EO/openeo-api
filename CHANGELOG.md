@@ -83,9 +83,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Additional dimensions in `cube:dimensions` can only be of type `other`.
     - The extents `interval` and `bbox` can have multiple entries.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
-- Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
+- Process graph nodes have an additional field `namespace` to distinguish predefined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
 - Added `format: commonmark` to all properties supporting CommonMark formatting.
-- `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
+- `errors.json`: The predefined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
     - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
     - Added variable `reason` to error `FilePathInvalid` and `type` to `FileTypeInvalid` and`ServiceUnsupported`.
     - Replaced the following error messages. The variables in the messages may have changed, too.
