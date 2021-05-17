@@ -6,7 +6,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
-## 1.0.1 - 2020-12-07
+## [1.1.0] - 2021-06-15
+
+### Added
+- `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
+- Recommendation that `POST /result` returns a `tar` file if the result consists of multiple files. [#349](https://github.com/Open-EO/openeo-api/issues/349)
+- `GET /credentials/oidc` can provide a set of default client ids for OpenID Connect. [#366](https://github.com/Open-EO/openeo-api/pull/366)
+- `experimental` and `deprecated` flags added for file formats, service types, udf runtimes, udf runtime versions, udf runtime libraries and all related parameters and schemas. [#354](https://github.com/Open-EO/openeo-api/issues/354)
+- `GET /jobs/{job_id}` and `GET /services/{service_id}`: `usage` property added for usage metrics. [#370](https://github.com/Open-EO/openeo-api/issues/370)
+- `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`:
+  - `time` property added. [#330](https://github.com/Open-EO/openeo-api/issues/330)
+  - `usage` property added to log entries. [#370](https://github.com/Open-EO/openeo-api/issues/370)
+- Added error `ResultLinkExpired`. [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- `GET /me`: A default plan per user can be specified. [#375](https://github.com/Open-EO/openeo-api/issues/375)
+
+### Changed
+
+- API doesn't discourage usage of `multipleOf` in JSON Schemas any longer.
+- `GET /jobs/{job_id}/results` supports to return a STAC Collection. [#343](https://github.com/Open-EO/openeo-api/issues/343)
+- Updated STAC schemas to better support versions 1.x.x.
+- The first extent in a Collection is always the overall extent, followed by more specific extents. [#369](https://github.com/Open-EO/openeo-api/issues/369)
+
+### Fixed
+
+- Clarified how process exceptions should be used. [#352](https://github.com/Open-EO/openeo-api/issues/352)
+- Clarified that job results schould be stored as valid STAC catalogs. [#363](https://github.com/Open-EO/openeo-api/issues/363)
+- Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
+- Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
+- Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
+- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
+- Clarified allowed characters in the `path` for uploaded user files.
+
+## [1.0.1] - 2020-12-07
 
 ### Changed
 - `GET /collections` and `GET /collections/{collection_id}`: Units for STAC dimensions in `cube:dimensions` should be compliant to UDUNITS-2 units (singular) whenever available.
@@ -25,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed JSON Schema links to point to draft-07 instead of draft/2019-09.
 - `GET /jobs/{job_id}/estimate`: Enforce in the response schema that "at least one of `costs`, `duration` or `size` MUST be provided."
 
-## 1.0.0 - 2020-07-17
+## [1.0.0] - 2020-07-17
 
 ### Added
 - `GET /me`: Added optional `name` property to better separate an internal user id from a displayable user name. Adopted description of `user_id` accordingly.
@@ -85,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified the expected behavior for process parameters, if a default value is given and the parameter is implicitly set to be required. [#303](https://github.com/Open-EO/openeo-api/issues/303)
 - Several clarifications and improvements for the documentation.
 
-## 1.0.0-rc.2 - 2020-02-20
+## [1.0.0-rc.2] - 2020-02-20
 
 ### Added
 - `PUT /process_graphs/{process_graph_id}` to store and replace custom process-graphs. [#260](https://github.com/Open-EO/openeo-api/issues/260)
@@ -115,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify that a copy of the STAC Item is recommended to be part of the assets in a batch job download.
 - Removed outdated error codes from `errors.json`.
 
-## 1.0.0-rc.1 - 2020-01-31
+## [1.0.0-rc.1] - 2020-01-31
 
 **Note:** The user and developer documentation has been moved to [openeo.org](https://openeo.org/documentation).
 
@@ -334,3 +366,15 @@ Version for proof of concept. No changelog available.
 
 ## [0.0.1] - 2018-02-07
 Initial version.
+
+
+[Unreleased]: <https://github.com/Open-EO/openeo-api/compare/master...dev>
+[1.1.0]: <https://github.com/Open-EO/openeo-api/compare/1.0.1...1.1.0>
+[1.0.1]: <https://github.com/Open-EO/openeo-api/compare/1.0.0...1.0.1>
+[1.0.0]: <https://github.com/Open-EO/openeo-api/compare/0.4.2...1.0.0>
+[0.4.2]: <https://github.com/Open-EO/openeo-api/compare/0.4.1...0.4.2>
+[0.4.1]: <https://github.com/Open-EO/openeo-api/compare/0.4.0...0.4.1>
+[0.4.0]: <https://github.com/Open-EO/openeo-api/compare/0.3.0...0.4.0>
+[0.3.0]: <https://github.com/Open-EO/openeo-api/compare/0.0.2...0.3.0>
+[0.0.2]: <https://github.com/Open-EO/openeo-api/compare/0.0.1...0.0.2>
+[0.0.1]: <https://github.com/Open-EO/openeo-api/tree/0.0.1>

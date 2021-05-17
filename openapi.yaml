@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: openEO API
-  version: 1.0.1
+  version: 1.1.0
   description: |-
     The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.
 
@@ -9,13 +9,13 @@ info:
 
     ## Language
 
-    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119) and [RFC 8174](http://tools.ietf.org/html/rfc8174).
+    In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174.html).
 
     ## Casing
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (_) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://tools.ietf.org/html/rfc7230#section-3.2).
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2).
 
     ## HTTP / REST
 
@@ -48,7 +48,7 @@ info:
 
     ## Error Handling
 
-    The success of requests MUST be indicated using [HTTP status codes](https://tools.ietf.org/html/rfc7231#section-6) according to [RFC 7231](https://tools.ietf.org/html/rfc7231).
+    The success of requests MUST be indicated using [HTTP status codes](https://www.rfc-editor.org/rfc/rfc7231.html#section-6) according to [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html).
 
     If the API responds with a status code between 100 and 399 the back-end indicates that the request has been handled successfully.
 
@@ -116,7 +116,7 @@ info:
 
     ## Temporal data
 
-    Date, time, intervals and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.ietf.org/rfc/rfc3339) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
+    Date, time, intervals and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
 
     # Authentication
 
@@ -225,7 +225,7 @@ info:
 
     Back-ends and users MAY define new proprietary processes for their domain. 
     
-    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](/#tag/Process-Discovery) to define new processes. This includes:
+    **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](#operation/list-processes) to define new processes. This includes:
 
     * Choosing a intuitive process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the pre-defined processes.
     * Defining the parameters and their exact (JSON) schemes.
@@ -233,7 +233,7 @@ info:
     * Providing examples or compliance tests.
     * Trying to make the process universally usable so that other back-end providers or openEO can adopt it.
     
-    **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs`](/#tag/User-Defined-Processes) to define new processes. This includes:
+    **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs/{process_graph_id}`](#operation/describe-custom-process) to define new processes. This includes:
 
     * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
     * Defining the algorithm as a process graph.
@@ -245,16 +245,21 @@ info:
 
     Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
 
-    Two custom keywords have been defined:
+    Three custom keywords have been defined:
     * `subtype` for more fine-grained data-types than JSON Schema supports.
-    * `parameters` to specify parameters that processes can pass to other process graphs.
+    * `parameters` to specify the parameters of a process graph (object with subtype `process-graph`).
+    * `returns` to describe the return value of a process graph (object with subtype `process-graph`).
 
     ### Subtypes
 
     JSON Schema allows to specify only a small set of native data types (string, boolean, number, integer, array, object, null).
     To support more fine grained data types, a custom [JSON Schema keyword](https://json-schema.org/draft-07/json-schema-core.html#rfc.section.6.4) has been defined: `subtype`.
-    It works similarly as the JSON Schema keyword [`format`](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.7) and defines a number of subtypes for the native data types.
-    These should be re-used in process schema definitions whenever suitable.
+    It works similarly as the JSON Schema keyword [`format`](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.7)
+    and standardizes a number of openEO related data types that extend the native data types, for example:
+    `bounding-box` (object with at least `west`, `south`, `east` and `north` properties),
+    `date-time` (string representation of date and time following RFC 3339),
+    `raster-cube` (the type of data cubes), etc.
+    The subtypes should be re-used in process schema definitions whenever suitable.
     
     If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
     Clients should offer make passing subtypes as easy as passing a general data type.
@@ -487,19 +492,21 @@ tags:
       
       ### Content Extensions
       
-      STAC has several [extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
+      STAC has several [extensions](https://stac-extensions.github.io) that can be used to better describe your data. Clients and server are not required to implement all of them, so be aware that some clients may not be able to read all your metadata.
       
       Some commonly used extensions that are relevant for datasets exposed through the openEO API are:
       
       - Data Cube extension (part of the openEO API)
-      - [EO (Electro-Optical) extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/eo)
-      - [SAR extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sar)
-      - [Satellite extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/sat)
-      - [Scientific extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
+      - [EO (Electro-Optical) extension](https://github.com/stac-extensions/eo)
+      - [Processing extension](https://github.com/stac-extensions/processing)
+      - [Raster extension](https://github.com/stac-extensions/raster)
+      - [SAR extension](https://github.com/stac-extensions/sar)
+      - [Satellite extension](https://github.com/stac-extensions/sat)
+      - [Scientific Citation extension](https://github.com/stac-extensions/scientific)
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collectionId}/items` and `GET /collections/{collectionId}/items/{featureId}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -573,7 +580,7 @@ paths:
                       Version number of the openEO specification this back-end
                       implements.
                     enum:
-                      - 1.0.1
+                      - 1.1.0
                   backend_version:
                     type: string
                     description: >-
@@ -584,6 +591,13 @@ paths:
                     example: 1.1.2
                   stac_version:
                     $ref: '#/components/schemas/stac_version'
+                  type:
+                    type: string
+                    enum:
+                      - Catalog
+                    description: >-
+                      For STAC versions >= 1.0.0-rc.1 this field is required.
+                    example: Catalog
                   id: 
                     type: string
                     description: >-
@@ -707,8 +721,8 @@ paths:
                         type: string
                         description: >-
                           Name of the default plan to use when the user doesn't
-                          specify a plan. Is allowed to be *case insensitive*
-                          throughout the API.
+                          specify a plan or has no default plan has been assigned
+                          for the user.
                         example: free
                       plans:
                         description: Array of plans
@@ -724,8 +738,8 @@ paths:
                             name:
                               type: string
                               description: >-
-                                Name of the plan. Is allowed to be *case
-                                insensitive* throughout the API.
+                                Name of the plan. It MUST be accepted in a *case
+                                insensitive* manner throughout the API.
                               example: free
                             description:
                               type: string
@@ -844,7 +858,7 @@ paths:
       description: |-
         Lists all implemented openEO versions supported by the
         service provider. This endpoint is the Well-Known URI
-        (see [RFC 5785](https://tools.ietf.org/html/rfc5785)) for openEO.
+        (see [RFC 5785](https://www.rfc-editor.org/rfc/rfc5785.html)) for openEO.
 
         This allows a client to easily identify the most recent openEO
         implementation it supports. By default, a client SHOULD connect to the
@@ -936,17 +950,15 @@ paths:
     get:
       summary: Supported file formats
       operationId: list-file-types
-      description: >-
+      description: |-
         Lists supported input and output file formats.
         *Input* file formats specify which file a back-end can *read* from.
         *Output* file formats specify which file a back-end can *write* to.
-
 
         The response to this request is an object listing all available input
         and output file formats separately with their parameters and additional
         data. This endpoint does not include the supported secondary web
         services.
-
 
         **Note**: Format names and parameters MUST be fully aligned with the
         GDAL codes if available, see [GDAL Raster
@@ -956,13 +968,11 @@ paths:
         formats not available through GDAL may be defined centrally for openEO.
         Custom file formats or parameters MAY be defined.
 
-
         The format descriptions must describe how the file formats relate to 
         data cubes. Input file formats must describe how the files have to be
         structured to be transformed into data cubes. Output file formats must
         describe how the data cubes are stored at the back-end and how the 
         resulting file structure looks like.
-
 
         Back-ends MUST NOT support aliases, for example it is not allowed to
         support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY
@@ -970,8 +980,7 @@ paths:
         `gtiff`). Also, for a better user experience the back-end can specify a
         `title`.
 
-
-        Format names are allowed to be *case insensitive* throughout the API.
+        Format names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
         - Capabilities
         - Data Processing
@@ -1145,11 +1154,11 @@ paths:
         To get the full metadata for a collection clients MUST
         request `GET /collections/{collection_id}`.
 
-        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions)
+        [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1178,7 +1187,8 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
               example:
                 collections:
-                  - stac_version: 0.9.0
+                  - stac_version: 1.0.0-rc.2
+                    type: Collection
                     id: Sentinel-2A
                     title: Sentinel-2A MSI L1C
                     description: >-
@@ -1220,7 +1230,8 @@ paths:
                       - rel: license
                         href: >-
                           https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
-                  - stac_version: 0.9.0
+                  - stac_version: 1.0.0-rc.2
+                    type: Collection
                     id: MOD09Q1
                     title: >-
                       MODIS/Terra Surface Reflectance 8-Day L3 Global 250m SIN
@@ -1270,11 +1281,11 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
-        [STAC extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions)
+        [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
       tags:
         - EO Data Discovery
@@ -1301,12 +1312,10 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/collection'
               example:
-                stac_version: 0.9.0
+                stac_version: 1.0.0-rc.2
                 stac_extensions:
-                  - collection-assets
-                  - datacube
-                  - scientific
-                  - version
+                  - https://stac-extensions.github.io/datacube/v1.0.0/schema.json
+                type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
                 description: >-
@@ -1319,7 +1328,6 @@ paths:
                   - esa
                   - msi
                   - sentinel
-                version: 20200106A
                 providers:
                   - name: European Space Agency (ESA)
                     roles:
@@ -1396,7 +1404,6 @@ paths:
                       - B10
                       - B11
                       - B12
-                'sci:citation': 'Copernicus Sentinel data [Year]'
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -1654,6 +1661,7 @@ paths:
                 PHP7:
                   title: PHP v7.x
                   description: Just an example how to reference a docker image.
+                  experimental: true
                   type: docker
                   docker: openeo/udf-php7
                   default: latest
@@ -1672,6 +1680,7 @@ paths:
                   default: 3.5.2
                   versions:
                     3.1.0:
+                      deprecated: true
                       libraries:
                         Rcpp:
                           version: 1.0.10
@@ -1707,22 +1716,20 @@ paths:
     get:
       summary: OpenID Connect authentication
       operationId: authenticate-oidc
-      description: >-
+      description: |-
         Lists the supported [OpenID Connect](http://openid.net/connect/)
-        providers (OP). OpenID Providers MUST support [OpenID Connect
+        providers (OP). OpenID Connect Providers MUST support [OpenID Connect
         Discovery](http://openid.net/specs/openid-connect-discovery-1_0.html).
-
 
         It is highly RECOMMENDED to implement OpenID Connect for public services
         in favor of Basic authentication.
 
-
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
         about Bearer tokens in this document). Clients MUST NOT use the id token
-        or the authorization code. The access token provided by an OpenID
+        or the authorization code. The access token provided by an OpenID Connect
         Provider does not necessarily provide information about the issuer (i.e. the
-        OpenID provider) and therefore a prefix MUST be added to the Bearer
+        OpenID Connect provider) and therefore a prefix MUST be added to the Bearer
         Token sent in subsequent API calls to protected endpoints. The Bearer
         Token sent to protected endpoints MUST consist of the authentication
         method (here `oidc`), the provider ID and the access token itself. All
@@ -1731,34 +1738,37 @@ paths:
         endpoint.  The header in subsequent API calls for a provider with `id`
         `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
         (replace `TOKEN` with the actual access token received from the OpenID
-        Provider).
-
+        Connect Provider).
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
         using the access token (without the prefix described above). Therefore,
         both openEO client and openEO back-end are relying parties (clients) to
-        the OpenID Provider.
+        the OpenID Connect Provider.
       tags:
         - Account Management
       security:
         - {}
       responses:
         '200':
-          description: Lists the the OpenID Providers.
+          description: Lists the the OpenID Connect Providers.
           content:
             application/json:
               schema:
-                title: OpenID Providers
+                title: OpenID Connect Providers
                 type: object
                 required:
                   - providers
                 properties:
                   providers:
                     type: array
+                    description: >-
+                      The first provider in this list is the default provider for authentication.
+                      Clients can either pre-select or directly use the default provider for authentication
+                      if the user doesn't specify a specific value.
                     minItems: 1
                     items:
-                      title: OpenID Provider
+                      title: OpenID Connect Provider
                       type: object
                       required:
                         - id
@@ -1768,7 +1778,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A **unique** identifier for the OpenID Provider to
+                            A **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -1777,12 +1787,12 @@ paths:
                           description: >-
                             The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
                             (also referred to as 'authority' in some client libraries) is the URL of the
-                            OpenID provider, which conforms to a set of rules:
+                            OpenID Connect provider, which conforms to a set of rules:
 
                             1. After appending `/.well-known/openid-configuration` to the URL, a
                             [HTTP/1.1 GET
                             request](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest)
-                            to the concatenated URL MUST return a [OpenID Discovery Configuration
+                            to the concatenated URL MUST return a [OpenID Connect Discovery Configuration
                             Response](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse).
                             The response provides all information required to authenticate using
                             OpenID Connect.
@@ -1793,7 +1803,7 @@ paths:
                         scopes:
                           type: array
                           description: >-
-                            A list of OpenID Connect scopes that the client MUST use.
+                            A list of OpenID Connect scopes that the client MUST include when requesting authorization.
                             If scopes are specified, the list MUST at least contain the `openid` scope.
                           items:
                             type: string
@@ -1801,7 +1811,7 @@ paths:
                           type: string
                           description: >-
                             The name that is publicly shown in clients for this
-                            OpenID provider.
+                            OpenID Connect provider.
                         description:
                           type: string
                           format: commonmark
@@ -1813,6 +1823,68 @@ paths:
 
                             [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
                             text representation.
+                        default_clients:
+                          title: Default OpenID Connect Clients
+                          type: array
+                          description: |-
+                            List of default OpenID Connect clients that can be used by an openEO client
+                            for OpenID Connect based authentication.
+
+                            A default OpenID Connect client is managed by the backend implementer.
+                            It MUST be configured to be usable without a client secret,
+                            which limits its applicability to OpenID Connect grant types like
+                            "Authorization Code Grant with PKCE" and "Device Authorization Grant with PKCE"
+
+                            A default OpenID Connect client is provided without availability guarantees.
+                            The backend implementer CAN revoke, reset or update it any time.
+                            As such, openEO clients SHOULD NOT store or cache default OpenID Connect client information
+                            for long term usage.
+                            A default OpenID Connect client is intended to simplify authentication for novice users.
+                            For production use cases, it is RECOMMENDED to set up a dedicated OpenID Connect client.
+                          uniqueItems: true
+                          items:
+                            title: Default OpenID Connect Client
+                            type: object
+                            required:
+                              - id
+                              - grant_types
+                            properties:
+                              id:
+                                type: string
+                                description: >-
+                                  The OpenID Connect Client ID to be used in the authentication procedure.
+                              grant_types:
+                                type: array
+                                description: |-
+                                  List of authorization grant types (flows) supported by the OpenID Connect client.
+                                  A grant type descriptor consist of a OAuth 2.0 grant type,
+                                  with an additional `+pkce` suffix when the grant type should be used with
+                                  the PKCE extension as defined in [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636.html).
+
+                                  Allowed values:
+                                  - `implicit`: Implicit Grant as specified in [RFC 6749, sec. 1.3.2](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3.2)
+                                  - `authorization_code+pkce`: Authorization Code Grant as specified in [RFC 6749, sec. 1.3.1](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3.1), with PKCE extension.
+                                  - `urn:ietf:params:oauth:grant-type:device_code+pkce`: Device Authorization Grant (aka Device Code Flow) as specified in [RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html), with PKCE extension. Note that the combination of this grant with the PKCE extension is *not standardized* yet.
+                                  - `refresh_token`: Refresh Token as specified in [RFC 6749, sec. 1.5](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.5)
+                                minItems: 1
+                                uniqueItems: true
+                                items:
+                                  type: string
+                                  enum:
+                                    - 'implicit'
+                                    - 'authorization_code+pkce'
+                                    - 'urn:ietf:params:oauth:grant-type:device_code+pkce'
+                                    - 'refresh_token'
+                              redirect_urls:
+                                type: array
+                                description: |-
+                                  List of redirect URLs that are whitelisted by the OpenID Connect client.
+                                  Redirect URLs MUST be provided when the OpenID Connect client supports
+                                  the `implicit` or `authorization_code+pkce` authorization flows.
+                                uniqueItems: true
+                                items:
+                                  type: string
+                                  format: uri
                         links:
                           type: array
                           description: |-
@@ -1825,6 +1897,23 @@ paths:
                             $ref: '#/components/schemas/link'
               example:
                 providers:
+                  - id: egi
+                    issuer: 'https://aai.egi.eu/oidc'
+                    title: EGI (default)
+                    description: Login with your academic account.
+                    scopes:
+                      - openid
+                      - profile
+                      - email
+                    default_clients:
+                      - id: KStcUzD5AIUA
+                        grant_types:
+                          - implicit
+                          - authorization_code+pkce
+                          - urn:ietf:params:oauth:grant-type:device_code+pkce
+                          - refresh_token
+                        redirect_urls:
+                          - https://editor.openeo.org/
                   - id: google
                     issuer: 'https://accounts.google.com'
                     title: Google
@@ -1849,7 +1938,7 @@ paths:
       operationId: authenticate-basic
       description: >-
         Checks the credentials provided through [HTTP Basic Authentication
-        according to RFC 7617](https://tools.ietf.org/html/rfc7617) and returns
+        according to RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) and returns
         an access token for valid credentials.
 
 
@@ -1992,9 +2081,19 @@ paths:
           description: Result data in the requested output format
           headers:
             Content-Type:
-              description: >-
+              description: |-
                 The appropriate media (MIME) type for the requested output
-                format MUST be sent.
+                format MUST be sent, if the response contains a single file.
+
+                To send multiple files at once it is RECOMMENDED to use the
+                [`tar` file format](https://www.gnu.org/software/tar/manual/html_node/Standard.html)
+                (media type: `application/x-tar`).
+                
+                To mimic the results of batch jobs, it is RECOMMENDED that 
+                1. clients extract the tar file directly after receiving it so that users
+                   can directly work on the contained files *and*
+                2. back-ends add STAC Items and/or Collections to the tar file
+                   so that users can make sense of the files.
               schema:
                 type: string
             OpenEO-Costs:
@@ -2003,7 +2102,7 @@ paths:
                 $ref: '#/components/schemas/money'
             Link:
               description: >-
-                The header MAY indicate a link to a log file generated by the request. If provided, the link MUST be serialized according to [RFC 8288](https://tools.ietf.org/html/rfc8288#section-3) and MUST use the relation type `monitor`. The link MUST follow the specifications for the links `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`, except that is MUST NOT accept any parameters (limit/offset). Therefore, the link MUST be accessible with HTTP GET, MUST be secured using a Bearer token and MUST follow the corresponding request body schema.
+                The header MAY indicate a link to a log file generated by the request. If provided, the link MUST be serialized according to [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288.html#section-3) and MUST use the relation type `monitor`. The link MUST follow the specifications for the links `GET /jobs/{job_id}/logs` and `GET /services/{service_id}/logs`, except that is MUST NOT accept any parameters (limit/offset). Therefore, the link MUST be accessible with HTTP GET, MUST be secured using a Bearer token and MUST follow the corresponding request body schema.
               schema:
                 type: string
                 pattern: ^<[^>]+>;\s?rel="monitor"
@@ -2040,8 +2139,8 @@ paths:
         It is **strongly RECOMMENDED** to keep the response size small by
         omitting larger optional values from the objects in `processes`
         (e.g. the `exceptions`, `examples` and `links` properties).
-        To get the full metadata for a secondary web service clients MUST
-        request `GET /services/{service_id}`.
+        To get the full metadata for a user-defined process clients MUST
+        request `GET /process_graphs/{process_graph_id}`.
       tags:
         - User-Defined Processes
         - Process Discovery
@@ -2235,7 +2334,7 @@ paths:
         [OGC Schema Repository](http://schemas.opengis.net/) for the respective
         services.
 
-        Service names are allowed to be *case insensitive* throughout the API.
+        Service names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
         - Capabilities
         - Secondary Services
@@ -2265,6 +2364,10 @@ paths:
                       $ref: '#/components/schemas/object_title'
                     description:
                       $ref: '#/components/schemas/description'
+                    deprecated:
+                      $ref: '#/components/schemas/deprecated'
+                    experimental:
+                      $ref: '#/components/schemas/experimental'
                     configuration:
                       title: Service Configuration
                       description: Map of supported configuration settings made available to the creator of the service.
@@ -2850,7 +2953,7 @@ paths:
                     format: date-time
                     description: >-
                       Time until which the estimate is valid, formatted as a
-                      [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                      [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
                     example: '2020-11-01T00:00:00Z'
         4XX:
           $ref: '#/components/responses/client_error_auth'
@@ -2895,16 +2998,35 @@ paths:
     get:
       summary: Download results for a completed batch job
       operationId: list-results
-      description: >-
+      description: |-
         Lists signed URLs pointing to the processed files after the batch job
         has finished. Back-ends may also point to intermediate results after the
         job has stopped due to an error.
         
-
         The response includes additional metadata. It is a valid
-        [STAC Item (version 0.9.0)](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec)
-        if it has spatial and temporal references included.
+        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/item-spec)
+        (if it has spatial and temporal references included) or a valid
+        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/collection-spec)
+        (supported since openEO API version 1.1.0).
+        The assets to download are in both cases available in the property `assets`
+        and have the same structure. All additional metadata is not strictly required
+        to download the files, but are helpful for users to understand the data.
 
+        STAC Collections can either (1) add all assets as collection-level assets or
+        (2) link to STAC Catalogs and STAC Items with signed URLs, which will provide a full
+        STAC catalog structure a client has to go through. While (2) is overall the better 
+        architectural choice and allows a fine-grained description of the processed data,
+        (1) is not compliant with previous versions of the  openEO API.
+        **To maintain backward compatibility, it is REQUIRED for (2) to still copy
+        all assets in the STAC catalog structure into the collection-level assets.**
+        This requirement is planned to be removed in openEO API version 2.0.0.
+        A client can enforce that the server returns a GeoJSON through content negotiation
+        with the media type `application/geo+json`, but the results may not contain very
+        meaningful metadata aside from the assets.
+
+        Clients are RECOMMENDED to store this response and all potential sub-catalogs
+        and items with the assets so that the downloaded data is then a self-contained
+        STAC catalog user could publish easily with all the data and metadata.
 
         URL signing is a way to protect files from unauthorized access with a
         key in the URL instead of HTTP header based authorization. The URL
@@ -2913,8 +3035,11 @@ paths:
         programs, e.g. web browsers or download managers. Back-ends are
         responsible to generate the URL signing keys and to manage their
         appropriate expiration. The back-end MAY indicate an expiration time by
-        setting the `expires` property.
-
+        setting the `expires` property in the reponse. Requesting this endpoint
+        SHOULD always return non-expired URLs. Signed URLs that were generated
+        for a previous request and already expired SHOULD NOT be reused,
+        but regenerated with new expiration time.
+        Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
@@ -2942,7 +3067,77 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/batch_job_result'
+                oneOf:
+                  - $ref: '#/components/schemas/batch_job_result'
+                  - title: Batch Job Results Response as STAC Collection
+                    type: object
+                    required:
+                      - assets
+                    allOf:
+                      - $ref: '#/components/schemas/collection'
+                    example:
+                      stac_version: 1.0.0-rc.2
+                      id: a3cca2b2aa1e3b5b
+                      title: NDVI based on Sentinel 2
+                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+                      license: Apache-2.0
+                      providers:
+                        - name: Cool EO Cloud Corp
+                          description: No further processing applied.
+                          roles:
+                            - producer
+                            - licensor
+                            - host
+                          url: http://cool-eo-cloud-corp.com
+                      extent:
+                        temporal:
+                          interval:
+                            - - 2019-08-24T14:15:22Z
+                              - 2019-08-24T14:15:22Z
+                        spatial:
+                          bbox:
+                            - - -180
+                              - -90
+                              - 180
+                              - 90
+                      assets:
+                        preview.png:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+                          type: image/png
+                          title: Thumbnail
+                          roles:
+                            - thumbnail
+                        process.json:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+                          type: application/json
+                          title: Original Process
+                          roles:
+                            - process
+                            - reproduction
+                        1.tif:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+                          type: image/tiff; application=geotiff
+                          roles:
+                            - data
+                        2.tif:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+                          type: image/tiff; application=geotiff
+                          roles:
+                            - data
+                        inspire.xml:
+                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+                          type: application/xml
+                          title: INSPIRE metadata
+                          description: INSPIRE compliant XML metadata
+                          roles:
+                            - metadata
+                      links:
+                        - rel: item
+                          type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
+                        - rel: item
+                          type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
                 $ref: '#/components/schemas/batch_job_result'
@@ -3233,6 +3428,17 @@ paths:
                     description: >-
                       The user name, a human-friendly displayable name. Could be 
                       the user's real name or a nickname.
+                  default_plan:
+                    type: string
+                    nullable: true
+                    description: |-
+                      Name of the plan the user has subscribed to.
+
+                      Overrides the default plan of the back-end, but back-ends
+                      MAY also allow overriding this plan for each individual
+                      processing request (e.g. job or service) with the
+                      corresponding `plan` property.
+                    example: free
                   storage:
                     title: User Storage
                     description: Information about the storage space available to the user.
@@ -3315,6 +3521,10 @@ components:
             The types can potentially be extended by back-ends.
         default:
           type: string
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         links:
           type: array
           description: |-
@@ -3356,6 +3566,10 @@ components:
                 required:
                   - libraries
                 properties:
+                  deprecated:
+                    $ref: '#/components/schemas/deprecated'
+                  experimental:
+                    $ref: '#/components/schemas/experimental'
                   libraries:
                     description: >-
                       Map of installed libraries, modules, packages
@@ -3372,17 +3586,9 @@ components:
                           type: string
                           description: Version number of the library.
                         deprecated:
-                          type: boolean
-                          default: false
-                          description: |-
-                            Specifies that the library is deprecated with the potential to be
-                            removed in any of the next versions. It should be transitioned out
-                            of usage as soon as possible and users should refrain from using it
-                            in new implementations.
-
-                            A link with relation type `latest-version` SHOULD be added to the
-                            `links` and MUST refer to the library or library version that can be
-                            used instead.
+                          $ref: '#/components/schemas/deprecated'
+                        experimental:
+                          $ref: '#/components/schemas/experimental'
                         links:
                           type: array
                           description: |-
@@ -3396,7 +3602,7 @@ components:
                             e.g. a user guide or the documentation.
 
                             2. `latest-version`: If a library has been marked as deprecated,
-                            a link should point to either a new library replacing the deprecated
+                            a link SHOULD point to either a new library replacing the deprecated
                             library or a latest version of the library available at the back-end.
 
                             For additional relation types see also the lists of
@@ -3514,8 +3720,8 @@ components:
           type: object
           title: Item Properties
           description: >-
-            MAY contain any additional properties, e.g. other STAC Item
-            properties, properties from STAC extensions or custom properties.
+            MAY contain additional properties other than the required property `datetime`,
+            e.g. custom properties or properties from the STAC specification or STAC extensions.
           required:
             - datetime
           additionalProperties: true
@@ -3524,7 +3730,7 @@ components:
               title: Date and Time
               description: >-
                 The searchable date/time of the data, in UTC. Formatted as a
-                [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
 
 
                 If this field is set to `null` (usually for larger time ranges),
@@ -3539,13 +3745,13 @@ components:
               description: >-
                 For time series: The first or start date and time for the data,
                 in UTC. Formatted as a [RFC
-                3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
             end_datetime:
               type: string
               format: date-time
               description: >-
                 For time series: The last or end date and time for the data, in
-                UTC. Formatted as a [RFC 3339](https://www.ietf.org/rfc/rfc3339)
+                UTC. Formatted as a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html)
                 date-time.
             title:
               $ref: '#/components/schemas/eo_title'
@@ -3564,52 +3770,10 @@ components:
               format: date-time
               description: >-
                 Time until which the assets are accessible, in UTC. Formatted as
-                a [RFC 3339](https://www.ietf.org/rfc/rfc3339) date-time.
+                a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
               example: '2020-11-01T00:00:00Z'
         assets:
-          type: object
-          title: Assets
-          description: |-
-            Dictionary of asset objects for data that can be downloaded, each with a
-            unique key. The keys MAY be used by clients as file names.
-
-            It is RECOMMENDED to link to a copy of this STAC Item with relative links in the assets,
-            which allows users to easily publish their processed data with a basic set of metadata.
-          additionalProperties:
-            $ref: '#/components/schemas/asset'
-          example:
-            preview.png:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
-              type: image/png
-              title: Thumbnail
-              roles:
-                - thumbnail
-            process.json:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
-              type: application/json
-              title: Original Process
-              roles:
-                - process
-                - reproduction
-            1.tif:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
-              type: image/tiff; application=geotiff
-              title: Band 1
-              roles:
-                - data
-            2.tif:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
-              type: image/tiff; application=geotiff
-              title: Band 2
-              roles:
-                - data
-            inspire.xml:
-              href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
-              type: application/xml
-              title: INSPIRE metadata
-              description: INSPIRE compliant XML metadata
-              roles:
-                - metadata
+          $ref: '#/components/schemas/stac_assets'
         links:
           type: array
           description: >-
@@ -3653,6 +3817,10 @@ components:
               - vector
               - table
               - other
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+        experimental:
+          $ref: '#/components/schemas/experimental'
         parameters:
           title: File Format Parameters
           description: Specifies the supported parameters for this file format.
@@ -3705,7 +3873,7 @@ components:
       title: Link
       description: >-
         A link to another resource on the web. Bases on [RFC
-        5899](https://tools.ietf.org/html/rfc5988).
+        5899](https://www.rfc-editor.org/rfc/rfc5988.html).
       type: object
       required:
         - href
@@ -3811,7 +3979,7 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans are allowed to be *case insensitive*.
+        Billing plans MUST be accepted in a *case insensitive* manner.
         
         The plans can be retrieved from `GET /`, but the value returned here may
         not be in the list of plans any longer.
@@ -3821,12 +3989,15 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted *case insensitive*. If `null` is specified
-        by the client explicitly, the server MUST store the default plan and
-        persist it regardless of any changes to the default billing plan in the
-        future.
+        Billing plans MUST be accepted in a *case insensitive* manner.
+        If `null` is specified by the client explicitly,
+        the server MUST store the default plan and persist it regardless of any
+        changes to the default billing plan in the future. If given, the default
+        plan specific to the user has higher priority than the default plan of
+        the back-end.
 
-        The list of plans and the default plan can be retrieved from `GET /`.
+        The list of plans and the default plan for the back-end can be retrieved
+        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
@@ -3836,12 +4007,15 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted *case insensitive*. If `null` is given
-        implicitly (through the default value) or explicitly by the client,
+        Billing plans MUST be accepted in a *case insensitive* manner.
+        If `null` is given implicitly (through the default value) or explicitly by the client,
         the server MUST store the default plan and persist it regardless of any
-        changes to the default billing plan in the future.
+        changes to the default billing plan in the future. If given, the default
+        plan specific to the user has higher priority than the default plan of
+        the back-end.
 
-        The list of plans and the default plan can be retrieved from `GET /`.
+        The list of plans and the default plan for the back-end can be retrieved
+        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
@@ -3862,6 +4036,12 @@ components:
           $ref: '#/components/schemas/stac_version'
         stac_extensions:
           $ref: '#/components/schemas/stac_extensions'
+        type:
+          type: string
+          enum:
+            - Collection
+          description: >-
+            For STAC versions >= 1.0.0-rc.1 this field is required.
         id:
           $ref: '#/components/schemas/collection_id'
         title:
@@ -3886,8 +4066,9 @@ components:
           description: |-
             Version of the collection.
 
-            This property REQUIRES to add `version` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
+            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            to the list of `stac_extensions`.
         deprecated:
           type: boolean
           default: false
@@ -3899,8 +4080,9 @@ components:
             A link with relation type `latest-version` SHOULD be added to the
             links and MUST refer to the collection that can be used instead.
 
-            This property REQUIRES to add `version` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
+            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            to the list of `stac_extensions`.
         license:
           $ref: '#/components/schemas/stac_license'
         providers:
@@ -3908,10 +4090,16 @@ components:
         extent:
           type: object
           title: Collection Extent
-          description: >-
-            The extent of the features in the collection. Additional members MAY
+          description: |-
+            The extent of the data in the collection. Additional members MAY
             be added to represent other extents, for example, thermal or
             pressure ranges.
+
+            The first item in the array always describes the overall extent of
+            the data. All subsequent items describe more preciseextents,
+            e.g. to identify clusters of data.
+            Clients only interested in the overall extent will only need to
+            access the first item in each array.
           required:
             - spatial
             - temporal
@@ -3924,12 +4112,15 @@ components:
               type: object
               properties:
                 bbox:
-                  description: >-
+                  description: |-
                     One or more bounding boxes that describe the spatial extent
                     of the dataset.
 
-                    If multiple areas are provided, the union of the bounding
-                    boxes describes the spatial extent.
+                    The first bounding box describes the overall spatial extent
+                    of the data. All subsequent bounding boxes describe more
+                    precise bounding boxes, e.g. to identify clusters of data.
+                    Clients only interested in the overall spatial extent will
+                    only need to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
@@ -3981,18 +4172,24 @@ components:
               type: object
               properties:
                 interval:
-                  description: >-
+                  description: |-
                     One or more time intervals that describe the temporal extent
                     of the dataset.
 
-                    The value `null` is supported and indicates an open time
-                    interval.
+                    The first time interval describes the overall temporal extent
+                    of the data. All subsequent time intervals describe more
+                    precise time intervals, e.g. to identify clusters of data.
+                    Clients only interested in the overall extent will only need
+                    to access the first item in each array.
                   type: array
                   minItems: 1
                   items:
-                    description: >-
+                    description: |-
                       Begin and end times of the time interval. The coordinate
                       reference system is the Gregorian calendar.
+
+                      The value `null` is supported and indicates an open time
+                      interval.
                     type: array
                     minItems: 2
                     maxItems: 2
@@ -4019,19 +4216,12 @@ components:
 
             3. `example`: Links to examples of processes that use this collection.
 
-            4. `derived_from`: Allows linking to the data this collection was derived from.
-
-            5. `cite-as`: [DOI](https://www.doi.org/) links should be added. DOIs can also be 
-            listed in the STAC fields `sci:doi` and `sci:publications`, see the [STAC scientific
-            extension](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/scientific)
-            for more details.
-
-            6. `latest-version`: If a collection has been marked as deprecated, a link SHOULD
+            4. `latest-version`: If a collection has been marked as deprecated, a link SHOULD
             point to the latest version of the collection. The relation types `predecessor-version`
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
 
-            7. `alternate`: An alternative representation of the collection.
+            5. `alternate`: An alternative representation of the collection.
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
@@ -4088,9 +4278,9 @@ components:
 
             Potential fields for the summaries can be found here:
 
-            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/tree/v0.9.0/item-spec/common-metadata.md)**:
+            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/item-spec/common-metadata.md)**:
               A list of commonly used fields throughout all domains
-            * **[Content Extensions](https://github.com/radiantearth/stac-spec/tree/v0.9.0/extensions/README.md#list-of-content-extensions)**:
+            * **[Content Extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/extensions/README.md#list-of-content-extensions)**:
               Domain-specific fields for domains such as EO, SAR and point clouds.
             * **Custom Properties**:
               It is generally allowed to add custom fields.
@@ -4103,32 +4293,28 @@ components:
                   description: A value of any type.
               - $ref: '#/components/schemas/collection_summary_stats'
         assets:
-          type: object
-          title: Assets
-          description: >-
+          description: |-
             Dictionary of asset objects for data that can be downloaded,
             each with a unique key.
             The keys MAY be used by clients as file names.
 
             Implementing this property REQUIRES to add `collection-assets`
-            to the list of `stac_extensions`.
-          additionalProperties:
-            $ref: '#/components/schemas/asset'
+            to the list of `stac_extensions` in STAC < 1.0.0-rc.1.
+          allOf:
+            - $ref: '#/components/schemas/stac_assets'
     stac_version:
       type: string
       description: >-
         The [version of the STAC specification](https://github.com/radiantearth/stac-spec/releases),
         which MAY not be equal to the [STAC API version](#section/STAC).
         Supports versions 0.9.x and 1.x.x.
+      pattern: '^(0\.9.\d+|1\.\d+.\d+)'
     stac_extensions:
       type: array
       description: >-
         A list of implemented STAC extensions. The list contains URLs to the
-        JSON Schema files it can be validated against. For official extensions,
-        a "shortcut" can be used. This means you can specify the folder name of
-        the extension in the STAC repository, for example `sar` for the SAR
-        extension. If the versions of the extension and the collection diverge,
-        you can specify the URL of the JSON schema file.
+        JSON Schema files it can be validated against. For STAC < 1.0.0-rc.1 
+        shortcuts such as `sar` can be used instead of the schema URL.
       uniqueItems: true
       items:
         anyOf:
@@ -4136,7 +4322,7 @@ components:
             type: string
             format: uri
             example: 'https://www.example.com/stac/custom-extemsion/v1.0/schema.json'
-          - title: Reference to a core extension
+          - title: Reference to a core extension (STAC < 1.0.0-rc.1 only)
             type: string
             example: datacube
     stac_license:
@@ -4220,6 +4406,47 @@ components:
             type: string
             format: uri
             example: http://cool-eo-cloud-corp.com
+    stac_assets:
+      type: object
+      title: Assets
+      description: |-
+        Dictionary of asset objects for data that can be downloaded, each with a
+        unique key. The keys MAY be used by clients as file names.
+      additionalProperties:
+        $ref: '#/components/schemas/asset'
+      example:
+        preview.png:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+          type: image/png
+          title: Thumbnail
+          roles:
+            - thumbnail
+        process.json:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+          type: application/json
+          title: Original Process
+          roles:
+            - process
+            - reproduction
+        1.tif:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+          type: image/tiff; application=geotiff
+          title: Band 1
+          roles:
+            - data
+        2.tif:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+          type: image/tiff; application=geotiff
+          title: Band 2
+          roles:
+            - data
+        inspire.xml:
+          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+          type: application/xml
+          title: INSPIRE metadata
+          description: INSPIRE compliant XML metadata
+          roles:
+            - metadata
     collection_summary_stats:
       type: object
       title: Statistics
@@ -4683,9 +4910,9 @@ components:
         returns:
           $ref: '#/components/schemas/process_return_value'
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         exceptions:
           $ref: '#/components/schemas/process_exceptions'
         examples:
@@ -4817,36 +5044,33 @@ components:
           $ref: '#/components/schemas/process_description'
         schema:
           $ref: '#/components/schemas/data_type_schema'
-    process_experimental:
+    experimental:
       type: boolean
       description: >-
-        Declares the process or parameter to be experimental, which means that
+        Declares that the specified entity is experimental, which means that
         it is likely to change or may produce unpredictable behaviour. Users
-        should refrain from using it in production,  but still feel encouraged
+        should refrain from using it in production, but still feel encouraged
         to try it out and give feedback.
       default: false
-    process_deprecated:
+    deprecated:
       type: boolean
-      description: >-
-        Specifies that the process or parameter is deprecated with the potential
+      description: |-
+        Declares that the specified entity is deprecated with the potential
         to be removed in any of the next versions. It should be transitioned out
         of usage as soon as possible and users should refrain from using it in
         new implementations.
-
-
-        For processes a link with relation type `latest-version` SHOULD be
-        added to the `links` and MUST refer to the process that can be used
-        instead.
       default: false
     process_exceptions:
       type: object
       title: Process Exceptions
       description: |-
-        Declares any exceptions (errors) that might occur during execution
+        Declares exceptions (errors) that might occur during execution
         of this process. This list is just for informative purposes and may be
         incomplete. This list MUST only contain exceptions that stop the
         execution of a process and MUST NOT contain warnings, notices or
-        debugging messages.
+        debugging messages. It is meant to primarily contain errors that
+        have been caused by the user. It is RECOMMENDED that exceptions
+        are referred to and explained in process or parameter descriptions.
 
         The keys define the error code and MUST match the following pattern:
         `^\w+$`
@@ -4863,12 +5087,11 @@ components:
           description:
             type: string
             format: commonmark
-            description: >-
+            description: |-
               Detailed description to explain the error to client
               users and back-end developers. This should not be shown in the
               clients directly, but MAY be linked to in the errors `url`
               property.
-
 
               [CommonMark 0.29](http://commonmark.org/) syntax MAY be used
               for rich text representation.
@@ -4933,9 +5156,9 @@ components:
             Back-ends SHOULD NOT fail, if a default value is specified and this flag is missing.
           default: false
         deprecated:
-          $ref: '#/components/schemas/process_deprecated'
+          $ref: '#/components/schemas/deprecated'
         experimental:
-          $ref: '#/components/schemas/process_experimental'
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value for this parameter.
@@ -5030,6 +5253,17 @@ components:
           $ref: '#/components/schemas/money'
         budget:
           $ref: '#/components/schemas/budget'
+        usage:
+          description: |-
+            Metrics about the resource usage of the batch job.
+            
+            Back-ends are not expected to update the metrics while processing data,
+            so the metrics can only be available after the job has been finished
+            or has errored.
+            For usage metrics during processing, metrics can better be added to the
+            logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
+          allOf:
+            - $ref: '#/components/schemas/usage'
     job_id:
       type: string
       description: >-
@@ -5042,14 +5276,14 @@ components:
       format: date-time
       description: >-
         Date and time of creation, formatted as a [RFC
-        3339](https://www.ietf.org/rfc/rfc3339) date-time.
+        3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
       example: '2017-01-01T09:32:12Z'
     updated:
       type: string
       format: date-time
       description: >-
         Date and time of the last status change, formatted as a [RFC
-        3339](https://www.ietf.org/rfc/rfc3339) date-time.
+        3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
       example: '2017-01-01T09:36:18Z'
     user_id:
       type: string
@@ -5157,11 +5391,21 @@ components:
           $ref: '#/components/schemas/money'
         budget:
           $ref: '#/components/schemas/budget'
+        usage:
+          description: |-
+            Metrics about the resource usage of the secondary web service.
+            
+            Back-ends are not expected to update the metrics in real-time.
+            For detailed usage metrics for individual processing steps, metrics
+            can be added to the logs (e.g. `GET /jobs/{job_id}/logs`) with the
+            same schema.
+          allOf:
+            - $ref: '#/components/schemas/usage'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
         service types can be retrieved via `GET /service_types`. Service types
-        MUST be accepted *case insensitive*.
+        MUST be accepted in a *case insensitive* manner.
       type: string
       example: wms
     service_configuration:
@@ -5204,7 +5448,7 @@ components:
         See the chapter ['Schemas' in 'Defining Processes'](#section/Processes/Defining-Processes) for more information.
 
         The following more complex JSON Schema keywords SHOULD NOT be used:
-        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
+        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`.
 
         JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
@@ -5220,6 +5464,8 @@ components:
           type: boolean
           description: Determines whether this parameter is mandatory.
           default: false
+        experimental:
+          $ref: '#/components/schemas/experimental'
         default:
           description: >-
             The default value represents what would be assumed by the consumer
@@ -5311,6 +5557,7 @@ components:
       properties:
         parameters:
           type: array
+          title: Process Graph Parameters
           description: |-
             A list of parameters passed to the child process graph.
 
@@ -5318,6 +5565,19 @@ components:
             be used in clients that don't support named parameters.
           items:
             $ref: '#/components/schemas/parameter'
+        returns:
+          type: object
+          title: Process Graph Return Value
+          description: Description of the data that is returned by the child process graph.
+          required:
+            - schema
+          properties:
+            description:
+              $ref: '#/components/schemas/process_description'
+            schema:
+              $ref: '#/components/schemas/data_type_schema'
+          allOf:
+            - $ref: '#/components/schemas/json_schema'
       allOf:
         - $ref: '#/components/schemas/json_schema'
     json_schema:
@@ -5333,7 +5593,7 @@ components:
         Instead specify each data type in a separate array element.
 
         The following more complex JSON Schema keywords SHOULD NOT be used:
-        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`, `multipleOf`.
+        `if`, `then`, `else`, `readOnly`, `writeOnly`, `dependencies`, `minProperties`, `maxProperties`, `patternProperties`.
 
         JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
@@ -5386,6 +5646,8 @@ components:
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
       additionalProperties: true
     json_schema_type:
       type: string
@@ -5405,10 +5667,17 @@ components:
       properties:
         path:
           type: string
-          description: >-
-            Path of the file, relative to the user's root directory. MUST NOT
-            start with a slash and MUST NOT be url-encoded.
+          description: |-
+            Path of the file, relative to the root directory of the user's server-side workspace.
+            MUST NOT start with a slash `/` and MUST NOT be url-encoded.
+
+            The Windows-style path name component separator `\` is not supported,
+            always use `/` instead.
+
+            Note: The pattern only specifies a minimal subset of invalid characters.
+            The back-ends MAY enforce additional restrictions depending on their OS/environment.
           example: folder/file.txt
+          pattern: "^[^/\r\n\\:'\"][^\r\n\\:'\"]*$"
         size:
           type: integer
           description: File size in bytes.
@@ -5418,7 +5687,7 @@ components:
           format: date-time
           description: >-
             Date and time the file has lastly been modified, formatted as a [RFC
-            3339](https://www.ietf.org/rfc/rfc3339) date-time.
+            3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
           example: '2018-01-03T10:55:29Z'
     GeoJsonPoint3D:
       type: array
@@ -5583,6 +5852,13 @@ components:
           example: >-
             Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
             Server responded with error 404.
+        time:
+          type: string
+          format: date-time
+          title: Date and Time
+          description: >-
+            The date and time the event happened, in UTC. Formatted as a
+            [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
         data:
           description: |-
             Data of any type. It is the back-ends task to decide how to best
@@ -5617,8 +5893,76 @@ components:
                 pattern: '^\w+$'
                 nullable: true
                 example: udf
+        usage:
+          $ref: '#/components/schemas/usage'
         links:
           $ref: '#/components/schemas/log_links'
+    usage:
+      title: Resource usage metrics
+      type: object
+      properties:
+        cpu:
+          description: |-
+            Specifies the CPU usage, usually in a unit such as `cpu-seconds`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        memory:
+          description: |-
+            Specifies the memory usage, usually in a unit such as `mb-seconds` or `gb-hours`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        duration:
+          description: |-
+            Specifies the wall time, usually in a unit such as `seconds`, `minutes` or `hours`.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        network:
+          description: |-
+            Specifies the network transfer usage (incoming and outgoing), usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        disk:
+          description: |-
+            Specifies the amount of input (read) and output (write) operations on the storage such as disks, usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+        storage:
+          description: |-
+            Specifies the usage of storage space, usually in a unit such as `b` (bytes), `kb` (kilobytes), `mb` (megabytes) or `gb` (gigabytes).
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+      additionalProperties:
+          description: |-
+            Additional metrics.
+          allOf:
+            - $ref: '#/components/schemas/usage_metric'
+      example:
+        cpu: 
+          value: 40668
+          unit: cpu-seconds
+        duration:
+          value: 2611
+          unit: seconds
+        memory:
+          value: 108138811
+          unit: mb-seconds
+        network:
+          value: 0
+          unit: kb
+        storage:
+          value: 55
+          unit: mb
+    usage_metric:
+      type: object
+      required:
+        - value
+        - unit
+      properties:
+        value:
+          type: number
+          minimum: 0
+        unit:
+          type: string
   responses:
     logs:
       description: Lists the requested log entries.
@@ -5645,7 +5989,7 @@ components:
         
         The response body SHOULD contain a JSON error object.
         MUST be any HTTP status code specified in [RFC
-        7231](https://tools.ietf.org/html/rfc7231#section-6.6). This request
+        7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6). This request
         usually does not respond with HTTP status codes 401 and 403 due to
         missing authorization. HTTP status code 404 SHOULD be used if the value
         of a path parameter is invalid.
@@ -5664,7 +6008,7 @@ components:
         modifications.
         
         The response body SHOULD contain a JSON error object.
-        MUST be any HTTP status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
+        MUST be any HTTP status code specified in [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6).
         This request MUST respond with HTTP status codes 401 if authorization is required or
         403 if the authorization failed or access is forbidden in general to the
         authenticated user. HTTP status code 404 SHOULD be used if the value of
@@ -5684,7 +6028,7 @@ components:
         client to retry the exact same request that triggered this response.
         
         The response body SHOULD contain a JSON error object. MUST be any HTTP
-        status code specified in [RFC 7231](https://tools.ietf.org/html/rfc7231#section-6.6).
+        status code specified in [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html#section-6.6).
 
         See also:
         * [Error Handling](#section/API-Principles/Error-Handling) in the API in general.
