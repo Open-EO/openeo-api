@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`.  [#394](https://github.com/Open-EO/openeo-api/issues/394)  [#395](https://github.com/Open-EO/openeo-api/issues/395)
+- Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395)
+- Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
 
 ## [1.1.0] - 2021-05-17
 
