@@ -3048,6 +3048,11 @@ paths:
         but regenerated with new expiration time.
         Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
+        It is **strongly recommended** to add a link with relation type `canonical`
+        to the STAC Item or STAC Collection, which points to this STAC document
+        using a signed URL. This way the STAC metadata can be used by non-openEO
+        clients without additional authentication steps.
+
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
       tags:
@@ -3139,11 +3144,14 @@ paths:
                           roles:
                             - metadata
                       links:
-                        - rel: item
+                        - rel: canonical
                           type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/collection.json
+                        - rel: item
+                          type: application/geo+json
                           href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
                         - rel: item
-                          type: application/json
+                          type: application/geo+json
                           href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
@@ -3783,7 +3791,7 @@ components:
           $ref: '#/components/schemas/stac_assets'
         links:
           type: array
-          description: >-
+          description: |-
             Links related to this batch job result, e.g. a link to an 
             invoice, additional log files or external documentation.
 
@@ -3792,10 +3800,19 @@ components:
             Clients MUST NOT download the data referenced in the links by
             default.
 
+            It is **strongly recommended** to add a link with relation type
+            `canonical`, which points to this STAC document using a signed URL.
+             This way the STAC metadata can be used by non-openEO clients
+             without additional authentication steps.
+
             For relation types see the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+          example:
+            - rel: canonical
+              type: application/geo+json
+              href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item.json
     file_format:
       x-additionalPropertiesName: File Format Name
       title: File Format
@@ -4232,6 +4249,10 @@ components:
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
+
+            6. `canonical` (primarily for batch job results): A signed URL
+            which points to this STAC document. This way the STAC metadata can
+            be used by non-openEO clients without additional authentication steps.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking)
