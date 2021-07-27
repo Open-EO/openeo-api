@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `GET /jobs/{job_id}/results`: Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
+- `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
+  - `create-form` to link to the registration page
+  - `recovery-form` to link to the credentials recovery page.
+- `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- Recommendation to add media types and titles to links for a better user experience.
 
 ### Changed
 
@@ -19,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`, added `ProcessInvalid` and `ProcessGraphInvalid`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395), [#401](https://github.com/Open-EO/openeo-api/issues/401)
 - Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
 - Fixed the Collection example to use `gsd` instead of `eo:gsd`. [#399](https://github.com/Open-EO/openeo-api/issues/399)
+- Clarify use of `user_id`. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
 
 ## [1.1.0] - 2021-05-17
 
