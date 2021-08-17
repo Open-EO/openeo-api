@@ -216,12 +216,12 @@ info:
 
     A **process** is an operation that performs a specific task on a set of parameters and returns a result. An example is computing a statistical operation, such as mean or median, on selected EO data. A process is similar to a function or method in programming languages. In openEO, processes are used to build a chain of processes ([process graph](#section/Processes/Process-Graphs)), which can be applied to EO data to derive your own findings from the data.
 
-    A **pre-defined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
-    Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for pre-defined processes.
+    A **predefined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
+    Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for predefined processes.
 
     A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
 
-    A **process graph** chains specific process calls from the set of pre-defined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
+    A **process graph** chains specific process calls from the set of predefined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
     ## Defining Processes
 
@@ -229,7 +229,7 @@ info:
     
     **Back-end providers** MUST follow the schema for predefined processes as in [`GET /processes`](#operation/list-processes) to define new processes. This includes:
 
-    * Choosing a intuitive process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the pre-defined processes.
+    * Choosing a intuitive process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the predefined processes.
     * Defining the parameters and their exact (JSON) schemes.
     * Specifying the return value of a process also with a (JSON) schema.
     * Providing examples or compliance tests.
@@ -241,7 +241,7 @@ info:
     * Defining the algorithm as a process graph.
     * Optionally, specifying the additional metadata for processes.
 
-    If new process are potentially useful for other back-ends the openEO consortium is happily accepting [pull requests](https://github.com/Open-EO/openeo-processes/pulls) to include them in the list of pre-defined processes.
+    If new process are potentially useful for other back-ends the openEO consortium is happily accepting [pull requests](https://github.com/Open-EO/openeo-processes/pulls) to include them in the list of predefined processes.
 
     ### Schemas
 
@@ -302,7 +302,7 @@ info:
 
     One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
 
-    `process_id` MUST be a valid process ID in the `namespace` given. Clients SHOULD warn the user if a user-defined process is added with the same identifier as one of the pre-defined process.
+    `process_id` MUST be a valid process ID in the `namespace` given. Clients SHOULD warn the user if a user-defined process is added with the same identifier as one of the predefined process.
 
     ### Arguments
 
@@ -349,7 +349,7 @@ info:
     consists of a single process `absolute`, but it can be arbitrary complex in general.
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
-    Optionally, it can also be described with the same additional properties available for pre-defined processes such as an id, parameters, return values etc.
+    Optionally, it can also be described with the same additional properties available for predefined processes such as an id, parameters, return values etc.
     When embedded in a process graph, these additional properties of a user-defined process are usually not used, except for validation purposes.
 
     ```
@@ -1546,7 +1546,7 @@ paths:
                     type: array
                     items:
                       title: Pre-Defined Process
-                      description: A pre-defined process made available by the back-end.
+                      description: A predefined process made available by the back-end.
                       type: object
                       required:
                         - id
@@ -1853,13 +1853,13 @@ paths:
                             List of default OpenID Connect clients that can be used by an openEO client
                             for OpenID Connect based authentication.
 
-                            A default OpenID Connect client is managed by the backend implementer.
+                            A default OpenID Connect client is managed by the back-end implementer.
                             It MUST be configured to be usable without a client secret,
                             which limits its applicability to OpenID Connect grant types like
                             "Authorization Code Grant with PKCE" and "Device Authorization Grant with PKCE"
 
                             A default OpenID Connect client is provided without availability guarantees.
-                            The backend implementer CAN revoke, reset or update it any time.
+                            The back-end implementer CAN revoke, reset or update it any time.
                             As such, openEO clients SHOULD NOT store or cache default OpenID Connect client information
                             for long term usage.
                             A default OpenID Connect client is intended to simplify authentication for novice users.
@@ -2281,7 +2281,7 @@ paths:
         be changed for stored user-defined processes.
 
         The id MUST be unique for the authenticated user, including all
-        pre-defined processes by the back-end.
+        predefined processes by the back-end.
 
         Partially updating user-defined processes is not supported.
 
@@ -3563,7 +3563,7 @@ components:
           description: |-
             The type of the UDF runtime.
 
-            Pre-defined types are:
+            Predefined types are:
             * `language` for Programming Languages and
             * `docker` for Docker Containers.
             
@@ -5071,16 +5071,16 @@ components:
       description: |-
         The namespace the `process_id` is valid for.
 
-        The following options are pre-defined by the openEO API, but additional
+        The following options are predefined by the openEO API, but additional
         namespaces may be introduced by back-ends or in a future version of the API.
         
-        * `null` (default): Checks both user-defined and pre-defined processes,
+        * `null` (default): Checks both user-defined and predefined processes,
            but prefers user-defined processes if both are available.
-           This allows users to add missing pre-defined processes for portability,
+           This allows users to add missing predefined processes for portability,
            e.g. common processes from [processes.openeo.org](https://processes.openeo.org)
            that have a process graph included.
            It is RECOMMENDED to log the namespace selected by the back-end for debugging purposes.
-        * `backend`: Uses exclusively the pre-defined processes listed at `GET /processes`.
+        * `backend`: Uses exclusively the predefined processes listed at `GET /processes`.
         * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
 
         If multiple processes with the same identifier exist, Clients SHOULD
@@ -5089,10 +5089,10 @@ components:
       type: string
       description: |-
         The identifier for the process. It MUST be unique across its namespace
-        (e.g. pre-defined processes or user-defined processes).
+        (e.g. predefined processes or user-defined processes).
 
         Clients SHOULD warn the user if a user-defined process is added with the 
-        same identifier as one of the pre-defined process.
+        same identifier as one of the predefined process.
       pattern: '^\w+$'
       example: ndvi
     process_summary:
@@ -6118,9 +6118,9 @@ components:
         pagination MUST return all resources.
 
         If the response is paginated, the `links` array MUST be used to communicate the
-        links for browsing the pagination with pre-defined `rel` types. See the `links` array schema
+        links for browsing the pagination with predefined `rel` types. See the `links` array schema
         for supported `rel` types.
-        Backend implementations can, unless specified otherwise, use all kind of pagination techniques,
+        Back-end implementations can, unless specified otherwise, use all kind of pagination techniques,
         depending on what is supported best by their infrastructure: page-based, offset-based, token-based
         or something else. The clients SHOULD use whatever is specified
         in the links with the corresponding `rel` types.
