@@ -46,6 +46,8 @@ info:
 
     3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
 
+    Generally, it is RECOMMENDED to add descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
+
     ## Error Handling
 
     The success of requests MUST be indicated using [HTTP status codes](https://www.rfc-editor.org/rfc/rfc7231.html#section-6) according to [RFC 7231](https://www.rfc-editor.org/rfc/rfc7231.html).
@@ -472,7 +474,7 @@ tags:
 
       Therefore, the API leaves some aspects open that have to be handled by the back-ends separately, including 
 
-      * credential recovery, e.g. retrieving a forgotten password
+      * credentials recovery, e.g. retrieving a forgotten password
       * user data management, e.g. changing the users payment details or email address
       * payments, i.e. topping up credits for pre-paid services or paying for post-paid services
       * other accounting related tasks, e.g. creating invoices,
@@ -529,16 +531,23 @@ servers:
       secure with HTTP only!
     variables:
       version:
-        default: v1.0
-        description: >-
+        default: v1
+        description: |-
           API versioning is RECOMMENDED. As the openEO API is following
-          [SemVer](https://semver.org/) only the MAJOR part of the stable
-          version numbers (i.e. versions >= 1.0.0) SHOULD be used for API
-          versioning in the URL. The reason is that backward-incompatible
-          changes are usually introduced by major changes. Therefore, the
-          version number in the URL MUST not be used by the clients to detect
-          the version number of the API. Use the version number returned from
-          `GET /` instead.
+          [SemVer](https://semver.org/) only the **major** part of the version
+          numbers SHOULD be used for API versioning in the URL. To make clear
+          that it is a version number, it is RECOMMENDED to add the prefix `v`.
+
+          Example: API version `1.2.3` is recommended to use `v1`.
+
+          The reason to only consider the major part is that backward-incompatible
+          changes are introduced by major changes only. All changes from minor
+          and patch releases can usually be integrated without breakages and thus
+          a change in the URL is not really needed.
+          
+          The version number in the URL MUST not be used by the clients to detect
+          the version number of the API. Use the version number returned in the
+          property `api_version` from `GET /` instead.
 paths:
   /:
     get:
@@ -786,8 +795,8 @@ paths:
                       following `rel` (relation) types:
 
                       1. `version-history`: A link back to the Well-Known URL
-                      (see `/.well-known/openeo`) to allow clients to work on
-                      the most recent version.
+                      (including `/.well-known/openeo`, see the corresponding endpoint for details)
+                      to allow clients to work on the most recent version.
 
                       2. `terms-of-service`: A link to the terms of service. If
                       a back-end provides a link to the terms of service, the
@@ -817,6 +826,12 @@ paths:
                       6. `data`: A link to the collections (see `/collections`).
                       Required if full OGC API compatibility is desired.
 
+                      7. `create-form`: A link to a user registration page.
+
+                      8. `recovery-form`: A link to a page where a user can
+                      recover a user account (e.g. to reset the password or send
+                      a reminder about the username to the user's email account).
+
                       For additional relation types see also the lists of
                       [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
@@ -835,6 +850,14 @@ paths:
                         rel: privacy-policy
                         type: text/html
                         title: Privacy Policy
+                      - href: 'https://www.cool-cloud-corp.com/register'
+                        rel: create-form
+                        type: text/html
+                        title: User Registration
+                      - href: 'https://www.cool-cloud-corp.com/lost-password'
+                        rel: recovery-form
+                        type: text/html
+                        title: Reset Password
                       - href: 'http://www.cool-cloud-corp.com/.well-known/openeo'
                         rel: version-history
                         type: application/json
@@ -1187,7 +1210,7 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
               example:
                 collections:
-                  - stac_version: 1.0.0-rc.2
+                  - stac_version: 1.0.0
                     type: Collection
                     id: Sentinel-2A
                     title: Sentinel-2A MSI L1C
@@ -1230,7 +1253,7 @@ paths:
                       - rel: license
                         href: >-
                           https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
-                  - stac_version: 1.0.0-rc.2
+                  - stac_version: 1.0.0
                     type: Collection
                     id: MOD09Q1
                     title: >-
@@ -1312,9 +1335,9 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/collection'
               example:
-                stac_version: 1.0.0-rc.2
+                stac_version: 1.0.0
                 stac_extensions:
-                  - https://stac-extensions.github.io/datacube/v1.0.0/schema.json
+                  - https://stac-extensions.github.io/datacube/v2.0.0/schema.json
                 type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
@@ -1418,7 +1441,7 @@ paths:
                   'sat:orbit_state':
                     - ascending
                     - descending
-                  'eo:gsd':
+                  'gsd':
                     - 10
                     - 20
                     - 60
@@ -3112,9 +3135,9 @@ paths:
         job has stopped due to an error.
         
         The response includes additional metadata. It is a valid
-        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/item-spec)
+        [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0/item-spec)
         (if it has spatial and temporal references included) or a valid
-        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0-rc.2/collection-spec)
+        [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0/collection-spec)
         (supported since openEO API version 1.1.0).
         The assets to download are in both cases available in the property `assets`
         and have the same structure. All additional metadata is not strictly required
@@ -3148,6 +3171,11 @@ paths:
         for a previous request and already expired SHOULD NOT be reused,
         but regenerated with new expiration time.
         Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
+
+        It is **strongly recommended** to add a link with relation type `canonical`
+        to the STAC Item or STAC Collection, which points to this STAC document
+        using a signed URL. This way the STAC metadata can be used by non-openEO
+        clients without additional authentication steps.
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
@@ -3184,7 +3212,7 @@ paths:
                     allOf:
                       - $ref: '#/components/schemas/collection'
                     example:
-                      stac_version: 1.0.0-rc.2
+                      stac_version: 1.0.0
                       id: a3cca2b2aa1e3b5b
                       title: NDVI based on Sentinel 2
                       description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
@@ -3240,11 +3268,14 @@ paths:
                           roles:
                             - metadata
                       links:
-                        - rel: item
+                        - rel: canonical
                           type: application/json
+                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/collection.json
+                        - rel: item
+                          type: application/geo+json
                           href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
                         - rel: item
-                          type: application/json
+                          type: application/geo+json
                           href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
@@ -3530,7 +3561,16 @@ paths:
                   - user_id
                 properties:
                   user_id:
-                    $ref: '#/components/schemas/user_id'
+                    type: string
+                    description: |-
+                      Unique identifier of the user. MUST match the specified pattern.
+
+                      For ease of use, it is NOT RECOMMENDED to use long randomly generated
+                      identifiers. More readable user identifiers like `john_doe` support a
+                      better user-experience as the user identifier is used in URIs for shared
+                      processes, e.g. `https://example.org/api/v1.0/processes/@john_doe/my_ndvi`.
+                    pattern: '^[\w\-\.~]+$'
+                    example: john_doe
                   name:
                     type: string
                     description: >-
@@ -3583,6 +3623,14 @@ paths:
 
                       2. `edit-form`: Points to a page where the user can edit his user profile.
 
+                      3. `alternate`: Any other representation of these (and potentially additional)
+                      user information, e.g. the (public) user profile page.
+                      It is RECOMMENDED to add descriptive titles for a better user experience.
+
+                      4. `related`: Any other user-specific links to be shown in clients,
+                      e.g. to user-specific settings, invoices, etc. It is RECOMMENDED to 
+                      add descriptive titles for a better user experience.
+
                       For additional relation types see also the lists of
                       [common relation types in openEO](#section/API-Principles/Web-Linking).
                     type: array
@@ -3601,6 +3649,10 @@ paths:
                         rel: alternate
                         type: text/vcard
                         title: vCard of John Doe
+                      - href: 'https://example.openeo.org/john_doe/invoices'
+                        rel: related
+                        type: text/html
+                        title: Invoices
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -3642,7 +3694,8 @@ components:
             the following `rel` (relation) types:
 
             1. `about`: A resource that further explains the runtime,
-            e.g. a user guide or the documentation.
+            e.g. a user guide or the documentation. It is RECOMMENDED to 
+            add descriptive titles for a better user experience.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
@@ -3707,7 +3760,8 @@ components:
                             the following `rel` (relation) types:
 
                             1. `about`: A resource that further explains the library,
-                            e.g. a user guide or the documentation.
+                            e.g. a user guide or the documentation. It is RECOMMENDED to 
+                            add descriptive titles for a better user experience.
 
                             2. `latest-version`: If a library has been marked as deprecated,
                             a link SHOULD point to either a new library replacing the deprecated
@@ -3884,7 +3938,7 @@ components:
           $ref: '#/components/schemas/stac_assets'
         links:
           type: array
-          description: >-
+          description: |-
             Links related to this batch job result, e.g. a link to an 
             invoice, additional log files or external documentation.
 
@@ -3893,10 +3947,19 @@ components:
             Clients MUST NOT download the data referenced in the links by
             default.
 
+            It is **strongly recommended** to add a link with relation type
+            `canonical`, which points to this STAC document using a signed URL.
+             This way the STAC metadata can be used by non-openEO clients
+             without additional authentication steps.
+
             For relation types see the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+          example:
+            - rel: canonical
+              type: application/geo+json
+              href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item.json
     file_format:
       x-additionalPropertiesName: File Format Name
       title: File Format
@@ -4334,6 +4397,16 @@ components:
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
 
+            6. `canonical`: This relation type points to a (permanent) URL for resources which
+            usually require authentication but can can be accessed without (Bearer) authentication.
+            This way the the exposed resources can be used by non-openEO clients without additional
+            authentication steps.
+            For example, a shared user-defined process or batch job results could be
+            exposed via a canonical link. If a URL should be publicly available to everyone,
+            it can simply a user-specific URL, e.g. `https://example.com/processes/john_doe/ndvi`.
+            For resources that should only be accessible to a certain group of user,
+            a signed URL could be given, e.g. `https://example.com/processes/81zjh1tc2pt52gbx/ndvi`.
+
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking)
             and the STAC specification for Collections.
@@ -4386,9 +4459,9 @@ components:
 
             Potential fields for the summaries can be found here:
 
-            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/item-spec/common-metadata.md)**:
+            * **[STAC Common Metadata](https://github.com/radiantearth/stac-spec/blob/v1.0.0/item-spec/common-metadata.md)**:
               A list of commonly used fields throughout all domains
-            * **[Content Extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0-rc.2/extensions/README.md#list-of-content-extensions)**:
+            * **[Content Extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0/extensions/README.md#list-of-content-extensions)**:
               Domain-specific fields for domains such as EO, SAR and point clouds.
             * **Custom Properties**:
               It is generally allowed to add custom fields.
@@ -4417,6 +4490,7 @@ components:
         which MAY not be equal to the [STAC API version](#section/STAC).
         Supports versions 0.9.x and 1.x.x.
       pattern: '^(0\.9.\d+|1\.\d+.\d+)'
+      example: 1.0.0
     stac_extensions:
       type: array
       description: >-
@@ -5412,17 +5486,6 @@ components:
         Date and time of the last status change, formatted as a [RFC
         3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
       example: '2017-01-01T09:36:18Z'
-    user_id:
-      type: string
-      description: |-
-        Unique identifier of the user. MUST match the specified pattern.
-
-        For ease of use, it is NOT RECOMMENDED to use long randomly generated
-        identifiers. More readable user identifiers like `john_doe` support a
-        better user-experience as the user identifier is used in URIs for shared
-        processes, e.g. `https://example.org/api/v1.0/processes/@john_doe/my_ndvi`.
-      pattern: '^[\w\-\.~]+$'
-      example: john_doe
     description:
       type: string
       format: commonmark

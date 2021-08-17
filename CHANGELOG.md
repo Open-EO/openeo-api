@@ -6,7 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
-## [1.1.0] - 2021-06-15
+### Added
+
+- `GET /jobs/{job_id}/results`: Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
+- `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
+  - `create-form` to link to the registration page
+  - `recovery-form` to link to the credentials recovery page.
+- `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- Recommendation to add media types and titles to links for a better user experience.
+- Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
+
+### Changed
+
+- Updated STAC specification examples and references to v1.0.0.
+
+### Fixed
+
+- Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`, added `ProcessInvalid` and `ProcessGraphInvalid`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395), [#401](https://github.com/Open-EO/openeo-api/issues/401)
+- Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
+- Fixed the Collection example to use `gsd` instead of `eo:gsd`. [#399](https://github.com/Open-EO/openeo-api/issues/399)
+- Clarify use of `user_id`. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
+
+## [1.1.0] - 2021-05-17
 
 ### Added
 - `GET /processes` and `GET` / `PUT` for `/process_graphs/{process_graph_id}`: Allow specifying the return values processes receive from child processes. [#350](https://github.com/Open-EO/openeo-api/issues/350)
@@ -34,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
 - Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
-- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 - Clarified allowed characters in the `path` for uploaded user files.
 
