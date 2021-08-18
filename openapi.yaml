@@ -46,6 +46,12 @@ info:
 
     3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
 
+    4. `canonical`: This relation type usually points to a publicly accessible and more long-lived URL for a resource that otherwise often requires (Bearer) authentication with a short-lived token.
+    This way the the exposed resources can be used by non-openEO clients without additional authentication steps.
+    For example, a shared user-defined process or batch job results could be exposed via a canonical link.
+    If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://example.com/processes/john_doe/ndvi`.
+    For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://example.com/processes/81zjh1tc2pt52gbx/ndvi`.
+
     Generally, it is RECOMMENDED to add descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
 
     ## Error Handling
@@ -3065,9 +3071,7 @@ paths:
         Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
         It is **strongly recommended** to add a link with relation type `canonical`
-        to the STAC Item or STAC Collection, which points to this STAC document
-        using a signed URL. This way the STAC metadata can be used by non-openEO
-        clients without additional authentication steps.
+        to the STAC Item or STAC Collection (see the `links` property for details).
 
         If processing has not finished yet requests to this endpoint MUST be
         rejected with openEO error `JobNotFinished`.
@@ -3838,8 +3842,8 @@ components:
 
             It is **strongly recommended** to add a link with relation type
             `canonical`, which points to this STAC document using a signed URL.
-             This way the STAC metadata can be used by non-openEO clients
-             without additional authentication steps.
+            This way the STAC metadata can be used by non-openEO clients
+            without additional authentication steps.
 
             For relation types see the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
@@ -4285,16 +4289,6 @@ components:
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
-
-            6. `canonical`: This relation type points to a (permanent) URL for resources which
-            usually require authentication but can can be accessed without (Bearer) authentication.
-            This way the the exposed resources can be used by non-openEO clients without additional
-            authentication steps.
-            For example, a shared user-defined process or batch job results could be
-            exposed via a canonical link. If a URL should be publicly available to everyone,
-            it can simply a user-specific URL, e.g. `https://example.com/processes/john_doe/ndvi`.
-            For resources that should only be accessible to a certain group of user,
-            a signed URL could be given, e.g. `https://example.com/processes/81zjh1tc2pt52gbx/ndvi`.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking)
