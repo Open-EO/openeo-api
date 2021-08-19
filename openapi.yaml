@@ -1675,19 +1675,24 @@ paths:
               schema:
                 title: UDF Runtimes
                 type: object
-                description: >-
-                  Map of available runtime environments. Each runtime
-                  environment has a unique name, which is used as the property
-                  key. The name is used in processes to select the runtime
-                  environment for UDFs, so the names should be stable and
-                  meaningful (see example). Runtime environments can be either a
-                  programming language environment or Docker-based.
+                description: |-
+                  Map of available runtime environments. Runtime environments
+                  can be either a programming language environment or Docker-based.
+                  
+                  Each runtime environment has a unique name, which is used as
+                  the property key. The name is used in processes to select the
+                  runtime environment for UDFs, so the names should be stable and
+                  meaningful.
+                  It is RECOMMENDED to use the following naming and casing:
+                  * For programming langauge environments use the names as provided
+                    in in the [Scriptol List of Programming Languages](https://www.scriptol.com/programming/list-programming-languages.php).
+                  * For docker images use the docker image identifier excluding the registry path.
                 additionalProperties:
                   x-additionalPropertiesName: UDF Runtime name
                   allOf:
                     - $ref: '#/components/schemas/udf_runtime'
               example:
-                PHP7:
+                PHP:
                   title: PHP v7.x
                   description: Just an example how to reference a docker image.
                   experimental: true
@@ -3675,8 +3680,10 @@ components:
             docker:
               type: string
               description: >-
-                Identifier of a Docker image on Docker Hub or a
-                private repository, i.e. the docker image name.
+                Identifier of a Docker image on Docker Hub or a private repository,
+                which can run openEO UDFs.
+                This is what is used in the `docker pull` command excluding the tag,
+                e.g. `php`, `mcr.microsoft.com/dotnet/runtime` or `myregistry.local:5000/testing/test-image`.
             default:
               type: string
               description: The default tag. MUST be one of the values in the `tags` array.
