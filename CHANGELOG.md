@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
 - `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- `GET /credentials/oids`: Allow `authorization_code` and `urn:ietf:params:oauth:grant-type:device_code` (both without PKCE) as grants for `default_clients`. [#410](https://github.com/Open-EO/openeo-api/issues/410)
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
