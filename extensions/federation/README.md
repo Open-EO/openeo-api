@@ -4,23 +4,25 @@ The openEO API is a specification for interoperable cloud-based processing of la
 
 This is an extension for federation aspects, i.e. where multiple back-ends are exposed as a single API.
 
-Version: **0.1.0**
-Stability: **experimental**
+- Version: **0.1.0**
+- Stability: **experimental**
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
 
 ## Backend details
 
-A new required field `federated:backends` is added to `GET /`:
+A new required field `federation` is added to `GET /` to enable federation.
+
+### OpenAPI fragment
 
 ```yaml
 schema:
   type: object
   required:
-    - 'federation:backends'
+    - 'federation'
   properties:
-    'federation:backends':
+    'federation':
       description: >-
           Lists all back-ends that are part of this federation with details.
         They keys of the object are the unique identifiers for the back-ends that are returned in sub-sequent requests (see below).
@@ -52,12 +54,12 @@ schema:
             default: online
 ```
 
-Example:
+### Example
 
 ```json
 {
   "api_version": "1.1.0",
-  "federation:backends": {
+  "federation": {
     "vito": {
       "title": "VITO",
       "url": "https://openeo.vito.be"
@@ -81,6 +83,8 @@ Example:
 
 Clients will assume that all lists of resources (e.g. collections, processes, jobs, ...) are the combined from all back-ends listed in `GET /`. Federated APIs can expose if any of the back-ends is not available and thus is not part of the response.
 
+### OpenAPI fragment
+
 ```yaml
 schema:
   type: object
@@ -96,7 +100,7 @@ schema:
         description: The IDs of the back-ends that are not present in the response.
 ```
 
-Example:
+### Example
 
 ```json
 {
@@ -116,7 +120,7 @@ Every discoverable resource that is defined as an object and allows to contain a
 schema:
   type: object
   properties:
-    'federation:hosted':
+    'federation:backends':
       description: >-
         Lists all back-ends that support or host the resource.
         If not given, all back-ends support the resource.
@@ -127,12 +131,16 @@ schema:
         description: The IDs of the back-ends that are not present in the response.
 ```
 
-Example:
+**Note:** In Collections this should be placed inside `summaries` if users should be able to filter on back-ends in `load_collection`.
+
+### Examples
+
+#### Process
 
 ```json
 {
   "process_id": "example",
-  "federation:hosted": ["vito", "eodc"],
+  "federation:backends": ["vito", "eodc"],
   "parameters": [
     {
       "name": "parameter1",
@@ -146,6 +154,21 @@ Example:
       "schema": {}
     }
   ]
+  ...
+}
+```
+
+#### Collection
+
+```json
+{
+  "stac_version": "1.0.0",
+  "id": "example",
+  "description": "...",
+  "summaries": {
+    "federation:backends": ["vito", "eodc"],
+    ...
+  },
   ...
 }
 ```
