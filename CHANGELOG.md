@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated STAC specification examples and references to v1.0.0.
+- Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
 
 ### Fixed
 
