@@ -141,6 +141,16 @@ schema:
       items:
         type: string
         description: The ID of a back-end.
+    'federation:description':
+      description: |-
+        Allows back-ends to provide backend-specific details about this resource in a human-readable way.
+
+        [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.
+      type: array
+      minItems: 1
+      items:
+        type: string
+        description: The ID of a back-end.
 ```
 
 **Note:** In Collections this should be placed inside `summaries` if users should be able to filter on back-ends in `load_collection`.
@@ -162,7 +172,7 @@ schema:
     {
       "name": "proprietary_parameter",
       "description": "A parameter supported only by EODC.",
-      "federation:hosted": ["eodc"],
+      "federation:backends": ["eodc"],
       "schema": {}
     }
   ]
@@ -177,6 +187,10 @@ schema:
   "stac_version": "1.0.0",
   "id": "example",
   "description": "...",
+  "federation:description": {
+    "eodc": "The collection contains data for Austria only.",
+    "vito": "The collection contains data for Belgium only.",
+  },
   "summaries": {
     "federation:backends": ["vito", "eodc"],
     ...
