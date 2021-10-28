@@ -24,7 +24,7 @@ schema:
   properties:
     'federation':
       description: >-
-          Lists all back-ends that are part of this federation with details.
+        Lists all back-ends that are part of this federation with details.
         They keys of the object are the unique identifiers for the back-ends that are returned in sub-sequent requests (see below).
       type: object
       minProperties: 2
@@ -37,8 +37,9 @@ schema:
             type: string
             format: uri
             description: >-
-              URL to the API of the back-end, without the `/.well-known/openeo`
-              suffix.
+              URL to the versioned API endpoint of the back-end,
+              so a URL that is available through well-known discovery on the back-end.
+            example: https://openeo.provider.org/api/v1/
           title:
             type: string
             description: Name of the back-end.
@@ -52,6 +53,16 @@ schema:
               - offline
             description: Current status of the back-ends.
             default: online
+          last_status_check:
+            type: string
+            format: date-time
+            description: The time at which the status of the back-end was checked last.
+          last_successful_check:
+            type: string
+            format: date-time
+            description: >-
+              If the `status` is `offline`: The time at which the back-end was checked and available the last time.
+              Otherwise, this is equal to the property `last_status_check`.
 ```
 
 ### Example
@@ -91,13 +102,13 @@ schema:
   properties:
     'federation:missing':
       description: >-
-          Lists all back-ends that were not considered in the response (e.g. because they were not accessible).
+        Lists all back-ends that were not considered in the response (e.g. because they were not accessible).
         If not given or empty, all back-ends were considered for creating the response.
         Back-ends that were listed as offline in the capabilities still need to be listed here.
       type: array
       items:
         type: string
-        description: The IDs of the back-ends that are not present in the response.
+        description: The ID of a back-end.
 ```
 
 ### Example
@@ -110,7 +121,8 @@ schema:
 }
 ```
 
-Please note that this does not apply to `GET /udf_runtimes` and `GET /service_types`, which can only expose the availibility per UDF runtime / service type.
+Please note that this does not apply to `GET /udf_runtimes` and `GET /service_types`. These endpoints are not extensible and can only expose the availibility per UDF runtime / service type.
+This is due to the fact that these two endpoints return an object with a key-value-pair per UDF runtime / service type and adding a key-value-pair for federation purposes would be interpreted as a new UDF runtime or service type by clients.
 
 ## Resources supported only by a subset of back-ends
 
@@ -128,7 +140,7 @@ schema:
       minItems: 1
       items:
         type: string
-        description: The IDs of the back-ends that are not present in the response.
+        description: The ID of a back-end.
 ```
 
 **Note:** In Collections this should be placed inside `summaries` if users should be able to filter on back-ends in `load_collection`.
