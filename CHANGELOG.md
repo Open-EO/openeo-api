@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated STAC specification examples and references to v1.0.0.
+- Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
 
 ### Fixed
 
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify use of `user_id`. [#404](https://github.com/Open-EO/openeo-api/issues/404)
 - Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
 - Clarify that clients should (re-)request capabilities and discovery endpoints with token if available and supported. [#416](https://github.com/Open-EO/openeo-api/issues/416)
+- `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 
 ## [1.1.0] - 2021-05-17
 
