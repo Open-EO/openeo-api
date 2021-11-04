@@ -740,10 +740,20 @@ paths:
                         example: USD
                       default_plan:
                         type: string
-                        description: >-
-                          Name of the default plan to use when the user doesn't
-                          specify a plan or has no default plan has been assigned
-                          for the user.
+                        description: |-
+                          Name of the plan the back-end uses for billing in case 
+                          1. the user has not subscribed to a specific plan
+                             (see `default_plan` in `GET /me`) and
+                          2. also did not provide a specific plan with the
+                             processing request.
+
+                          If a free plan is available at the back-end, it is 
+                          probably most useful to provide this as the back-end
+                          wide default plan and override it with paid plans through
+                          the user-specific default plan in `GET /me`.
+                          Otherwise, users that have not set up payment yet MAY
+                          receive an error for each processing requests where
+                          they did not provide a free plan specifically.
                         example: free
                       plans:
                         description: Array of plans
@@ -3492,12 +3502,12 @@ paths:
                     type: string
                     nullable: true
                     description: |-
-                      Name of the plan the user has subscribed to.
+                      Name of the plan the user has subscribed to, if any.
 
-                      Overrides the default plan of the back-end, but back-ends
-                      MAY also allow overriding this plan for each individual
-                      processing request (e.g. job or service) with the
-                      corresponding `plan` property.
+                      Back-ends resolve billing plans in the following order:
+                      1. If provided, use the `plan` in the processing request.
+                      2. If provided, use the plan exposed here.
+                      3. Otherwise, use the `default_plan` exposed through `GET /`.
                     example: free
                   storage:
                     title: User Storage
@@ -4064,7 +4074,7 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted in a *case insensitive* manner.
+        Billing plans MUST be handled in a *case insensitive* manner.
         
         The plans can be retrieved from `GET /`, but the value returned here may
         not be in the list of plans any longer.
@@ -4075,14 +4085,16 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        If `null` is specified by the client explicitly,
-        the server MUST store the default plan and persist it regardless of any
-        changes to the default billing plan in the future. If given, the default
-        plan specific to the user has higher priority than the default plan of
-        the back-end.
+        Back-ends MUST resolve the billing plan in the following order:
+        1. Use the `plan` that has been provided in the request, if a non-null value is present.
 
-        The list of plans and the default plan for the back-end can be retrieved
-        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
+        If `null` has been provided for the `plan`:
+        2. Use the `default_plan` exposed through `GET /me`, if available.
+        3. Otherwise, use the `default_plan` exposed through `GET /`.
+
+        The resolved plan MUST be persisted permanently, regardless of any 
+        changes to the exposed billing plans in `GET /` in the future.
+
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
@@ -4093,14 +4105,14 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        If `null` is given implicitly (through the default value) or explicitly by the client,
-        the server MUST store the default plan and persist it regardless of any
-        changes to the default billing plan in the future. If given, the default
-        plan specific to the user has higher priority than the default plan of
-        the back-end.
+        Back-ends MUST resolve the billing plan in the following order:
+        1. Use the `plan` that has been provided in the request, if a non-null value is present.
+        2. Use the `default_plan` exposed through `GET /me`, if available.
+        3. Otherwise, use the `default_plan` exposed through `GET /`.
 
-        The list of plans and the default plan for the back-end can be retrieved
-        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
+        The resolved plan MUST be persisted permanently, regardless of any 
+        changes to the exposed billing plans in `GET /` in the future.
+
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
