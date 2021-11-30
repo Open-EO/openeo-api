@@ -3049,13 +3049,25 @@ paths:
   '/jobs/{job_id}/results':
     parameters:
       - $ref: '#/components/parameters/job_id'
+      - name: partial
+        description: >-
+          If set to `true`, the results endpoint returns incomplete results while
+          still running.
+
+          Enabling this parameter requires to indicate the incomplete state of the
+          STAC metadata by setting the `openeo:incomplete` property to `true`.
+        in: query
+        allowEmptyValue: true
+        schema:
+          type: boolean
+          default: false
     get:
-      summary: Download results for a completed batch job
+      summary: Download results for a batch job
       operationId: list-results
       description: |-
-        Lists signed URLs pointing to the processed files after the batch job
+        Lists signed URLs pointing to the processed files, usually after the batch job
         has finished. Back-ends may also point to intermediate results after the
-        job has stopped due to an error.
+        job has stopped due to an error or if the `partial` parameter has been set.
         
         The response includes additional metadata. It is a valid
         [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0/item-spec)
@@ -3098,8 +3110,8 @@ paths:
         It is **strongly recommended** to add a link with relation type `canonical`
         to the STAC Item or STAC Collection (see the `links` property for details).
 
-        If processing has not finished yet requests to this endpoint MUST be
-        rejected with openEO error `JobNotFinished`.
+        If processing has not finished yet and the `partial` parameter is not set to `true`
+        requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3130,6 +3142,9 @@ paths:
                     type: object
                     required:
                       - assets
+                    properties:
+                      'openeo:incomplete':
+                        $ref: '#/components/schemas/incomplete_result'
                     allOf:
                       - $ref: '#/components/schemas/collection'
                     example:
@@ -3713,6 +3728,10 @@ components:
               minItems: 1
               items:
                 type: string
+    incomplete_result:
+      type: boolean
+      default: false
+      description: MUST be `true` when the batch job result has not finished yet and as such is potentially incomplete.
     batch_job_result:
       title: Batch Job Results Response as STAC Item
       type: object
@@ -3854,6 +3873,8 @@ components:
                 Time until which the assets are accessible, in UTC. Formatted as
                 a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
               example: '2020-11-01T00:00:00Z'
+            'openeo:incomplete':
+              $ref: '#/components/schemas/incomplete_result'
         assets:
           $ref: '#/components/schemas/stac_assets'
         links:
