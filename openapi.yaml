@@ -2176,6 +2176,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 plan:
                   $ref: '#/components/schemas/billing_plan_null_default'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2631,6 +2633,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2638,10 +2642,9 @@ paths:
     patch:
       summary: Modify a service
       operationId: update-service
-      description: >-
+      description: |-
         Modifies an existing secondary web service at the back-end,
         but maintain the identifier. Changes can be grouped in a single request.
-
 
         User have to create a new service to change the service type.
       tags:
@@ -2677,6 +2680,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
@@ -2851,6 +2856,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2896,6 +2903,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
@@ -5356,6 +5365,8 @@ components:
             logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     job_id:
       type: string
       description: >-
@@ -5485,6 +5496,8 @@ components:
             same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5611,6 +5624,47 @@ components:
       example:
         - href: 'https://example.openeo.org/docs/errors/SampleError'
           rel: about
+    log_level:
+      description: |-
+        The severity level of the log entry.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        
+        The level `error` usually stops processing the data.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: error
+    min_log_level_default:
+      description: |-
+        The minimum severity level for log entries that the back-end stores for the processing request.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+
+        That means if `warning` is set, the back-end will only store log entries with the level `warning` and `error`.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      default: debug
+      example: warning
+    min_log_level_update:
+      description: |-
+        Updates the minimum severity level for log entries that the back-end stores for the processing requests.
+
+        The back-end doesn't need to update existing log entries.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: warning
     data_type_schema:
       title: Data Types
       description: Either a single data type or a list of data types.
@@ -5917,19 +5971,7 @@ components:
         code:
           $ref: '#/components/schemas/log_code'
         level:
-          description: |-
-            The severity level of the log entry.
-
-            The order of the levels is as follows (from high to low severity): `error`, `warning`, `info`, `debug`.
-            
-            The level `error` usually stops processing the data.
-          type: string
-          enum:
-            - error
-            - warning
-            - info
-            - debug
-          example: error
+          $ref: '#/components/schemas/log_level'
         message:
           type: string
           description: A message explaining the log entry.
@@ -6059,6 +6101,16 @@ components:
               - logs
               - links
             properties:
+              log_levels:
+                type: array
+                description: >-
+                  Returns the log levels that are included in this list of logs.
+                  This usually returns all log levels, except if the `log_level`
+                  in the processing request has been set anything other than `debug`.
+                  If this property is not present, clients must expect all log
+                  levels to be present.
+                items:
+                  $ref: '#/components/schemas/log_level'
               logs:
                 type: array
                 items:
