@@ -5643,15 +5643,17 @@ components:
         The minimum severity level for log entries that the back-end stores for the processing request.
 
         The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
-
         That means if `warning` is set, the back-end will only store log entries with the level `warning` and `error`.
+
+        The default minimum log level is `info`. Users need to specifically set this property to `debug` to get *all* log entries.
+        It is RECOMMENDED that users set the level at least to "warning" in production workflows.
       type: string
       enum:
         - error
         - warning
         - info
         - debug
-      default: debug
+      default: info
       example: warning
     min_log_level_update:
       description: |-
@@ -6101,16 +6103,21 @@ components:
               - logs
               - links
             properties:
-              log_levels:
-                type: array
-                description: >-
-                  Returns the log levels that are included in this list of logs.
-                  This usually returns all log levels, except if the `log_level`
-                  in the processing request has been set anything other than `debug`.
-                  If this property is not present, clients must expect all log
-                  levels to be present.
-                items:
-                  $ref: '#/components/schemas/log_level'
+              log_level:
+                description: |-
+                  The minimum severity level for log entries that the back-end returns.
+                  This property should reflect the `log_level` that has been specified by the user
+                  for the processing request.
+
+                  The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+                  That means if `warning` is set, the logs will only contain entries with the level `warning` and `error`.
+                type: string
+                enum:
+                  - error
+                  - warning
+                  - info
+                  - debug
+                default: debug
               logs:
                 type: array
                 items:
