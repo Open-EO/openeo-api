@@ -3500,14 +3500,7 @@ paths:
                       the user's real name or a nickname.
                   default_plan:
                     type: string
-                    nullable: true
-                    description: |-
-                      Name of the plan the user has subscribed to, if any.
-
-                      Back-ends resolve billing plans in the following order:
-                      1. If provided, use the `plan` in the processing request.
-                      2. If provided, use the plan exposed here.
-                      3. Otherwise, use the `default_plan` exposed through `GET /`.
+                    description: Name of the single plan the user is currently subscribed to if any.
                     example: free
                   storage:
                     title: User Storage
@@ -4085,15 +4078,10 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        Back-ends MUST resolve the billing plan in the following order:
-        1. Use the `plan` that has been provided in the request, if a non-null value is present.
+        Back-ends MUST resolve the billing plan in the following way if billing is supported:
 
-        If `null` has been provided for the `plan`:
-        2. Use the `default_plan` exposed through `GET /me`, if available.
-        3. Otherwise, use the `default_plan` exposed through `GET /`.
-
-        The resolved plan MUST be persisted permanently, regardless of any 
-        changes to the exposed billing plans in `GET /` in the future.
+        * If a value is given and it is not `null`: Persist the `plan` that has been provided in the request.
+        * Otherwise, don't change the billing plan.
 
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
@@ -4105,10 +4093,14 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        Back-ends MUST resolve the billing plan in the following order:
-        1. Use the `plan` that has been provided in the request, if a non-null value is present.
-        2. Use the `default_plan` exposed through `GET /me`, if available.
-        3. Otherwise, use the `default_plan` exposed through `GET /`.
+        Back-ends MUST resolve the billing plan in the following way:
+
+        * If a non-`null` value is given: Persist the `plan` that has been provided in the request.
+        * Otherwise:
+          1. Persist the `default_plan` exposed through `GET /me`, if available.
+          2. Persist the `default_plan` exposed through `GET /`, if available.
+          3. If a single plan is exposed by the back-end, persist it.
+          4. Otherwise, the back-end MUST throw a `BillingPlanMissing` error.
 
         The resolved plan MUST be persisted permanently, regardless of any 
         changes to the exposed billing plans in `GET /` in the future.
