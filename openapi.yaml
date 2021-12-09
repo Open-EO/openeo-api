@@ -3062,18 +3062,6 @@ paths:
   '/jobs/{job_id}/results':
     parameters:
       - $ref: '#/components/parameters/job_id'
-      - name: partial
-        description: >-
-          If set to `true`, the results endpoint returns incomplete results while
-          still running.
-
-          Enabling this parameter requires to indicate the status of the batch job
-          in the STAC metadata by setting the `openeo:status`.
-        in: query
-        allowEmptyValue: true
-        schema:
-          type: boolean
-          default: false
     get:
       summary: Download results for a batch job
       operationId: list-results
@@ -3130,6 +3118,19 @@ paths:
         - Batch Jobs
       security:
         - Bearer: []
+      parameters:
+        - name: partial
+          description: >-
+            If set to `true`, the results endpoint returns incomplete results while
+            still running.
+
+            Enabling this parameter requires to indicate the status of the batch job
+            in the STAC metadata by setting the `openeo:status`.
+          in: query
+          allowEmptyValue: true
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: >-
@@ -3143,7 +3144,8 @@ paths:
                 to `0` if the requester is the owner of the job and still has
                 free downloads included in his processing charges estimated by
                 `GET /jobs/{job_id}/estimate`.
-                 If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.
+                If a requester other than the owner is requesting the data of a
+                shared job this header indicates the costs for the requester.
               schema:
                 $ref: '#/components/schemas/money'
           content:
@@ -3752,7 +3754,7 @@ components:
         The status of a batch job.
 
         This field is REQUIRED if the `partial` parameter is given.
-        This field is strongly RECOMMENDED if the job has errored.
+        This field is strongly RECOMMENDED if the job has stopped due to an error.
       default: finished
     batch_job_result:
       title: Batch Job Results Response as STAC Item
@@ -5408,8 +5410,8 @@ components:
             Metrics about the resource usage of the batch job.
             
             Back-ends are not expected to update the metrics while processing data,
-            so the metrics can only be available after the job has been finished
-            or has errored.
+            so the metrics can only be available after the job has finished
+            or has stopped due to an error.
             For usage metrics during processing, metrics can better be added to the
             logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
           allOf:
