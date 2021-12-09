@@ -3067,8 +3067,8 @@ paths:
           If set to `true`, the results endpoint returns incomplete results while
           still running.
 
-          Enabling this parameter requires to indicate the incomplete state of the
-          STAC metadata by setting the `openeo:incomplete` property to `true`.
+          Enabling this parameter requires to indicate the status of the batch job
+          in the STAC metadata by setting the `openeo:status`.
         in: query
         allowEmptyValue: true
         schema:
@@ -3156,8 +3156,8 @@ paths:
                     required:
                       - assets
                     properties:
-                      'openeo:incomplete':
-                        $ref: '#/components/schemas/incomplete_result'
+                      'openeo:status':
+                        $ref: '#/components/schemas/result_status'
                     allOf:
                       - $ref: '#/components/schemas/collection'
                     example:
@@ -3741,10 +3741,19 @@ components:
               minItems: 1
               items:
                 type: string
-    incomplete_result:
-      type: boolean
-      default: false
-      description: MUST be `true` when the batch job result has not finished yet and as such is potentially incomplete.
+    result_status:
+      type: string
+      enum:
+        - running
+        - canceled
+        - finished
+        - error
+      description: |-
+        The status of a batch job.
+
+        This field is REQUIRED if the `partial` parameter is given.
+        This field is strongly RECOMMENDED if the job has errored.
+      default: finished
     batch_job_result:
       title: Batch Job Results Response as STAC Item
       type: object
@@ -3886,8 +3895,8 @@ components:
                 Time until which the assets are accessible, in UTC. Formatted as
                 a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
               example: '2020-11-01T00:00:00Z'
-            'openeo:incomplete':
-              $ref: '#/components/schemas/incomplete_result'
+            'openeo:status':
+              $ref: '#/components/schemas/result_status'
         assets:
           $ref: '#/components/schemas/stac_assets'
         links:
