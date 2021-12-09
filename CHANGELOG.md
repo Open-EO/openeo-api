@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
 - `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- `GET /collections` and `GET /collections/{collection_id}` (and implicitly `GET /jobs/{job_id}/results`): Added a field that can indicate which properties can be filtered on when loading data from a collection. [#396](https://github.com/Open-EO/openeo-api/issues/396)
 - `GET /credentials/oidc`: Allow `authorization_code` and `urn:ietf:params:oauth:grant-type:device_code` (both without PKCE) as grants for `default_clients`. [#410](https://github.com/Open-EO/openeo-api/issues/410)
 - `GET /jobs/{job_id}/results`:
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
   - Added parameter `partial` to allow retrieving incomplete results, which must also add a new property `openeo:incomplete` to the metadata. [#430](https://github.com/Open-EO/openeo-api/issues/430)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `log_level` property in responses to reflect the minimum log level that has been chosen by the user. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- Added property `log_level` to secondary web service, batch job and synchronous processing endpoints to indicate the minimum severity level that should be stored for logs. [#329](https://github.com/Open-EO/openeo-api/issues/329)
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
@@ -34,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
 - Clarify that clients should (re-)request capabilities and discovery endpoints with token if available and supported. [#416](https://github.com/Open-EO/openeo-api/issues/416)
 - `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
+- Reflect that the `debug` process has been renamed to `inspect`.
 
 ## [1.1.0] - 2021-05-17
 

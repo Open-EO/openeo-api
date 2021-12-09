@@ -1445,6 +1445,10 @@ paths:
                       - B10
                       - B11
                       - B12
+                'openeo:property_filters':
+                  - platform
+                  - eo:cloud_cover
+                  - sat:orbit_state
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -2176,6 +2180,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 plan:
                   $ref: '#/components/schemas/billing_plan_null_default'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2631,6 +2637,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2638,10 +2646,9 @@ paths:
     patch:
       summary: Modify a service
       operationId: update-service
-      description: >-
+      description: |-
         Modifies an existing secondary web service at the back-end,
         but maintain the identifier. Changes can be grouped in a single request.
-
 
         User have to create a new service to change the service type.
       tags:
@@ -2677,6 +2684,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
@@ -2731,7 +2740,7 @@ paths:
         
         Back-ends can log any information that may be relevant for a user.
         Users can log information during data processing using respective
-        processes such as `debug`.
+        processes such as `inspect`.
 
         If requested consecutively while the secondary service is enabled, it is
         RECOMMENDED that clients use the offset parameter to get only the entries
@@ -2851,6 +2860,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2896,6 +2907,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
@@ -3023,7 +3036,7 @@ paths:
         Back-ends can log any information that may be relevant for a user
         at any stage (status) of the batch job.
         Users can log information during data processing using respective
-        processes such as `debug`.
+        processes such as `inspect`.
 
         If requested consecutively, it is RECOMMENDED that clients use the offset
         parameter to get only the entries they have not received yet.
@@ -4367,6 +4380,21 @@ components:
             x-additionalPropertiesName: Dimension Name
             allOf:
               - $ref: '#/components/schemas/dimension'
+        'openeo:property_filters':
+          description: |-
+            Gives a list of properties you can filter on when loading data from the collection.
+            Returning an empty array means that no property-based filters are available.
+
+            This is a guide for users to get an overview of available properties to filter on.
+            More metadata about the properties can be found in `summaries`.
+
+            If this property is not present, it means that the collections does 
+            not provide any collection-specific details about available property-based filters. 
+            It's then up to other means of documentation to inform the user,
+            e.g. there could be documentation about property filters that work across collections.
+          type: array
+          items:
+            type: string
         summaries:
           title: STAC Summaries (Collection Properties)
           description: |-
@@ -5377,6 +5405,8 @@ components:
             logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     job_id:
       type: string
       description: >-
@@ -5506,6 +5536,8 @@ components:
             same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5617,7 +5649,7 @@ components:
       type: string
       description: >-
         The code is either one of the standardized error codes or a custom code,
-        for example specified by a user in the `debug` process.
+        for example specified by a user in the `inspect` process.
       example: SampleError
     log_links:
       description: |-
@@ -5632,6 +5664,49 @@ components:
       example:
         - href: 'https://example.openeo.org/docs/errors/SampleError'
           rel: about
+    log_level:
+      description: |-
+        The severity level of the log entry.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        
+        The level `error` usually corresponds with critical issues that usually terminate the data processing.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: error
+    min_log_level_default:
+      description: |-
+        The minimum severity level for log entries that the back-end stores for the processing request.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        That means if `warning` is set, the back-end will only store log entries with the level `warning` and `error`.
+
+        The default minimum log level is `info`. Users need to specifically set this property to `debug` to get *all* log entries.
+        It is RECOMMENDED that users set the level at least to "warning" in production workflows.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      default: info
+      example: warning
+    min_log_level_update:
+      description: |-
+        Updates the minimum severity level for log entries that the back-end stores for the processing requests.
+
+        The back-end doesn't need to update existing log entries.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: warning
     data_type_schema:
       title: Data Types
       description: Either a single data type or a list of data types.
@@ -5938,19 +6013,7 @@ components:
         code:
           $ref: '#/components/schemas/log_code'
         level:
-          description: |-
-            The severity level of the log entry.
-
-            The order of the levels is as follows (from high to low severity): `error`, `warning`, `info`, `debug`.
-            
-            The level `error` usually stops processing the data.
-          type: string
-          enum:
-            - error
-            - warning
-            - info
-            - debug
-          example: error
+          $ref: '#/components/schemas/log_level'
         message:
           type: string
           description: A message explaining the log entry.
@@ -5969,8 +6032,9 @@ components:
             Data of any type. It is the back-ends task to decide how to best
             present passed data to a user.
 
-            For example, a raster-cube passed to the `debug` SHOULD return the
+            For example, a raster-cube passed to the `inspect` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
+            There are implementation guidelines available for the `inspect` process.
           nullable: true
         path:
           description: |-
@@ -6080,6 +6144,21 @@ components:
               - logs
               - links
             properties:
+              log_level:
+                description: |-
+                  The minimum severity level for log entries that the back-end returns.
+                  This property MUST reflect the `log_level` that has been specified by the user
+                  for the processing request.
+
+                  The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+                  That means if `warning` is set, the logs will only contain entries with the level `warning` and `error`.
+                type: string
+                enum:
+                  - error
+                  - warning
+                  - info
+                  - debug
+                default: debug
               logs:
                 type: array
                 items:
