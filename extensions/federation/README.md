@@ -103,17 +103,14 @@ Applies to:
 - `GET /process_graphs`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
-- `GET /jobs/{job_id}/logs`
 - `GET /jobs/{job_id}/results`
 - `GET /services`
-- `GET /services/{service_id}/logs`
 
-The following two endpoints are not extensible and as such the additional field can't be added:
+The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
+Consequently, they are not extensible with additional properties for federation purposes.
 
 - `GET /udf_runtimes`
 - `GET /service_types`
-
-*This is due to the fact that these two endpoints return an object with a key-value-pair per UDF runtime / service type and adding a key-value-pair for federation purposes would be interpreted as a new UDF runtime or service type by clients.*
 
 ### OpenAPI fragment
 
