@@ -92,7 +92,28 @@ schema:
 
 ## Lists of resources
 
-Clients will assume that all lists of resources (e.g. collections, processes, jobs, ...) are the combined from all back-ends listed in `GET /`. Federated APIs can expose if any of the back-ends is not available and thus is not part of the response.
+Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
+Federated APIs can expose if any of the back-ends is not available and thus is not part of the response.
+
+Applies to:
+
+- `GET /collections`
+- `GET /processes`
+- `GET /file_formats`
+- `GET /process_graphs`
+- `GET /jobs`
+- `GET /jobs/{job_id}`
+- `GET /jobs/{job_id}/logs`
+- `GET /jobs/{job_id}/results`
+- `GET /services`
+- `GET /services/{service_id}/logs`
+
+The following two endpoints are not extensible and as such the additional field can't be added:
+
+- `GET /udf_runtimes`
+- `GET /service_types`
+
+*This is due to the fact that these two endpoints return an object with a key-value-pair per UDF runtime / service type and adding a key-value-pair for federation purposes would be interpreted as a new UDF runtime or service type by clients.*
 
 ### OpenAPI fragment
 
@@ -121,12 +142,10 @@ schema:
 }
 ```
 
-Please note that this does not apply to `GET /udf_runtimes` and `GET /service_types`. These endpoints are not extensible and can only expose the availibility per UDF runtime / service type.
-This is due to the fact that these two endpoints return an object with a key-value-pair per UDF runtime / service type and adding a key-value-pair for federation purposes would be interpreted as a new UDF runtime or service type by clients.
-
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality (e.g. collections, processes, process parameters, file formats, file format parameters, services, jobs, ...)
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality.
+This can also be embeded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
 ```yaml
 schema:
@@ -143,7 +162,9 @@ schema:
         description: The ID of a back-end.
 ```
 
-**Note:** In Collections this should be placed inside `summaries` if users should be able to filter on back-ends in `load_collection`.
+**Note:** In Collections this should generally be provided on the top-level of the object.
+If users should be able to filter on back-ends in `load_collection`, please provide `federation:backends` as an element in `openeo:property_filters`.
+Then, `federation:backends` as defined in the schema above should also be provided in the `summaries`.
 
 ### Examples
 
