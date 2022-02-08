@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New experimental [Federation Extension](./extensions/federation/README.md)
 - `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
