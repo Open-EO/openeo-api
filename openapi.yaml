@@ -2882,13 +2882,14 @@ paths:
     patch:
       summary: Modify a batch job
       operationId: update-job
-      description: >-
+      description: |-
         Modifies an existing job at the back-end, but maintains the identifier.
         Changes can be grouped in a single request.
 
+        The job status does not change.
 
         Jobs can only be modified when the job is not queued or running.
-        Otherwise requests to this endpoint MUST be rejected with openEO error
+        Otherwise, requests to this endpoint MUST be rejected with openEO error
         `JobLocked`.
       tags:
         - Data Processing
@@ -3268,18 +3269,21 @@ paths:
         The result will be stored in the format specified in the process.
         To specify the format use a process such as `save_result`.
 
-        This endpoint has no effect if the job status is already `queued` or
-        `running`. In particular, it doesn't restart a running job. Processing
-        MUST be canceled before to restart it.
-
         The job status is set to `queued`, if processing doesn't start
-        instantly.
+        instantly. The same applies if the job status is `canceled`, `finished`,
+        or `error`, which restarts the job and discards previous results.
+        Clients SHOULD warn users and ask for confirmation if results may get
+        discarded.
 
         * Once the processing starts the status is set to `running`.
         * Once the data is available to download the status is set to
         `finished`.
         * Whenever an error occurs during processing, the status MUST be set to
         `error`.
+
+        This endpoint has no effect if the job status is already `queued` or
+        `running`. In particular, it doesn't restart a running job. To restart
+        a queued or running job, processing MUST have been canceled before.
 
         Back-ends SHOULD reject queueing jobs with openEO error `PaymentRequired`,
         if the back-end is able to detect that the budget is too low to fully
@@ -3302,19 +3306,19 @@ paths:
     delete:
       summary: Cancel processing a batch job
       operationId: stop-job
-      description: >-
+      description: |-
         Cancels all related computations for this job at the back-end. It will
         stop generating additional costs for processing.
 
-
         A subset of processed results may be available for downloading depending
-        on the state of the job as it was canceled. Finished results MUST NOT be
-        deleted until the job is deleted or job processing is started again.
+        on the state of the job at the time it was canceled.
 
+        Results MUST NOT be deleted until the job processing is started again or
+        the job is completely deleted through a request to
+        `DELETE /jobs/{job_id}`.
 
         This endpoint only has an effect if the job status is `queued` or
         `running`.
-
 
         The job status is set to `canceled` if the status was `running`
         beforehand and partial or preliminary results are available to be
