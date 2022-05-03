@@ -3497,6 +3497,154 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
+  '/commercial_data/collections/{collection_id}':
+    get:
+      summary: Information about searching and ordering commercial data collection.
+      operationId: commercial-data-collection-info
+      description: |-
+        Lists information about pricing and available parameters for searching and ordering products for a commercial data collection specified by the identifier `collection_id`.
+        STAC-compliant general information about the collection must be available at `GET collections/{collection_id}`.
+      tags:
+        - Commercial data
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: Information about commercial data collection.
+          content:
+            application/json:
+              schema:
+                title: Commercial Collection Info
+                type: object
+                required:
+                  - id
+                  - pricing
+                  - search_parameters
+                  - order_parameters
+                properties:
+                  id:
+                    type: string
+                    description: A unique identifier for the collection, which MUST match the specified pattern.
+                    pattern: '^[\w\-\.~\/]+$'
+                  provider:
+                    type: string
+                    description: Provider of the data. 
+                  pricing: 
+                    type: object
+                    description: Information about pricing for searching and/or ordering data.
+                    required:
+                      - searching
+                      - ordering
+                    properties:
+                      searching:
+                        type: object
+                        description: Pricing for searching available products in the collection. Must be explicitly set to `null` if searching is free of charge.
+                        nullable: true
+                        properties:
+                          description:
+                            type: string
+                            description: Human-readable description of pricing.
+                          links:
+                            type: array
+                            description: |-
+                              Additional information about the pricing options.
+                      ordering:
+                        type: object
+                        description: General information about pricing for ordering products.
+                        properties:
+                          description:
+                            type: string
+                            description: Human-readable description of pricing.
+                          links:
+                            type: array
+                            description: |-
+                              Additional information about the pricing options.
+                  search_parameters:
+                    type: object
+                    description: Available parameters that can be used for searching products using `POST /commercial_data/search`.
+                    additionalProperties:
+                      x-additionalPropertiesName: Search Parameter
+                      title: Search Parameter
+                      type: object
+                      required:
+                        - required
+                        - description
+                      properties:
+                        description:
+                          type: string
+                          description: Description of the parameter.
+                        required: 
+                          type: boolean
+                          description: Whether or not the parameter must be explicitly set when searching data.
+                        links:
+                          type: array
+                          description: |-
+                            Additional information about the parameter.
+                  order_parameters:
+                    type: object
+                    description: Available parameters that can be used when ordering products using `POST /commercial_data/orders`.
+                    additionalProperties:
+                      x-additionalPropertiesName: Search Parameter
+                      title: Search Parameter
+                      type: object
+                      required:
+                        - required
+                        - description
+                      properties:
+                        description:
+                          type: string
+                          description: Description of the parameter.
+                        required: 
+                          type: boolean
+                          description: Whether or not the parameter must be explicitly set when ordering data.
+                        links:
+                          type: array
+                          description: |-
+                            Additional information about the parameter.
+              example:
+                id: PLEIADES
+                provider: AIRBUS
+                pricing:
+                  searching: null
+                  ordering:
+                    description: Minimum area per order is 0.25 km2. The price is calculated based on a 6-months sliding window.
+                    links: 
+                    - title: Airbus Pleiades pricing
+                      rel: related
+                      href: https://www.sentinel-hub.com/pricing/
+                search_parameters:
+                  bounds:
+                    description: The request bounding box. Specify with a coordinate pair on two (opposite) vertices of the bounding box rectangle. Coordinates need to be in easting,northing or longitude, latitude, in EPSG:4326.
+                    required: true
+                    links:
+                    - title: Bounds specification
+                    - rel: related
+                    - href: https://api.docs.com/tpdi/airbus#bounds
+                  time_range:
+                    description: A time interval to filter data by acquisition date. It is defined by a start and end date and time, e.g. 2019-01-31T14:00:00+01:00. A date representation without time (e.g. 2019-01-31) will not work. Both the start and end of a time interval are inclusive and can be equal.
+                    required: false
+                  processing_level: 
+                    description: 'Enum: SENSOR,ALBUM. When searching, you will receive results from the full catalog as well as the Living Library, which holds images that have cloud cover under 30% and Incidence angle under 40°. If you want to search only Living Library results, you will need to filter using processingLevel. This value could be equal to SENSOR (images which meet Living Library criteria) and ALBUM (images that do not meeting Living Library criteria in terms of incidence angle and cloud cover).'
+                    required: false
+                  max_snow_coverage: 
+                    description: 'The maximum allowable snow coverage in percent. Default: 100.'
+                    required: false
+                  max_incidence_angle: 
+                    description: 'he maximum allowable incidence angle in degrees. Default: 90.'
+                    required: false
+                order_parameters:
+                  bounds:
+                    description: The request bounding box. Specify with a coordinate pair on two (opposite) vertices of the bounding box rectangle. Coordinates need to be in easting,northing or longitude, latitude, in EPSG:4326.
+                    required: true
+                    links:
+                    - title: Bounds specification
+                    - rel: related
+                    - href: https://api.docs.com/tpdi/airbus#bounds
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
 components:
   schemas:
     udf_runtime:
