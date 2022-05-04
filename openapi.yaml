@@ -3512,6 +3512,13 @@ paths:
       security:
         - {}
         - Bearer: []
+      parameters:
+        - name: collection_id
+          in: path
+          description: Collection identifier
+          required: true
+          schema:
+            $ref: '#/components/schemas/collection_id'
       responses:
         '200':
           description: Information about commercial data collection.
@@ -3715,6 +3722,8 @@ paths:
                     processingLevel: SENSOR
                     sensorType: OPTICAL
                     spectralRange: VISIBLE
+                  assets: {}
+                  links: []
                 links: []
         4XX:
           $ref: '#/components/responses/client_error_auth'
@@ -3740,7 +3749,6 @@ paths:
                   description: Key-value pairs of available `search_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
                   additionalProperties:
                     x-additionalPropertiesName: Search Parameter Name
-                    AnyValue:
                     description: Value of the search parameter to be used in the request.
               example:
                 collection_id: "PLEIADES"
@@ -3794,9 +3802,7 @@ paths:
                         - costs
                       properties:
                         id:
-                          type: string
-                          description: Unique identifier of the order, which MUST match the specified pattern.
-                          pattern: '^[\w\-\.~\/]+$'
+                          $ref: '#/components/schemas/order_id'
                         status:
                           type: string
                           enum:
@@ -3858,9 +3864,7 @@ paths:
                   - costs
                 properties:
                   id:
-                    type: string
-                    description: Unique identifier of the order, which MUST match the specified pattern.
-                    pattern: '^[\w\-\.~\/]+$'
+                    $ref: '#/components/schemas/order_id'
                   status:
                     type: string
                     enum:
@@ -3895,15 +3899,12 @@ paths:
                   type: array
                   description: Array of IDs of products to order.
                   items:
-                    type: string
-                    description: Unique identifier of the order, which MUST match the specified pattern.
-                    pattern: '^[\w\-\.~\/]+$'
+                    $ref: '#/components/schemas/order_id'
                 parameters:
                   type: object
                   description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
                   additionalProperties:
                     x-additionalPropertiesName: Order Parameter Name
-                    AnyValue:
                     description: Value of the order parameter to be used in the request.
               example:
                 collection_id: "PLEIADES"
@@ -3926,6 +3927,13 @@ paths:
         - Commercial Data
       security:
         - Bearer: []
+      parameters:
+        - name: order_id
+          in: path
+          description: Order identifier
+          required: true
+          schema:
+            $ref: '#/components/schemas/order_id'
       responses:
         '200':
           description: Order information.
@@ -3945,9 +3953,7 @@ paths:
                   - costs
                 properties:
                   id:
-                    type: string
-                    description: Unique identifier of the order, which MUST match the specified pattern.
-                    pattern: '^[\w\-\.~\/]+$'
+                    $ref: '#/components/schemas/order_id'
                   status:
                     type: string
                     enum:
@@ -3967,7 +3973,6 @@ paths:
                     description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
                     additionalProperties:
                       x-additionalPropertiesName: Order Parameter Name
-                      AnyValue:
                       description: Value of the order parameter to be used in the request.
                   collection_id:
                     type: string
@@ -4015,6 +4020,8 @@ paths:
                     processingLevel: SENSOR
                     sensorType: OPTICAL
                     spectralRange: VISIBLE
+                  assets: {}
+                  links: []
                 parameters: 
                   bounds:
                     - 3
@@ -4039,6 +4046,12 @@ paths:
         - Bearer: []
       parameters:
         - $ref: '#/components/parameters/pagination_limit'
+        - name: order_id
+          in: path
+          description: Order identifier
+          required: true
+          schema:
+            $ref: '#/components/schemas/order_id'
       responses:
         '200':
           description: Returns unique id and the status of the order.
@@ -4052,9 +4065,7 @@ paths:
                   - status
                 properties:
                   id:
-                    type: string
-                    description: Unique identifier of the order, which MUST match the specified pattern.
-                    pattern: '^[\w\-\.~\/]+$'
+                    $ref: '#/components/schemas/collection_id'
                   status:
                     type: string
                     enum:
@@ -4070,6 +4081,12 @@ paths:
           $ref: '#/components/responses/server_error'    
 components:
   schemas:
+    order_id:
+      type: string
+      description: >-
+        Unique identifier of the order, which MUST match the specified pattern..
+      pattern: '^[\w\-\.~]+$'
+      example: 40264b5-c3ae-46f4-a907-0f612d763d97
     product:
       type: object
       title: Item
@@ -4160,10 +4177,7 @@ components:
           type: object
           title: Item Properties
           description: >-
-            MAY contain additional properties other than the required property `datetime`,
-            e.g. custom properties or properties from the STAC specification or STAC extensions.
-          required:
-            - datetime
+            MAY contain custom properties or properties from the STAC specification or STAC extensions.
           additionalProperties: true
           properties:
             datetime:
