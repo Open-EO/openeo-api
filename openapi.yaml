@@ -4060,6 +4060,263 @@ paths:
                     - 4
                     - 16
   '/commercial_data/orders/{order_id}':
+    get:
+      summary: Get detailed information about an order.
+      operationId: commercial-data-order-info
+      description: |-
+        Detailed information about an order.
+      tags:
+        - Commercial Data
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Order information.
+          content:
+            application/json:
+              schema:
+                title: Order Information
+                type: object
+                required:
+                  - id
+                  - status
+                  - created
+                  - collection_id
+                  - products
+                  - parameters
+                  - byoc_collection_id
+                  - costs
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier of the order, which MUST match the specified pattern.
+                    pattern: '^[\w\-\.~\/]+$'
+                  status:
+                    type: string
+                    enum:
+                      - NOT_CONFIRMED
+                      - RUNNING
+                      - FAILED
+                      - DONE
+                  created:
+                    $ref: '#/components/schemas/created'
+                  products:
+                    type: array
+                    description: An array of available products as STAC Items.
+                    items:
+                      type: object
+                      required:
+                        - stac_version
+                        - id
+                        - type
+                        - geometry
+                        - properties
+                        - assets
+                        - links
+                      properties:
+                        stac_version:
+                          $ref: '#/components/schemas/stac_version'
+                        stac_extensions:
+                          $ref: '#/components/schemas/stac_extensions'
+                        id:
+                          type: string
+                          description: Unique identifier of a product.
+                        type:
+                          type: string
+                          description: >-
+                            The GeoJSON type that applies to this metadata document,
+                            which MUST always be a "Feature" according to the STAC specification.
+
+                            This type does **not** describe the spatial data type of the assets.
+                          enum:
+                            - Feature
+                        bbox:
+                          description: |-
+                            Potential *spatial extent* covered by the data.
+                            
+                            The bounding box is provided as four or six numbers. Six numbers are
+                            specified, if the coordinate reference system includes a vertical axis
+                            (height or depth). The order of the elements in the array:
+
+                            - West (lower left corner, coordinate axis 1)
+                            - South (lower left corner, coordinate axis 2)
+                            - Base (optional, lower left corner, coordinate axis 3)
+                            - East (upper right corner, coordinate axis 1)
+                            - North (upper right corner, coordinate axis 2)
+                            - Height (optional, upper right corner, coordinate axis 3)
+
+                            The coordinate reference system of the values is WGS84
+                            longitude/latitude.
+
+                            Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
+                            but can be omitted if the result is unlocated and the `geometry`
+                            is set to `null`.
+                          type: array
+                          oneOf:
+                            - title: 4 elements
+                              minItems: 4
+                              maxItems: 4
+                            - title: 6 elements
+                              minItems: 6
+                              maxItems: 6
+                          items:
+                            type: number
+                          example:
+                            - -180
+                            - -90
+                            - 180
+                            - 90
+                        geometry:
+                          description: |-
+                            Defines the full footprint of the asset represented by this item as
+                            GeoJSON Geometry.
+
+                            Results without a known location can set this value to `null`.
+                          nullable: true
+                          allOf:
+                            - $ref: '#/components/schemas/GeoJsonGeometry'
+                          example:
+                            type: Polygon
+                            coordinates:
+                              - - - -180
+                                  - -90
+                                - - 180
+                                  - -90
+                                - - 180
+                                  - 90
+                                - - -180
+                                  - 90
+                                - - -180
+                                  - -90
+                        properties:
+                          type: object
+                          title: Item Properties
+                          description: >-
+                            MAY contain additional properties other than the required property `datetime`,
+                            e.g. custom properties or properties from the STAC specification or STAC extensions.
+                          required:
+                            - datetime
+                          additionalProperties: true
+                          properties:
+                            datetime:
+                              title: Date and Time
+                              description: >-
+                                The searchable date/time of the data, in UTC. Formatted as a
+                                [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+
+
+                                If this field is set to `null` (usually for larger time ranges),
+                                it is STRONGLY RECOMMENDED to specify both `start_datetime` and
+                                `end_datetime` for STAC compliance.
+                              type: string
+                              format: date-time
+                              nullable: true
+                            start_datetime:
+                              type: string
+                              format: date-time
+                              description: >-
+                                For time series: The first or start date and time for the data,
+                                in UTC. Formatted as a [RFC
+                                3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+                            end_datetime:
+                              type: string
+                              format: date-time
+                              description: >-
+                                For time series: The last or end date and time for the data, in
+                                UTC. Formatted as a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html)
+                                date-time.
+                            title:
+                              $ref: '#/components/schemas/eo_title'
+                            description:
+                              $ref: '#/components/schemas/eo_description'
+                            license:
+                              $ref: '#/components/schemas/stac_license'
+                            providers:
+                              $ref: '#/components/schemas/stac_providers'
+                            created:
+                              $ref: '#/components/schemas/created'
+                            updated:
+                              $ref: '#/components/schemas/updated'
+                            expires:
+                              type: string
+                              format: date-time
+                              description: >-
+                                Time until which the assets are accessible, in UTC. Formatted as
+                                a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+                              example: '2020-11-01T00:00:00Z'
+                        assets:
+                          $ref: '#/components/schemas/stac_assets'
+                        links:
+                          type: array
+                          description: Links related to this product
+                          items:
+                            $ref: '#/components/schemas/link'
+                  parameters:
+                    type: object
+                    description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
+                    additionalProperties:
+                      x-additionalPropertiesName: Order Parameter Name
+                      AnyValue:
+                      description: Value of the order parameter to be used in the request.
+                  collection_id:
+                    type: string
+                    description: Unique identifier of the collection.
+                  byoc_collection_id:
+                    type: string
+                    description: Unique identifier required to access the purchased data.
+                  costs:
+                    $ref: '#/components/schemas/money'
+              example:
+                id: 40264b5-c3ae-46f4-a907-0f612d763d97
+                status: DONE
+                created: '2017-01-01T09:32:12Z'
+                products:
+                - type: Feature
+                  stac_version: 0.9.0
+                  id: c8a1f88d-89cf-4933-9118-45e9c1a5df20
+                  geometry: 
+                    type: Polygon
+                    coordinates: 
+                    - 
+                     - 
+                      - 12.36555287044679
+                      - 41.94403289260048
+                    -
+                      - 12.36571746774068
+                      - 41.86399361096971
+                    -
+                      - 12.60746759743069
+                      - 41.86372776276345
+                    -
+                      - 12.60758647471871
+                      - 41.94379931812686
+                    -
+                      - 12.36555287044679
+                      - 41.94403289260048
+                  properties:
+                    constellation: PHR
+                    acquisitionDate: "2022-03-21T10:11:15.055Z"
+                    azimuthAngle: 179.9852862071639
+                    cloudCover: 0
+                    geometryCentroid: 
+                      lat: 41.903935647240964
+                      lon: 12.486569672582828
+                    processingLevel: SENSOR
+                    sensorType: OPTICAL
+                    spectralRange: VISIBLE
+                parameters: 
+                  bounds:
+                    - 3
+                    - 15
+                    - 4
+                    - 16
+                collection_id: PLEAIDES
+                byoc_collection_id: 50b230c3-e1b5-431c-a6f7-f779684072bb
+                costs: 42
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
     post:
       summary: Confirm an order.
       operationId: commercial-data-order-confirm
