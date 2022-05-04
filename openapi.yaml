@@ -3865,7 +3865,7 @@ paths:
           $ref: '#/components/responses/server_error'
       requestBody:
         required: true
-        description: The base data for the secondary web service to create
+        description: Data with desired filtering information to search for.
         content:
           application/json:
             schema:
@@ -3898,6 +3898,88 @@ paths:
                     - "01-02-2022"
                   processing_level: SENSOR
                   max_snow_coverage: 0
+  /commercial_data/orders:
+    post:
+      summary: Create an order.
+      operationId: commercial-data-order
+      description: |-
+        Create an order for products of a commercial data collection. The order is NOT yet executed and awaits confirmation.
+      tags:
+        - Commercial Data
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Returns unique id and cost of the created order.
+          content:
+            application/json:
+              schema:
+                title: Order Information
+                type: object
+                required:
+                  - id
+                  - status
+                  - costs
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier of the order, which MUST match the specified pattern.
+                    pattern: '^[\w\-\.~\/]+$'
+                  status:
+                    type: string
+                    enum:
+                      - NOT_CONFIRMED
+                  costs:
+                    $ref: '#/components/schemas/money'
+              example:
+                id: 40264b5-c3ae-46f4-a907-0f612d763d97
+                status: NOT_CONFIRMED
+                costs: 42
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+      requestBody:
+        required: true
+        description: The base data to create the order
+        content:
+          application/json:
+            schema:
+              title: Create Order Request
+              type: object
+              required:
+                - collection_id
+                - products
+                - parameters
+              properties:
+                collection_id:
+                  type: string
+                  description: Unique identifier of the collection.
+                products:
+                  type: array
+                  description: Array of IDs of products to order.
+                  items:
+                    type: string
+                    description: Unique identifier of the order, which MUST match the specified pattern.
+                    pattern: '^[\w\-\.~\/]+$'
+                parameters:
+                  type: object
+                  description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
+                  additionalProperties:
+                    x-additionalPropertiesName: Order Parameter Name
+                    AnyValue:
+                    description: Value of the order parameter to be used in the request.
+              example:
+                collection_id: "PLEIADES"
+                products:
+                - c8a1f88d-89cf-4933-9118-45e9c1a5df20
+                - bc298be8-9381-4ea4-a169-cb9fceda0540
+                parameters:
+                  bounds:
+                    - 3
+                    - 15
+                    - 4
+                    - 16
 components:
   schemas:
     udf_runtime:
