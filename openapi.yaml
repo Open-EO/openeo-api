@@ -3980,6 +3980,47 @@ paths:
                     - 15
                     - 4
                     - 16
+  '/commercial_data/orders/{order_id}':
+    post:
+      summary: Confirm an order.
+      operationId: commercial-data-order-confirm
+      description: |-
+        Confirm a created commercial data order. If order status was `NOT_CONFIRMED` execution of the order begins. Otherwise this endpoint has no effect.
+      tags:
+        - Commercial Data
+      security:
+        - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/pagination_limit'
+      responses:
+        '200':
+          description: Returns unique id and the status of the order.
+          content:
+            application/json:
+              schema:
+                title: Order Confirmation
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier of the order, which MUST match the specified pattern.
+                    pattern: '^[\w\-\.~\/]+$'
+                  status:
+                    type: string
+                    enum:
+                      - RUNNING
+                      - FAILED
+                      - DONE
+              example:
+                id: 40264b5-c3ae-46f4-a907-0f612d763d97
+                status: RUNNING
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'    
 components:
   schemas:
     udf_runtime:
