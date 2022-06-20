@@ -3825,24 +3825,47 @@ paths:
                       title: Order
                       description: Information about an order
                       required:
-                        - id
-                        - status
-                        - created
+                        - order:id
+                        - order:status
+                        - order:date
                         - collection_id
                         - byoc_collection_id
                         - costs
                       properties:
-                        id:
+                        order:id:
                           $ref: '#/components/schemas/order_id'
-                        status:
+                        order:status:
                           type: string
+                          description: |-
+                            The status of the order.
+                            * `orderable`: The item or asset is orderable via the provider scenario.
+
+                            * `ordered`: The item or asset is ordered and the provider is preparing to make it available.
+
+                            * `shipping`: The item or asset order are being processed by the provider to provide the user with the asset(s).
+
+                            * `delivered`: The provider has delivered the order and asset(s) are available.
+
+                            * `unable_to_deliver`: The provider is not able to deliver the order.
+
+                            * `canceled`: The order has been canceled.
                           enum:
-                            - NOT_CONFIRMED
-                            - RUNNING
-                            - FAILED
-                            - DONE
-                        created:
-                          $ref: '#/components/schemas/created'
+                            - orderable
+                            - ordered
+                            - shipping
+                            - delivered
+                            - unable_to_deliver
+                            - canceled 
+                        order:date:
+                          type: string
+                          format: date-time
+                          description: The order time. Formatted as a
+                            [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+                        order:expiration_date:
+                          type: string
+                          format: date-time
+                          description: The validity time of the order. Formatted as a
+                            [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
                         collection_id:
                           type: string
                           description: Unique identifier of the collection.
@@ -3855,15 +3878,15 @@ paths:
                     $ref: '#/components/schemas/links_pagination'
               example:
                 orders:
-                - id: 40264b5-c3ae-46f4-a907-0f612d763d97
-                  status: DONE
-                  created: '2017-01-01T09:32:12Z'
+                - order:id: 40264b5-c3ae-46f4-a907-0f612d763d97
+                  order:status: delivered
+                  order:date: '2017-01-01T09:32:12Z'
                   collection_id: PLEAIDES
                   byoc_collection_id: 50b230c3-e1b5-431c-a6f7-f779684072bb
                   costs: 42
-                - id: 27ce4888-776e-449d-ae9b-52fa86977554
-                  status: RUNNING
-                  created: '2022-04-01T15:03:56Z'
+                - order:id: 27ce4888-776e-449d-ae9b-52fa86977554
+                  order:status: shippping
+                  order:date: '2022-04-01T15:03:56Z'
                   collection_id: SPOT
                   byoc_collection_id: 1efa3541-ca84-4f80-a5d1-ea57cdea36c1
                   costs: 10
@@ -3974,26 +3997,49 @@ paths:
                 title: Order Information
                 type: object
                 required:
-                  - id
-                  - status
-                  - created
+                  - order:id
+                  - order:status
+                  - order:date
                   - collection_id
                   - products
                   - parameters
                   - byoc_collection_id
                   - costs
                 properties:
-                  id:
+                  order:id:
                     $ref: '#/components/schemas/order_id'
-                  status:
+                  order:status:
                     type: string
+                    description: |-
+                      The status of the order.
+                      * `orderable`: The item or asset is orderable via the provider scenario.
+
+                      * `ordered`: The item or asset is ordered and the provider is preparing to make it available.
+
+                      * `shipping`: The item or asset order are being processed by the provider to provide the user with the asset(s).
+
+                      * `delivered`: The provider has delivered the order and asset(s) are available.
+
+                      * `unable_to_deliver`: The provider is not able to deliver the order.
+
+                      * `canceled`: The order has been canceled.
                     enum:
-                      - NOT_CONFIRMED
-                      - RUNNING
-                      - FAILED
-                      - DONE
-                  created:
-                    $ref: '#/components/schemas/created'
+                      - orderable
+                      - ordered
+                      - shipping
+                      - delivered
+                      - unable_to_deliver
+                      - canceled 
+                  order:date:
+                    type: string
+                    format: date-time
+                    description: The order time. Formatted as a
+                      [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+                  order:expiration_date:
+                    type: string
+                    format: date-time
+                    description: The validity time of the order. Formatted as a
+                      [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
                   products:
                     type: array
                     description: An array of available products as STAC Items.
@@ -4014,9 +4060,9 @@ paths:
                   costs:
                     $ref: '#/components/schemas/money'
               example:
-                id: 40264b5-c3ae-46f4-a907-0f612d763d97
-                status: DONE
-                created: '2017-01-01T09:32:12Z'
+                order:id: 40264b5-c3ae-46f4-a907-0f612d763d97
+                order:status: delivered
+                order:date: '2017-01-01T09:32:12Z'
                 products:
                 - type: Feature
                   stac_version: 0.9.0
