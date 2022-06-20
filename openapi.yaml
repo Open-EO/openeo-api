@@ -3538,8 +3538,36 @@ paths:
                     description: A unique identifier for the collection, which MUST match the specified pattern.
                     pattern: '^[\w\-\.~\/]+$'
                   provider:
-                    type: string
-                    description: Provider of the data. 
+                    type: object
+                    title: Commercial data provider
+                    required:
+                      - name
+                    properties:
+                      name:
+                        description: The id of the commercial data provider.
+                        type: string
+                      description:
+                        description: >-
+                          Multi-line description to add further provider information such as
+                          processing details, hosting details or basic contact information.
+
+
+                          CommonMark 0.29 syntax MAY be used for rich text representation.
+                        type: string
+                      roles:
+                        description: >-
+                          Role of the provider. Must be `producer`.
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - producer
+                      url:
+                        description: >-
+                          Homepage on which the provider describes the dataset and publishes
+                          contact information.
+                        type: string
+                        format: uri
                   pricing: 
                     type: object
                     description: Information about pricing for searching and/or ordering data.
@@ -3614,7 +3642,10 @@ paths:
                             Additional information about the parameter.
               example:
                 id: PLEIADES
-                provider: AIRBUS
+                provider: 
+                  name: AIRBUS
+                  roles:
+                    - producer
                 pricing:
                   searching: null
                   ordering:
