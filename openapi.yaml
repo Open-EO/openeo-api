@@ -3500,12 +3500,100 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
+  '/commercial_data/{collection_id}/queryables':
+    get:
+      summary: Queryables for searching data products of a commercial data collection.
+      operationId: commercial-data-queryables
+      description: The names and types of the properties or keys that may be used to construct a filter expression for a commercial data collection at `GET /commercial_data/search`.
+      tags:
+        - Commercial Data
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: Returns the JSON Schema document with queryables for a commercial data collection.
+          content:
+            application/json:
+              schema:
+                title: Order Information
+                type: object
+                required:
+                  - $schema
+                  - $id
+                  - type
+                  - properties
+                properties:
+                  $schema:
+                    type: string
+                    enum:
+                      - http://json-schema.org/draft-07/schema#
+                      - https://json-schema.org/draft/2019-09/schema
+                  $id:
+                    type: string
+                    description: The URI of the resource without query parameters.
+                  type:
+                    type: string
+                    enum:
+                      - object
+                  title:
+                    type: string
+                    description: Human-readable title.
+                  description:
+                    type: string
+                    description: Human-readable description.
+                  properties:
+                    type: object
+                    description: Object with available properties that can be evaluated in the CQL filter expression.
+                    additionalProperties:
+                      x-additionalPropertiesName: Property Name
+                      description: JSON schema of the property.
+                      type: object
+
+              example:
+                $schema: http://json-schema.org/draft-07/schema#
+                $id: http://example.com/commercial_data/PLEIADES/queryables
+                type: object
+                title: Queryables of Airbus Pleiades collection.
+                description: Available properties for CQL filtering of products.
+                properties:
+                  processing_level:
+                    title: Processing level
+                    description: When searching, you will receive results from the full catalog as well as the Living Library, which holds images that have cloud cover under 30% and Incidence angle under 40°. If you want to search only Living Library results, you will need to filter using processingLevel. This value could be equal to SENSOR (images which meet Living Library criteria) and ALBUM (images that do not meeting Living Library criteria in terms of incidence angle and cloud cover).'
+                    type: string
+                    enum: 
+                      - SENSOR
+                      - ALBUM
+                  max_snow_coverage:
+                    title: Maximum snow coverage
+                    description: The maximum allowable snow coverage in percent.
+                    type: number
+                    minimum: 0
+                    maximum: 100
+                    default: 100
+                  max_incidence_angle:
+                    title: Maximum incidence angle
+                    description: The maximum allowable incidence angle in degrees.
+                    minimum: 0
+                    maximum: 90
+                    default: 90
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+      parameters:
+        - name: collection_id
+          in: path
+          description: Collection identifier
+          required: true
+          schema:
+            $ref: '#/components/schemas/collection_id'
   '/commercial_data/collections/{collection_id}':
     get:
-      summary: Information about searching and ordering a commercial data collection
+      summary: Information ordering a commercial data collection
       operationId: commercial-data-collection-info
       description: |-
-        Lists information about pricing and available parameters for searching and ordering products for a commercial data collection specified by the identifier `collection_id`.
+        Lists information about pricing and available parameters for ordering products for a commercial data collection specified by the identifier `collection_id`.
         STAC-compliant general information about the collection must be available at `GET collections/{collection_id}`.
       tags:
         - Commercial Data
@@ -3530,7 +3618,6 @@ paths:
                 required:
                   - id
                   - pricing
-                  - search_parameters
                   - order_parameters
                 properties:
                   id:
@@ -3598,27 +3685,6 @@ paths:
                             type: array
                             description: |-
                               Additional information about the pricing options.
-                  search_parameters:
-                    type: object
-                    description: Available parameters that can be used for searching products using `POST /commercial_data/search`.
-                    additionalProperties:
-                      x-additionalPropertiesName: Search Parameter
-                      title: Search Parameter
-                      type: object
-                      required:
-                        - required
-                        - description
-                      properties:
-                        description:
-                          type: string
-                          description: Description of the parameter.
-                        required: 
-                          type: boolean
-                          description: Whether or not the parameter must be explicitly set when searching data.
-                        links:
-                          type: array
-                          description: |-
-                            Additional information about the parameter.
                   order_parameters:
                     type: object
                     description: Available parameters that can be used when ordering products using `POST /commercial_data/orders`.
@@ -3654,14 +3720,6 @@ paths:
                     - title: Airbus Pleiades pricing
                       rel: related
                       href: https://www.sentinel-hub.com/pricing/
-                search_parameters:
-                  bounds:
-                    description: The request bounding box. Specify with a coordinate pair on two (opposite) vertices of the bounding box rectangle. Coordinates need to be in easting,northing or longitude, latitude, in EPSG:4326.
-                    required: true
-                    links:
-                    - title: Bounds specification
-                    - rel: related
-                    - href: https://api.docs.com/tpdi/airbus#bounds
                   time_range:
                     description: A time interval to filter data by acquisition date. It is defined by a start and end date and time, e.g. 2019-01-31T14:00:00+01:00. A date representation without time (e.g. 2019-01-31) will not work. Both the start and end of a time interval are inclusive and can be equal.
                     required: false
@@ -3795,18 +3853,31 @@ paths:
                     - $ref: '#/components/schemas/filter-cql2-json'
                     - $ref: '#/components/schemas/filter-cql2-text'
               example:
-                collection_id: "PLEIADES"
-                parameters:
-                  bounds:
-                    - 3
-                    - 15
-                    - 4
-                    - 16
-                  time_range: 
-                    - "01-01-2022"
-                    - "01-02-2022"
-                  processing_level: SENSOR
-                  max_snow_coverage: 0
+                bbox:
+                  - 3
+                  - 15
+                  - 4
+                  - 16
+                datetime: 
+                  - "01-01-2022"
+                  - "01-02-2022"
+                collectionsArray:
+                  - PLEIADES
+                filter:
+                  op: and
+                  args:
+                    -
+                      op: "="
+                      args:
+                        - 
+                          property: processing_level
+                        - SENSOR
+                    -
+                      op: "="
+                      args: 
+                        -
+                          property: max_snow_coverage
+                        - 0
   /commercial_data/orders:
     get:
       summary: List all orders
