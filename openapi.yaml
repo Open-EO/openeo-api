@@ -3687,7 +3687,7 @@ paths:
         5XX:
           $ref: '#/components/responses/server_error'
   /commercial_data/search:
-    post:
+    get:
       summary: Search for available products in a commercial data collection
       operationId: commercial-data-search
       description: |-
@@ -3707,10 +3707,15 @@ paths:
                 title: Available Products
                 type: object
                 required:
-                  - products
+                  - type
+                  - features
                   - links
                 properties:
-                  products:
+                  type:
+                    type: string
+                    enum:
+                      - FeatureCollection
+                  features:
                     type: array
                     description: An array of available products as STAC Items.
                     title: Item
@@ -3719,7 +3724,8 @@ paths:
                   links:
                     $ref: '#/components/schemas/links_pagination'
               example:
-                products:
+                type: FeatureCollection
+                features:
                 - type: Feature
                   stac_version: 0.9.0
                   id: c8a1f88d-89cf-4933-9118-45e9c1a5df20
@@ -3768,19 +3774,26 @@ paths:
             schema:
               title: Search Commercial Products Request
               type: object
-              required:
-                - collection_id
-                - parameters
               properties:
-                collection_id:
-                  type: string
-                  description: Unique identifier of the collection.
-                parameters:
-                  type: object
-                  description: Key-value pairs of available `search_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
-                  additionalProperties:
-                    x-additionalPropertiesName: Search Parameter Name
-                    description: Value of the search parameter to be used in the request.
+                bbox:
+                  $ref: '#/components/schemas/bbox'
+                datetime:
+                  $ref: '#/components/schemas/datetime'
+                intersects:
+                  $ref: '#/components/schemas/intersects'
+                limit:
+                  $ref: '#/components/schemas/limit'
+                collectionsArray:  
+                  $ref: '#/components/schemas/collectionsArray'
+                filter:
+                  description: |-
+                    **Extension:** Filter
+                    A CQL2 filter expression for filtering items.
+
+                    The names and types of the properties or keys that may be used to construct a filter expression for a collection must accessible at `GET commercial_data/{collectionId}/queryables`.
+                  oneOf:
+                    - $ref: '#/components/schemas/filter-cql2-json'
+                    - $ref: '#/components/schemas/filter-cql2-text'
               example:
                 collection_id: "PLEIADES"
                 parameters:
@@ -4158,6 +4171,167 @@ paths:
           $ref: '#/components/responses/server_error'    
 components:
   schemas:
+    intersects:
+      type: object
+      description: Only returns items that intersect with the provided polygon.
+      properties:
+        intersects:
+          $ref: https://geojson.org/schema/Geometry.json
+    filter-cql2-text:
+      description: |
+        A CQL2 filter expression in the 'cql2-text' encoding.
+      type: string
+    filter-cql2-json:
+      $ref: 'https://raw.githubusercontent.com/opengeospatial/ogcapi-features/master/cql2/standard/schema/cql2.yml#/components/schemas/booleanExpression'
+    bbox:
+      name: bbox
+      in: query
+      description: >-
+        Only features that have a geometry that intersects the bounding box are
+        selected.
+
+        The bounding box is provided as four or six numbers, depending on
+
+        whether the coordinate reference system includes a vertical axis (height
+
+        or depth):
+
+
+        * Lower left corner, coordinate axis 1
+
+        * Lower left corner, coordinate axis 2
+
+        * Minimum value, coordinate axis 3 (optional)
+
+        * Upper right corner, coordinate axis 1
+
+        * Upper right corner, coordinate axis 2
+
+        * Maximum value, coordinate axis 3 (optional)
+
+
+        The coordinate reference system of the values is WGS 84
+
+        longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
+
+
+        For WGS 84 longitude/latitude the values are in most cases the sequence
+
+        of minimum longitude, minimum latitude, maximum longitude and maximum
+
+        latitude. However, in cases where the box spans the antimeridian the
+
+        first value (west-most box edge) is larger than the third value
+
+        (east-most box edge).
+
+
+        If the vertical axis is included, the third and the sixth number are
+
+        the bottom and the top of the 3-dimensional bounding box.
+
+
+        If a feature has multiple spatial geometry properties, it is the
+
+        decision of the server whether only a single spatial geometry property
+
+        is used to determine the extent or all relevant geometries.
+
+
+        Example: The bounding box of the New Zealand Exclusive Economic Zone in
+
+        WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be
+
+        represented in JSON as `[160.6, -55.95, -170, -25.89]` and in a query as
+
+        `bbox=160.6,-55.95,-170,-25.89`.
+      required: false
+      schema:
+        type: array
+        minItems: 4
+        maxItems: 6
+        items:
+          type: number
+      style: form
+      explode: false
+    collectionId:
+      name: collectionId
+      in: path
+      description: local identifier of a collection
+      required: true
+      schema:
+        type: string
+    datetime:
+      name: datetime
+      in: query
+      description: >-
+        Either a date-time or an interval, open or closed. Date and time
+        expressions
+
+        adhere to RFC 3339. Open intervals are expressed using double-dots.
+
+
+        Examples:
+
+
+        * A date-time: "2018-02-12T23:20:50Z"
+
+        * A closed interval: "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z"
+
+        * Open intervals: "2018-02-12T00:00:00Z/.." or "../2018-03-18T12:31:12Z"
+
+
+        Only features that have a temporal property that intersects the value of
+
+        `datetime` are selected.
+
+
+        If a feature has multiple temporal properties, it is the decision of the
+
+        server whether only a single temporal property is used to determine
+
+        the extent or all relevant temporal properties.
+      required: false
+      schema:
+        type: string
+      style: form
+      explode: false
+    limit:
+      name: limit
+      in: query
+      description: >-
+        The optional limit parameter limits the number of items that are
+        presented in the response document.
+
+
+        Only items are counted that are on the first level of the collection in
+        the response document.
+
+        Nested objects contained within the explicitly requested items shall not
+        be counted.
+
+
+        Minimum = 1. Maximum = 100. Default = 10.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      style: form
+      explode: false
+    collectionsArray:
+      name: collections
+      description: |
+        Array with the id of the collection to search products for.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      explode: false
+      minItems: 1
+      maxItems: 1
     order_id:
       type: string
       description: >-
