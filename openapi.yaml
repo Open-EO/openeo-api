@@ -3502,7 +3502,7 @@ paths:
           $ref: '#/components/responses/server_error'
   '/commercial_data/{collection_id}/queryables':
     get:
-      summary: Queryables for searching data products of a commercial data collection.
+      summary: Queryables for searching data products of a commercial data collection
       operationId: commercial-data-queryables
       description: The names and types of the properties or keys that may be used to construct a filter expression for a commercial data collection at `GET /commercial_data/search`.
       tags:
@@ -3969,7 +3969,7 @@ paths:
                   byoc_collection_id: 50b230c3-e1b5-431c-a6f7-f779684072bb
                   costs: 42
                 - order:id: 27ce4888-776e-449d-ae9b-52fa86977554
-                  order:status: shippping
+                  order:status: shipping
                   order:date: '2022-04-01T15:03:56Z'
                   collection_id: SPOT
                   byoc_collection_id: 1efa3541-ca84-4f80-a5d1-ea57cdea36c1
@@ -4243,11 +4243,150 @@ paths:
 components:
   schemas:
     intersects:
-      type: object
       description: Only returns items that intersect with the provided polygon.
-      properties:
-        intersects:
-          $ref: https://geojson.org/schema/Geometry.json
+      oneOf:
+      - title: GeoJSON Point
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - Point
+          coordinates:
+            type: array
+            minItems: 2
+            items:
+              type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
+      - title: GeoJSON LineString
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - LineString
+          coordinates:
+            type: array
+            minItems: 2
+            items:
+              type: array
+              minItems: 2
+              items:
+                type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
+      - title: GeoJSON Polygon
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - Polygon
+          coordinates:
+            type: array
+            items:
+              type: array
+              minItems: 4
+              items:
+                type: array
+                minItems: 2
+                items:
+                  type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
+      - title: GeoJSON MultiPoint
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - MultiPoint
+          coordinates:
+            type: array
+            items:
+              type: array
+              minItems: 2
+              items:
+                type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
+      - title: GeoJSON MultiLineString
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - MultiLineString
+          coordinates:
+            type: array
+            items:
+              type: array
+              minItems: 2
+              items:
+                type: array
+                minItems: 2
+                items:
+                  type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
+      - title: GeoJSON MultiPolygon
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - MultiPolygon
+          coordinates:
+            type: array
+            items:
+              type: array
+              items:
+                type: array
+                minItems: 4
+                items:
+                  type: array
+                  minItems: 2
+                  items:
+                    type: number
+          bbox:
+            type: array
+            minItems: 4
+            items:
+              type: number
     filter-cql2-text:
       description: |
         A CQL2 filter expression in the 'cql2-text' encoding.
@@ -4255,8 +4394,6 @@ components:
     filter-cql2-json:
       $ref: 'https://raw.githubusercontent.com/opengeospatial/ogcapi-features/master/cql2/standard/schema/cql2.yml#/components/schemas/booleanExpression'
     bbox:
-      name: bbox
-      in: query
       description: >-
         Only features that have a geometry that intersects the bounding box are
         selected.
@@ -4316,25 +4453,15 @@ components:
         represented in JSON as `[160.6, -55.95, -170, -25.89]` and in a query as
 
         `bbox=160.6,-55.95,-170,-25.89`.
-      required: false
-      schema:
-        type: array
-        minItems: 4
-        maxItems: 6
-        items:
-          type: number
-      style: form
-      explode: false
+      type: array
+      minItems: 4
+      maxItems: 6
+      items:
+        type: number
     collectionId:
-      name: collectionId
-      in: path
       description: local identifier of a collection
-      required: true
-      schema:
-        type: string
+      type: string
     datetime:
-      name: datetime
-      in: query
       description: >-
         Either a date-time or an interval, open or closed. Date and time
         expressions
@@ -4362,14 +4489,8 @@ components:
         server whether only a single temporal property is used to determine
 
         the extent or all relevant temporal properties.
-      required: false
-      schema:
-        type: string
-      style: form
-      explode: false
+      type: string
     limit:
-      name: limit
-      in: query
       description: >-
         The optional limit parameter limits the number of items that are
         presented in the response document.
@@ -4383,24 +4504,16 @@ components:
 
 
         Minimum = 1. Maximum = 100. Default = 10.
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 10
-      style: form
-      explode: false
+      type: integer
+      minimum: 1
+      maximum: 100
+      default: 10
     collectionsArray:
-      name: collections
       description: |
         Array with the id of the collection to search products for.
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-      explode: false
+      type: array
+      items:
+        type: string
       minItems: 1
       maxItems: 1
     order_id:
