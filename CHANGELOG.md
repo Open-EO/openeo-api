@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reflect that the `debug` process has been renamed to `inspect`.
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
 - Clarified uniqueness constraints for identifiers. [#454](https://github.com/Open-EO/openeo-api/issues/454)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
 
 ## [1.1.0] - 2021-05-17
 
