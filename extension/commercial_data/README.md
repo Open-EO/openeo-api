@@ -10,23 +10,23 @@ Extensions can not change or break existing behavior of the openEO API.
 
 ## Overview of the workflow
 
-All the available datasets provided by a backend are listed on the `/collections` endpoint. The collections are normally freely accessible. This extensions adds capabilities for providing collections that are not free of charge and require purchasing data products that can thereupon be used in processing. Commercial data collections usually allow purchasing small subsets of the data (products), for example a single observation of an area.
+All the available datasets provided by a backend are listed on the `GET /collections` endpoint. The collections are normally freely accessible. This extension adds capabilities for providing collections that are not free of charge and require purchasing data products that can thereupon be used in processing. Commercial data collections usually allow purchasing small subsets of the data (products), for example, a single observation of an area.
 
 Therefore, the client must have an ability to search the available products that match their desired criteria and inspect their metadata to decide whether the products should be purchased.
 
 The client can then create an order for the desired products. Because of the financial cost of purchasing the data, a separate endpoint for confirming the execution of that specific order should be implemented.
 
-When the order is completed, the user should be able to access the data using the `collection-id` at the temporal and spatial location of the purchased products.
+When the order is completed, the user should be able to access the data using the `collection_id` at the temporal and spatial location of the purchased products.
 
 ### Collection discovery
 
-A backend should add general information about a commercial data collection to the `/collections` and `/collections/{collection-id}` endpoints, the same as with freely available collections. Only the metadata about the entire dataset needs to be provided, not about the specific data products that a user has already purchased. 
+A backend should add general information about a commercial data collection to the `/collections` and `/collections/{collection_id}` endpoints, the same as with freely available collections. Only the metadata about the entire dataset needs to be provided, not about the specific data products that a user has already purchased. 
 
-Commercial data collections are distinguished from freely available collections by including `"order:status": "orderable"` as specified in [STAC Order specification](https://github.com/stac-extensions/order).
+Commercial data collections are distinguished from freely available collections by including `"order:status": "orderable"` as specified in the [STAC Order specification](https://github.com/stac-extensions/order).
 
-Commercial data collections can include `order_parameters` field, if ordering supports additional parameters that specify how the products should be delivered.
+Commercial data collections can include an `order_parameters` field if ordering supports additional parameters that specify how the products should be delivered.
 
-Commercial data collections must also include a link to human-readable pricing information for searching and ordering the products. If searching the products is free it should be set to `null`.
+Commercial data collections must also include human-readable pricing information for searching and ordering the products. If searching the products is free it should be set to `null`. If needed, references to additional information about pricing can be added to `links`.
 
 #### Example
 
@@ -44,7 +44,6 @@ Commercial data collections must also include a link to human-readable pricing i
   "license": "proprietary",
   "providers": [...],
   "extent": {...},
-  "links": [...],
   "cube:dimensions": {...},
   "summaries": {...},
   "assets": {...},
@@ -66,25 +65,26 @@ Commercial data collections must also include a link to human-readable pricing i
     "searching": null,
     "ordering": {
       "description": "Minimum area per order is 0.25 km2. The price is calculated based on a 6-months sliding window.",
-      "links": [
-        {
-          "title": "Airbus Pleiades pricing",
-          "rel": "related",
-          "href": "https://www.sentinel-hub.com/pricing/#TPD_pricing"
-        }
-      ]
     }
-  }
+  },
+  "links": [
+    {
+      "title": "Airbus Pleiades pricing",
+      "rel": "related",
+      "href": "https://www.sentinel-hub.com/pricing/#tpd_pricing"
+    },
+    ...
+  ]
 }
 ```
 
 ### Filtering parameters discovery
 
-Searching for products can support refining the search by filtering with general or collection-specific attributes. Backends should implement a top level `/queryables` endpoint for attributes available for all collections, and collection-specific attributes should be provided at `/collections/{collection-id}/queryables` according to [OGC Queryables specification](https://portal.ogc.org/files/96288#filter-queryables).
+Searching for products can support refining the search by filtering with general or collection-specific attributes. Backends should implement a top level `/queryables` endpoint for attributes available for all collections, and collection-specific attributes should be provided at `/collections/{collection_id}/queryables` according to [OGC Queryables specification](https://portal.ogc.org/files/96288#filter-queryables) and [STAC Filter extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter).
 
 #### Example
 
-Example response from `GET collections/PLEIADES/queryables`:
+Example response from `GET /collections/PLEIADES/queryables`:
 ```json
 {
    "$schema":"http://json-schema.org/draft-07/schema#",
@@ -95,7 +95,7 @@ Example response from `GET collections/PLEIADES/queryables`:
    "properties":{
       "processing_level":{
          "title":"Processing level",
-         "description":"When searching, you will receive results from the full catalog as well as the Living Library, which holds images that have cloud cover under 30% and Incidence angle under 40°. If you want to search only Living Library results, you will need to filter using processingLevel. This value could be equal to SENSOR (images which meet Living Library criteria) and ALBUM (images that do not meeting Living Library criteria in terms of incidence angle and cloud cover).'",
+         "description":"Limit search to only Living Library images with 'SENSOR' or access all images with 'ALBUM'.",
          "type":"string",
          "enum":[
             "SENSOR",
@@ -123,8 +123,8 @@ Example response from `GET collections/PLEIADES/queryables`:
 
 ### Searching available products
 
-Backends should implement top-level `GET /search` endpoint as specified in [STAC Item Search API specification](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/item-search). This should include the [Filter Extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter), which enables filtering the available products by attributes specified in `/queryables` and `collections/{collection-id}/queryables`. 
-The endpoint should return a list of  `STAC Item`s that match the criteria.
+Backends should implement the top-level `GET /search` endpoint as specified in the [STAC Item Search API specification](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/item-search). This should include the [Filter Extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter), which enables filtering the available products by attributes specified in `GET /queryables` and `GET /collections/{collection-id}/queryables`.
+The endpoint returns a list of STAC Items that match the criteria.
 
 #### Example
 
@@ -132,39 +132,19 @@ Example request payload to `GET /search` for `PLEIADES` products from "Living Li
 
 ```json
 {
-  "bbox": [
-    3,
-    15,
-    4,
-    16
-  ],
-  "datetime": [
-    "01-01-2022",
-    "01-02-2022"
-  ],
-  "collectionsArray": [
-    "PLEIADES"
-  ],
+  "bbox": [3, 15, 4, 16],
+  "datetime": ["01-01-2022", "01-02-2022"],
+  "collections": ["PLEIADES"],
   "filter": {
     "op": "and",
     "args": [
       {
         "op": "=",
-        "args": [
-          {
-            "property": "processing_level"
-          },
-          "SENSOR"
-        ]
+        "args": [{"property": "processing_level"}, "SENSOR"]
       },
       {
         "op": "=",
-        "args": [
-          {
-            "property": "max_snow_coverage"
-          },
-          0
-        ]
+        "args": [{"property": "max_snow_coverage"}, 0]
       }
     ]
   }
@@ -177,8 +157,8 @@ Backends should implement the following endpoints:
 
 - `GET /orders`: Get a list of all created orders
 - `POST /orders`: Create an order
-- `GET /orders/{order-id}`: Get full metadata of a specific order
-- `POST /orders/{order-id}`: Confirm a created order
+- `GET /orders/{order_id}`: Get full metadata of a specific order
+- `POST /orders/{order_id}`: Confirm a created order
 
 #### `GET /orders`
 
@@ -250,9 +230,9 @@ schema:
 
 Create an order for selected products. Order can contain some additional parameters that specify how the products should be delivered. For example, depending on the collection it might be possible to set the projection, resampling method, bit depth etc of the delivered data.
 
-Backends should expose the available ordering parameters in `/collections/{collection-id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://docs.openeo.cloud/api/#tag/Secondary-Services/operation/list-service-types). 
+Backends should expose the available ordering parameters in `/collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
 
-The request should return the `order-id`, current status and the costs of the order.
+The request should return the `order_id`, current status and the costs of the order.
 
 ```yaml
 schema:
@@ -279,7 +259,7 @@ schema:
         description: Value of the order parameter to be used in the request.
 ```
 
-#### `GET /orders/{order-id}`
+#### `GET /orders/{order_id}`
 
 Get full metadata of the order. The item should follow the [STAC Order Extension](https://github.com/stac-extensions/order), but extended with the spatial and temporal extent information and other metadata about the products.
 
@@ -291,7 +271,7 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
   "products": [
     {
       "type": "Feature",
-      "stac_version": "0.9.0",
+      "stac_version": "1.0.0",
       "id": "c8a1f88d-89cf-4933-9118-45e9c1a5df20",
       "geometry": {
         "type": "Polygon",
@@ -350,11 +330,13 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
 }
 ```
 
-#### `POST /orders/{order-id}`
+#### `POST /orders/{order_id}`
 
-When an order is created, the data isn't yet ordered from the commercial data provider. The client should explicitly confirm the order whereupon the order is executed, the costs are deducted from the client's account and the data is ingested in the associated collection. The `order:status` changes to `ordered`.
+When an order is created, the data isn't yet ordered from the commercial data provider. The client should explicitly confirm the order whereupon the order is executed, the costs are deducted from the client's account and the data is ingested in the associated collection. The `order:status` changes from `orderable` to `ordered`.
 
 If the user doesn't have sufficient funds, the endpoint should return an error and `order:status` should not change.
+
+This endpoint only has an effect if `order:status` is `orderable`
 
 ### Payment
 
@@ -389,7 +371,7 @@ Setting the values.
 Searching the products:
 ```python
 >>> connection.search_items(collection_id="PLEIADES", bbox=(1,2,3,4), filter=pleiades_queryables.generate_cql_filter())
-{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '0.9.0', 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'acquisitionDate': '2022-03-21T10:11:15.055Z', 'azimuthAngle': 179.9852862071639, 'cloudCover': 0, 'geometryCentroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processingLevel': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
+{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '1.0.0', 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'acquisitionDate': '2022-03-21T10:11:15.055Z', 'azimuthAngle': 179.9852862071639, 'cloudCover': 0, 'geometryCentroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processingLevel': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
 ```
 
 Create and confirm and order:
