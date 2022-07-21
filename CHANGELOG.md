@@ -45,9 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - Reflect that the `debug` process has been renamed to `inspect`.
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
-- Clarified uniqueness constraints for identifiers. [#454](https://github.com/Open-EO/openeo-api/issues/454)
 - `GET /me`: Clarify the behavior of the field `budget`.
 - `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
+- Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
 
 ## [1.1.0] - 2021-05-17
 
