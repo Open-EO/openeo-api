@@ -43,8 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - Reflect that the `debug` process has been renamed to `inspect`.
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
-- Clarified uniqueness constraints for identifiers. [#454](https://github.com/Open-EO/openeo-api/issues/454)
 - `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
+- Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
 
 ## [1.1.0] - 2021-05-17
 
