@@ -26,7 +26,7 @@ Commercial data collections are distinguished from freely available collections 
 
 Commercial data collections can include an `order_parameters` field if ordering supports additional parameters that specify how the products should be delivered.
 
-Commercial data collections must also include human-readable pricing information for searching and ordering the products. If searching the products is free it should be set to `null`. If needed, references to additional information about pricing can be added to `links`.
+Commercial data collections must also include human-readable pricing information for searching and ordering the products. If searching the products is free it should be set to `null`. If needed, references to additional information about pricing can be added to `links` with the relation type `pricing_info`.
 
 #### Example
 
@@ -53,12 +53,12 @@ Commercial data collections must also include human-readable pricing information
         "name": "sample_type",
         "description": "sample type of the output raster.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "UINT16",
+            "UINT8"
+          ]
         },
-        "enum": [
-          "UINT16",
-          "UINT8"
-        ]
       },
     ],
   "pricing": {
@@ -70,7 +70,7 @@ Commercial data collections must also include human-readable pricing information
   "links": [
     {
       "title": "Airbus Pleiades pricing",
-      "rel": "related",
+      "rel": "pricing_info",
       "href": "https://www.sentinel-hub.com/pricing/#tpd_pricing"
     },
     ...
@@ -272,6 +272,7 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
     {
       "type": "Feature",
       "stac_version": "1.0.0",
+      "stac_extensions": ["proj", "eo", "view", "processing"],
       "id": "c8a1f88d-89cf-4933-9118-45e9c1a5df20",
       "geometry": {
         "type": "Polygon",
@@ -302,14 +303,14 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
       },
       "properties": {
         "constellation": "PHR",
-        "acquisitionDate": "2022-03-21T10:11:15.055Z",
-        "azimuthAngle": 179.9852862071639,
-        "cloudCover": 0,
-        "geometryCentroid": {
+        "datetime": "2022-03-21T10:11:15.055Z",
+        "view:azimuth": 179.9852862071639,
+        "eo:cloud_cover": 0,
+        "proj:centroid": {
           "lat": 41.903935647240964,
           "lon": 12.486569672582828
         },
-        "processingLevel": "SENSOR",
+        "processing:level": "SENSOR",
         "sensorType": "OPTICAL",
         "spectralRange": "VISIBLE"
       },
@@ -371,7 +372,7 @@ Setting the values.
 Searching the products:
 ```python
 >>> connection.search_items(collection_id="PLEIADES", bbox=(1,2,3,4), filter=pleiades_queryables.generate_cql_filter())
-{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '1.0.0', 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'acquisitionDate': '2022-03-21T10:11:15.055Z', 'azimuthAngle': 179.9852862071639, 'cloudCover': 0, 'geometryCentroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processingLevel': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
+{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '1.0.0', "stac_extensions": ["proj", "eo", "view", "processing"], 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'datetime': '2022-03-21T10:11:15.055Z', 'view:azimuth': 179.9852862071639, 'eo:cloud_cover': 0, 'proj:centroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processing:level': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
 ```
 
 Create and confirm and order:
@@ -392,7 +393,7 @@ When the order has finished, you can process the data as with a normal collectio
 >>> pleiades_cube = connection.load_collection(
     "PLEIADES",
     spatial_extent=first_product["geometry"],
-    temporal_extent = [first_product["acquisitionDate"], None],
+    temporal_extent = [first_product["datetime"], None],
     bands=["B1"],
 )
 ```
