@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated STAC specification examples and references to v1.0.0.
 - `cube:dimensions`: `reference_system` is allowed to be PROJJSON, too. 
 - Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
+- Minimum value for `costs` and `budget` is 0.
+- `GET /jobs/{job_id}/estimate`: If a batch job can't be estimated reliably, a `EstimateComplexity` error should be returned. [#443](https://github.com/Open-EO/openeo-api/issues/443)
 
 ### Fixed
 
@@ -43,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - Reflect that the `debug` process has been renamed to `inspect`.
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
+- `GET /me`: Clarify the behavior of the field `budget`.
+- `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
 - Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
 
 ## [1.1.0] - 2021-05-17
