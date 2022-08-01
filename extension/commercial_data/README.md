@@ -124,7 +124,7 @@ Example response from `GET /collections/PLEIADES/queryables`:
 ### Searching available products
 
 Backends should implement the top-level `GET /search` endpoint as specified in the [STAC Item Search API specification](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/item-search). This should include the [Filter Extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter), which enables filtering the available products by attributes specified in `GET /queryables` and `GET /collections/{collection-id}/queryables`.
-The endpoint returns a list of STAC Items that match the criteria.
+The endpoint returns a list of [STAC Items](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) that match the criteria. The products should be aligned with the STAC specification, utilising the existing [STAC extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0/extensions/README.md) as much as possible, and trying avoiding custom attributes, if a generally accepted definition does not exist. 
 
 #### Example
 
@@ -272,7 +272,7 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
     {
       "type": "Feature",
       "stac_version": "1.0.0",
-      "stac_extensions": ["proj", "eo", "view", "processing"],
+      "stac_extensions": ["https://stac-extensions.github.io/projection/v1.0.0/schema.json", "https://stac-extensions.github.io/eo/v1.0.0/schema.json", "https://stac-extensions.github.io/view/v1.0.0/schema.json", "https://stac-extensions.github.io/processing/v1.1.0/schema.json"],
       "id": "c8a1f88d-89cf-4933-9118-45e9c1a5df20",
       "geometry": {
         "type": "Polygon",
@@ -372,7 +372,7 @@ Setting the values.
 Searching the products:
 ```python
 >>> connection.search_items(collection_id="PLEIADES", bbox=(1,2,3,4), filter=pleiades_queryables.generate_cql_filter())
-{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '1.0.0', "stac_extensions": ["proj", "eo", "view", "processing"], 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'datetime': '2022-03-21T10:11:15.055Z', 'view:azimuth': 179.9852862071639, 'eo:cloud_cover': 0, 'proj:centroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processing:level': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
+{'type': 'FeatureCollection', 'features': [{'id': 'c8a1f88d-89cf-4933-9118-45e9c1a5df20','type': 'Feature', 'stac_version': '1.0.0', "stac_extensions": ["https://stac-extensions.github.io/projection/v1.0.0/schema.json", "https://stac-extensions.github.io/eo/v1.0.0/schema.json", "https://stac-extensions.github.io/view/v1.0.0/schema.json", "https://stac-extensions.github.io/processing/v1.1.0/schema.json"], 'geometry': {'type': 'Polygon', 'coordinates': [[[12.36555287044679, 41.94403289260048]], [12.36571746774068, 41.86399361096971], [12.60746759743069, 41.86372776276345], [12.60758647471871, 41.94379931812686], [12.36555287044679, 41.94403289260048]]}, 'properties': {'constellation': 'PHR', 'datetime': '2022-03-21T10:11:15.055Z', 'view:azimuth': 179.9852862071639, 'eo:cloud_cover': 0, 'proj:centroid': {'lat': 41.903935647240964, 'lon': 12.486569672582828}, 'processing:level': 'SENSOR', 'sensorType': 'OPTICAL', 'spectralRange': 'VISIBLE'}, 'assets': {}, 'links': []}, ...], 'links': []}
 ```
 
 Create and confirm and order:
