@@ -42,12 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
 - Clarify that clients should (re-)request capabilities and discovery endpoints with token if available and supported. [#416](https://github.com/Open-EO/openeo-api/issues/416)
 - Clarify the fields `plan` (for processing requests) and `billing_plan` (in `GET /` and `GET /me`). [#425](https://github.com/Open-EO/openeo-api/issues/425) [#426](https://github.com/Open-EO/openeo-api/issues/426)
-- `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - Reflect that the `debug` process has been renamed to `inspect`.
+- Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
+- `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
 - `GET /me`: Clarify the behavior of the field `budget`.
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
 - `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
-- Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
 
 ## [1.1.0] - 2021-05-17
 
