@@ -2973,12 +2973,20 @@ paths:
       description: >-
         Calculates an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
-        them. This MUST be the upper limit of the incurring costs. Clients can
-        be charged less than specified, but never more. Back-end providers MAY
-        specify an expiry time for the estimate. Starting to process data
-        afterwards MAY be charged at a higher cost. Costs MAY NOT include
-        downloading costs. This can be indicated with the `downloads_included`
-        flag.
+        them.
+
+        Back-end providers MAY specify an expiry time for the estimate.
+        Starting to process data afterwards MAY be charged at a higher cost.
+        Costs do often not include download costs. Whether download costs are included or not can be indicated explicitly with the
+        `downloads_included` flag.
+        
+        The estimate SHOULD be the upper limit of the costs, but back-end are
+        free to use the field according to their terms of service.
+        
+        For some batch jobs it is not (easily) possible to estimate the costs
+        reliably, e.g. if a UDF or ML model is part of the process.
+        In this case, the server SHOULD return a `EstimateComplexity` error
+        with HTTP status code 500.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3565,7 +3573,12 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget'
+                    type: number
+                    nullable: true
+                    description: |-
+                      The remaining budget a user has available.
+                      The value MUST be specified in the currency of the back-end.
+                      The value SHOULD be set to `null` if no explicit limit applies.
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -4095,11 +4108,13 @@ components:
         currency the back-end is working with. The currency can be retrieved by
         calling `GET /`. If no currency is set, this field MUST be `null`.
       type: number
+      minimum: 0
       example: 12.98
       nullable: true
       default: null
     budget:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4110,6 +4125,7 @@ components:
       default: null
     budget_update:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
