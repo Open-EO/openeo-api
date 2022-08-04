@@ -14,9 +14,9 @@ All the available datasets provided by a backend are listed on the `GET /collect
 
 Therefore, the client must have an ability to search the available products that match their desired criteria and inspect their metadata to decide whether the products should be purchased.
 
-The client can then create an order for the desired products. Because of the financial cost of purchasing the data, a separate endpoint for confirming the execution of that specific order should be implemented.
+The client can then create an order for the desired products from a orderable collection. Because of the financial cost of purchasing the data, a separate endpoint for confirming the execution of that specific order should be implemented.
 
-When the order is completed, the user should be able to access the data using the `collection_id` at the temporal and spatial location of the purchased products.
+When the order is completed, the data is ingested in a collection and its ID is available at `/orders/{order_id}` as `target_collection_id`. The user should be able to access the data using the `target_collection_id` at the temporal and spatial location of the purchased products.
 
 ### Collection discovery
 
@@ -160,6 +160,9 @@ Backends should implement the following endpoints:
 - `GET /orders/{order_id}`: Get full metadata of a specific order
 - `POST /orders/{order_id}`: Confirm a created order
 
+Optionally, they can also implement:
+- `DELETE /orders/{order_id}`: Delete an order
+
 #### `GET /orders`
 
 Lists all created orders, regardless of the status or the collection. The items should follow the [STAC Order Extension](https://github.com/stac-extensions/order).
@@ -232,7 +235,7 @@ Create an order for selected products. Order can contain some additional paramet
 
 Backends should expose the available ordering parameters in `/collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
 
-The request should return the `order_id`, current status and the costs of the order.
+Returns `Location` and `OpenEO-Identifier` header with the link to the detailed information about the order.
 
 ```yaml
 schema:
@@ -261,72 +264,23 @@ schema:
 
 #### `GET /orders/{order_id}`
 
-Get full metadata of the order. The item should follow the [STAC Order Extension](https://github.com/stac-extensions/order), but extended with the spatial and temporal extent information and other metadata about the products.
+Get full metadata of the order. The item should follow the [STAC Order Extension](https://github.com/stac-extensions/order), but extended with the source collection id, target collection id, list of ordered product, order parameters and optionally links to products metadata.
+
+`source_collection_id` is the id of the orderable collection the products were ordered from. `target_collection_id` is the id of the collection to be used in `load_collection` to load into the DataCube and contains the ordered products. `source_collection_id` and `target_collection_id` can be the same or different, it's up to the backend if the products are ingested into a new collection or the existing orderable collection. 
+
+Additionally, if the backend implements order-specific collections, it can provide access to the union of all purchased products when using the ID of the original orderable collection.
+
+Backends can optionally link to the spatial and temporal extent information and other metadata about the products, preferrably by implementing `/collections/{collection_id}/items/{item_id}` as described [here](#product-metadata).
 
 ```json
 {
   "order:id": "40264b5-c3ae-46f4-a907-0f612d763d97",
   "order:status": "delivered",
   "order:date": "2017-01-01T09:32:12Z",
-  "products": [
-    {
-      "type": "Feature",
-      "stac_version": "1.0.0",
-      "stac_extensions": ["https://stac-extensions.github.io/projection/v1.0.0/schema.json", "https://stac-extensions.github.io/eo/v1.0.0/schema.json", "https://stac-extensions.github.io/view/v1.0.0/schema.json", "https://stac-extensions.github.io/processing/v1.1.0/schema.json"],
-      "id": "c8a1f88d-89cf-4933-9118-45e9c1a5df20",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              12.36555287044679,
-              41.94403289260048
-            ]
-          ],
-          [
-            12.36571746774068,
-            41.86399361096971
-          ],
-          [
-            12.60746759743069,
-            41.86372776276345
-          ],
-          [
-            12.60758647471871,
-            41.94379931812686
-          ],
-          [
-            12.36555287044679,
-            41.94403289260048
-          ]
-        ]
-      },
-      "properties": {
-        "constellation": "PHR",
-        "datetime": "2022-03-21T10:11:15.055Z",
-        "view:azimuth": 179.9852862071639,
-        "eo:cloud_cover": 0,
-        "proj:centroid": {
-          "lat": 41.903935647240964,
-          "lon": 12.486569672582828
-        },
-        "processing:level": "SENSOR",
-        "sensorType": "OPTICAL",
-        "spectralRange": "VISIBLE"
-      },
-      "assets": {},
-      "links": []
-    }
-  ],
-  "parameters": {
-    "bounds": [
-      3,
-      15,
-      4,
-      16
-    ]
-  },
-  "collection_id": "PLEAIDES",
+  "products": [ "c8a1f88d-89cf-4933-9118-45e9c1a5df20"],
+  "parameters": { "resamplingKernel": "NN" },
+  "source_collection_id": "PLEAIDES",
+  "target_collection_id": "PLEAIDES",
   "costs": 42
 }
 ```
@@ -337,7 +291,20 @@ When an order is created, the data isn't yet ordered from the commercial data pr
 
 If the user doesn't have sufficient funds, the endpoint should return an error and `order:status` should not change.
 
-This endpoint only has an effect if `order:status` is `orderable`
+This endpoint only has an effect if `order:status` is `orderable`.
+
+
+#### `DELETE /orders/{order_id}`
+
+Optional, removes the order entry and corresponding ordered data. 
+
+### Product metadata
+
+The backend can provide full product metadata as STAC Items following [STAC API Features specification](https://github.com/radiantearth/stac-api-spec/tree/main/ogcapi-features). This requires implementing two additional endpoints, `/collections/{collection_id}/items` and `/collections/{collection_id}/items/{item_id}`. 
+
+`/collections/{collection_id}/items/{item_id}` may return an error if the data has not been ingested yet.
+
+Items should contain links to the respective orders that made them available using relation type `parent_order`.
 
 ### Payment
 
@@ -377,23 +344,21 @@ Searching the products:
 
 Create and confirm and order:
 ```python
->>> connection.create_order(collection_id="PLEIADES", products=["c8a1f88d-89cf-4933-9118-45e9c1a5df20"])
-{'id': '40264b5-c3ae-46f4-a907-0f612d763d97', 'status': 'NOT_CONFIRMED', 'costs': 42}
->>> connection.confirm_order('40264b5-c3ae-46f4-a907-0f612d763d97')
-{'id': '40264b5-c3ae-46f4-a907-0f612d763d97', 'status': 'RUNNING'}
+>>> order = connection.create_order(collection_id="PLEIADES", products=["c8a1f88d-89cf-4933-9118-45e9c1a5df20"])
+>>> order.costs
+42
+>>> order.status
+'orderable'
+>>> order.confirm_order()
+>>> order.status
+'ordered'
 ```
 
 When the order has finished, you can process the data as with a normal collection.
 
 ```python
 >>> order = connection.get_order(id="40264b5-c3ae-46f4-a907-0f612d763d97")
->>> order["order:status"]
+>>> order.status
 'delivered'
->>> first_product = order["products"][0]
->>> pleiades_cube = connection.load_collection(
-    "PLEIADES",
-    spatial_extent=first_product["geometry"],
-    temporal_extent = [first_product["datetime"], None],
-    bands=["B1"],
-)
+>>> pleiades_cube = connection.load_collection(order.target_collection_id)
 ```
