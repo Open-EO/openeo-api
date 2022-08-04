@@ -185,7 +185,8 @@ schema:
           - order:id
           - order:status
           - order:date
-          - collection_id
+          - source_collection_id
+          - target_collection_id
           - costs
         properties:
           order:id:
@@ -220,9 +221,12 @@ schema:
             format: date-time
             description: The validity time of the order. Formatted as a
               [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
-          collection_id:
+          source_collection_id:
             type: string
-            description: Unique identifier of the collection.
+            description: Unique identifier of the source collection.
+          target_collection_id:
+            type: string
+            description: Unique identifier of the target collection. Can be the same as `source_collection_id`.
           costs:
             $ref: 'https://raw.githubusercontent.com/Open-EO/openeo-api/1.0.0/openapi.yaml#/components/schemas/money'
     links:
@@ -253,7 +257,7 @@ schema:
       type: array
       description: Array of IDs of products to order.
       items:
-        $ref: 'https://raw.githubusercontent.com/Open-EO/openeo-api/1.0.0/openapi.yaml#/components/schemas/order_id'
+        $ref: '#/components/schemas/order_id'
     parameters:
       type: object
       description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
@@ -270,7 +274,7 @@ Get full metadata of the order. The item should follow the [STAC Order Extension
 
 Additionally, if the backend implements order-specific collections, it can provide access to the union of all purchased products when using the ID of the original orderable collection.
 
-Backends can optionally link to the spatial and temporal extent information and other metadata about the products, preferrably by implementing `/collections/{collection_id}/items/{item_id}` as described [here](#product-metadata).
+Backends can optionally link to the spatial and temporal extent information and other metadata about the products, preferrably by implementing `/collections/{collection_id}/items/{item_id}` as described [here](#product-metadata), using relation type `ordered_product_metadata`.
 
 ```json
 {
