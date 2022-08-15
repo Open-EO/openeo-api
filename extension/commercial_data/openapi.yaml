@@ -2,8 +2,9 @@ openapi: 3.0.2
 info:
   title: openEO Commercial data API extension
   version: 0.1.0
-  description: 
-    $ref: README.md
+  description: >-
+    The Commercial Data API extension provides an interface for discovering,
+    ordering and using commercial data in the openEO API.
   contact:
     name: openEO Consortium
     url: 'https://openeo.org'
@@ -11,6 +12,8 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/federation/README.md
 tags:
   - name: Orders
     description: Management of commercial data orders
@@ -36,10 +39,15 @@ servers:
 paths:
   /orders:
     get: 
-      summary: List all orders created by the user
+      summary: List all commercial data orders
       operationId: list-orders
       description: |-
-        Lists all created orders, regardless of the status or the collection.
+        Lists all created orders submitted by a user, regardless of the status
+        or the collection.
+
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all optional non-scalar values from objects in `orders` (e.g. `parameters`).
+        To get the full metadata for an order clients MUST request `GET /orders/{order_id}`.
       tags:
         - Orders
       security:
@@ -52,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                title: All Orders
+                title: Orders
                 type: object
                 required:
                   - orders
@@ -69,12 +77,17 @@ paths:
         5XX:
           $ref: '../../openapi.yaml#/components/responses/server_error'
     post:
-      summary: Create order request
+      summary: Create a new order
       operationId: create-order
       description: |-
-        Create an order for selected products. Order can contain some additional parameters that specify how the products should be delivered. For example, depending on the collection it might be possible to set the projection, resampling method, bit depth etc of the delivered data.
+        Create an order for selected items (products).
 
-        Backends should expose the available ordering parameters in `/collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
+        When an order is created through through this endpoint, the data isn't yet ordered from the commercial data provider. The client MUST explicitly confirm the order through `POST /orders/{order_id}` whereupon the order is executed.
+        
+        The order can contain additional parameters that specify how the items should be delivered.
+        For example, it might be possible to set the projection, resampling method, bit depth etc. of the delivered data.
+
+        Backends SHOULD expose the available ordering parameters in `GET /collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
 
         Returns `Location` and `OpenEO-Identifier` header with the link to the detailed information about the order.
       tags:
@@ -88,26 +101,20 @@ paths:
             schema:
               type: object
               required:
-                - collection_id
-                - products
+                - source_collection_id
+                - items
                 - parameters
               properties:
-                collection_id:
+                source_collection_id:
                   type: string
                   description: Unique identifier of the collection.
-                products:
+                items:
                   type: array
-                  description: Array of IDs of products to order.
+                  description: Array of items IDs to order.
                   items:
                     $ref: '#/components/schemas/order_id'
                 parameters:
-                  type: object
-                  description: Key-value pairs of available `order_parameters` as listed at `GET /commercial_data/collections/{collection_id}` for filtering available products.
-                  additionalProperties:
-                    x-additionalPropertiesName: Order Parameter Name
-                    description: Value of the order parameter to be used in the request.
-                  example:
-                    resamplingKernel: 'NN'
+                  $ref: '#/components/schemas/order_parameters'
       responses:
         '201':
           description: The order has been created successfully.
@@ -139,7 +146,9 @@ paths:
       summary: Full metadata for an order
       operationId: describe-order
       description: |-
-        Get full metadata of the order. The item should follow the [STAC Order Extension](https://github.com/stac-extensions/order), but extended with additional information. Backends can optionally link to the spatial and temporal extent information and other metadata about the products.
+        Get full metadata of the order.
+
+        Backends can optionally link to the spatial and temporal extent information and other metadata about the items using the relation type `item`, preferrably by implementing and linking to `GET /collections/{collection_id}/items/{item_id}`.
       tags:
         - Orders
       security:
@@ -154,44 +163,7 @@ paths:
                   - $ref: '#/components/schemas/order'
                   - type: object
                     required:
-                      - products
-                    properties:
-                      products:
-                        type: array
-                        description: List of IDs of ordered products.
-                        items:
-                          $ref: '#/components/schemas/product_id'
-                      products_metadata:
-                        type: array
-                        description: Array of links to metadata for ordered products listed in `products`.
-                        items: 
-                          title: Link
-                          description: >-
-                            A link to the metadata for the ordered product.
-                          type: object
-                          required:
-                            - href
-                            - rel
-                          properties:
-                            rel:
-                              type: string
-                              enum: ["ordered_product_metadata"]
-                            href:
-                              type: string
-                              description: The value MUST be a valid URL, preferably pointing to `/collections/{collection_id}/items/{product_id}`.
-                              format: uri
-                              example: 'https://example.openeo.org/collections/PLEIADES/items/c8a1f88d-89cf-4933-9118-45e9c1a5df20'
-                            type:
-                              type: string
-                              description: >-
-                                The value MUST be a string that hints at the format used to
-                                represent data at the provided URI, preferably a media (MIME) type.
-                              example: text/html
-                            title:
-                              type: string
-                              description: Used as a human-readable label for a link.
-                              example: openEO
-
+                      - items
         4XX:
           $ref: '../../openapi.yaml#/components/responses/client_error_auth'
         5XX:
@@ -200,11 +172,17 @@ paths:
       summary: Confirm an order
       operationId: confirm-order
       description: |-
-        Confirm the order to execute the purchase and ingest into the target collection. The `order:status` changes from `orderable` to `ordered`.
+        Confirm the order, execute the purchase and ingest the data into a target collection.
 
-        If the user doesn't have sufficient funds, the endpoint should return an error and `order:status` should not change.
+        When an order is created through `POST /order`, the data isn't yet ordered from the commercial data provider. The client MUST explicitly confirm the order whereupon the order is executed, the costs are deducted from the client's account and the data is ingested in the target collection.
+
+        The target collection is the collection through which the ordered data is made available. The source and the target collection can be the same or different, it's up to the backend if the ordered data id ingested into a new target collection or the existing source collection. Additionally, if the backend creates new target collections, it can provide access to the union of all purchased products through the source collection.
 
         This endpoint only has an effect if `order:status` is `orderable`.
+        
+        If the user doesn't have sufficient funds, the endpoint should return an error and `order:status` should not change.
+        
+        Otherwise, the `order:status` changes from `orderable` to `ordered` until a new order status (e.g. `delivered` or `unable_to_deliver`) becomes available.
       tags:
         - Orders
       security:
@@ -220,7 +198,10 @@ paths:
       summary: Delete an order
       operationId: delete-order
       description: |-
-        This endpoint is optional. Upon the request, order entry and corresponding ordered data should be removed. 
+        Removes the order and all ordered items from the back-ends.
+        
+        If an order is still in progress, it cancels the order.
+        Costs MAY still occur.
       tags:
         - Orders
       security:
@@ -232,36 +213,54 @@ paths:
           $ref: '../../openapi.yaml#/components/responses/client_error_auth'
         5XX:
           $ref: '../../openapi.yaml#/components/responses/server_error'
-
 components:
   schemas:
     order_id:
       type: string
       description: >-
-        Unique identifier of the order, which MUST match the specified pattern..
+        Unique identifier of the order at the back-end, which MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
-      example: 40264b5-c3ae-46f4-a907-0f612d763d97
-
-    product_id:
+      example: fb6799ab
+    stac_order_id:
       type: string
       description: >-
-        Unique identifier of the product. Must be unique within a collection.
+        Identifier of the order at the data provider.
+      example: 40264b5-c3ae-46f4-a907-0f612d763d97
+    item_id:
+      type: string
+      description: >-
+        Unique identifier of the item. Must be unique within a collection.
       example: c8a1f88d-89cf-4933-9118-45e9c1a5df20
-
+    order_parameters:
+      type: object
+      description: >-
+        Key-value pairs of available `order_parameters` as listed at
+        `GET /collections/{collection_id}` for filtering available items.
+      additionalProperties:
+        x-additionalPropertiesName: Order Parameter Name
+        description: Value of the order parameter for the request.
+      example:
+        resamplingKernel: 'NN'
     order:
       type: object
       title: Order
-      description: Information about an order
+      description: >-
+        Information about an order.
+
+        The properties with the `order:` prefix follow the fields defined in the
+        [STAC Order Extension](https://github.com/stac-extensions/order).
       required:
-        - order:id
+        - id
         - order:status
         - order:date
         - source_collection_id
         - target_collection_id
         - costs
       properties:
-        order:id:
+        id:
           $ref: '#/components/schemas/order_id'
+        order:id:
+          $ref: '#/components/schemas/stac_order_id'
         order:status:
           type: string
           description: |-
@@ -294,14 +293,43 @@ components:
         source_collection_id:
           type: string
           description: Unique identifier of the source collection.
+          pattern: '^[\w\-\.~\/]+$'
           example: 'PLEIADES'
         target_collection_id:
           type: string
-          description: Unique identifier of the target collection. Can be the same as `source_collection_id`.
+          description: >-
+            Unique identifier of the target collection.
+            Can be the same as `source_collection_id`.
+          pattern: '^[\w\-\.~\/]+$'
           example: 'PLEIADES'
         costs:
           $ref: '../../openapi.yaml#/components/schemas/money'
+        parameters:
+          $ref: '#/components/schemas/order_parameters'
+        items:
+          type: array
+          description: List of ordered item IDs.
+          items:
+            $ref: '#/components/schemas/item_id'
+        links:
+          type: array
+          description: |-
+            Links related to this order, e.g. to metadata for ordered items
+            listed in `items`.
 
+            It is highly RECOMMENDED to provide links with the
+            following `rel` (relation) types:
+
+            1. `item`: A link back to a valid STAC Item that has been ordered.
+            Could be a link to `GET /collections/{collection_id}/items/{item_id}`.
+
+            2. `order`: A link pointing to a dcoument describing the ordering
+            terms and conditions of the data provider.
+
+            For additional relation types see also the lists of
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
+          items:
+            $ref: '../../openapi.yaml#/components/schemas/link'
   parameters:
     order_id:
       name: order_id
@@ -310,7 +338,6 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/order_id'
-
   securitySchemes:
     Bearer:
       type: http
