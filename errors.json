@@ -66,6 +66,14 @@
 			"Data Processing"
 		]
 	},
+	"EstimateComplexity": {
+		"description": "The process is too complex to calculate an estimate, e.g. due to a UDF or other processes that are complex to estimate costs reliably.",
+		"message": "The process is too complex to calculate an estimate.",
+		"http": 500,
+		"tags": [
+			"Batch Jobs"
+		]
+	},
 	"NoDataForUpdate": {
 		"description": "For PATCH requests: No valid data specified at all.",
 		"message": "No data specified to be updated.",
@@ -191,8 +199,8 @@
 			"User-Defined Processes"
 		]
 	},
-	"ProcessGraphMissing": {
-		"description": "The parameter `process` doesn't contain a valid process.",
+	"ProcessInvalid": {
+		"description": "The process given is invalid, which ususlly means that the process metadata is invalid.",
 		"message": "Invalid process specified.",
 		"http": 400,
 		"tags": [
@@ -202,17 +210,31 @@
 			"Data Processing"
 		]
 	},
-	"ProcessGraphIdDoesntMatch": {
-		"description": "If a user-defined process is stored and the ID in the request path and the JSON document are not equal.",
-		"message": "The ids in the path and in the document don't match.",
+	"ProcessGraphMissing": {
+		"description": "The process doesn't contain a process graph. For jobs, services, and sync. processing the parameter `process` must contain a `process_graph`.",
+		"message": "Invalid process specified. It doesn't contain a process graph.",
 		"http": 400,
 		"tags": [
-			"User-Defined Processes"
+			"User-Defined Processes",
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
+		]
+	},
+	"ProcessGraphInvalid": {
+		"description": "The process doesn't contain a valid process graph, which means it doesn't comply to the general structure / schema.",
+		"message": "Invalid process graph specified.",
+		"http": 400,
+		"tags": [
+			"User-Defined Processes",
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
 		]
 	},
 	"PredefinedProcessExists": {
-		"description": "If a user wants to store a user-defined process with the id of a pre-defined process.",
-		"message": "A pre-defined process with the given identifier exists.",
+		"description": "If a user wants to store a user-defined process with the id of a predefined process.",
+		"message": "A predefined process with the given identifier exists.",
 		"http": 400,
 		"tags": [
 			"User-Defined Processes"
@@ -227,7 +249,7 @@
 		]
 	},
 	"ProcessUnsupported": {
-		"description": "A process (pre-defined or user-defined) with the specified identifier is not available. To be used when validating or executing process graphs.",
+		"description": "A process (predefined or user-defined) with the specified identifier is not available. To be used when validating or executing process graphs.",
 		"message": "Process with identifier '{process}' is not available in namespace '{namespace}'.",
 		"http": 400,
 		"tags": [
@@ -310,6 +332,16 @@
 	"BillingPlanInvalid": {
 		"description": "The billing plan is not on the list of available plans.",
 		"message": "The billing plan is invalid.",
+		"http": 400,
+		"tags": [
+			"Batch Jobs",
+			"Secondary Services",
+			"Data Processing"
+		]
+	},
+	"BillingPlanMissing": {
+		"description": "No billing plan has been specified by the user and the billing plan can't be determined unambiguously.",
+		"message": "A billing plan must be specified.",
 		"http": 400,
 		"tags": [
 			"Batch Jobs",

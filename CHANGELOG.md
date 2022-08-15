@@ -6,6 +6,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- New experimental [Federation Extension](./extensions/federation/README.md)
+- `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
+  - `create-form` to link to the registration page
+  - `recovery-form` to link to the credentials recovery page.
+- `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- `GET /collections` and `GET /collections/{collection_id}` (and implicitly `GET /jobs/{job_id}/results`): Added a field that can indicate which properties can be filtered on when loading data from a collection. [#396](https://github.com/Open-EO/openeo-api/issues/396)
+- `GET /credentials/oidc`: Allow `authorization_code` and `urn:ietf:params:oauth:grant-type:device_code` (both without PKCE) as grants for `default_clients`. [#410](https://github.com/Open-EO/openeo-api/issues/410)
+- `GET /jobs/{job_id}/results`:
+  - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
+  - Added metadata field `openeo:status` to indicate the job status (and whether the result is complete or not).
+  - Added parameter `partial` to allow retrieving incomplete results, which must also add the new property `openeo:status` to the metadata. [#430](https://github.com/Open-EO/openeo-api/issues/430)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `log_level` property in responses to reflect the minimum log level that has been chosen by the user. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- Added property `log_level` to secondary web service, batch job and synchronous processing endpoints to indicate the minimum severity level that should be stored for logs. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- Recommendation to add media types and titles to links for a better user experience.
+- Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
+- Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
+
+### Changed
+
+- Updated STAC specification examples and references to v1.0.0.
+- `cube:dimensions`: `reference_system` is allowed to be PROJJSON, too. 
+- Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
+- Minimum value for `costs` and `budget` is 0.
+- `GET /jobs/{job_id}/estimate`: If a batch job can't be estimated reliably, a `EstimateComplexity` error should be returned. [#443](https://github.com/Open-EO/openeo-api/issues/443)
+
+### Fixed
+
+- Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`, added `ProcessInvalid` and `ProcessGraphInvalid`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395), [#401](https://github.com/Open-EO/openeo-api/issues/401)
+- Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
+- Fixed the Collection example to use `gsd` instead of `eo:gsd`. [#399](https://github.com/Open-EO/openeo-api/issues/399)
+- Clarify use of `user_id`. [#404](https://github.com/Open-EO/openeo-api/issues/404)
+- Clarify that the relation type `version-history` should include `/.well-known/openeo` in the URL.
+- Clarify that clients should (re-)request capabilities and discovery endpoints with token if available and supported. [#416](https://github.com/Open-EO/openeo-api/issues/416)
+- Clarify the fields `plan` (for processing requests) and `billing_plan` (in `GET /` and `GET /me`). [#425](https://github.com/Open-EO/openeo-api/issues/425) [#426](https://github.com/Open-EO/openeo-api/issues/426)
+- Reflect that the `debug` process has been renamed to `inspect`.
+- Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
+- `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
+- `GET /credentials/oidc`: Clarify that clients may add additional scopes
+- `GET /me`: Clarify the behavior of the field `budget`.
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
+- `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
+
 ## [1.1.0] - 2021-05-17
 
 ### Added
@@ -34,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that job results require the property `datetime` and allow for additional properties. [#362](https://github.com/Open-EO/openeo-api/issues/362)
 - Clarified that billing plans, service names and file formats must be accepted case-insensitive. [#371](https://github.com/Open-EO/openeo-api/issues/371)
 - Clarified that the first provider listed at `GET /credentials/oidc` is the default provider for OpenID Connect.
-- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
+- Clarified that `GET /jobs/{job_id}/results` should always return valid signed URLs and the endpoint can be used to renew the signed URLs. [#379](https://github.com/Open-EO/openeo-api/issues/379)
 - Fixed casing of potential endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}`.
 - Clarified allowed characters in the `path` for uploaded user files.
 
@@ -83,9 +127,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Additional dimensions in `cube:dimensions` can only be of type `other`.
     - The extents `interval` and `bbox` can have multiple entries.
 - Allow all STAC versions that are compatible to STAC 0.9.0.
-- Process graph nodes have an additional field `namespace` to distinguish pre-defined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
+- Process graph nodes have an additional field `namespace` to distinguish predefined and user-defined processes. The default behavior has not changed. [#305](https://github.com/Open-EO/openeo-api/issues/305)
 - Added `format: commonmark` to all properties supporting CommonMark formatting.
-- `errors.json`: The pre-defined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
+- `errors.json`: The predefined error messages have been reworked.  [#272](https://github.com/Open-EO/openeo-api/issues/272), [#273](https://github.com/Open-EO/openeo-api/issues/273)
     - Added `FolderOperationUnsupported`, `UnsupportedApiVersion`, `PermissionsInsufficient`, `ProcessGraphIdDoesntMatch` and `PredefinedProcessExists`.
     - Added variable `reason` to error `FilePathInvalid` and `type` to `FileTypeInvalid` and`ServiceUnsupported`.
     - Replaced the following error messages. The variables in the messages may have changed, too.
@@ -272,7 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /jobs/{job_id}/estimate` can return the estimated required storage capacity. [#122](https://github.com/Open-EO/openeo-api/issues/122)
 - `GET /jobs/{job_id}` has two new properties:
     - `progress` indicates the batch job progress when running. [#82](https://github.com/Open-EO/openeo-api/issues/82)
-    - `error` states the error message when a job errored out.
+    - `error` states the error message when a job stopped due to an error.
       `GET /jobs/{job_id}/result` mirrors this error message in a response with HTTP status code 424. [#165](https://github.com/Open-EO/openeo-api/issues/165)
 - `GET /.well-known/openeo` allows clients to choose between versions. [#148](https://github.com/Open-EO/openeo-api/issues/148)
 - `GET /` (Capabilities):
