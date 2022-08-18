@@ -23,7 +23,7 @@ When the order is completed, the data is ingested in a collection and its ID is 
 
 A backend should add general information about a commercial data collection to the `/collections` and `/collections/{collection_id}` endpoints, the same as with freely available collections. Only the metadata about the entire dataset needs to be provided, not about the specific data products that a user has already purchased. 
 
-Commercial data collections are distinguished from freely available collections by including `"order:status": "orderable"` as specified in the [STAC Order specification](https://github.com/stac-extensions/order).
+Commercial data collections are distinguished from freely available collections by including `"order:status": "orderable"` as specified in the [STAC Order specification](https://github.com/stac-extensions/order/tree/v1.0.0).
 
 Commercial data collections can include an `order_parameters` field if ordering supports additional parameters that specify how the products should be delivered.
 
@@ -227,6 +227,6 @@ When the order has finished, you can process the data as with a normal collectio
 ```python
 >>> order = connection.get_order(id="40264b5-c3ae-46f4-a907-0f612d763d97")
 >>> order.status
-'delivered'
+'succeeded'
 >>> pleiades_cube = connection.load_collection(order.target_collection_id)
 ```

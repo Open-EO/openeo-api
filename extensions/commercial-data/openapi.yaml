@@ -182,7 +182,7 @@ paths:
         
         If the user doesn't have sufficient funds, the endpoint should return an error and `order:status` should not change.
         
-        Otherwise, the `order:status` changes from `orderable` to `ordered` until a new order status (e.g. `delivered` or `unable_to_deliver`) becomes available.
+        Otherwise, the `order:status` changes from `orderable` to `ordered` until a new order status (e.g. `succeeded` or `failed`) becomes available.
       tags:
         - Orders
       security:
@@ -243,7 +243,7 @@ components:
         Information about an order.
 
         The properties with the `order:` prefix follow the fields defined in the
-        [STAC Order Extension](https://github.com/stac-extensions/order).
+        [STAC Order Extension](https://github.com/stac-extensions/order/tree/v1.0.0).
       required:
         - id
         - order:status
@@ -265,16 +265,18 @@ components:
             The status of the order.
             * `orderable`: The item or asset is orderable via the provider scenario.
             * `ordered`: The item or asset is ordered and the provider is preparing to make it available.
-            * `shipping`: The item or asset order are being processed by the provider to provide the user with the asset(s).
-            * `delivered`: The provider has delivered the order and asset(s) are available.
-            * `unable_to_deliver`: The provider is not able to deliver the order.
-            * `canceled`: The order has been canceled.
+            * `pending`: The item or asset is ordered but wait for an activation before being able for shipping.
+            * `shipping` The item or asset order are being processed by the provider to provide you with the asset(s).
+            * `succeeded`: The provider has delivered your order and asset(s) are available.
+            * `failed`: The provider is not able to deliver the order.
+            * `canceled` The order has been canceled.
           enum:
             - orderable
             - ordered
+            - pending
             - shipping
-            - delivered
-            - unable_to_deliver
+            - succeeded
+            - failed
             - canceled 
         order:date:
           type: string
