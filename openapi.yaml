@@ -15,7 +15,7 @@ info:
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2).
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields are generally case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2) and in the specification we follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, for better readability and consistency.
 
     ## HTTP / REST
 
@@ -250,7 +250,7 @@ info:
     
     **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs/{process_graph_id}`](#operation/describe-custom-process) to define new processes. This includes:
 
-    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
+    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique per user across the user-defined processes.
     * Defining the algorithm as a process graph.
     * Optionally, specifying the additional metadata for processes.
 
@@ -653,11 +653,12 @@ paths:
                     type: array
                     description: >-
                       Lists all supported endpoints. Supported are all
-                      endpoints, which are implemented, return a 2XX or 3XX HTTP
-                      status code and are fully compatible to the API
-                      specification.
+                      endpoints, which are implemented, return usually
+                      a 2XX or 3XX HTTP status code and are fully compatible
+                      to the API specification.
                       An entry for this endpoint (path `/` with method `GET`)
                       SHOULD NOT be listed.
+                      Each path MUST only be listed once in the array.
                     items:
                       title: Endpoint
                       type: object
@@ -1838,7 +1839,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A **unique** identifier for the OpenID Connect Provider to
+                            A per-backend **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -2281,7 +2282,7 @@ paths:
     parameters:
       - name: process_graph_id
         in: path
-        description: Unique identifier for a user-defined process.
+        description: Per-user unique identifier for a user-defined process.
         required: true
         schema:
           $ref: '#/components/schemas/process_id'
@@ -2319,12 +2320,11 @@ paths:
       operationId: store-custom-process
       description: |-
         Stores a provided user-defined process with process graph that can be
-        reused in other processes. If a process with the specified 
-        `process_graph_id` exists, the process is fully replaced. The id can't
-        be changed for stored user-defined processes.
-
-        The id MUST be unique for the authenticated user, including all
-        predefined processes by the back-end.
+        reused in other processes.
+        
+        If a process with the specified `process_graph_id` exists, the process
+        is fully replaced. The id can't be changed for existing user-defined
+        processes. The id MUST be unique across its namespace.
 
         Partially updating user-defined processes is not supported.
 
@@ -2973,12 +2973,20 @@ paths:
       description: >-
         Calculates an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
-        them. This MUST be the upper limit of the incurring costs. Clients can
-        be charged less than specified, but never more. Back-end providers MAY
-        specify an expiry time for the estimate. Starting to process data
-        afterwards MAY be charged at a higher cost. Costs MAY NOT include
-        downloading costs. This can be indicated with the `downloads_included`
-        flag.
+        them.
+
+        Back-end providers MAY specify an expiry time for the estimate.
+        Starting to process data afterwards MAY be charged at a higher cost.
+        Costs do often not include download costs. Whether download costs are included or not can be indicated explicitly with the
+        `downloads_included` flag.
+        
+        The estimate SHOULD be the upper limit of the costs, but back-end are
+        free to use the field according to their terms of service.
+        
+        For some batch jobs it is not (easily) possible to estimate the costs
+        reliably, e.g. if a UDF or ML model is part of the process.
+        In this case, the server SHOULD return a `EstimateComplexity` error
+        with HTTP status code 500.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3094,10 +3102,10 @@ paths:
 
         STAC Collections can either (1) add all assets as collection-level assets or
         (2) link to STAC Catalogs and STAC Items with signed URLs, which will provide a full
-        STAC catalog structure a client has to go through. While (2) is overall the better 
+        STAC catalog structure a client has to go through. Option 2 is overall the better 
         architectural choice and allows a fine-grained description of the processed data,
-        (1) is not compliant with previous versions of the  openEO API.
-        **To maintain backward compatibility, it is REQUIRED for (2) to still copy
+        but it is not compliant with previous versions of the openEO API.
+        **To maintain backward compatibility, it is REQUIRED to still copy
         all assets in the STAC catalog structure into the collection-level assets.**
         This requirement is planned to be removed in openEO API version 2.0.0.
         A client can enforce that the server returns a GeoJSON through content negotiation
@@ -3565,7 +3573,12 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget'
+                    type: number
+                    nullable: true
+                    description: |-
+                      The remaining budget a user has available.
+                      The value MUST be specified in the currency of the back-end.
+                      The value SHOULD be set to `null` if no explicit limit applies.
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -4095,11 +4108,13 @@ components:
         currency the back-end is working with. The currency can be retrieved by
         calling `GET /`. If no currency is set, this field MUST be `null`.
       type: number
+      minimum: 0
       example: 12.98
       nullable: true
       default: null
     budget:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4110,6 +4125,7 @@ components:
       default: null
     budget_update:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4339,7 +4355,8 @@ components:
         'cube:dimensions':
           title: STAC Collection Cube Dimensions
           description: |-
-            Uniquely named dimensions of the data cube.
+            The named default dimensions of the data cube.
+            Names must be unique per collection.
 
             The keys of the object are the dimension names. For
             interoperability, it is RECOMMENDED to use the
@@ -4353,8 +4370,8 @@ components:
             * `bands` for dimensions of type `bands`
             * `geometry` for dimensions of type `vector`
 
-            This property REQUIRES to add `datacube` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add the data cube extension to the list
+            of `stac_extensions`: `https://stac-extensions.github.io/datacube/v2.1.0/schema.json`.
           type: object
           additionalProperties:
             x-additionalPropertiesName: Dimension Name
@@ -5465,7 +5482,7 @@ components:
     job_id:
       type: string
       description: >-
-        Unique identifier of the batch job, generated by the
+        Per-backend unique identifier of the batch job, generated by the
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
@@ -5625,8 +5642,8 @@ components:
     service_id:
       type: string
       description: >-
-        Unique identifier of the secondary web service, generated by the
-        back-end during creation. MUST match the specified pattern.
+        A per-backend unique identifier of the secondary web service, generated
+        by the back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
     resource_parameter:
@@ -6107,7 +6124,14 @@ components:
           $ref: '#/components/schemas/log_level'
         message:
           type: string
-          description: A message explaining the log entry.
+          description: >-
+            A concise message explaining the log entry.
+
+            Messages do *not* explicitly support [CommonMark 0.29](http://commonmark.org/)
+            syntax as other descriptive fields in the openEO API do,
+            but the messages MAY contain line breaks or indentation.
+
+            It is NOT RECOMMENDED to add stacktraces to the `message`.
           example: >-
             Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
             Server responded with error 404.
@@ -6353,14 +6377,14 @@ components:
     service_id:
       name: service_id
       in: path
-      description: Unique secondary web service identifier.
+      description: Identifier of the secondary web service.
       required: true
       schema:
         $ref: '#/components/schemas/service_id'
     job_id:
       name: job_id
       in: path
-      description: Unique job identifier.
+      description: Identifier of the batch job.
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
