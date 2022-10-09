@@ -260,10 +260,11 @@ info:
 
     Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
 
-    Three custom keywords have been defined:
+    Multiple custom keywords have been defined:
     * `subtype` for more fine-grained data-types than JSON Schema supports.
-    * `parameters` to specify the parameters of a process graph (object with subtype `process-graph`).
-    * `returns` to describe the return value of a process graph (object with subtype `process-graph`).
+    * `dimensions` to further define the dimension types required if the `subtype` is `datacube`.
+    * `parameters` to specify the parameters of a process graph if the `subtype` is `process-graph`.
+    * `returns` to describe the return value of a process graph if the `subtype` is `process-graph`.
 
     ### Subtypes
 
@@ -1603,7 +1604,7 @@ paths:
                         description: A data cube.
                         schema:
                           type: object
-                          subtype: raster-cube
+                          subtype: datacube
                       - name: process
                         description: 'A unary process to be applied on each value, may consist of multiple sub-processes.'
                         schema:
@@ -1618,7 +1619,7 @@ paths:
                       description: 'A data cube with the newly computed values. The resolution, cardinality and the number of dimensions are the same as for the original data cube.'
                       schema:
                         type: object
-                        subtype: raster-cube
+                        subtype: datacube
                   - id: multiply
                     summary: Multiplication of two numbers
                     description: |-
@@ -5832,6 +5833,65 @@ components:
             - $ref: '#/components/schemas/json_schema'
       allOf:
         - $ref: '#/components/schemas/json_schema'
+    datacube_dimensions:
+      title: Datacube constraints
+      description: |-
+        Allows to specify requirements the data cube has to fulfill.
+
+        Right now, it only allows to specify the dimension types and 
+        adds for specific dimension types:
+        * axes for spatial (raster) dimensions
+        * geometry types for vector dimensions
+
+        This property only applies if the `subtype` is set to `datacube`.
+      type: array
+      items:
+        type: object
+        required:
+          - type
+        oneOf:
+          - title: Spatial (raster)
+            properties:
+              type:
+                type: string
+                enum: 
+                  - spatial
+              axis:
+                type: array
+                minItems: 1
+                items:
+                  type: string
+                  enum:
+                    - 'x'
+                    - 'y'
+                    - 'z'
+          - title: Spatial (vector)
+            properties:
+              type:
+                type: string
+                enum: 
+                  - vector
+              geometry_type:
+                type: array
+                minItems: 1
+                items:
+                  type: string
+                  enum:
+                    - 'Point'
+                    - 'LineString'
+                    - 'Polygon'
+                    - 'MultiPoint'
+                    - 'MultiLineString'
+                    - 'MultiPolygon'
+                    - 'GeometryCollection'
+          - title: Other
+            properties:
+              type:
+                type: string
+                enum:
+                  - bands
+                  - temporal
+                  - other
     json_schema:
       type: object
       title: Single data type
@@ -5867,6 +5927,8 @@ components:
         subtype:
           type: string
           description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
+        dimensions:
+          $ref: '#/components/schemas/datacube_dimensions'
         pattern:
           type: "string"
           format: "regex"

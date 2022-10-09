@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
+- Processes: Added `dimensions` schema for subtype `datacube`
 
 ### Changed
 
