@@ -26,6 +26,13 @@ The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 's
 
 See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/Open-EO/openeo-api/milestones) for a rough roadmap based on GitHub issues.
 
+## Extensions
+
+| Name            | Version | Stability    | Description                                                                           |
+|-----------------|---------|--------------|---------------------------------------------------------------------------------------|
+| [Commercial Data](extensions/commercial-data/) | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data.            |
+| [Federation](extensions/federation/) | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+
 ## Repository
 
 This repository contains a set of files formally describing the openEO API, each with a human-readable and easily browseable version:
@@ -33,3 +40,16 @@ This repository contains a set of files formally describing the openEO API, each
 * [openapi.yaml](openapi.yaml) provides the [OpenAPI](https://www.openapis.org/) 3.0 definition of the openEO API. See the table above for human-readable versions of the OpenAPI definition.
 * [errors.json](errors.json) is a list of potential global error codes and messages, excluding specific exceptions separately available for each process.
 * The [assets](assets/) folder contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
+* The [extensions](extensions/) folder contains extensions to the openEO API.
+
+# Development
+
+The `draft` branch is the latest version and is the one to create Pull Requests against.
+
+For development some tools can be used:
+
+1. Install [node and npm](https://nodejs.org) - should run with any recent version
+2. Run `npm install` in this folder to install the dependencies
+3. Run the linter for the OpenAPI file with `npm test`. This will lint the files and check against some best-practices. It uses `spectral` in the background.
+4. To show the files nicely formatted in a web browser, run `npm start`. It starts a server and opens the API specification rendered with ReDoc in a web browser.
+5. To create a static HTML page (e.g. for hosting it on GitHub Pages), you can run `npm run build` and it will create a `redoc.html` in this folder.

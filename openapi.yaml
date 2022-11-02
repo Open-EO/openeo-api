@@ -15,7 +15,7 @@ info:
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2).
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields are generally case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2) and in the specification we follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, for better readability and consistency.
 
     ## HTTP / REST
 
@@ -232,7 +232,7 @@ info:
     A **predefined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
     Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for predefined processes.
 
-    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
+    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally, it is a *process graph* with a variety of additional metadata.
 
     A **process graph** chains specific process calls from the set of predefined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
@@ -250,7 +250,7 @@ info:
     
     **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs/{process_graph_id}`](#operation/describe-custom-process) to define new processes. This includes:
 
-    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
+    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique per user across the user-defined processes.
     * Defining the algorithm as a process graph.
     * Optionally, specifying the additional metadata for processes.
 
@@ -351,15 +351,17 @@ info:
     This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
     The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
-    ### User-defined process
+    ### Child processes
 
-    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+    Some processes can run child processes, which is similar to the concept that other programming languages call
+    [callbacks](https://en.wikipedia.org/wiki/Callback_(computer_programming)) or lambda functions.
+    Each child process is simply a user-defined process again and can in theory be arbritarily complex.
 
-    **Example**: You want to calculate the absolute value of each pixel in a data cube.
-    This can be achieved in openEO by executing the `apply` process and pass it
-    a user-defined process as the "operator" to apply to each pixel.
-    In this simple example, the "child" process graph defining the user-defined process
-    consists of a single process `absolute`, but it can be arbitrary complex in general.
+    A very simple example would be to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openEO by using the `apply` process which gets the `absolute` process passed as child process.
+    In this example, the "child" processes consists of a single process `absolute`, but it can also be a more complex computation such as an NDVI or a prediciton based on a machine learning model.
+
+    **Example**: 
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for predefined processes such as an id, parameters, return values etc.
@@ -374,7 +376,7 @@ info:
 
     ### Accessing process parameters
 
-    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    A "parent" process that works with a child process can make so called *process graph parameters*
     available to the "child" logic.
     Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
@@ -653,11 +655,12 @@ paths:
                     type: array
                     description: >-
                       Lists all supported endpoints. Supported are all
-                      endpoints, which are implemented, return a 2XX or 3XX HTTP
-                      status code and are fully compatible to the API
-                      specification.
+                      endpoints, which are implemented, return usually
+                      a 2XX or 3XX HTTP status code and are fully compatible
+                      to the API specification.
                       An entry for this endpoint (path `/` with method `GET`)
                       SHOULD NOT be listed.
+                      Each path MUST only be listed once in the array.
                     items:
                       title: Endpoint
                       type: object
@@ -740,10 +743,20 @@ paths:
                         example: USD
                       default_plan:
                         type: string
-                        description: >-
-                          Name of the default plan to use when the user doesn't
-                          specify a plan or has no default plan has been assigned
-                          for the user.
+                        description: |-
+                          Name of the plan the back-end uses for billing in case 
+                          1. the user has not subscribed to a specific plan
+                             (see `default_plan` in `GET /me`) and
+                          2. also did not provide a specific plan with the
+                             processing request.
+
+                          If a free plan is available at the back-end, it is 
+                          probably most useful to provide this as the back-end
+                          wide default plan and override it with paid plans through
+                          the user-specific default plan in `GET /me`.
+                          Otherwise, users that have not set up payment yet MAY
+                          receive an error for each processing requests where
+                          they did not provide a free plan specifically.
                         example: free
                       plans:
                         description: Array of plans
@@ -997,8 +1010,8 @@ paths:
 
         **Note**: Format names and parameters MUST be fully aligned with the
         GDAL codes if available, see [GDAL Raster
-        Formats](http://www.gdal.org/formats_list.html) and [OGR Vector
-        Formats](http://www.gdal.org/ogr_formats.html). It is OPTIONAL to
+        Formats](https://gdal.org/drivers/raster/index.html) and [OGR Vector
+        Formats](https://gdal.org/drivers/vector/index.html). It is OPTIONAL to
         support all output format parameters supported by GDAL. Some file
         formats not available through GDAL may be defined centrally for openEO.
         Custom file formats or parameters MAY be defined.
@@ -1090,7 +1103,7 @@ paths:
                         maximum: 100
                         default: 75
                     links:
-                      - href: 'https://www.gdal.org/frmt_gtiff.html'
+                      - href: 'https://gdal.org/drivers/raster/gtiff.html'
                         rel: about
                         title: GDAL on the GeoTiff file format and storage options
                   GPKG:
@@ -1111,10 +1124,10 @@ paths:
                           - '1.2'
                         default: auto
                     links:
-                      - href: 'https://www.gdal.org/drv_geopackage_raster.html'
+                      - href: 'https://gdal.org/drivers/raster/gpkg.html'
                         rel: about
                         title: GDAL on GeoPackage for raster data
-                      - href: 'https://www.gdal.org/drv_geopackage.html'
+                      - href: 'https://gdal.org/drivers/vector/gpkg.html'
                         rel: about
                         title: GDAL on GeoPackage for vector data
                 input:
@@ -1132,10 +1145,10 @@ paths:
                           table, this option is not necessary. Otherwise, it
                           is required.
                     links:
-                      - href: 'https://www.gdal.org/drv_geopackage_raster.html'
+                      - href: 'https://gdal.org/drivers/raster/gpkg.html'
                         rel: about
                         title: GDAL on GeoPackage for raster data
-                      - href: 'https://www.gdal.org/drv_geopackage.html'
+                      - href: 'https://gdal.org/drivers/vector/gpkg.html'
                         rel: about
                         title: GDAL on GeoPackage for vector data
         4XX:
@@ -1445,6 +1458,10 @@ paths:
                       - B10
                       - B11
                       - B12
+                'openeo:property_filters':
+                  - platform
+                  - eo:cloud_cover
+                  - sat:orbit_state
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -1824,7 +1841,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A **unique** identifier for the OpenID Connect Provider to
+                            A per-backend **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -1849,7 +1866,9 @@ paths:
                         scopes:
                           type: array
                           description: >-
-                            A list of OpenID Connect scopes that the client MUST include when requesting authorization.
+                            A list of OpenID Connect scopes that the client MUST at least include when requesting authorization.
+                            Clients MAY add additional scopes such as the `offline_access` scope to retrieve a refresh token.
+
                             If scopes are specified, the list MUST at least contain the `openid` scope.
                           items:
                             type: string
@@ -2176,6 +2195,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 plan:
                   $ref: '#/components/schemas/billing_plan_null_default'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2263,7 +2284,7 @@ paths:
     parameters:
       - name: process_graph_id
         in: path
-        description: Unique identifier for a user-defined process.
+        description: Per-user unique identifier for a user-defined process.
         required: true
         schema:
           $ref: '#/components/schemas/process_id'
@@ -2301,12 +2322,11 @@ paths:
       operationId: store-custom-process
       description: |-
         Stores a provided user-defined process with process graph that can be
-        reused in other processes. If a process with the specified 
-        `process_graph_id` exists, the process is fully replaced. The id can't
-        be changed for stored user-defined processes.
-
-        The id MUST be unique for the authenticated user, including all
-        predefined processes by the back-end.
+        reused in other processes.
+        
+        If a process with the specified `process_graph_id` exists, the process
+        is fully replaced. The id can't be changed for existing user-defined
+        processes. The id MUST be unique across its namespace.
 
         Partially updating user-defined processes is not supported.
 
@@ -2520,8 +2540,8 @@ paths:
       description: |-
         Lists all secondary web services submitted by a user.
         
-        It is **strongly RECOMMENDED** to keep the response size small by
-        omitting all optional non-scalar values from objects in`services`
+        It is **strongly RECOMMENDED** to keep the response size small by omitting
+        all optional non-scalar values (i.e. arrays and objects) from objects in `services`
         (i.e. the `process`, `configuration` and `attributes` properties).
         To get the full metadata for a secondary web service clients MUST
         request `GET /services/{service_id}`.
@@ -2631,6 +2651,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2638,10 +2660,9 @@ paths:
     patch:
       summary: Modify a service
       operationId: update-service
-      description: >-
+      description: |-
         Modifies an existing secondary web service at the back-end,
         but maintain the identifier. Changes can be grouped in a single request.
-
 
         User have to create a new service to change the service type.
       tags:
@@ -2677,6 +2698,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
@@ -2731,7 +2754,7 @@ paths:
         
         Back-ends can log any information that may be relevant for a user.
         Users can log information during data processing using respective
-        processes such as `debug`.
+        processes such as `inspect`.
 
         If requested consecutively while the secondary service is enabled, it is
         RECOMMENDED that clients use the offset parameter to get only the entries
@@ -2762,7 +2785,8 @@ paths:
         Lists all batch jobs submitted by a user.
         
         It is **strongly RECOMMENDED** to keep the response size small by
-        omitting all optional non-scalar values from objects in `jobs` (i.e. the `process` property).
+        omitting all optional non-scalar values (i.e. arrays and objects) from
+        objects in `jobs` (i.e. the `process` property).
         To get the full metadata for a job clients MUST request `GET /jobs/{job_id}`.
       tags:
         - Data Processing
@@ -2851,6 +2875,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 budget:
                   $ref: '#/components/schemas/budget'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_default'
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2896,6 +2922,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null'
                 budget:
                   $ref: '#/components/schemas/budget_update'
+                log_level:
+                  $ref: '#/components/schemas/min_log_level_update'
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
@@ -2947,12 +2975,20 @@ paths:
       description: >-
         Calculates an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
-        them. This MUST be the upper limit of the incurring costs. Clients can
-        be charged less than specified, but never more. Back-end providers MAY
-        specify an expiry time for the estimate. Starting to process data
-        afterwards MAY be charged at a higher cost. Costs MAY NOT include
-        downloading costs. This can be indicated with the `downloads_included`
-        flag.
+        them.
+
+        Back-end providers MAY specify an expiry time for the estimate.
+        Starting to process data afterwards MAY be charged at a higher cost.
+        Costs do often not include download costs. Whether download costs are included or not can be indicated explicitly with the
+        `downloads_included` flag.
+        
+        The estimate SHOULD be the upper limit of the costs, but back-end are
+        free to use the field according to their terms of service.
+        
+        For some batch jobs it is not (easily) possible to estimate the costs
+        reliably, e.g. if a UDF or ML model is part of the process.
+        In this case, the server SHOULD return a `EstimateComplexity` error
+        with HTTP status code 500.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3023,7 +3059,7 @@ paths:
         Back-ends can log any information that may be relevant for a user
         at any stage (status) of the batch job.
         Users can log information during data processing using respective
-        processes such as `debug`.
+        processes such as `inspect`.
 
         If requested consecutively, it is RECOMMENDED that clients use the offset
         parameter to get only the entries they have not received yet.
@@ -3050,12 +3086,12 @@ paths:
     parameters:
       - $ref: '#/components/parameters/job_id'
     get:
-      summary: Download results for a completed batch job
+      summary: Download results for a batch job
       operationId: list-results
       description: |-
-        Lists signed URLs pointing to the processed files after the batch job
+        Lists signed URLs pointing to the processed files, usually after the batch job
         has finished. Back-ends may also point to intermediate results after the
-        job has stopped due to an error.
+        job has stopped due to an error or if the `partial` parameter has been set.
         
         The response includes additional metadata. It is a valid
         [STAC Item](https://github.com/radiantearth/stac-spec/tree/v1.0.0/item-spec)
@@ -3068,10 +3104,10 @@ paths:
 
         STAC Collections can either (1) add all assets as collection-level assets or
         (2) link to STAC Catalogs and STAC Items with signed URLs, which will provide a full
-        STAC catalog structure a client has to go through. While (2) is overall the better 
+        STAC catalog structure a client has to go through. Option 2 is overall the better 
         architectural choice and allows a fine-grained description of the processed data,
-        (1) is not compliant with previous versions of the  openEO API.
-        **To maintain backward compatibility, it is REQUIRED for (2) to still copy
+        but it is not compliant with previous versions of the openEO API.
+        **To maintain backward compatibility, it is REQUIRED to still copy
         all assets in the STAC catalog structure into the collection-level assets.**
         This requirement is planned to be removed in openEO API version 2.0.0.
         A client can enforce that the server returns a GeoJSON through content negotiation
@@ -3098,13 +3134,26 @@ paths:
         It is **strongly recommended** to add a link with relation type `canonical`
         to the STAC Item or STAC Collection (see the `links` property for details).
 
-        If processing has not finished yet requests to this endpoint MUST be
-        rejected with openEO error `JobNotFinished`.
+        If processing has not finished yet and the `partial` parameter is not set to `true`
+        requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.
       tags:
         - Data Processing
         - Batch Jobs
       security:
         - Bearer: []
+      parameters:
+        - name: partial
+          description: >-
+            If set to `true`, the results endpoint returns incomplete results while
+            still running.
+
+            Enabling this parameter requires to indicate the status of the batch job
+            in the STAC metadata by setting the `openeo:status`.
+          in: query
+          allowEmptyValue: true
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: >-
@@ -3118,7 +3167,8 @@ paths:
                 to `0` if the requester is the owner of the job and still has
                 free downloads included in his processing charges estimated by
                 `GET /jobs/{job_id}/estimate`.
-                 If a requester other than the owner is requesting the data of a shared job this header indicates the costs for the requester.
+                If a requester other than the owner is requesting the data of a
+                shared job this header indicates the costs for the requester.
               schema:
                 $ref: '#/components/schemas/money'
           content:
@@ -3130,6 +3180,9 @@ paths:
                     type: object
                     required:
                       - assets
+                    properties:
+                      'openeo:status':
+                        $ref: '#/components/schemas/result_status'
                     allOf:
                       - $ref: '#/components/schemas/collection'
                     example:
@@ -3496,14 +3549,7 @@ paths:
                       the user's real name or a nickname.
                   default_plan:
                     type: string
-                    nullable: true
-                    description: |-
-                      Name of the plan the user has subscribed to.
-
-                      Overrides the default plan of the back-end, but back-ends
-                      MAY also allow overriding this plan for each individual
-                      processing request (e.g. job or service) with the
-                      corresponding `plan` property.
+                    description: Name of the single plan the user is currently subscribed to if any.
                     example: free
                   storage:
                     title: User Storage
@@ -3529,7 +3575,12 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget'
+                    type: number
+                    nullable: true
+                    description: |-
+                      The remaining budget a user has available.
+                      The value MUST be specified in the currency of the back-end.
+                      The value SHOULD be set to `null` if no explicit limit applies.
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -3713,6 +3764,19 @@ components:
               minItems: 1
               items:
                 type: string
+    result_status:
+      type: string
+      enum:
+        - running
+        - canceled
+        - finished
+        - error
+      description: |-
+        The status of a batch job.
+
+        This field is REQUIRED if the `partial` parameter is given.
+        This field is strongly RECOMMENDED if the job has stopped due to an error.
+      default: finished
     batch_job_result:
       title: Batch Job Results Response as STAC Item
       type: object
@@ -3854,6 +3918,8 @@ components:
                 Time until which the assets are accessible, in UTC. Formatted as
                 a [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
               example: '2020-11-01T00:00:00Z'
+            'openeo:status':
+              $ref: '#/components/schemas/result_status'
         assets:
           $ref: '#/components/schemas/stac_assets'
         links:
@@ -4044,11 +4110,13 @@ components:
         currency the back-end is working with. The currency can be retrieved by
         calling `GET /`. If no currency is set, this field MUST be `null`.
       type: number
+      minimum: 0
       example: 12.98
       nullable: true
       default: null
     budget:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4059,6 +4127,7 @@ components:
       default: null
     budget_update:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4070,7 +4139,7 @@ components:
       description: |-
         The billing plan to process and charge the job or service with.
 
-        Billing plans MUST be accepted in a *case insensitive* manner.
+        Billing plans MUST be handled in a *case insensitive* manner.
         
         The plans can be retrieved from `GET /`, but the value returned here may
         not be in the list of plans any longer.
@@ -4081,14 +4150,11 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        If `null` is specified by the client explicitly,
-        the server MUST store the default plan and persist it regardless of any
-        changes to the default billing plan in the future. If given, the default
-        plan specific to the user has higher priority than the default plan of
-        the back-end.
+        Back-ends MUST resolve the billing plan in the following way if billing is supported:
 
-        The list of plans and the default plan for the back-end can be retrieved
-        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
+        * If a value is given and it is not `null`: Persist the `plan` that has been provided in the request.
+        * Otherwise, don't change the billing plan.
+
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
@@ -4099,14 +4165,18 @@ components:
         The billing plan to process and charge the job or service with.
 
         Billing plans MUST be accepted in a *case insensitive* manner.
-        If `null` is given implicitly (through the default value) or explicitly by the client,
-        the server MUST store the default plan and persist it regardless of any
-        changes to the default billing plan in the future. If given, the default
-        plan specific to the user has higher priority than the default plan of
-        the back-end.
+        Back-ends MUST resolve the billing plan in the following way:
 
-        The list of plans and the default plan for the back-end can be retrieved
-        from `GET /`. The default plan for the user can be retrieved from `GET /me`.
+        * If a non-`null` value is given: Persist the `plan` that has been provided in the request.
+        * Otherwise:
+          1. Persist the `default_plan` exposed through `GET /me`, if available.
+          2. Persist the `default_plan` exposed through `GET /`, if available.
+          3. If a single plan is exposed by the back-end, persist it.
+          4. Otherwise, the back-end MUST throw a `BillingPlanMissing` error.
+
+        The resolved plan MUST be persisted permanently, regardless of any 
+        changes to the exposed billing plans in `GET /` in the future.
+
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
       example: free
@@ -4326,7 +4396,8 @@ components:
         'cube:dimensions':
           title: STAC Collection Cube Dimensions
           description: |-
-            Uniquely named dimensions of the data cube.
+            The named default dimensions of the data cube.
+            Names must be unique per collection.
 
             The keys of the object are the dimension names. For
             interoperability, it is RECOMMENDED to use the
@@ -4339,13 +4410,28 @@ components:
             * `t` for the dimension of type `temporal`
             * `bands` for dimensions of type `bands`
 
-            This property REQUIRES to add `datacube` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add the data cube extension to the list
+            of `stac_extensions`: `https://stac-extensions.github.io/datacube/v2.1.0/schema.json`.
           type: object
           additionalProperties:
             x-additionalPropertiesName: Dimension Name
             allOf:
               - $ref: '#/components/schemas/dimension'
+        'openeo:property_filters':
+          description: |-
+            Gives a list of properties you can filter on when loading data from the collection.
+            Returning an empty array means that no property-based filters are available.
+
+            This is a guide for users to get an overview of available properties to filter on.
+            More metadata about the properties can be found in `summaries`.
+
+            If this property is not present, it means that the collections does 
+            not provide any collection-specific details about available property-based filters. 
+            It's then up to other means of documentation to inform the user,
+            e.g. there could be documentation about property filters that work across collections.
+          type: array
+          items:
+            type: string
         summaries:
           title: STAC Summaries (Collection Properties)
           description: |-
@@ -4664,13 +4750,15 @@ components:
               $ref: '#/components/schemas/collection_dimension_step'
             reference_system:
               description: >-
-                The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
+                The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON object](https://proj.org/specifications/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
+              default: 4326
               oneOf:
-                - type: string
-                  description: WKT2 or PROJ definition
                 - type: number
-                  default: 4326
-                  description: EPSG code
+                  title: EPSG code
+                - type: string
+                  title: WKT2 or PROJ definition (deprecated)
+                - type: object
+                  title: PROJJSON
           discriminator:
             propertyName: axis
             mapping:
@@ -5358,16 +5446,18 @@ components:
             Metrics about the resource usage of the batch job.
             
             Back-ends are not expected to update the metrics while processing data,
-            so the metrics can only be available after the job has been finished
-            or has errored.
+            so the metrics can only be available after the job has finished
+            or has stopped due to an error.
             For usage metrics during processing, metrics can better be added to the
             logs (e.g. `GET /jobs/{job_id}/logs`) with the same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     job_id:
       type: string
       description: >-
-        Unique identifier of the batch job, generated by the
+        Per-backend unique identifier of the batch job, generated by the
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
@@ -5493,6 +5583,8 @@ components:
             same schema.
           allOf:
             - $ref: '#/components/schemas/usage'
+        log_level:
+          $ref: '#/components/schemas/min_log_level_default'
     service_type:
       description: >-
         Definition of the service type to access result data. All available
@@ -5525,8 +5617,8 @@ components:
     service_id:
       type: string
       description: >-
-        Unique identifier of the secondary web service, generated by the
-        back-end during creation. MUST match the specified pattern.
+        A per-backend unique identifier of the secondary web service, generated
+        by the back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
     resource_parameter:
@@ -5603,7 +5695,7 @@ components:
       type: string
       description: >-
         The code is either one of the standardized error codes or a custom code,
-        for example specified by a user in the `debug` process.
+        for example specified by a user in the `inspect` process.
       example: SampleError
     log_links:
       description: |-
@@ -5618,6 +5710,49 @@ components:
       example:
         - href: 'https://example.openeo.org/docs/errors/SampleError'
           rel: about
+    log_level:
+      description: |-
+        The severity level of the log entry.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        
+        The level `error` usually corresponds with critical issues that usually terminate the data processing.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: error
+    min_log_level_default:
+      description: |-
+        The minimum severity level for log entries that the back-end stores for the processing request.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        That means if `warning` is set, the back-end will only store log entries with the level `warning` and `error`.
+
+        The default minimum log level is `info`. Users need to specifically set this property to `debug` to get *all* log entries.
+        It is RECOMMENDED that users set the level at least to "warning" in production workflows.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      default: info
+      example: warning
+    min_log_level_update:
+      description: |-
+        Updates the minimum severity level for log entries that the back-end stores for the processing requests.
+
+        The back-end doesn't need to update existing log entries.
+      type: string
+      enum:
+        - error
+        - warning
+        - info
+        - debug
+      example: warning
     data_type_schema:
       title: Data Types
       description: Either a single data type or a list of data types.
@@ -5924,22 +6059,17 @@ components:
         code:
           $ref: '#/components/schemas/log_code'
         level:
-          description: |-
-            The severity level of the log entry.
-
-            The order of the levels is as follows (from high to low severity): `error`, `warning`, `info`, `debug`.
-            
-            The level `error` usually stops processing the data.
-          type: string
-          enum:
-            - error
-            - warning
-            - info
-            - debug
-          example: error
+          $ref: '#/components/schemas/log_level'
         message:
           type: string
-          description: A message explaining the log entry.
+          description: >-
+            A concise message explaining the log entry.
+
+            Messages do *not* explicitly support [CommonMark 0.29](http://commonmark.org/)
+            syntax as other descriptive fields in the openEO API do,
+            but the messages MAY contain line breaks or indentation.
+
+            It is NOT RECOMMENDED to add stacktraces to the `message`.
           example: >-
             Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
             Server responded with error 404.
@@ -5955,8 +6085,9 @@ components:
             Data of any type. It is the back-ends task to decide how to best
             present passed data to a user.
 
-            For example, a raster-cube passed to the `debug` SHOULD return the
+            For example, a raster-cube passed to the `inspect` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
+            There are implementation guidelines available for the `inspect` process.
         path:
           description: |-
             Describes where the log entry originates from.
@@ -6065,6 +6196,21 @@ components:
               - logs
               - links
             properties:
+              log_level:
+                description: |-
+                  The minimum severity level for log entries that the back-end returns.
+                  This property MUST reflect the `log_level` that has been specified by the user
+                  for the processing request.
+
+                  The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+                  That means if `warning` is set, the logs will only contain entries with the level `warning` and `error`.
+                type: string
+                enum:
+                  - error
+                  - warning
+                  - info
+                  - debug
+                default: debug
               logs:
                 type: array
                 items:
@@ -6168,14 +6314,14 @@ components:
     service_id:
       name: service_id
       in: path
-      description: Unique secondary web service identifier.
+      description: Identifier of the secondary web service.
       required: true
       schema:
         $ref: '#/components/schemas/service_id'
     job_id:
       name: job_id
       in: path
-      description: Unique job identifier.
+      description: Identifier of the batch job.
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
