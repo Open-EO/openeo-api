@@ -643,7 +643,7 @@ paths:
                       [CommonMark 0.29](http://commonmark.org/) syntax MAY be
                       used for rich text representation.
                     example: |-
-                      This service is provided to you by [Cool EO Cloud Corp.](http://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
+                      This service is provided to you by [Cool EO Cloud Corp.](https://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
 
                       * Sentinel 1/2/3 and 5
                       * Landsat 7/8
@@ -797,19 +797,19 @@ paths:
                                 URL to a web page with more details about the
                                 plan.
                               format: uri
-                              example: 'http://cool-cloud-corp.com/plans/free-plan'
+                              example: 'https://cool-cloud-corp.com/plans/free-plan'
                         example:
                           - name: free
                             description: >-
                               Free plan. Calculates one tile per second and a
                               maximum amount of 100 tiles per hour.
-                            url: 'http://cool-cloud-corp.com/plans/free-plan'
+                            url: 'https://cool-cloud-corp.com/plans/free-plan'
                             paid: false
                           - name: premium
                             description: >-
                               Premium plan. Calculates unlimited tiles and each
                               calculated tile costs 0.003 USD.
-                            url: 'http://cool-cloud-corp.com/plans/premium-plan'
+                            url: 'https://cool-cloud-corp.com/plans/premium-plan'
                             paid: true
                   links:
                     description: |-
@@ -5454,6 +5454,38 @@ components:
             - $ref: '#/components/schemas/usage'
         log_level:
           $ref: '#/components/schemas/min_log_level_default'
+        links:
+          type: array
+          description: |-
+            Links related to this batch job, e.g. a links to 
+            invoices, log files or results.
+
+            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+
+            1. `monitor`: If logs are available, a link to the [logs endpoint](#tag/Batch-Jobs/operation/debug-job).
+            2. `result`: If batch job results are available, a link to the [results endpoint](#tag/Batch-Jobs/operation/list-results).
+
+            The relation types `monitor` and `result` may occur for various batch job states:
+
+            1. `created`: When the batch job was executed before and has been reset to `created` after an
+               [update](#tag/Batch-Jobs/operation/update-job) there could still be results and logs available
+               until they get discarded by [queueing the batch job again](#tag/Batch-Jobs/operation/start-job).
+            2. `finished`: The full log and results are expected to be available.
+            3. `error` / `canceled`: Partial results and logs may be available.
+
+            For more relation types see the lists of
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
+          items:
+            $ref: '#/components/schemas/link'
+          example:
+            - rel: result
+              type: application/json
+              title: Batch Job Results
+              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
+            - rel: result
+              type: application/json
+              title: Batch Job Logs
+              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
     job_id:
       type: string
       description: >-
