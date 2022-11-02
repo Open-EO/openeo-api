@@ -1,27 +1,15 @@
 extends: "spectral:oas"
-# don't error on circular schemas, these are currently not supported by spectral
-# https://github.com/stoplightio/spectral/issues/894
+# Work around broken rules: https://github.com/stoplightio/spectral/issues/1972
 except:
-  "openapi.yaml#/components/schemas/process_graph/example":
+  "openapi.yaml#/paths/~1udf_runtimes/get/responses/200/content/application~1json/example":
     - oas3-valid-schema-example
-  "openapi.yaml#/paths/~1processes/get/responses/200/content/application~1json/example":
-    - oas3-valid-oas-content-example
-  "openapi.yaml#/paths/~1process_graphs/get/responses/200/content/application~1json/example":
-    - oas3-valid-oas-content-example
-  "openapi.yaml#/paths/~1service_types/get/responses/200/content/application~1json/example":
-    - oas3-valid-oas-content-example
-  "openapi.yaml#/paths/~1file_formats/get/responses/200/content/application~1json/example":
-    - oas3-valid-oas-content-example
 rules:
-  # Ported from Spectral 4.0
   contact-properties: true
   tag-description: true
   oas3-parameter-description: true
-  oas3-unused-components-schema: false # Broken: https://github.com/stoplightio/spectral/issues/1271
+  oas3-unused-component: false # Broken: https://github.com/stoplightio/spectral/issues/1271
   operation-summary-formatted:
     description: Operation `summary` should start with upper case and not end with a dot.
-    recommended: true
-    type: style
     given: '$.paths.*[?( @property === ''get'' || @property === ''put'' || @property === ''post'' || @property === ''delete'' || @property === ''options'' || @property === ''head'' || @property === ''patch'' || @property === ''trace'' )]'
     then:
       field: summary
@@ -31,7 +19,7 @@ rules:
     tags:
       - operation
   operation-id-kebab-case:
-    given: "$"
+    given: "$..operationId"
     then:
       function: pattern
       functionOptions:
