@@ -160,8 +160,6 @@ schema:
 ```
 
 **Note:** In Collections this should generally be provided on the top-level of the object.
-If users should be able to filter on back-ends in `load_collection`, please provide `federation:backends` as an element in `openeo:property_filters`.
-Then, `federation:backends` as defined in the schema above should also be provided in the `summaries`.
 
 ### Examples
 

@@ -500,7 +500,7 @@ tags:
 
       ## STAC
       
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC API 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO also produced valid STAC API 1.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
 
@@ -1333,7 +1333,7 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
@@ -1458,10 +1458,6 @@ paths:
                       - B10
                       - B11
                       - B12
-                'openeo:property_filters':
-                  - platform
-                  - eo:cloud_cover
-                  - sat:orbit_state
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -4417,21 +4413,6 @@ components:
             x-additionalPropertiesName: Dimension Name
             allOf:
               - $ref: '#/components/schemas/dimension'
-        'openeo:property_filters':
-          description: |-
-            Gives a list of properties you can filter on when loading data from the collection.
-            Returning an empty array means that no property-based filters are available.
-
-            This is a guide for users to get an overview of available properties to filter on.
-            More metadata about the properties can be found in `summaries`.
-
-            If this property is not present, it means that the collections does 
-            not provide any collection-specific details about available property-based filters. 
-            It's then up to other means of documentation to inform the user,
-            e.g. there could be documentation about property filters that work across collections.
-          type: array
-          items:
-            type: string
         summaries:
           title: STAC Summaries (Collection Properties)
           description: |-
