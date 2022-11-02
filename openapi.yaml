@@ -232,7 +232,7 @@ info:
     A **predefined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
     Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for predefined processes.
 
-    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
+    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally, it is a *process graph* with a variety of additional metadata.
 
     A **process graph** chains specific process calls from the set of predefined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
@@ -351,15 +351,17 @@ info:
     This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
     The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
-    ### User-defined process
+    ### Child processes
 
-    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+    Some processes can run child processes, which is similar to the concept that other programming languages call
+    [callbacks](https://en.wikipedia.org/wiki/Callback_(computer_programming)) or lambda functions.
+    Each child process is simply a user-defined process again and can in theory be arbritarily complex.
 
-    **Example**: You want to calculate the absolute value of each pixel in a data cube.
-    This can be achieved in openEO by executing the `apply` process and pass it
-    a user-defined process as the "operator" to apply to each pixel.
-    In this simple example, the "child" process graph defining the user-defined process
-    consists of a single process `absolute`, but it can be arbitrary complex in general.
+    A very simple example would be to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openEO by using the `apply` process which gets the `absolute` process passed as child process.
+    In this example, the "child" processes consists of a single process `absolute`, but it can also be a more complex computation such as an NDVI or a prediciton based on a machine learning model.
+
+    **Example**: 
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for predefined processes such as an id, parameters, return values etc.
@@ -374,7 +376,7 @@ info:
 
     ### Accessing process parameters
 
-    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    A "parent" process that works with a child process can make so called *process graph parameters*
     available to the "child" logic.
     Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
