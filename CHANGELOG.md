@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /me`: Clarify the behavior of the field `budget`.
 - `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
 - `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
+- Several appearances of `nullable` were clarified according to the lint report by Spectral
 
 ## [1.1.0] - 2021-05-17
 
