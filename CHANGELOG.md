@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
 - Minimum value for `costs` and `budget` is 0.
 - `GET /jobs/{job_id}/estimate`: If a batch job can't be estimated reliably, a `EstimateComplexity` error should be returned. [#443](https://github.com/Open-EO/openeo-api/issues/443)
-- The `/conformance` endpoints is now generally used for OGC APIs, STAC API and openEO. All openEO and all extensions got individual conformance classes. [#186](https://github.com/Open-EO/openeo-api/issues/186)
+- The `/conformance` endpoint is now generally used for OGC APIs, STAC API and openEO. All openEO and all extensions got individual conformance classes. [#186](https://github.com/Open-EO/openeo-api/issues/186)
 
 ### Fixed
 
