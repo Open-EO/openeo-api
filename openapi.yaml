@@ -4376,8 +4376,8 @@ components:
             * `bands` for dimensions of type `bands`
             * `geometry` for dimensions of type `vector`
 
-            This property REQUIRES to add the data cube extension to the list
-            of `stac_extensions`: `https://stac-extensions.github.io/datacube/v2.1.0/schema.json`.
+            This property REQUIRES to add a version of the data cube extension to the list
+            of `stac_extensions`, e.g. `https://stac-extensions.github.io/datacube/v2.2.0/schema.json`.
           type: object
           additionalProperties:
             x-additionalPropertiesName: Dimension Name
@@ -4651,12 +4651,13 @@ components:
       example: Sentinel-2A
     dimension:
       title: Dimension
+      description: A dimension, each object represents a distinct dimension with the key being the dimension name.
       type: object
       required:
         - type
       properties:
         type:
-          description: 'Type of the dimension.'
+          description: Type of the dimension.
           type: string
           enum:
             - spatial
@@ -4706,6 +4707,15 @@ components:
           required:
             - bbox
           properties:
+            axes:
+              description: Axes of the vector dimension as an ordered set of `x`, `y` and `z`. Defaults to `x` and `y`.
+              default:
+                - 'x'
+                - 'y'
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/xyz'
             bbox:
               $ref: '#/components/schemas/bbox'
             values:
@@ -4716,6 +4726,12 @@ components:
                   - $ref: '#/components/schemas/GeoJson'
                   - title: WKT or Identifier
                     type: string
+            geometry_types:
+              description: A set of all geometry types included in this dimension. If not present, mixed geometry types must be assumed.
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/geometry_type'
             reference_system:
               $ref: '#/components/schemas/collection_dimension_srs'
     dimension_bands:
@@ -4745,12 +4761,7 @@ components:
             - axis
           properties:
             axis:
-              description: 'Axis of the spatial dimension (`x`, `y` or `z`).'
-              type: string
-              enum:
-                - 'x'
-                - 'y'
-                - 'z'
+              $ref: '#/components/schemas/xyz'
             extent:
               description: >-
                 Extent (lower and upper bounds) of the
@@ -4844,6 +4855,25 @@ components:
                 spaced steps.
               type: string
               nullable: true
+    geometry_type:
+      title: Geometry type
+      type: string
+      enum:
+        - Point
+        - MultiPoint
+        - LineString
+        - MultiLineString
+        - Polygon
+        - MultiPolygon
+        - GeometryCollection
+    xyz:
+      title: Axis
+      description: Axis of a geometry or dimension (`x`, `y` or `z`)
+      type: string
+      enum:
+        - 'x'
+        - 'y'
+        - 'z'
     collection_dimension_srs:
       title: Spatial reference system
       description: >-
@@ -5889,11 +5919,7 @@ components:
                 type: array
                 minItems: 1
                 items:
-                  type: string
-                  enum:
-                    - 'x'
-                    - 'y'
-                    - 'z'
+                  $ref: '#/components/schemas/xyz'
           - title: Spatial (vector)
             properties:
               type:
@@ -5904,15 +5930,7 @@ components:
                 type: array
                 minItems: 1
                 items:
-                  type: string
-                  enum:
-                    - 'Point'
-                    - 'LineString'
-                    - 'Polygon'
-                    - 'MultiPoint'
-                    - 'MultiLineString'
-                    - 'MultiPolygon'
-                    - 'GeometryCollection'
+                  $ref: '#/components/schemas/geometry_type'
           - title: Other
             properties:
               type:
