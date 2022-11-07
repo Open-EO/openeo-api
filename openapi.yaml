@@ -27,9 +27,16 @@ info:
 
     Naming of endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
 
-    ## JSON
+    The openEO API makes use of [HTTP Content Negotiation](https://www.rfc-editor.org/rfc/rfc9110.html#name-content-negotiation),
+    including, but not limited to, the request headers `Accept`, `Accept-Charset` and `Accept-Language`.
 
-    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
+    ### JSON
+
+    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using HTTP Content Negotiation ([`Accept` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept)). Clients and servers MUST NOT rely on the order in which properties appear in JSON. To keep the response size small, lists of resources (e.g. the list of batch jobs) usually should not include nested JSON objects, if this information can be requested from the individual resource endpoints (e.g. the metadata for a single batch job).
+
+    ### Charset
+
+    Services use [UTF-8](https://en.wikipedia.org/wiki/UTF-8) as the default charset if not negotiated otherwise with HTTP Content Negotiation ([`Accept-Charset` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept-charset)).
 
     ## Web Linking
     
@@ -232,7 +239,7 @@ info:
     A **predefined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
     Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for predefined processes.
 
-    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
+    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally, it is a *process graph* with a variety of additional metadata.
 
     A **process graph** chains specific process calls from the set of predefined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
@@ -352,15 +359,17 @@ info:
     This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
     The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
-    ### User-defined process
+    ### Child processes
 
-    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+    Some processes can run child processes, which is similar to the concept that other programming languages call
+    [callbacks](https://en.wikipedia.org/wiki/Callback_(computer_programming)) or lambda functions.
+    Each child process is simply a user-defined process again and can in theory be arbritarily complex.
 
-    **Example**: You want to calculate the absolute value of each pixel in a data cube.
-    This can be achieved in openEO by executing the `apply` process and pass it
-    a user-defined process as the "operator" to apply to each pixel.
-    In this simple example, the "child" process graph defining the user-defined process
-    consists of a single process `absolute`, but it can be arbitrary complex in general.
+    A very simple example would be to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openEO by using the `apply` process which gets the `absolute` process passed as child process.
+    In this example, the "child" processes consists of a single process `absolute`, but it can also be a more complex computation such as an NDVI or a prediciton based on a machine learning model.
+
+    **Example**: 
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for predefined processes such as an id, parameters, return values etc.
@@ -375,7 +384,7 @@ info:
 
     ### Accessing process parameters
 
-    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    A "parent" process that works with a child process can make so called *process graph parameters*
     available to the "child" logic.
     Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
@@ -499,7 +508,7 @@ tags:
 
       ## STAC
       
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC API 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO also produced valid STAC API 1.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
 
@@ -642,7 +651,7 @@ paths:
                       [CommonMark 0.29](http://commonmark.org/) syntax MAY be
                       used for rich text representation.
                     example: |-
-                      This service is provided to you by [Cool EO Cloud Corp.](http://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
+                      This service is provided to you by [Cool EO Cloud Corp.](https://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
 
                       * Sentinel 1/2/3 and 5
                       * Landsat 7/8
@@ -796,19 +805,19 @@ paths:
                                 URL to a web page with more details about the
                                 plan.
                               format: uri
-                              example: 'http://cool-cloud-corp.com/plans/free-plan'
+                              example: 'https://cool-cloud-corp.com/plans/free-plan'
                         example:
                           - name: free
                             description: >-
                               Free plan. Calculates one tile per second and a
                               maximum amount of 100 tiles per hour.
-                            url: 'http://cool-cloud-corp.com/plans/free-plan'
+                            url: 'https://cool-cloud-corp.com/plans/free-plan'
                             paid: false
                           - name: premium
                             description: >-
                               Premium plan. Calculates unlimited tiles and each
                               calculated tile costs 0.003 USD.
-                            url: 'http://cool-cloud-corp.com/plans/premium-plan'
+                            url: 'https://cool-cloud-corp.com/plans/premium-plan'
                             paid: true
                   links:
                     description: |-
@@ -1089,7 +1098,7 @@ paths:
                       compress:
                         type: string
                         description: Set the compression to use.
-                        default: none
+                        default: NONE
                         enum:
                           - JPEG
                           - LZW
@@ -1332,7 +1341,7 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
+        This endpoint is compatible with [STAC API](https://stacspec.org) and
         [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
         [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
         features / extensions and
@@ -1457,10 +1466,6 @@ paths:
                       - B10
                       - B11
                       - B12
-                'openeo:property_filters':
-                  - platform
-                  - eo:cloud_cover
-                  - sat:orbit_state
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -4378,21 +4383,6 @@ components:
             x-additionalPropertiesName: Dimension Name
             allOf:
               - $ref: '#/components/schemas/dimension'
-        'openeo:property_filters':
-          description: |-
-            Gives a list of properties you can filter on when loading data from the collection.
-            Returning an empty array means that no property-based filters are available.
-
-            This is a guide for users to get an overview of available properties to filter on.
-            More metadata about the properties can be found in `summaries`.
-
-            If this property is not present, it means that the collections does 
-            not provide any collection-specific details about available property-based filters. 
-            It's then up to other means of documentation to inform the user,
-            e.g. there could be documentation about property filters that work across collections.
-          type: array
-          items:
-            type: string
         summaries:
           title: STAC Summaries (Collection Properties)
           description: |-
@@ -5146,7 +5136,7 @@ components:
               arguments:
                 $ref: '#/components/schemas/process_arguments'
               returns:
-                nullable: true
+                description: The return value which can by of any data type.
         links:
           type: array
           description: >-
@@ -5178,12 +5168,16 @@ components:
         - id
       properties:
         summary:
+          type: string
           nullable: true
         description:
+          type: string
           nullable: true
         parameters:
+          type: array
           nullable: true
         returns:
+          type: object
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
@@ -5195,14 +5189,19 @@ components:
         - process_graph
       properties:
         id:
+          type: string
           nullable: true
         summary:
+          type: string
           nullable: true
         description:
+          type: string
           nullable: true
         parameters:
+          type: array
           nullable: true
         returns:
+          type: object
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
@@ -5377,7 +5376,6 @@ components:
           description: >-
             The default value for this parameter.
             Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-          nullable: true
     parameter:
       title: Parameter
       type: object
@@ -5480,6 +5478,38 @@ components:
             - $ref: '#/components/schemas/usage'
         log_level:
           $ref: '#/components/schemas/min_log_level_default'
+        links:
+          type: array
+          description: |-
+            Links related to this batch job, e.g. a links to 
+            invoices, log files or results.
+
+            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+
+            1. `monitor`: If logs are available, a link to the [logs endpoint](#tag/Batch-Jobs/operation/debug-job).
+            2. `result`: If batch job results are available, a link to the [results endpoint](#tag/Batch-Jobs/operation/list-results).
+
+            The relation types `monitor` and `result` may occur for various batch job states:
+
+            1. `created`: When the batch job was executed before and has been reset to `created` after an
+               [update](#tag/Batch-Jobs/operation/update-job) there could still be results and logs available
+               until they get discarded by [queueing the batch job again](#tag/Batch-Jobs/operation/start-job).
+            2. `finished`: The full log and results are expected to be available.
+            3. `error` / `canceled`: Partial results and logs may be available.
+
+            For more relation types see the lists of
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
+          items:
+            $ref: '#/components/schemas/link'
+          example:
+            - rel: result
+              type: application/json
+              title: Batch Job Results
+              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
+            - rel: result
+              type: application/json
+              title: Batch Job Logs
+              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
     job_id:
       type: string
       description: >-
@@ -5683,7 +5713,6 @@ components:
             value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
-          nullable: true
       allOf:
         - $ref: '#/components/schemas/json_schema'
     error:
@@ -6212,7 +6241,6 @@ components:
             For example, a raster-cube passed to the `inspect` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
             There are implementation guidelines available for the `inspect` process.
-          nullable: true
         path:
           description: |-
             Describes where the log entry originates from.
@@ -6337,6 +6365,7 @@ components:
                   - debug
                 default: debug
               logs:
+                description: A chronological list of logs.
                 type: array
                 items:
                   $ref: '#/components/schemas/log_entry'

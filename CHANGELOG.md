@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
 - `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
-- `GET /collections` and `GET /collections/{collection_id}` (and implicitly `GET /jobs/{job_id}/results`): Added a field that can indicate which properties can be filtered on when loading data from a collection. [#396](https://github.com/Open-EO/openeo-api/issues/396)
 - `GET /credentials/oidc`: Allow `authorization_code` and `urn:ietf:params:oauth:grant-type:device_code` (both without PKCE) as grants for `default_clients`. [#410](https://github.com/Open-EO/openeo-api/issues/410)
+- `GET /jobs` and `GET /jobs/{job_id}`: Added a links property that can for example link to results and logs. [#453](https://github.com/Open-EO/openeo-api/issues/453)
 - `GET /jobs/{job_id}/results`:
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
   - Added metadata field `openeo:status` to indicate the job status (and whether the result is complete or not).
@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Explicitly mention the use of HTTP content negotiation
+- Clarify that the default charset is UTF-8 [#462](https://github.com/Open-EO/openeo-api/issues/462)
 - Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`, added `ProcessInvalid` and `ProcessGraphInvalid`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395), [#401](https://github.com/Open-EO/openeo-api/issues/401)
 - Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
 - Fixed the Collection example to use `gsd` instead of `eo:gsd`. [#399](https://github.com/Open-EO/openeo-api/issues/399)
@@ -52,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /me`: Clarify the behavior of the field `budget`.
 - `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Clarified the formatting of the `message` property. [#455](https://github.com/Open-EO/openeo-api/issues/455)
 - `GET /jobs/{job_id}/estimate`: Don't require that the costs are the upper limit. Services may specify the costs more freely depending on their terms of service.
+- Several appearances of `nullable` were clarified according to the lint report by Spectral
 
 ## [1.1.0] - 2021-05-17
 
