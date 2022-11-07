@@ -1376,7 +1376,7 @@ paths:
               example:
                 stac_version: 1.0.0
                 stac_extensions:
-                  - https://stac-extensions.github.io/datacube/v2.1.0/schema.json
+                  - https://stac-extensions.github.io/datacube/v2.2.0/schema.json
                 type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
@@ -2451,7 +2451,7 @@ paths:
                       description: List of parameters made available to user-defined processes.
                       type: array
                       items:
-                        $ref: '#/components/schemas/parameter'
+                        $ref: '#/components/schemas/process_parameter'
                     links:
                       description: |-
                         Links related to this service type, e.g. more
@@ -5286,7 +5286,7 @@ components:
         description:
           $ref: '#/components/schemas/process_description'
         schema:
-          $ref: '#/components/schemas/data_type_schema'
+          $ref: '#/components/schemas/process_schema'
     experimental:
       type: boolean
       description: >-
@@ -5423,7 +5423,7 @@ components:
         - schema
       properties:
         schema:
-          $ref: '#/components/schemas/parameter_schema'
+          $ref: '#/components/schemas/process_schema'
       allOf:
         - $ref: '#/components/schemas/base_parameter'
     batch_job:
@@ -5851,22 +5851,34 @@ components:
           uniqueItems: true
           items:
             $ref: '#/components/schemas/json_schema'
-    parameter_schema:
-      title: Parameter Data Types
-      description: Either a single data type or a list of data types.
+    process_schema:
+      title: Process Data types
+      description: Either a single data type or a list of data types for process parameter or process return values.
       oneOf:
-        - $ref: '#/components/schemas/parameter_json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
         - title: Multiple data types
           description: A list of data types supported, specified as JSON Schemas.
           type: array
           minItems: 1
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/parameter_json_schema'
-    parameter_json_schema:
+            $ref: '#/components/schemas/process_json_schema'
+    process_json_schema:
       title: Single Data Type
       type: object
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
+      oneOf:
+        - title: Generic
+        - $ref: '#/components/schemas/process_graph_json_schema'
+        - $ref: '#/components/schemas/datacube_json_schema'
+    process_graph_json_schema:
+      title: Process Graph
       properties:
+        subtype:
+          type: string
+          enum: 
+            - process-graph
         parameters:
           type: array
           title: Process Graph Parameters
@@ -5875,8 +5887,6 @@ components:
 
             The order in the array corresponds to the parameter order to
             be used in clients that don't support named parameters.
-
-            This property only applies if the `subtype` is set to `process-graph`.
           items:
             $ref: '#/components/schemas/parameter'
         returns:
@@ -5884,8 +5894,6 @@ components:
           title: Process Graph Return Value
           description: |-
             Description of the data that is returned by the child process graph.
-
-            This property only applies if the `subtype` is set to `process-graph`.
           required:
             - schema
           properties:
@@ -5895,6 +5903,13 @@ components:
               $ref: '#/components/schemas/data_type_schema'
           allOf:
             - $ref: '#/components/schemas/json_schema'
+    datacube_json_schema:
+      title: Datacube
+      properties:
+        subtype:
+          type: string
+          enum: 
+            - datacube
         dimensions:
           title: Datacube constraints
           description: |-
@@ -5904,8 +5919,6 @@ components:
             adds for specific dimension types:
             * axes for spatial (raster) dimensions
             * geometry types for vector dimensions
-
-            This property only applies if the `subtype` is set to `datacube`.
           type: array
           items:
             type: object
@@ -5942,8 +5955,6 @@ components:
                       - bands
                       - temporal
                       - other
-      allOf:
-        - $ref: '#/components/schemas/json_schema'
     json_schema:
       type: object
       title: Single data type
