@@ -5875,12 +5875,17 @@ components:
 
             The order in the array corresponds to the parameter order to
             be used in clients that don't support named parameters.
+
+            This property only applies if the `subtype` is set to `process-graph`.
           items:
             $ref: '#/components/schemas/parameter'
         returns:
           type: object
           title: Process Graph Return Value
-          description: Description of the data that is returned by the child process graph.
+          description: |-
+            Description of the data that is returned by the child process graph.
+
+            This property only applies if the `subtype` is set to `process-graph`.
           required:
             - schema
           properties:
@@ -5890,55 +5895,55 @@ components:
               $ref: '#/components/schemas/data_type_schema'
           allOf:
             - $ref: '#/components/schemas/json_schema'
+        dimensions:
+          title: Datacube constraints
+          description: |-
+            Allows to specify requirements the data cube has to fulfill.
+
+            Right now, it only allows to specify the dimension types and 
+            adds for specific dimension types:
+            * axes for spatial (raster) dimensions
+            * geometry types for vector dimensions
+
+            This property only applies if the `subtype` is set to `datacube`.
+          type: array
+          items:
+            type: object
+            required:
+              - type
+            oneOf:
+              - title: Spatial (raster)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - spatial
+                  axis:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/xyz'
+              - title: Spatial (vector)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - vector
+                  geometry_type:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/geometry_type'
+              - title: Other
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - bands
+                      - temporal
+                      - other
       allOf:
         - $ref: '#/components/schemas/json_schema'
-    datacube_dimensions:
-      title: Datacube constraints
-      description: |-
-        Allows to specify requirements the data cube has to fulfill.
-
-        Right now, it only allows to specify the dimension types and 
-        adds for specific dimension types:
-        * axes for spatial (raster) dimensions
-        * geometry types for vector dimensions
-
-        This property only applies if the `subtype` is set to `datacube`.
-      type: array
-      items:
-        type: object
-        required:
-          - type
-        oneOf:
-          - title: Spatial (raster)
-            properties:
-              type:
-                type: string
-                enum: 
-                  - spatial
-              axis:
-                type: array
-                minItems: 1
-                items:
-                  $ref: '#/components/schemas/xyz'
-          - title: Spatial (vector)
-            properties:
-              type:
-                type: string
-                enum: 
-                  - vector
-              geometry_type:
-                type: array
-                minItems: 1
-                items:
-                  $ref: '#/components/schemas/geometry_type'
-          - title: Other
-            properties:
-              type:
-                type: string
-                enum:
-                  - bands
-                  - temporal
-                  - other
     json_schema:
       type: object
       title: Single data type
@@ -5974,8 +5979,6 @@ components:
         subtype:
           type: string
           description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
-        dimensions:
-          $ref: '#/components/schemas/datacube_dimensions'
         pattern:
           type: "string"
           format: "regex"
