@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Explicitly mention the use of HTTP content negotiation
+- Clarify that the default charset is UTF-8 [#462](https://github.com/Open-EO/openeo-api/issues/462)
 - Fixed inconsistencies in errors.json: removed `ProcessGraphIdDoesntMatch`, clarified `ProcessGraphMissing`, added `ProcessInvalid` and `ProcessGraphInvalid`. [#394](https://github.com/Open-EO/openeo-api/issues/394), [#395](https://github.com/Open-EO/openeo-api/issues/395), [#401](https://github.com/Open-EO/openeo-api/issues/401)
 - Fixed the default value for the version number in the API url (`v1.0` -> `v1`) and improved the description for API versioning. [#393](https://github.com/Open-EO/openeo-api/issues/393)
 - Fixed the Collection example to use `gsd` instead of `eo:gsd`. [#399](https://github.com/Open-EO/openeo-api/issues/399)
