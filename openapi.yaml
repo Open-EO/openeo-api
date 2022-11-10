@@ -928,17 +928,25 @@ paths:
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
-        require the well-known path (`./well-known/openeo`) in the URL that is
-        specified by a user to connect to the back-end. A client MUST request
-        `https://example.com/.well-known/openeo` if a user tries to connect to
-        `https://example.com`. If the request to the well-known URI fails, the
-        client SHOULD try to request the capabilities at `/` from
-        `https://example.com`.
+        require the well-known path (`/.well-known/openeo`) in the URL that is
+        specified by a user to connect to the back-end.
 
-        **This URI MUST NOT be versioned as the other endpoints.** If your API
-        is available at `https://example.com/api/v1.0`, the Well-Known URI
-        SHOULD be located at `https://example.com/.well-known/openeo` and the
-        URI users connect to SHOULD be `https://example.com`.
+        For clients, the usual behavior SHOULD follow these steps:
+        1. The user provides a URI, which may consist of a scheme (protocol), 
+           an authority (host, port) and a path.
+        2. The client parses the URI and appends `/.well-knwon/openeo` to the
+           path. Make sure to correctly handle leading/trailing slashes.
+        3. Send a request to the new URI.
+           A. On success: Detect the most suitable API instance/version (see above)
+              and read the [capabilites](#tag/Capabilities/operation/capabilities)
+              from there.
+           B. On failure: Directly try to read the capabilities from the original URI
+              given by the user.
+
+        **This URI MUST NOT be versioned as the other endpoints.**
+        If your API is available at `https://example.com/openeo/api/v1.0`, and
+        you instruct your API users to use `https://example.com/openeo` as connection URI, 
+        the Well-Known URI SHOULD be located at `https://example.com/openeo/.well-known/openeo`.
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
