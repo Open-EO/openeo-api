@@ -2580,6 +2580,8 @@ paths:
                       $ref: '#/components/schemas/service'
                   links:
                     $ref: '#/components/schemas/links_pagination'
+                  create_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2824,6 +2826,8 @@ paths:
                       $ref: '#/components/schemas/batch_job'
                   links:
                     $ref: '#/components/schemas/links_pagination'
+                  create_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -5687,6 +5691,22 @@ components:
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
       allOf:
         - $ref: '#/components/schemas/json_schema'
+    processing_create_parameters:
+      title: Creation Parameters
+      description: |-
+        List of additional custom parameters that a back-end offers during the creation
+        of batch jobs (`POST /jobs`) and secondary web services (`POST /services`) respectively.
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+      example:
+        - name: memory
+          description: Maximum amount of memory that will be allocated for processing, in gigabytes.
+          optional: true
+          default: 32
+          schema:
+            type: integer
+            minimum: 1
     error:
       title: General Error
       description: >-
