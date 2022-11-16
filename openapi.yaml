@@ -1172,14 +1172,22 @@ paths:
           $ref: '#/components/responses/server_error'
   /conformance:
     get:
-      summary: OGC specifications this API conforms to
+      summary: Conformance classes this API implements
       operationId: conformance
-      description: >-
-        Lists all conformance classes specified in OGC standards that the
-        server conforms to.
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification. openEO adds relatively
+        broadly defined conformance classes, especially for the extensions.
+        Otherwise, the implemented functionality can usually be retrieved from
+        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
 
-        This endpoint is only required if full compliance with OGC API standards is desired.
-        Therefore, openEO back-ends MAY implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual extensions for their conformance classes.
+
+        More details:
+        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially "STAC API - Collections and Features Specification"
+        - [OGC APIs](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
       responses:
@@ -1201,7 +1209,10 @@ paths:
                       example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
               example:
                 conformsTo:
-                  - 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core'
+                  - https://api.openeo.org/1.1.0
+                  - https://api.openeo.org/extensions/commercial-data/0.1.0
+                  - https://api.openeo.org/extensions/federation/0.1.0
+                  - https://api.stacspec.org/v1.0.0-rc.2/collections
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
