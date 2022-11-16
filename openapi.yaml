@@ -2386,6 +2386,41 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
+  /processing_options:
+    get:
+      summary: Additional processing options
+      operationId: list-processing-options
+      description: |-
+        Lists additional custom processing options that a back-end offers for the
+        different processing modes (synchronous processing, batch jobs, secondary web services).
+
+        The options specified here can be added to the corresponding `POST` requests
+        at the top-level of the object sent in the payload.
+      tags:
+        - Capabilities
+        - Data Processing
+        - Batch Jobs
+        - Secondary Services
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: >-
+            An object with a list of parameters per processing mode.
+          content:
+            application/json:
+              schema:
+                description: Processing parameters per processing mode.
+                type: object
+                properties:
+                  create_job_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_service_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_synchronous_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+
   /service_types:
     get:
       summary: Supported secondary web service protocols
@@ -2582,8 +2617,6 @@ paths:
                       $ref: '#/components/schemas/service'
                   links:
                     $ref: '#/components/schemas/links_pagination'
-                  create_parameters:
-                    $ref: '#/components/schemas/processing_create_parameters'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2830,8 +2863,6 @@ paths:
                       $ref: '#/components/schemas/batch_job'
                   links:
                     $ref: '#/components/schemas/links_pagination'
-                  create_parameters:
-                    $ref: '#/components/schemas/processing_create_parameters'
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
