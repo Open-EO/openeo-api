@@ -6,11 +6,12 @@ This is an extension for federation aspects, i.e. where multiple back-ends are e
 
 - Version: **0.1.0**
 - Stability: **experimental**
+- Conformance class: `https://api.openeo.org/extensions/federation/0.1.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
 
-## Backend details
+## Back-end details
 
 A new required field `federation` is added to `GET /` to enable federation.
 
@@ -63,13 +64,25 @@ schema:
             description: >-
               If the `status` is `offline`: The time at which the back-end was checked and available the last time.
               Otherwise, this is equal to the property `last_status_check`.
+          experimental:
+            type: boolean
+            description: >-
+              Declares the back-end to be experimental, which means that
+              it is likely to change or may produce unpredictable behaviour.
+            default: false
+          deprecated:
+            type: boolean
+            description: |-
+              Declares the back-end to be deprecated with the potential
+              to be removed in any of the next versions.
+            default: false
 ```
 
 ### Example
 
 ```json
 {
-  "api_version": "1.1.0",
+  "api_version": "1.2.0",
   "federation": {
     "vito": {
       "title": "VITO",
@@ -83,7 +96,8 @@ schema:
       "title": "WWU Münster",
       "url": "https://openeo.wwu.de",
       "status": "offline",
-      "description": "Experimental integration of the WWU HPC"
+      "description": "Experimental integration of the WWU HPC",
+      "experimental": true
     }
   },
   ...
@@ -101,9 +115,11 @@ Applies to:
 - `GET /processes`
 - `GET /file_formats`
 - `GET /process_graphs`
+- `GET /files`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
 - `GET /jobs/{job_id}/results`
+- `GET /jobs/{job_id}/logs`
 - `GET /services`
 
 The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
@@ -141,8 +157,20 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality.
-This can also be embeded deeply into a hierarchical structure, e.g. for process or file format parameters.
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the back-ends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
+
+- `GET /collections/{id}`
+- `GET /processes` (per process, per parameter)
+- `GET /file_formats` (per file format)
+- `GET /service_types` (per service)
+- `GET /udf_runtimes` (per UDF runtime, per version)
+- `POST /validation` (the back-ends that can run the process)
+- `GET /process_graphs/{id}`
+- `GET /jobs/{job_id}` (the back-ends that generated the result)
+- `GET /jobs/{job_id}/results` (the back-ends that generated the result)
+- `GET /services/{id}`
+
+This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
 ```yaml
 schema:
@@ -193,10 +221,7 @@ schema:
   "stac_version": "1.0.0",
   "id": "example",
   "description": "...",
-  "summaries": {
-    "federation:backends": ["vito", "eodc"],
-    ...
-  },
+  "federation:backends": ["vito", "eodc"],
   ...
 }
 ```

@@ -6,12 +6,13 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 ## Versions / Branches
 
-The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.1.0** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
+The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.2.0** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
 
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | *Unstable* - Next version. |
-| [**1.1.0**](https://api.openeo.org)                       | **current** | Clarifications, STAC updates, return value for child processes, more details for logs and jobs, default clients for OIDC. [Changelog](CHANGELOG.md#110---2021-06-15). |
+| [**1.2.0**](https://api.openeo.org)                       | **current** | Clarifications, new extensions, vector data cubes, STAC (API) updates, more link relation types, improved batch job results and logs. [Changelog](CHANGELOG.md#120---2023-05-31). |
+| [1.1.0](https://api.openeo.org/1.1.0)                     | legacy      | Clarifications, STAC updates, return value for child processes, more details for logs and jobs, default clients for OIDC. [Changelog](CHANGELOG.md#110---2021-06-15). |
 | [1.0.1](https://api.openeo.org/1.0.1)                     | legacy      | Clarifications, bugfixes and CORS improvements. [Changelog](CHANGELOG.md#101---2020-12-07). |
 | [1.0.0](https://api.openeo.org/1.0.0)                     | legacy      | First stable version of openEO. [Changelog](CHANGELOG.md#100---2020-07-17). |
 | [1.0.0-rc.2](https://api.openeo.org/1.0.0-rc.2)           | legacy      | Introduced user-defined processes. [Changelog](CHANGELOG.md#100-rc2---2020-02-20). |
@@ -28,10 +29,11 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 
 ## Extensions
 
-| Name            | Version | Stability    | Description                                                                           |
-|-----------------|---------|--------------|---------------------------------------------------------------------------------------|
-| [Commercial Data](extensions/commercial-data/) | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data.            |
-| [Federation](extensions/federation/) | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+| Name                                                               | Version | Stability    | Description |
+| ------------------------------------------------------------------ | ------- | ------------ | ----------- |
+| [Commercial Data](extensions/commercial-data/)                     | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data. |
+| [Federation](extensions/federation/)                               | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+| [Remote Process Definition](extensions/remote-process-definition/) | 0.1.0   | experimental | Load user-defined processes that are hosted externally through the process namespace into process graphs. |
 
 ## Repository
 
@@ -42,7 +44,7 @@ This repository contains a set of files formally describing the openEO API, each
 * The [assets](assets/) folder contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
 * The [extensions](extensions/) folder contains extensions to the openEO API.
 
-# Development
+## Development
 
 The `draft` branch is the latest version and is the one to create Pull Requests against.
 
