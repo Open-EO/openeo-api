@@ -30,11 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated STAC specification examples and references to v1.0.0.
+- Updated STAC specification examples and references to v1.0.0, please see the [STAC changelog](https://github.com/radiantearth/stac-spec/blob/master/CHANGELOG.md) for all changes between 0.9 and 1.0.
 - `cube:dimensions`: `reference_system` is allowed to be PROJJSON, too. 
 - Relaxed requirement that unsupported endpoints must return HTTP status code 501. Instead also HTTP status code 404 can be used (and is regularly used in practice). [#415](https://github.com/Open-EO/openeo-api/issues/415)
 - Minimum value for `costs` and `budget` is 0.
 - `GET /jobs/{job_id}/estimate`: If a batch job can't be estimated reliably, a `EstimateComplexity` error should be returned. [#443](https://github.com/Open-EO/openeo-api/issues/443)
+- The `/conformance` endpoint is now generally used for OGC APIs, STAC API and openEO. All openEO and all extensions got individual conformance classes. [#186](https://github.com/Open-EO/openeo-api/issues/186)
 
 ### Fixed
 

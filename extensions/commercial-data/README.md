@@ -5,6 +5,7 @@ The Commercial Data API extension provides an interface for discovering, orderin
 - Version: **0.1.0**
 - Stability: **experimental**
 - [OpenAPI document](openapi.yaml)
+- Conformance class: `https://api.openeo.org/extensions/commercial-data/0.1.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.

@@ -6,6 +6,7 @@ This is an extension for federation aspects, i.e. where multiple back-ends are e
 
 - Version: **0.1.0**
 - Stability: **experimental**
+- Conformance class: `https://api.openeo.org/extensions/federation/0.1.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.

@@ -1172,14 +1172,22 @@ paths:
           $ref: '#/components/responses/server_error'
   /conformance:
     get:
-      summary: OGC specifications this API conforms to
+      summary: Conformance classes this API implements
       operationId: conformance
-      description: >-
-        Lists all conformance classes specified in OGC standards that the
-        server conforms to.
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification. openEO adds relatively
+        broadly defined conformance classes, especially for the extensions.
+        Otherwise, the implemented functionality can usually be retrieved from
+        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
 
-        This endpoint is only required if full compliance with OGC API standards is desired.
-        Therefore, openEO back-ends MAY implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual extensions for their conformance classes.
+
+        More details:
+        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially "STAC API - Collections and Features Specification"
+        - [OGC APIs](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
       responses:
@@ -1201,7 +1209,10 @@ paths:
                       example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
               example:
                 conformsTo:
-                  - 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core'
+                  - https://api.openeo.org/1.1.0
+                  - https://api.openeo.org/extensions/commercial-data/0.1.0
+                  - https://api.openeo.org/extensions/federation/0.1.0
+                  - https://api.stacspec.org/v1.0.0-rc.2/collections
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
@@ -4476,9 +4487,9 @@ components:
             SAR, Satellite or Scientific) or even custom extensions.
 
             Summaries are either a unique set of all available
-            values *or* statistics. Statistics by default only
-            specify the range (minimum and maximum values), but
-            can optionally be accompanied by additional
+            values, statistics *or* a JSON Schema. Statistics only
+            specify the range (minimum and maximum values) by default,
+            but can optionally be accompanied by additional
             statistical values. The range can specify the
             potential range of values, but it is recommended to be
             as precise as possible. The set of values MUST contain
@@ -4506,6 +4517,7 @@ components:
                 items:
                   description: A value of any type.
               - $ref: '#/components/schemas/collection_summary_stats'
+              - $ref: '#/components/schemas/json_schema'
         assets:
           description: |-
             Dictionary of asset objects for data that can be downloaded,
@@ -4664,7 +4676,7 @@ components:
             - metadata
     collection_summary_stats:
       type: object
-      title: Statistics
+      title: Statistics / Range
       description: >-
         By default, only ranges with a minimum and a
         maximum value can be specified. Ranges can be
@@ -4676,14 +4688,16 @@ components:
         to add other derived statistical values to the
         object, for example `mean` or `stddev`.
       required:
-        - min
-        - max
+        - minimum
+        - maximum
       properties:
-        min:
+        minimum:
+          description: The minimum value (inclusive).
           anyOf:
             - type: string
             - type: number
-        max:
+        maximum:
+          description: The maximum value (inclusive).
           anyOf:
             - type: string
             - type: number
@@ -5842,14 +5856,14 @@ components:
       title: Data Types
       description: Either a single data type or a list of data types.
       oneOf:
-        - $ref: '#/components/schemas/json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
         - title: Multiple data types
           description: A list of data types this parameter supports, specified as JSON Schemas.
           type: array
           minItems: 1
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/json_schema'
+            $ref: '#/components/schemas/process_json_schema'
     parameter_schema:
       title: Parameter Data Types
       description: Either a single data type or a list of data types.
@@ -5888,10 +5902,10 @@ components:
             schema:
               $ref: '#/components/schemas/data_type_schema'
           allOf:
-            - $ref: '#/components/schemas/json_schema'
+            - $ref: '#/components/schemas/process_json_schema'
       allOf:
-        - $ref: '#/components/schemas/json_schema'
-    json_schema:
+        - $ref: '#/components/schemas/process_json_schema'
+    process_json_schema:
       type: object
       title: Single data type
       description: |-
@@ -5910,6 +5924,23 @@ components:
         Clients are not expected to support dereferencing `$refs`.
 
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
+        - properties:
+            subtype:
+              type: string
+              description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
+            deprecated:
+              $ref: '#/components/schemas/deprecated'
+    json_schema:
+      type: object
+      title: JSON Schema
+      description: |-
+        A JSON Schema compliant to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html).
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        Clients are not expected to support dereferencing `$refs`.
+
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
         type:
           description: |-
@@ -5923,9 +5954,6 @@ components:
               uniqueItems: true
               items:
                 $ref: '#/components/schemas/json_schema_type'
-        subtype:
-          type: string
-          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
         pattern:
           type: "string"
           format: "regex"
@@ -5957,9 +5985,11 @@ components:
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
-        deprecated:
-          $ref: '#/components/schemas/deprecated'
-      additionalProperties: true
+      additionalProperties:
+        description: >-
+          You can add any other property supported by JSON Schema, either
+          [draft-07](https://json-schema.org/draft-07/json-schema-validation.html)
+          or any later version.
     json_schema_type:
       type: string
       enum:
