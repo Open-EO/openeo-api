@@ -2668,7 +2668,9 @@ paths:
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
-                  $ref: '#/components/schemas/service_enabled_default'
+                  allOf:
+                    - $ref: '#/components/schemas/service_enabled'
+                    - default: true
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
@@ -5598,7 +5600,7 @@ components:
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
-          $ref: '#/components/schemas/service_enabled_default'
+          $ref: '#/components/schemas/service_enabled'
         process:
           $ref: '#/components/schemas/process_graph_with_metadata'
         configuration:
@@ -5652,12 +5654,6 @@ components:
         any other service dependant configuration.
       example:
         version: 1.3.0
-    service_enabled_default:
-      type: boolean
-      description: >-
-        Describes whether a secondary web service is responding to requests
-        (true) or not (false). Disabled services don't produce any costs.
-      default: true
     service_enabled:
       type: boolean
       description: >-
