@@ -929,17 +929,25 @@ paths:
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
-        require the well-known path (`./well-known/openeo`) in the URL that is
-        specified by a user to connect to the back-end. A client MUST request
-        `https://example.com/.well-known/openeo` if a user tries to connect to
-        `https://example.com`. If the request to the well-known URI fails, the
-        client SHOULD try to request the capabilities at `/` from
-        `https://example.com`.
+        require the well-known path (`/.well-known/openeo`) in the URL that is
+        specified by a user to connect to the back-end.
 
-        **This URI MUST NOT be versioned as the other endpoints.** If your API
-        is available at `https://example.com/api/v1.0`, the Well-Known URI
-        SHOULD be located at `https://example.com/.well-known/openeo` and the
-        URI users connect to SHOULD be `https://example.com`.
+        For clients, the usual behavior SHOULD follow these steps:
+        1. The user provides a URI, which may consist of a scheme (protocol), 
+           an authority (host, port) and a path.
+        2. The client parses the URI and appends `/.well-knwon/openeo` to the
+           path. Make sure to correctly handle leading/trailing slashes.
+        3. Send a request to the new URI.
+           A. On success: Detect the most suitable API instance/version (see above)
+              and read the [capabilites](#tag/Capabilities/operation/capabilities)
+              from there.
+           B. On failure: Directly try to read the capabilities from the original URI
+              given by the user.
+
+        **This URI MUST NOT be versioned as the other endpoints.**
+        If your API is available at `https://example.com/openeo/api/v1.0`, and
+        you instruct your API users to use `https://example.com/openeo` as connection URI, 
+        the Well-Known URI SHOULD be located at `https://example.com/openeo/.well-known/openeo`.
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
@@ -1165,14 +1173,22 @@ paths:
           $ref: '#/components/responses/server_error'
   /conformance:
     get:
-      summary: OGC specifications this API conforms to
+      summary: Conformance classes this API implements
       operationId: conformance
-      description: >-
-        Lists all conformance classes specified in OGC standards that the
-        server conforms to.
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification. openEO adds relatively
+        broadly defined conformance classes, especially for the extensions.
+        Otherwise, the implemented functionality can usually be retrieved from
+        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
 
-        This endpoint is only required if full compliance with OGC API standards is desired.
-        Therefore, openEO back-ends MAY implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual extensions for their conformance classes.
+
+        More details:
+        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially "STAC API - Collections and Features Specification"
+        - [OGC APIs](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
       responses:
@@ -1194,7 +1210,10 @@ paths:
                       example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
               example:
                 conformsTo:
-                  - 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core'
+                  - https://api.openeo.org/1.1.0
+                  - https://api.openeo.org/extensions/commercial-data/0.1.0
+                  - https://api.openeo.org/extensions/federation/0.1.0
+                  - https://api.stacspec.org/v1.0.0-rc.2/collections
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
@@ -2201,6 +2220,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2648,7 +2669,9 @@ paths:
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
-                  $ref: '#/components/schemas/service_enabled_default'
+                  allOf:
+                    - $ref: '#/components/schemas/service_enabled'
+                    - default: true
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
@@ -2657,6 +2680,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2881,6 +2906,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -3977,6 +4004,7 @@ components:
               - raster
               - vector
               - table
+              - pointcloud
               - other
         deprecated:
           $ref: '#/components/schemas/deprecated'
@@ -4390,9 +4418,9 @@ components:
             SAR, Satellite or Scientific) or even custom extensions.
 
             Summaries are either a unique set of all available
-            values *or* statistics. Statistics by default only
-            specify the range (minimum and maximum values), but
-            can optionally be accompanied by additional
+            values, statistics *or* a JSON Schema. Statistics only
+            specify the range (minimum and maximum values) by default,
+            but can optionally be accompanied by additional
             statistical values. The range can specify the
             potential range of values, but it is recommended to be
             as precise as possible. The set of values MUST contain
@@ -4420,6 +4448,7 @@ components:
                 items:
                   description: A value of any type.
               - $ref: '#/components/schemas/collection_summary_stats'
+              - $ref: '#/components/schemas/json_schema'
         assets:
           description: |-
             Dictionary of asset objects for data that can be downloaded,
@@ -4578,7 +4607,7 @@ components:
             - metadata
     collection_summary_stats:
       type: object
-      title: Statistics
+      title: Statistics / Range
       description: >-
         By default, only ranges with a minimum and a
         maximum value can be specified. Ranges can be
@@ -4590,14 +4619,16 @@ components:
         to add other derived statistical values to the
         object, for example `mean` or `stddev`.
       required:
-        - min
-        - max
+        - minimum
+        - maximum
       properties:
-        min:
+        minimum:
+          description: The minimum value (inclusive).
           anyOf:
             - type: string
             - type: number
-        max:
+        maximum:
+          description: The maximum value (inclusive).
           anyOf:
             - type: string
             - type: number
@@ -5635,7 +5666,7 @@ components:
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
-          $ref: '#/components/schemas/service_enabled_default'
+          $ref: '#/components/schemas/service_enabled'
         process:
           $ref: '#/components/schemas/process_graph_with_metadata'
         configuration:
@@ -5689,12 +5720,6 @@ components:
         any other service dependant configuration.
       example:
         version: 1.3.0
-    service_enabled_default:
-      type: boolean
-      description: >-
-        Describes whether a secondary web service is responding to requests
-        (true) or not (false). Disabled services don't produce any costs.
-      default: true
     service_enabled:
       type: boolean
       description: >-
@@ -5744,7 +5769,7 @@ components:
             the same level. For example, if type is string, then default can be
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
       allOf:
-        - $ref: '#/components/schemas/json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
     error:
       title: General Error
       description: >-
@@ -5843,14 +5868,14 @@ components:
       title: Data Types
       description: Either a single data type or a list of data types.
       oneOf:
-        - $ref: '#/components/schemas/json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
         - title: Multiple data types
           description: A list of data types this parameter supports, specified as JSON Schemas.
           type: array
           minItems: 1
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/json_schema'
+            $ref: '#/components/schemas/process_json_schema'
     process_schema:
       title: Process Data types
       description: Either a single data type or a list of data types for process parameter or process return values.
@@ -5864,98 +5889,6 @@ components:
           items:
             $ref: '#/components/schemas/process_json_schema'
     process_json_schema:
-      title: Single Data Type
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/json_schema'
-      oneOf:
-        - title: Generic
-        - $ref: '#/components/schemas/process_graph_json_schema'
-        - $ref: '#/components/schemas/datacube_json_schema'
-    process_graph_json_schema:
-      title: Process Graph
-      properties:
-        subtype:
-          type: string
-          enum: 
-            - process-graph
-        parameters:
-          type: array
-          title: Process Graph Parameters
-          description: |-
-            A list of parameters passed to the child process graph.
-
-            The order in the array corresponds to the parameter order to
-            be used in clients that don't support named parameters.
-          items:
-            $ref: '#/components/schemas/parameter'
-        returns:
-          type: object
-          title: Process Graph Return Value
-          description: |-
-            Description of the data that is returned by the child process graph.
-          required:
-            - schema
-          properties:
-            description:
-              $ref: '#/components/schemas/process_description'
-            schema:
-              $ref: '#/components/schemas/data_type_schema'
-          allOf:
-            - $ref: '#/components/schemas/json_schema'
-    datacube_json_schema:
-      title: Datacube
-      properties:
-        subtype:
-          type: string
-          enum: 
-            - datacube
-        dimensions:
-          title: Datacube constraints
-          description: |-
-            Allows to specify requirements the data cube has to fulfill.
-
-            Right now, it only allows to specify the dimension types and 
-            adds for specific dimension types:
-            * axes for spatial (raster) dimensions
-            * geometry types for vector dimensions
-          type: array
-          items:
-            type: object
-            required:
-              - type
-            oneOf:
-              - title: Spatial (raster)
-                properties:
-                  type:
-                    type: string
-                    enum: 
-                      - spatial
-                  axis:
-                    type: array
-                    minItems: 1
-                    items:
-                      $ref: '#/components/schemas/xyz'
-              - title: Spatial (vector)
-                properties:
-                  type:
-                    type: string
-                    enum: 
-                      - vector
-                  geometry_type:
-                    type: array
-                    minItems: 1
-                    items:
-                      $ref: '#/components/schemas/geometry_type'
-              - title: Other
-                properties:
-                  type:
-                    type: string
-                    enum:
-                      - bands
-                      - temporal
-                      - other
-    json_schema:
       type: object
       title: Single data type
       description: |-
@@ -5973,6 +5906,104 @@ components:
         JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.#
+      properties:
+        subtype:
+          type: string
+          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
+      oneOf:
+        - title: Generic
+        - title: Process Graph
+          properties:
+            subtype:
+              type: string
+              enum: 
+                - process-graph
+            parameters:
+              type: array
+              title: Process Graph Parameters
+              description: |-
+                A list of parameters passed to the child process graph.
+
+                The order in the array corresponds to the parameter order to
+                be used in clients that don't support named parameters.
+              items:
+                $ref: '#/components/schemas/parameter'
+            returns:
+              type: object
+              title: Process Graph Return Value
+              description: |-
+                Description of the data that is returned by the child process graph.
+              required:
+                - schema
+              properties:
+                description:
+                  $ref: '#/components/schemas/process_description'
+                schema:
+                  $ref: '#/components/schemas/data_type_schema'
+        - title: Datacube
+          properties:
+            subtype:
+              type: string
+              enum: 
+                - datacube
+            dimensions:
+              title: Datacube constraints
+              description: |-
+                Allows to specify requirements the data cube has to fulfill.
+
+                Right now, it only allows to specify the dimension types and 
+                adds for specific dimension types:
+                * axes for spatial (raster) dimensions
+                * geometry types for vector dimensions
+              type: array
+              items:
+                type: object
+                required:
+                  - type
+                oneOf:
+                  - title: Spatial (raster)
+                    properties:
+                      type:
+                        type: string
+                        enum: 
+                          - spatial
+                      axis:
+                        type: array
+                        minItems: 1
+                        items:
+                          $ref: '#/components/schemas/xyz'
+                  - title: Spatial (vector)
+                    properties:
+                      type:
+                        type: string
+                        enum: 
+                          - vector
+                      geometry_type:
+                        type: array
+                        minItems: 1
+                        items:
+                          $ref: '#/components/schemas/geometry_type'
+                  - title: Other
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                          - bands
+                          - temporal
+                          - other
+    json_schema:
+      type: object
+      title: JSON Schema
+      description: |-
+        A JSON Schema compliant to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html).
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        Clients are not expected to support dereferencing `$refs`.
+
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
         type:
@@ -5987,9 +6018,6 @@ components:
               uniqueItems: true
               items:
                 $ref: '#/components/schemas/json_schema_type'
-        subtype:
-          type: string
-          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
         pattern:
           type: "string"
           format: "regex"
@@ -6021,9 +6049,11 @@ components:
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
-        deprecated:
-          $ref: '#/components/schemas/deprecated'
-      additionalProperties: true
+      additionalProperties:
+        description: >-
+          You can add any other property supported by JSON Schema, either
+          [draft-07](https://json-schema.org/draft-07/json-schema-validation.html)
+          or any later version.
     json_schema_type:
       type: string
       enum:
