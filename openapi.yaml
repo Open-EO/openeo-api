@@ -281,7 +281,7 @@ info:
     and standardizes a number of openEO related data types that extend the native data types, for example:
     `bounding-box` (object with at least `west`, `south`, `east` and `north` properties),
     `date-time` (string representation of date and time following RFC 3339),
-    `raster-cube` (the type of data cubes), etc.
+    `datacube` (a datacube with dimensions), etc.
     The subtypes should be re-used in process schema definitions whenever suitable.
     
     If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
@@ -3810,6 +3810,12 @@ components:
       default: finished
     batch_job_result:
       title: Batch Job Results Response as STAC Item
+      description:
+        The STAC specification should be the main guidance for implementing this.
+
+        Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
+        but can be omitted if the result is unlocated and the `geometry`
+        is set to `null`.
       type: object
       required:
         - stac_version
@@ -3836,41 +3842,7 @@ components:
           enum:
             - Feature
         bbox:
-          description: |-
-            Potential *spatial extent* covered by the data.
-            
-            The bounding box is provided as four or six numbers. Six numbers are
-            specified, if the coordinate reference system includes a vertical axis
-            (height or depth). The order of the elements in the array:
-
-            - West (lower left corner, coordinate axis 1)
-            - South (lower left corner, coordinate axis 2)
-            - Base (optional, lower left corner, coordinate axis 3)
-            - East (upper right corner, coordinate axis 1)
-            - North (upper right corner, coordinate axis 2)
-            - Height (optional, upper right corner, coordinate axis 3)
-
-            The coordinate reference system of the values is WGS84
-            longitude/latitude.
-
-            Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
-            but can be omitted if the result is unlocated and the `geometry`
-            is set to `null`.
-          type: array
-          oneOf:
-            - title: 4 elements
-              minItems: 4
-              maxItems: 4
-            - title: 6 elements
-              minItems: 6
-              maxItems: 6
-          items:
-            type: number
-          example:
-            - -180
-            - -90
-            - 180
-            - 90
+          $ref: '#/components/schemas/bbox'
         geometry:
           description: |-
             Defines the full footprint of the asset represented by this item as
@@ -4402,7 +4374,7 @@ components:
             * `z` for the dimension of type `spatial` with the axis set to `z`
             * `t` for the dimension of type `temporal`
             * `bands` for dimensions of type `bands`
-            * `geometry` for dimensions of type `vector`
+            * `geometries` for dimensions of type `geometries`
 
             This property REQUIRES to add a version of the data cube extension to the list
             of `stac_extensions`, e.g. `https://stac-extensions.github.io/datacube/v2.2.0/schema.json`.
@@ -4694,7 +4666,7 @@ components:
             - spatial
             - temporal
             - bands
-            - vector
+            - geometries
             - other
         description:
           $ref: '#/components/schemas/description'
@@ -4704,20 +4676,21 @@ components:
           spatial: '#/components/schemas/dimension_spatial'
           temporal: '#/components/schemas/dimension_temporal'
           bands: '#/components/schemas/dimension_bands'
-          vector: '#/components/schemas/dimension_vector'
+          geometries: '#/components/schemas/dimension_geometries'
           other: '#/components/schemas/dimension_other'
     dimension_other:
       allOf:
         - $ref: '#/components/schemas/dimension'
         - title: Additional Dimension
           type: object
-          anyOf:
-            - title: Additional Dimension with Extent
-              required:
-                - extent
-            - title: Additional Dimension with Values
-              required:
-                - values
+# This is not supported by ReDoc yet:
+#         oneOf:
+#           - title: Additional Dimension with Extent
+#             required:
+#               - extent
+#           - title: Additional Dimension with Values
+#             required:
+#               - values
           properties:
             extent:
               $ref: '#/components/schemas/collection_dimension_extent_open'
@@ -4728,12 +4701,12 @@ components:
             unit:
               $ref: '#/components/schemas/collection_dimension_unit'
             reference_system:
-              description: The reference system.
+              description: The reference system for the dimension.
               type: string
-    dimension_vector:
+    dimension_geometries:
       allOf:
         - $ref: '#/components/schemas/dimension'
-        - title: Vector Dimension
+        - title: Geometries Dimension
           type: object
           required:
             - bbox
@@ -4746,17 +4719,14 @@ components:
               type: array
               uniqueItems: true
               items:
-                $ref: '#/components/schemas/xyz'
+                $ref: '#/components/schemas/dimension_axis_xyz'
             bbox:
               $ref: '#/components/schemas/bbox'
             values:
-              description: Optionally, a representation of the vectors. This can be a WKT string, a GeoJSON object or generally a list of identifiers.
+              description: Optionally, a representation of the vectors. This can be a list of WKT string or other free-form identifiers.
               type: array
               items:
-                oneOf:
-                  - $ref: '#/components/schemas/GeoJson'
-                  - title: WKT or Identifier
-                    type: string
+                type: string
             geometry_types:
               description: A set of all geometry types included in this dimension. If not present, mixed geometry types must be assumed.
               type: array
@@ -4786,13 +4756,13 @@ components:
       allOf:
         - $ref: '#/components/schemas/dimension'
         - title: Spatial Dimension
-          description: A spatial dimension in one of the horizontal (x or y) or vertical (z) directions.
+          description: A spatial (raster) dimension in one of the horizontal (x or y) or vertical (z) directions.
           type: object
           required:
             - axis
           properties:
             axis:
-              $ref: '#/components/schemas/xyz'
+              $ref: '#/components/schemas/dimension_axis_xyz'
             extent:
               description: >-
                 Extent (lower and upper bounds) of the
@@ -4819,6 +4789,14 @@ components:
               x: '#/components/schemas/dimension_spatial_horizontal'
               y: '#/components/schemas/dimension_spatial_horizontal'
               z: '#/components/schemas/dimension_spatial_vertical'
+    dimension_axis_xyz:
+      title: Axis
+      description: Axis of a geometry or dimension (`x`, `y` or `z`)
+      type: string
+      enum:
+        - 'x'
+        - 'y'
+        - 'z'
     dimension_spatial_horizontal:
       allOf:
         - $ref: '#/components/schemas/dimension_spatial'
@@ -4886,25 +4864,6 @@ components:
                 spaced steps.
               type: string
               nullable: true
-    geometry_type:
-      title: Geometry type
-      type: string
-      enum:
-        - Point
-        - MultiPoint
-        - LineString
-        - MultiLineString
-        - Polygon
-        - MultiPolygon
-        - GeometryCollection
-    xyz:
-      title: Axis
-      description: Axis of a geometry or dimension (`x`, `y` or `z`)
-      type: string
-      enum:
-        - 'x'
-        - 'y'
-        - 'z'
     collection_dimension_srs:
       title: Spatial reference system
       description: >-
@@ -5890,7 +5849,7 @@ components:
             $ref: '#/components/schemas/process_json_schema'
     process_json_schema:
       type: object
-      title: Single data type
+      title: Single Data Type
       description: |-
         Specifies a data type supported by a parameter or return value.
 
@@ -5906,7 +5865,7 @@ components:
         JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
-        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.#
+        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
         subtype:
           type: string
@@ -5917,85 +5876,91 @@ components:
         - $ref: '#/components/schemas/json_schema'
       oneOf:
         - title: Generic
-        - title: Process Graph
-          properties:
-            subtype:
-              type: string
-              enum: 
-                - process-graph
-            parameters:
-              type: array
-              title: Process Graph Parameters
-              description: |-
-                A list of parameters passed to the child process graph.
+        - $ref: '#/components/schemas/process_graph_json_schema'
+        - $ref: '#/components/schemas/datacube_json_schema'
+    process_graph_json_schema:
+      title: Process Graph
+      type: object
+      properties:
+        subtype:
+          type: string
+          enum: 
+            - process-graph
+        parameters:
+          type: array
+          title: Process Graph Parameters
+          description: |-
+            A list of parameters passed to the child process graph.
 
-                The order in the array corresponds to the parameter order to
-                be used in clients that don't support named parameters.
-              items:
-                $ref: '#/components/schemas/parameter'
-            returns:
-              type: object
-              title: Process Graph Return Value
-              description: |-
-                Description of the data that is returned by the child process graph.
-              required:
-                - schema
-              properties:
-                description:
-                  $ref: '#/components/schemas/process_description'
-                schema:
-                  $ref: '#/components/schemas/data_type_schema'
-        - title: Datacube
+            The order in the array corresponds to the parameter order to
+            be used in clients that don't support named parameters.
+          items:
+            $ref: '#/components/schemas/parameter'
+        returns:
+          type: object
+          title: Process Graph Return Value
+          description: |-
+            Description of the data that is returned by the child process graph.
+          required:
+            - schema
           properties:
-            subtype:
-              type: string
-              enum: 
-                - datacube
-            dimensions:
-              title: Datacube constraints
-              description: |-
-                Allows to specify requirements the data cube has to fulfill.
-
-                Right now, it only allows to specify the dimension types and 
-                adds for specific dimension types:
-                * axes for spatial (raster) dimensions
-                * geometry types for vector dimensions
-              type: array
-              items:
-                type: object
-                required:
-                  - type
-                oneOf:
-                  - title: Spatial (raster)
-                    properties:
-                      type:
-                        type: string
-                        enum: 
-                          - spatial
-                      axis:
-                        type: array
-                        minItems: 1
-                        items:
-                          $ref: '#/components/schemas/xyz'
-                  - title: Spatial (vector)
-                    properties:
-                      type:
-                        type: string
-                        enum: 
-                          - vector
-                      geometry_type:
-                        type: array
-                        minItems: 1
-                        items:
-                          $ref: '#/components/schemas/geometry_type'
-                  - title: Other
-                    properties:
-                      type:
-                        type: string
-                        enum:
-                          - bands
-                          - temporal
-                          - other
+            description:
+              $ref: '#/components/schemas/process_description'
+            schema:
+              $ref: '#/components/schemas/data_type_schema'
+          allOf:
+            - $ref: '#/components/schemas/process_json_schema'
+    datacube_json_schema:
+      title: Datacube
+      properties:
+        subtype:
+          type: string
+          enum: 
+            - datacube
+        dimensions:
+          title: Datacube constraints
+          description: |-
+            Allows to specify requirements the data cube has to fulfill.
+            Right now, it only allows to specify the dimension types and 
+            adds for specific dimension types:
+            * axes for spatial (raster) dimensions
+            * geometry types for vector dimensions
+          type: array
+          items:
+            type: object
+            required:
+              - type
+            oneOf:
+              - title: Spatial (raster)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - spatial
+                  axis:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/dimension_axis_xyz'
+              - title: Spatial (vector)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - vector
+                  geometry_type:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/geometry_type'
+              - title: Other
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - bands
+                      - temporal
+                      - other
     json_schema:
       type: object
       title: JSON Schema
@@ -6094,6 +6059,17 @@ components:
             Date and time the file has lastly been modified, formatted as a [RFC
             3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
           example: '2018-01-03T10:55:29Z'
+    geometry_type:
+      title: Geometry type
+      type: string
+      enum:
+        - Point
+        - MultiPoint
+        - LineString
+        - MultiLineString
+        - Polygon
+        - MultiPolygon
+        - GeometryCollection
     GeoJsonPoint3D:
       type: array
       description: Point in 3D space
@@ -6157,15 +6133,7 @@ components:
         - type
       properties:
         type:
-          type: string
-          enum:
-            - Point
-            - LineString
-            - Polygon
-            - MultiPoint
-            - MultiLineString
-            - MultiPolygon
-            - GeometryCollection
+          $ref: '#/components/schemas/geometry_type'
       discriminator:
         propertyName: type
         mapping:
@@ -6300,7 +6268,7 @@ components:
             Data of any type. It is the back-ends task to decide how to best
             present passed data to a user.
 
-            For example, a raster-cube passed to the `inspect` SHOULD return the
+            For example, a datacube passed to the `inspect` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
             There are implementation guidelines available for the `inspect` process.
         path:
