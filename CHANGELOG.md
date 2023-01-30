@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
+- Processes: Added `dimensions` schema for subtype `datacube`
+- Collections: Added `vector` dimension type to `cube:dimensions`
 
 ### Changed
 
@@ -50,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarify the fields `plan` (for processing requests) and `billing_plan` (in `GET /` and `GET /me`). [#425](https://github.com/Open-EO/openeo-api/issues/425) [#426](https://github.com/Open-EO/openeo-api/issues/426)
 - Reflect that the `debug` process has been renamed to `inspect`.
 - Clarified uniqueness constraints for identifiers. [#449](https://github.com/Open-EO/openeo-api/issues/449) [#454](https://github.com/Open-EO/openeo-api/issues/454)
+- Clarified schematically the applicability of JSON Schema extensions (`parameters`, `returns`, `dimensions`) and their relation to the subtypes
 - `GET /`: Removed the superfluous default value for `currency`. [#423](https://github.com/Open-EO/openeo-api/issues/423)
 - `GET /credentials/oidc`: Clarify that clients may add additional scopes
 - `GET /me`: Clarify the behavior of the field `budget`.
