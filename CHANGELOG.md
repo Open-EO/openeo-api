@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
 - Processes: Added `dimensions` schema for subtype `datacube`
 - Collections: Added `geometry` dimension type to `cube:dimensions`
+- New endpoint for metadata filters (queryables): `/collections/{collection_id}/queryables`. Also adds a new rel type to the collection links. [#396](https://github.com/Open-EO/openeo-api/issues/396)
 
 ### Changed
 
@@ -61,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /services` and `GET /services/{service_id}`: Clarify that `enabled` is required by removing the default value. [#473](https://github.com/Open-EO/openeo-api/issues/473)
 - Several appearances of `nullable` were clarified according to the lint report by Spectral
 - Clarify how the well-known document works [#460](https://github.com/Open-EO/openeo-api/issues/460)
+- Clarify handling of JSON Schema versions
 
 ## [1.1.0] - 2021-05-17
 

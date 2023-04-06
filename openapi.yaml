@@ -1374,12 +1374,7 @@ paths:
         - {}
         - Bearer: []
       parameters:
-        - name: collection_id
-          in: path
-          description: Collection identifier
-          required: true
-          schema:
-            $ref: '#/components/schemas/collection_id'
+        - $ref: '#/components/parameters/collection_id'
       responses:
         '200':
           description: JSON object with the full collection metadata.
@@ -1436,6 +1431,9 @@ paths:
                   - rel: license
                     href: https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
                     type: application/pdf
+                  - rel: http://www.opengis.net/def/rel/ogc/1.0/queryables
+                    href: https://example.openeo.org/api/collections/Sentinel-2A/queryables
+                    type: application/schema+json
                   - rel: about
                     href: https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c
                     type: text/html
@@ -1570,6 +1568,67 @@ paths:
                     description: INSPIRE compliant XML metadata
                     roles:
                       - metadata
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+  '/collections/{collection_id}/queryables':
+    get:
+      summary: Metadata filters for a specific dataset
+      operationId: list-collection-queryables
+      description: |-
+        Lists **all** supported metadata filters (also called "queryables") for
+        a specific collection.
+
+        This endpoint is compatible with endpoint defined in the STAC API extension
+        [`filter`](https://github.com/stac-api-extensions/filter#queryables) and
+        [OGC API - Features - Part 3: Filtering](https://github.com/opengeospatial/ogcapi-features/tree/master/extensions/filtering).
+        For a precise definition please follow those specifications.
+
+        This endpoints provides a JSON Schema for each queryable that openEO
+        users can use in multiple scenarios:
+        1. For loading data from the collection, e.g. in the process `load_collection`.
+        2. For filtering items using CQL2 on the `/collections/{collection_id}/items` endpoint
+           (if [STAC API - Features is implemented in addition to the openEO API](#tag/EO-Data-Discovery/STAC)).
+
+        Note: Providing the Bearer token is REQUIRED for private collections.
+      tags:
+        - EO Data Discovery
+      security:
+        - {}
+        - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/collection_id'
+      responses:
+        '200':
+          description: |-
+            A JSON Schema defining the queryables.
+
+            It is RECOMMENDED to dereference all "$refs".
+          content:
+            application/schema+json:
+              schema:
+                $ref: '#/components/schemas/json_schema'
+              example:
+                $schema: https://json-schema.org/draft/2019-09/schema
+                $id: https://example.com/api/v1.0/collections/Sentinel-2A/queryables
+                type: object
+                title: Sentinel 2A
+                properties:
+                  'eo:cloud_cover':
+                    title: Cloud Cover
+                    type: number
+                    minimum: 0
+                    maximum: 100
+                  platform:
+                    title: Platform
+                    description: The satellite platform.
+                    type: string
+                    enum:
+                      - sentinel-2a
+                      - sentinel-2b
+                additionalProperties: false
+
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -4327,7 +4386,7 @@ components:
                       - '2011-11-11T12:22:11Z'
                       - null
         links:
-          description: >-
+          description: |-
             Links related to this collection.
             Could reference to licensing information, other meta data formats with
             additional information or a preview image.
@@ -4351,6 +4410,10 @@ components:
             For example, this could be the collection available through another
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
+
+            6. `http://www.opengis.net/def/rel/ogc/1.0/queryables`: URL to the
+            queryables endpoint at `/collections/{collection_id}/queryables`.
+            For JSON Schema documents, the `type` field must be set to `application/schema+json`.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking)
@@ -5159,7 +5222,7 @@ components:
                 description: The return value which can by of any data type.
         links:
           type: array
-          description: >-
+          description: |-
             Links related to this process, e.g. additional external documentation.
 
             It is RECOMMENDED to provide links with the following `rel` (relation) types:
@@ -5965,15 +6028,32 @@ components:
       type: object
       title: JSON Schema
       description: |-
-        A JSON Schema compliant to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html).
-        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved). This allows clients to consume the schemas much better.
+        A JSON Schema compliant to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html) or later.
+
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved).
+        This allows clients to consume the schemas much better.
         Clients are not expected to support dereferencing `$refs`.
 
-        Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
+        Note: The specified schema in the OpenAPI document is only a common subset of JSON Schema.
+        Additional keywords from the JSON Schema specification MAY be used.
       properties:
+        $schema:
+          description: |-
+            The JSON Schema version. If not given in the context of openEO,
+            defaults to `draft-07`.
+          
+            You may need to add the default value for `$schema` property explicitly to the JSON Schema
+            object before passing it to a JSON Schema validator.
+          type: string
+          format: uri
+          default: http://json-schema.org/draft-07/schema#
+        $id:
+          description: ID of your JSON Schema.
+          type: string
+          format: uri
         type:
           description: |-
-            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.1).
+            The allowed basic data type(s) for a value.
 
             If this property is not present, all data types are allowed.
           oneOf:
@@ -5986,28 +6066,28 @@ components:
         pattern:
           type: "string"
           format: "regex"
-          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.3.3).
+          description: The regular expression a string value must match against.
         enum:
           type: array
           items: {}
-          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.2).
+          description: An exclusive list of allowed values.
         minimum:
           type: number
-          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.4).
+          description: The minimum value (inclusive) allowed for a numerical value.
         maximum:
           type: number
-          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.2).
+          description: The maximum value (inclusive) allowed for a numerical value.
         minItems:
           type: number
           minimum: 0
           default: 0
-          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.4).
+          description: The minimum number of items required in an array.
         maxItems:
           type: number
           minimum: 0
-          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.3).
+          description: The maximum number of items required in an array.
         items:
-          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.1).
+          description: Specifies schemas for the items in an array.
           anyOf:
             - type: array
               minItems: 1
@@ -6016,9 +6096,8 @@ components:
             - $ref: '#/components/schemas/json_schema'
       additionalProperties:
         description: >-
-          You can add any other property supported by JSON Schema, either
-          [draft-07](https://json-schema.org/draft-07/json-schema-validation.html)
-          or any later version.
+          You can add any other property supported by the JSON Schema version that is given through the property `$schema`,
+          so either [draft-07](https://json-schema.org/draft-07/json-schema-validation.html) or any later version.
     json_schema_type:
       type: string
       enum:
@@ -6509,6 +6588,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
+    collection_id:
+      name: collection_id
+      in: path
+      description: Collection identifier
+      required: true
+      schema:
+        $ref: '#/components/schemas/collection_id'
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
