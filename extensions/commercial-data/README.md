@@ -90,7 +90,7 @@ Example response from `GET /collections/PLEIADES/queryables`:
 ```json
 {
    "$schema":"http://json-schema.org/draft-07/schema#",
-   "$id":"http://example.com/commercial_data/PLEIADES/queryables",
+   "$id":"http://openeo.example/collections/PLEIADES/queryables",
    "type":"object",
    "title":"Queryables of Airbus Pleiades collection.",
    "description":"Available properties for CQL filtering of products.",

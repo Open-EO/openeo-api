@@ -56,8 +56,8 @@ info:
     4. `canonical`: This relation type usually points to a publicly accessible and more long-lived URL for a resource that otherwise often requires (Bearer) authentication with a short-lived token.
     This way the the exposed resources can be used by non-openEO clients without additional authentication steps.
     For example, a shared user-defined process or batch job results could be exposed via a canonical link.
-    If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://example.com/processes/john_doe/ndvi`.
-    For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://example.com/processes/81zjh1tc2pt52gbx/ndvi`.
+    If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://openeo.example/processes/john_doe/ndvi`.
+    For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://openeo.example/processes/81zjh1tc2pt52gbx/ndvi`.
 
     Generally, it is RECOMMENDED to add descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
 
@@ -80,7 +80,7 @@ info:
       "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
       "code": "SampleError",
       "message": "A sample error message.",
-      "url": "https://example.openeo.org/docs/errors/SampleError"
+      "url": "https://openeo.example/docs/errors/SampleError"
     }
     ```
 
@@ -180,8 +180,8 @@ info:
     
     ```http
     POST /api/v1/jobs HTTP/1.1
-    Host: openeo.cloudprovider.com
-    Origin: https://client.org:8080
+    Host: openeo.example
+    Origin: https://company.example:8080
     Authorization: Bearer basic//ZXhhbXBsZTpleGFtcGxl
     ```
     
@@ -192,7 +192,7 @@ info:
     Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Location, OpenEO-Identifier, OpenEO-Costs, Link
     Content-Type: application/json
-    Location: https://openeo.cloudprovider.com/api/v1/jobs/abc123
+    Location: https://openeo.example/api/v1/jobs/abc123
     OpenEO-Identifier: abc123
     ```
     
@@ -213,8 +213,8 @@ info:
     
     ```http
     OPTIONS /api/v1/jobs HTTP/1.1
-    Host: openeo.cloudprovider.com
-    Origin: https://client.org:8080
+    Host: openeo.example
+    Origin: https://company.example:8080
     Access-Control-Request-Method: POST 
     Access-Control-Request-Headers: Authorization, Content-Type
     ```
@@ -546,7 +546,7 @@ tags:
   - name: File Storage
     description: Management of user-uploaded assets and processed data.
 servers:
-  - url: 'https://localhost/api/{version}'
+  - url: 'https://openeo.example/api/{version}'
     description: >-
       The URL of the API MAY freely be chosen by the back-end providers. The
       path, including API versioning, is a *recommendation* only. Nevertheless,
@@ -640,7 +640,7 @@ paths:
                   title:
                     type: string
                     description: The name of the service.
-                    example: Cool EO Cloud
+                    example: Example Cloud Corp.
                   description:
                     type: string
                     format: commonmark
@@ -651,12 +651,12 @@ paths:
                       [CommonMark 0.29](http://commonmark.org/) syntax MAY be
                       used for rich text representation.
                     example: |-
-                      This service is provided to you by [Cool EO Cloud Corp.](https://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
+                      This service is provided to you by [Example Cloud Corp.](https://cloud.example). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
 
                       * Sentinel 1/2/3 and 5
                       * Landsat 7/8
 
-                      A free plan is available to test the service. For further information please contact our customer service at [support@cool-eo-cloud-corp.com](mailto:support@cool-eo-cloud-corp.com).
+                      A free plan is available to test the service. For further information please contact our customer service at [support@cloud.example](mailto:support@cloud.example).
                   production:
                     $ref: '#/components/schemas/production'
                   endpoints:
@@ -805,19 +805,19 @@ paths:
                                 URL to a web page with more details about the
                                 plan.
                               format: uri
-                              example: 'https://cool-cloud-corp.com/plans/free-plan'
+                              example: 'https://cloud.example/plans/free-plan'
                         example:
                           - name: free
                             description: >-
                               Free plan. Calculates one tile per second and a
                               maximum amount of 100 tiles per hour.
-                            url: 'https://cool-cloud-corp.com/plans/free-plan'
+                            url: 'https://cloud.example/plans/free-plan'
                             paid: false
                           - name: premium
                             description: >-
                               Premium plan. Calculates unlimited tiles and each
                               calculated tile costs 0.003 USD.
-                            url: 'https://cool-cloud-corp.com/plans/premium-plan'
+                            url: 'https://cloud.example/plans/premium-plan'
                             paid: true
                   links:
                     description: |-
@@ -871,35 +871,35 @@ paths:
                     items:
                       $ref: '#/components/schemas/link'
                     example:
-                      - href: 'http://www.cool-cloud-corp.com'
+                      - href: 'https://cloud.example'
                         rel: about
                         type: text/html
                         title: Homepage of the service provider
-                      - href: 'https://www.cool-cloud-corp.com/tos'
+                      - href: 'https://cloud.example/tos'
                         rel: terms-of-service
                         type: text/html
                         title: Terms of Service
-                      - href: 'https://www.cool-cloud-corp.com/privacy'
+                      - href: 'https://cloud.example/privacy'
                         rel: privacy-policy
                         type: text/html
                         title: Privacy Policy
-                      - href: 'https://www.cool-cloud-corp.com/register'
+                      - href: 'https://cloud.example/register'
                         rel: create-form
                         type: text/html
                         title: User Registration
-                      - href: 'https://www.cool-cloud-corp.com/lost-password'
+                      - href: 'https://cloud.example/lost-password'
                         rel: recovery-form
                         type: text/html
                         title: Reset Password
-                      - href: 'http://www.cool-cloud-corp.com/.well-known/openeo'
+                      - href: 'https://cloud.example/.well-known/openeo'
                         rel: version-history
                         type: application/json
                         title: List of supported openEO versions
-                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/conformance'
+                      - href: 'https://cloud.example/api/v1/conformance'
                         rel: conformance
                         type: application/json
                         title: OGC Conformance Classes
-                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/collections'
+                      - href: 'https://cloud.example/api/v1/collections'
                         rel: data
                         type: application/json
                         title: List of Datasets
@@ -945,9 +945,11 @@ paths:
               given by the user.
 
         **This URI MUST NOT be versioned as the other endpoints.**
-        If your API is available at `https://example.com/openeo/api/v1.0`, and
-        you instruct your API users to use `https://example.com/openeo` as connection URI, 
-        the Well-Known URI SHOULD be located at `https://example.com/openeo/.well-known/openeo`.
+        If your API is available at `https://openeo.example/api/v1`, and
+        you instruct your API users to use `https://openeo.example` as connection URI, 
+        the Well-Known URI SHOULD be located at `https://openeo.example/.well-known/openeo`.
+        The Well-Known URI is usually directly located at the top-level, but it is not a
+        requirement. For example, `https://openeo.example/eo/.well-known/openeo` is also allowed.
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
@@ -957,7 +959,7 @@ paths:
       security:
         - {}
       servers:
-        - url: 'https://localhost'
+        - url: 'https://openeo.example'
           description: >-
             The Well-Known URI SHOULD be available directly at
             `https://{{domain}}/.well-known/openeo` in contrast to the other
@@ -989,7 +991,7 @@ paths:
                           type: string
                           format: uri
                           description: '*Absolute* URLs to the service.'
-                          example: 'https://example.com/api/v1.0'
+                          example: 'https://openeo.example/api/v1'
                         production:
                           $ref: '#/components/schemas/production'
                         api_version:
@@ -999,13 +1001,13 @@ paths:
                             back-end implements.
               example:
                 versions:
-                  - url: 'https://example.openeo.org/api/v0.5'
+                  - url: 'https://openeo.example/api/v0'
                     api_version: 0.5.1
-                  - url: 'https://example.openeo.org/api/v1.0'
-                    api_version: 1.0.0
-                  - url: 'https://example.openeo.org/api/v1.1'
+                  - url: 'https://openeo.example/api/v1'
+                    api_version: 1.2.0
+                  - url: 'https://dev.openeo.example/api/v2'
                     production: false
-                    api_version: 1.1.0-beta
+                    api_version: 2.0.0-beta
         4XX:
           $ref: '#/components/responses/client_error'
         5XX:
@@ -1343,10 +1345,10 @@ paths:
                             - null
                     links:
                       - rel: license
-                        href: 'https://example.openeo.org/api/collections/MOD09Q1/license'
+                        href: 'https://openeo.example/api/v1/collections/MOD09Q1/license'
                 links:
                   - rel: alternate
-                    href: 'https://example.openeo.org/csw'
+                    href: 'https://openeo.example/csw'
                     title: openEO catalog (OGC Catalogue Services 3.0)
         4XX:
           $ref: '#/components/responses/client_error_auth'
@@ -1432,18 +1434,18 @@ paths:
                     href: https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
                     type: application/pdf
                   - rel: http://www.opengis.net/def/rel/ogc/1.0/queryables
-                    href: https://example.openeo.org/api/collections/Sentinel-2A/queryables
+                    href: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
                     type: application/schema+json
                   - rel: about
                     href: https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c
                     type: text/html
                     title: ESA Sentinel-2 MSI Level-1C User Guide
                   - rel: example
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/true-color.json'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/examples/true-color.json'
                     type: application/json
                     title: Example Process for True-Color Visualization
                   - rel: example
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/ndvi.json'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/examples/ndvi.json'
                     type: application/json
                     title: Example Process for NDVI Calculation and Visualization
                 'cube:dimensions':
@@ -1556,13 +1558,13 @@ paths:
                     max: 32660
                 assets:
                   thumbnail:
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/thumbnail.png'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/thumbnail.png'
                     type: image/png
                     title: Preview
                     roles:
                       - thumbnail
                   inspire:
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/inspire.xml'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/inspire.xml'
                     type: application/xml
                     title: INSPIRE metadata
                     description: INSPIRE compliant XML metadata
@@ -1611,7 +1613,7 @@ paths:
                 $ref: '#/components/schemas/json_schema'
               example:
                 $schema: https://json-schema.org/draft/2019-09/schema
-                $id: https://example.com/api/v1.0/collections/Sentinel-2A/queryables
+                $id: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
                 type: object
                 title: Sentinel 2A
                 properties:
@@ -1757,7 +1759,7 @@ paths:
                         title: IEEE Standard 754-2019 for Floating-Point Arithmetic
                 links:
                   - rel: alternate
-                    href: 'https://provider.com/processes'
+                    href: 'https://openeo.example/processes'
                     type: text/html
                     title: HTML version of the processes
         4XX:
@@ -2255,7 +2257,7 @@ paths:
               schema:
                 type: string
                 pattern: ^<[^>]+>;\s?rel="monitor"
-                example: <https://example.openeo.org/api/logs/258489231>; rel="monitor"
+                example: <https://openeo.example/api/v1/logs/258489231>; rel="monitor"
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2699,7 +2701,7 @@ paths:
                   metadata endpoint in the property `url`.
                 format: uri
                 type: string
-                example: 'https://example.openeo.org/api/services/123'
+                example: 'https://openeo.example/api/v1/services/123'
             OpenEO-Identifier:
               required: true
               schema:
@@ -2935,7 +2937,7 @@ paths:
                   unique identifier (ID) of the created batch job.
                 format: uri
                 type: string
-                example: 'https://example.openeo.org/api/jobs/123'
+                example: 'https://openeo.example/api/v1/jobs/123'
             OpenEO-Identifier:
               required: true
               schema:
@@ -3284,13 +3286,13 @@ paths:
                       description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
                       license: Apache-2.0
                       providers:
-                        - name: Cool EO Cloud Corp
+                        - name: Example Cloud Corp.
                           description: No further processing applied.
                           roles:
                             - producer
                             - licensor
                             - host
-                          url: http://cool-eo-cloud-corp.com
+                          url: https://cloud.example
                       extent:
                         temporal:
                           interval:
@@ -3304,30 +3306,30 @@ paths:
                               - 90
                       assets:
                         preview.png:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/preview.png'
                           type: image/png
                           title: Thumbnail
                           roles:
                             - thumbnail
                         process.json:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/process.json'
                           type: application/json
                           title: Original Process
                           roles:
                             - process
                             - reproduction
                         1.tif:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/1.tif'
                           type: image/tiff; application=geotiff
                           roles:
                             - data
                         2.tif:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/2.tif'
                           type: image/tiff; application=geotiff
                           roles:
                             - data
                         inspire.xml:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/inspire.xml'
                           type: application/xml
                           title: INSPIRE metadata
                           description: INSPIRE compliant XML metadata
@@ -3336,13 +3338,13 @@ paths:
                       links:
                         - rel: canonical
                           type: application/json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/collection.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/collection.json
                         - rel: item
                           type: application/geo+json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item_1.json
                         - rel: item
                           type: application/geo+json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
                 $ref: '#/components/schemas/batch_job_result'
@@ -3698,19 +3700,19 @@ paths:
                     items:
                       $ref: '#/components/schemas/link'
                     example:
-                      - href: 'https://example.openeo.org/john_doe/payment/'
+                      - href: 'https://openeo.example/john_doe/payment/'
                         rel: payment
-                      - href: 'https://example.openeo.org/john_doe/edit/'
+                      - href: 'https://openeo.example/john_doe/edit/'
                         rel: edit-form
-                      - href: 'https://example.openeo.org/john_doe/'
+                      - href: 'https://openeo.example/john_doe/'
                         rel: alternate
                         type: text/html
                         title: User profile
-                      - href: 'https://example.openeo.org/john_doe.vcf'
+                      - href: 'https://openeo.example/john_doe.vcf'
                         rel: alternate
                         type: text/vcard
                         title: vCard of John Doe
-                      - href: 'https://example.openeo.org/john_doe/invoices'
+                      - href: 'https://openeo.example/john_doe/invoices'
                         rel: related
                         type: text/html
                         title: Invoices
@@ -4009,7 +4011,7 @@ components:
           example:
             - rel: canonical
               type: application/geo+json
-              href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item.json
+              href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item.json
     file_format:
       x-additionalPropertiesName: File Format Name
       title: File Format
@@ -4113,7 +4115,7 @@ components:
           type: string
           description: The value MUST be a valid URL.
           format: uri
-          example: 'https://example.openeo.org'
+          example: 'https://openeo.example'
         type:
           type: string
           description: >-
@@ -4516,7 +4518,7 @@ components:
           - title: Reference to a JSON Schema
             type: string
             format: uri
-            example: 'https://www.example.com/stac/custom-extemsion/v1.0/schema.json'
+            example: 'https://openeo.example/stac/custom-extemsion/v1.0.0/schema.json'
           - title: Reference to a core extension (STAC < 1.0.0-rc.1 only)
             type: string
             example: datacube
@@ -4550,7 +4552,7 @@ components:
           name:
             description: The name of the organization or the individual.
             type: string
-            example: Cool EO Cloud Corp
+            example: Example Cloud Corp.
           description:
             description: >-
               Multi-line description to add further provider information such as
@@ -4562,24 +4564,19 @@ components:
             type: string
             example: No further processing applied.
           roles:
-            description: >-
+            description: |-
               Roles of the provider.
-
 
               The provider's role(s) can be one or more of the following
               elements:
-
-              * licensor: The organization that is licensing the dataset under
+              * `licensor`: The organization that is licensing the dataset under
               the license specified in the collection's license field.
-
-              * producer: The producer of the data is the provider that
+              * `producer`: The producer of the data is the provider that
               initially captured and processed the source data, e.g. ESA for
               Sentinel-2 data.
-
-              * processor: A processor is any provider who processed data to a
+              * `processor`: A processor is any provider who processed data to a
               derived product.
-
-              * host: The host is the actual provider offering the data on their
+              * `host`: The host is the actual provider offering the data on their
               storage. There SHOULD be no more than one host, specified as last
               element of the list.
             type: array
@@ -4600,7 +4597,7 @@ components:
               contact information.
             type: string
             format: uri
-            example: http://cool-eo-cloud-corp.com
+            example: https://cloud.example
     stac_assets:
       type: object
       title: Assets
@@ -4611,32 +4608,32 @@ components:
         $ref: '#/components/schemas/asset'
       example:
         preview.png:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/preview.png'
           type: image/png
           title: Thumbnail
           roles:
             - thumbnail
         process.json:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/process.json'
           type: application/json
           title: Original Process
           roles:
             - process
             - reproduction
         1.tif:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/1.tif'
           type: image/tiff; application=geotiff
           title: Band 1
           roles:
             - data
         2.tif:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/2.tif'
           type: image/tiff; application=geotiff
           title: Band 2
           roles:
             - data
         inspire.xml:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/inspire.xml'
           type: application/xml
           title: INSPIRE metadata
           description: INSPIRE compliant XML metadata
@@ -5590,11 +5587,11 @@ components:
             - rel: result
               type: application/json
               title: Batch Job Results
-              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
+              href: https://openeo.example/api/v1/jobs/123/logs
             - rel: result
               type: application/json
               title: Batch Job Logs
-              href: https://www.cool-cloud-corp.com/api/v1.0/jobs/123/logs
+              href: https://openeo.example/api/v1/jobs/123/logs
     job_id:
       type: string
       description: >-
@@ -5686,7 +5683,7 @@ components:
           description: >-
             URL at which the secondary web service is accessible. Doesn't
             necessarily need to be located within the API.
-          example: 'https://example.openeo.org/wms/wms-a3cca9'
+          example: 'https://openeo.example/wms/wms-a3cca9'
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
@@ -5843,7 +5840,7 @@ components:
       items:
         $ref: '#/components/schemas/link'
       example:
-        - href: 'https://example.openeo.org/docs/errors/SampleError'
+        - href: 'https://openeo.example/docs/errors/SampleError'
           rel: about
     log_level:
       description: |-
@@ -6335,7 +6332,7 @@ components:
 
             It is NOT RECOMMENDED to add stacktraces to the `message`.
           example: >-
-            Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
+            Can't load the UDF file from the URL `https://openeo.example/invalid/file.txt`.
             Server responded with error 404.
         time:
           type: string
