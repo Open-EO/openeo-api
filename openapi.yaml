@@ -2857,6 +2857,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/service_id'
         - $ref: '#/components/parameters/log_offset'
+        - $ref: '#/components/parameters/log_level'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -3164,6 +3165,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job_id'
         - $ref: '#/components/parameters/log_offset'
+        - $ref: '#/components/parameters/log_level'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -6458,11 +6460,13 @@ components:
               - logs
               - links
             properties:
-              log_level:
+              level:
                 description: |-
                   The minimum severity level for log entries that the back-end returns.
-                  This property MUST reflect the `log_level` that has been specified by the user
-                  for the processing request.
+                  This property MUST reflect the effective lowest `level` that may appear in the document,
+                  which is (if implemented) the highest level of:
+                  1. the `log_level` specified by the user for the processing request.
+                  2. the `level` specified by the user for the log request.
 
                   The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
                   That means if `warning` is set, the logs will only contain entries with the level `warning` and `error`.
@@ -6571,9 +6575,29 @@ components:
       description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occurred after the specified identifier. If not provided or empty, start with the first entry.
       in: query
       allowEmptyValue: true
-      example: "log1234"
+      example: log1234
       schema:
         type: string
+    log_level:
+      name: level
+      description: |-
+        The minimum severity level for log entries that the back-end returns.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        That means if `warning` is set, the back-end will only return log entries with the level `warning` and `error`.
+
+        The default minimum log level is `debug`, which returns all log levels.
+      in: query
+      allowEmptyValue: true
+      example: error
+      schema:
+        type: string
+        enum:
+          - error
+          - warning
+          - info
+          - debug
+        default: info
     service_id:
       name: service_id
       in: path
