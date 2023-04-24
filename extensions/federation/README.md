@@ -64,6 +64,18 @@ schema:
             description: >-
               If the `status` is `offline`: The time at which the back-end was checked and available the last time.
               Otherwise, this is equal to the property `last_status_check`.
+          experimental:
+            type: boolean
+            description: >-
+              Declares the back-end to be experimental, which means that
+              it is likely to change or may produce unpredictable behaviour.
+            default: false
+          deprecated:
+            type: boolean
+            description: |-
+              Declares the back-end to be deprecated with the potential
+              to be removed in any of the next versions.
+            default: false
 ```
 
 ### Example
@@ -84,7 +96,8 @@ schema:
       "title": "WWU Münster",
       "url": "https://openeo.wwu.de",
       "status": "offline",
-      "description": "Experimental integration of the WWU HPC"
+      "description": "Experimental integration of the WWU HPC",
+      "experimental": true
     }
   },
   ...
