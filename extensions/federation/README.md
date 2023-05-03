@@ -6,6 +6,7 @@ This is an extension for federation aspects, i.e. where multiple back-ends are e
 
 - Version: **0.1.0**
 - Stability: **experimental**
+- Conformance class: `https://api.openeo.org/extensions/federation/0.1.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
@@ -63,6 +64,18 @@ schema:
             description: >-
               If the `status` is `offline`: The time at which the back-end was checked and available the last time.
               Otherwise, this is equal to the property `last_status_check`.
+          experimental:
+            type: boolean
+            description: >-
+              Declares the back-end to be experimental, which means that
+              it is likely to change or may produce unpredictable behaviour.
+            default: false
+          deprecated:
+            type: boolean
+            description: |-
+              Declares the back-end to be deprecated with the potential
+              to be removed in any of the next versions.
+            default: false
 ```
 
 ### Example
@@ -83,7 +96,8 @@ schema:
       "title": "WWU Münster",
       "url": "https://openeo.wwu.de",
       "status": "offline",
-      "description": "Experimental integration of the WWU HPC"
+      "description": "Experimental integration of the WWU HPC",
+      "experimental": true
     }
   },
   ...
@@ -160,8 +174,6 @@ schema:
 ```
 
 **Note:** In Collections this should generally be provided on the top-level of the object.
-If users should be able to filter on back-ends in `load_collection`, please provide `federation:backends` as an element in `openeo:property_filters`.
-Then, `federation:backends` as defined in the schema above should also be provided in the `summaries`.
 
 ### Examples
 

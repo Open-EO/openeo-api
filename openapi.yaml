@@ -5,6 +5,8 @@ info:
   description: |-
     The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.
 
+    **Conformance class:** `https://api.openeo.org/1.1.0`
+
     # API Principles
 
     ## Language
@@ -15,7 +17,7 @@ info:
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, despite being case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2).
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields are generally case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2) and in the specification we follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, for better readability and consistency.
 
     ## HTTP / REST
 
@@ -27,9 +29,16 @@ info:
 
     Naming of endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
 
-    ## JSON
+    The openEO API makes use of [HTTP Content Negotiation](https://www.rfc-editor.org/rfc/rfc9110.html#name-content-negotiation),
+    including, but not limited to, the request headers `Accept`, `Accept-Charset` and `Accept-Language`.
 
-    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using [Content Negotiation](https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html). Clients and servers MUST NOT rely on the order in which properties appears in JSON. Collections usually don't include nested JSON objects if those information can be requested from the individual resources.
+    ### JSON
+
+    The API uses JSON for request and response bodies whenever feasible. Services use JSON as the default encoding. Other encodings can be requested using HTTP Content Negotiation ([`Accept` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept)). Clients and servers MUST NOT rely on the order in which properties appear in JSON. To keep the response size small, lists of resources (e.g. the list of batch jobs) usually should not include nested JSON objects, if this information can be requested from the individual resource endpoints (e.g. the metadata for a single batch job).
+
+    ### Charset
+
+    Services use [UTF-8](https://en.wikipedia.org/wiki/UTF-8) as the default charset if not negotiated otherwise with HTTP Content Negotiation ([`Accept-Charset` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept-charset)).
 
     ## Web Linking
     
@@ -49,8 +58,8 @@ info:
     4. `canonical`: This relation type usually points to a publicly accessible and more long-lived URL for a resource that otherwise often requires (Bearer) authentication with a short-lived token.
     This way the the exposed resources can be used by non-openEO clients without additional authentication steps.
     For example, a shared user-defined process or batch job results could be exposed via a canonical link.
-    If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://example.com/processes/john_doe/ndvi`.
-    For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://example.com/processes/81zjh1tc2pt52gbx/ndvi`.
+    If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://openeo.example/processes/john_doe/ndvi`.
+    For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://openeo.example/processes/81zjh1tc2pt52gbx/ndvi`.
 
     Generally, it is RECOMMENDED to add descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
 
@@ -73,7 +82,7 @@ info:
       "id": "936DA01F-9ABD-4D9D-80C7-02AF85C822A8",
       "code": "SampleError",
       "message": "A sample error message.",
-      "url": "https://example.openeo.org/docs/errors/SampleError"
+      "url": "https://openeo.example/docs/errors/SampleError"
     }
     ```
 
@@ -173,8 +182,8 @@ info:
     
     ```http
     POST /api/v1/jobs HTTP/1.1
-    Host: openeo.cloudprovider.com
-    Origin: https://client.org:8080
+    Host: openeo.example
+    Origin: https://company.example:8080
     Authorization: Bearer basic//ZXhhbXBsZTpleGFtcGxl
     ```
     
@@ -185,7 +194,7 @@ info:
     Access-Control-Allow-Origin: *
     Access-Control-Expose-Headers: Location, OpenEO-Identifier, OpenEO-Costs, Link
     Content-Type: application/json
-    Location: https://openeo.cloudprovider.com/api/v1/jobs/abc123
+    Location: https://openeo.example/api/v1/jobs/abc123
     OpenEO-Identifier: abc123
     ```
     
@@ -206,8 +215,8 @@ info:
     
     ```http
     OPTIONS /api/v1/jobs HTTP/1.1
-    Host: openeo.cloudprovider.com
-    Origin: https://client.org:8080
+    Host: openeo.example
+    Origin: https://company.example:8080
     Access-Control-Request-Method: POST 
     Access-Control-Request-Headers: Authorization, Content-Type
     ```
@@ -232,7 +241,7 @@ info:
     A **predefined process** is a process provided by the *back-end*. There is a set of predefined processes by openEO to improve interoperability between back-ends.
     Back-ends SHOULD follow these specifications whenever possible. Not all processes need to be implemented by all back-ends. See the **[process reference](https://processes.openeo.org)** for predefined processes.
 
-    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally it is a *process graph* with optional additional metadata.
+    A **user-defined process** is a process defined by the *user*. It can directly be part of another process graph or be stored as custom process on a back-end. Internally, it is a *process graph* with a variety of additional metadata.
 
     A **process graph** chains specific process calls from the set of predefined and user-defined processes together. A process graph itself can be stored as a (user-defined) process again. Similarly to scripts in the context of programming, process graphs organize and automate the execution of one or more processes that could alternatively be executed individually. In a process graph, processes need to be specific, i.e. concrete values or "placeholders" for input parameters need to be specified. These values can be scalars, arrays, objects, references to parameters or previous computations or other process graphs.
 
@@ -250,7 +259,7 @@ info:
     
     **Users** MUST follow the schema for user-defined processes as in [`GET /process_graphs/{process_graph_id}`](#operation/describe-custom-process) to define new processes. This includes:
 
-    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique across the user-defined processes.
+    * Choosing a intuitive name as process id, consisting of only letters (a-z), numbers and underscores. It MUST be unique per user across the user-defined processes.
     * Defining the algorithm as a process graph.
     * Optionally, specifying the additional metadata for processes.
 
@@ -260,10 +269,11 @@ info:
 
     Each process parameter and the return values of a process define a schema that the value MUST comply to. The schemas are based on [JSON Schema draft-07](http://json-schema.org/).
 
-    Three custom keywords have been defined:
+    Multiple custom keywords have been defined:
     * `subtype` for more fine-grained data-types than JSON Schema supports.
-    * `parameters` to specify the parameters of a process graph (object with subtype `process-graph`).
-    * `returns` to describe the return value of a process graph (object with subtype `process-graph`).
+    * `dimensions` to further define the dimension types required if the `subtype` is `datacube`.
+    * `parameters` to specify the parameters of a process graph if the `subtype` is `process-graph`.
+    * `returns` to describe the return value of a process graph if the `subtype` is `process-graph`.
 
     ### Subtypes
 
@@ -273,7 +283,7 @@ info:
     and standardizes a number of openEO related data types that extend the native data types, for example:
     `bounding-box` (object with at least `west`, `south`, `east` and `north` properties),
     `date-time` (string representation of date and time following RFC 3339),
-    `raster-cube` (the type of data cubes), etc.
+    `datacube` (a datacube with dimensions), etc.
     The subtypes should be re-used in process schema definitions whenever suitable.
     
     If a general data type such as `string` or `number` is used in a schema, all subtypes with the same parent data type can be passed, too.
@@ -351,15 +361,17 @@ info:
     This tells the back-end that the process expects the result (i.e. the return value) from another process node to be passed as argument.
     The `<ProcessNodeIdentifier>` is strictly scoped and can only reference nodes from within the same process graph, not child or parent process graphs.
 
-    ### User-defined process
+    ### Child processes
 
-    A user-defined process in a process graph is a child process graph, to be evaluated as part of another process.
+    Some processes can run child processes, which is similar to the concept that other programming languages call
+    [callbacks](https://en.wikipedia.org/wiki/Callback_(computer_programming)) or lambda functions.
+    Each child process is simply a user-defined process again and can in theory be arbritarily complex.
 
-    **Example**: You want to calculate the absolute value of each pixel in a data cube.
-    This can be achieved in openEO by executing the `apply` process and pass it
-    a user-defined process as the "operator" to apply to each pixel.
-    In this simple example, the "child" process graph defining the user-defined process
-    consists of a single process `absolute`, but it can be arbitrary complex in general.
+    A very simple example would be to calculate the absolute value of each pixel in a data cube.
+    This can be achieved in openEO by using the `apply` process which gets the `absolute` process passed as child process.
+    In this example, the "child" processes consists of a single process `absolute`, but it can also be a more complex computation such as an NDVI or a prediciton based on a machine learning model.
+
+    **Example**: 
 
     A `<UserDefinedProcess>` argument MUST at least consist of an object with a key `process_graph`.
     Optionally, it can also be described with the same additional properties available for predefined processes such as an id, parameters, return values etc.
@@ -374,7 +386,7 @@ info:
 
     ### Accessing process parameters
 
-    A "parent" process that works with a user-defined process can make so called *process graph parameters*
+    A "parent" process that works with a child process can make so called *process graph parameters*
     available to the "child" logic.
     Processes in the "child" process graph can access these parameters by passing a `ParameterReference` object as argument.
     It is an object with key `from_parameter` specifying the name of the process graph parameter:
@@ -498,12 +510,12 @@ tags:
 
       ## STAC
       
-      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO should also produce valid STAC API 0.9.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
+      For data discovery of Earth Observation Collections at the back-ends, openEO strives for compatibility with the specifications [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/) and [OGC API - Features - Part 1: Core](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html) as far as possible. Implementing the data discovery endpoints of openEO also produced valid STAC API 1.0 and OGC API - Features 1.0 responses, including ([partial](#provide-data-for-download)) compatibility with their APIs. 
 
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
 
       **Important:** [STAC specification](https://github.com/radiantearth/stac-spec) and [STAC API](https://github.com/radiantearth/stac-api-spec) are different specifications and have different version numbers after version 0.9.0.
-      The openEO API only implements [STAC API version 0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
+      The openEO API implements STAC API versions >= 0.9.0 (preferrably [STAC API version 1.0.0](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/README.md), but [0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md) is allowed for backward compatibility), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
       
       ### Content Extensions
       
@@ -522,6 +534,10 @@ tags:
       ### Provide data for download
       
       If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+
+      ### API Extensions
+      
+      STAC API has several [extensions](https://stac-api-extensions.github.io) that can be implemented on top of the openEO API to enrich the API functionality, e.g. for searching.
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -536,7 +552,7 @@ tags:
   - name: File Storage
     description: Management of user-uploaded assets and processed data.
 servers:
-  - url: 'https://localhost/api/{version}'
+  - url: 'https://openeo.example/api/{version}'
     description: >-
       The URL of the API MAY freely be chosen by the back-end providers. The
       path, including API versioning, is a *recommendation* only. Nevertheless,
@@ -630,7 +646,7 @@ paths:
                   title:
                     type: string
                     description: The name of the service.
-                    example: Cool EO Cloud
+                    example: Example Cloud Corp.
                   description:
                     type: string
                     format: commonmark
@@ -641,23 +657,26 @@ paths:
                       [CommonMark 0.29](http://commonmark.org/) syntax MAY be
                       used for rich text representation.
                     example: |-
-                      This service is provided to you by [Cool EO Cloud Corp.](http://cool-eo-cloud-corp.com). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
+                      This service is provided to you by [Example Cloud Corp.](https://cloud.example). It implements the full openEO API and allows to process a range of 999 EO data sets, including 
 
                       * Sentinel 1/2/3 and 5
                       * Landsat 7/8
 
-                      A free plan is available to test the service. For further information please contact our customer service at [support@cool-eo-cloud-corp.com](mailto:support@cool-eo-cloud-corp.com).
+                      A free plan is available to test the service. For further information please contact our customer service at [support@cloud.example](mailto:support@cloud.example).
+                  conformsTo:
+                    $ref: '#/components/schemas/conformsTo'
                   production:
                     $ref: '#/components/schemas/production'
                   endpoints:
                     type: array
                     description: >-
                       Lists all supported endpoints. Supported are all
-                      endpoints, which are implemented, return a 2XX or 3XX HTTP
-                      status code and are fully compatible to the API
-                      specification.
+                      endpoints, which are implemented, return usually
+                      a 2XX or 3XX HTTP status code and are fully compatible
+                      to the API specification.
                       An entry for this endpoint (path `/` with method `GET`)
                       SHOULD NOT be listed.
+                      Each path MUST only be listed once in the array.
                     items:
                       title: Endpoint
                       type: object
@@ -794,19 +813,19 @@ paths:
                                 URL to a web page with more details about the
                                 plan.
                               format: uri
-                              example: 'http://cool-cloud-corp.com/plans/free-plan'
+                              example: 'https://cloud.example/plans/free-plan'
                         example:
                           - name: free
                             description: >-
                               Free plan. Calculates one tile per second and a
                               maximum amount of 100 tiles per hour.
-                            url: 'http://cool-cloud-corp.com/plans/free-plan'
+                            url: 'https://cloud.example/plans/free-plan'
                             paid: false
                           - name: premium
                             description: >-
                               Premium plan. Calculates unlimited tiles and each
                               calculated tile costs 0.003 USD.
-                            url: 'http://cool-cloud-corp.com/plans/premium-plan'
+                            url: 'https://cloud.example/plans/premium-plan'
                             paid: true
                   links:
                     description: |-
@@ -860,35 +879,35 @@ paths:
                     items:
                       $ref: '#/components/schemas/link'
                     example:
-                      - href: 'http://www.cool-cloud-corp.com'
+                      - href: 'https://cloud.example'
                         rel: about
                         type: text/html
                         title: Homepage of the service provider
-                      - href: 'https://www.cool-cloud-corp.com/tos'
+                      - href: 'https://cloud.example/tos'
                         rel: terms-of-service
                         type: text/html
                         title: Terms of Service
-                      - href: 'https://www.cool-cloud-corp.com/privacy'
+                      - href: 'https://cloud.example/privacy'
                         rel: privacy-policy
                         type: text/html
                         title: Privacy Policy
-                      - href: 'https://www.cool-cloud-corp.com/register'
+                      - href: 'https://cloud.example/register'
                         rel: create-form
                         type: text/html
                         title: User Registration
-                      - href: 'https://www.cool-cloud-corp.com/lost-password'
+                      - href: 'https://cloud.example/lost-password'
                         rel: recovery-form
                         type: text/html
                         title: Reset Password
-                      - href: 'http://www.cool-cloud-corp.com/.well-known/openeo'
+                      - href: 'https://cloud.example/.well-known/openeo'
                         rel: version-history
                         type: application/json
                         title: List of supported openEO versions
-                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/conformance'
+                      - href: 'https://cloud.example/api/v1/conformance'
                         rel: conformance
                         type: application/json
                         title: OGC Conformance Classes
-                      - href: 'http://www.cool-cloud-corp.com/api/v1.0/collections'
+                      - href: 'https://cloud.example/api/v1/collections'
                         rel: data
                         type: application/json
                         title: List of Datasets
@@ -918,17 +937,27 @@ paths:
 
         The Well-Known URI is the entry point for clients and users, so make
         sure it is permanent and easy to use and remember. Clients MUST NOT
-        require the well-known path (`./well-known/openeo`) in the URL that is
-        specified by a user to connect to the back-end. A client MUST request
-        `https://example.com/.well-known/openeo` if a user tries to connect to
-        `https://example.com`. If the request to the well-known URI fails, the
-        client SHOULD try to request the capabilities at `/` from
-        `https://example.com`.
+        require the well-known path (`/.well-known/openeo`) in the URL that is
+        specified by a user to connect to the back-end.
 
-        **This URI MUST NOT be versioned as the other endpoints.** If your API
-        is available at `https://example.com/api/v1.0`, the Well-Known URI
-        SHOULD be located at `https://example.com/.well-known/openeo` and the
-        URI users connect to SHOULD be `https://example.com`.
+        For clients, the usual behavior SHOULD follow these steps:
+        1. The user provides a URI, which may consist of a scheme (protocol), 
+           an authority (host, port) and a path.
+        2. The client parses the URI and appends `/.well-knwon/openeo` to the
+           path. Make sure to correctly handle leading/trailing slashes.
+        3. Send a request to the new URI.
+           A. On success: Detect the most suitable API instance/version (see above)
+              and read the [capabilites](#tag/Capabilities/operation/capabilities)
+              from there.
+           B. On failure: Directly try to read the capabilities from the original URI
+              given by the user.
+
+        **This URI MUST NOT be versioned as the other endpoints.**
+        If your API is available at `https://openeo.example/api/v1`, and
+        you instruct your API users to use `https://openeo.example` as connection URI, 
+        the Well-Known URI SHOULD be located at `https://openeo.example/.well-known/openeo`.
+        The Well-Known URI is usually directly located at the top-level, but it is not a
+        requirement. For example, `https://openeo.example/eo/.well-known/openeo` is also allowed.
 
         Clients MAY get additional information (e.g. title or description) about
         a back-end from the most recent version that has the `production` flag
@@ -938,7 +967,7 @@ paths:
       security:
         - {}
       servers:
-        - url: 'https://localhost'
+        - url: 'https://openeo.example'
           description: >-
             The Well-Known URI SHOULD be available directly at
             `https://{{domain}}/.well-known/openeo` in contrast to the other
@@ -970,7 +999,7 @@ paths:
                           type: string
                           format: uri
                           description: '*Absolute* URLs to the service.'
-                          example: 'https://example.com/api/v1.0'
+                          example: 'https://openeo.example/api/v1'
                         production:
                           $ref: '#/components/schemas/production'
                         api_version:
@@ -980,13 +1009,13 @@ paths:
                             back-end implements.
               example:
                 versions:
-                  - url: 'https://example.openeo.org/api/v0.5'
+                  - url: 'https://openeo.example/api/v0'
                     api_version: 0.5.1
-                  - url: 'https://example.openeo.org/api/v1.0'
-                    api_version: 1.0.0
-                  - url: 'https://example.openeo.org/api/v1.1'
+                  - url: 'https://openeo.example/api/v1'
+                    api_version: 1.2.0
+                  - url: 'https://dev.openeo.example/api/v2'
                     production: false
-                    api_version: 1.1.0-beta
+                    api_version: 2.0.0-beta
         4XX:
           $ref: '#/components/responses/client_error'
         5XX:
@@ -1087,7 +1116,7 @@ paths:
                       compress:
                         type: string
                         description: Set the compression to use.
-                        default: none
+                        default: NONE
                         enum:
                           - JPEG
                           - LZW
@@ -1154,14 +1183,25 @@ paths:
           $ref: '#/components/responses/server_error'
   /conformance:
     get:
-      summary: OGC specifications this API conforms to
+      summary: Conformance classes this API implements
       operationId: conformance
-      description: >-
-        Lists all conformance classes specified in OGC standards that the
-        server conforms to.
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification. openEO adds relatively
+        broadly defined conformance classes, especially for the extensions.
+        Otherwise, the implemented functionality can usually be retrieved from
+        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
 
-        This endpoint is only required if full compliance with OGC API standards is desired.
-        Therefore, openEO back-ends MAY implement it for compatibility with OGC API clients and openEO clients don't need to request it.
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual openEO API extensions for their conformance classes.
+
+        The conformance classes listed at this endpoint and listed in the 
+        corresponding `conformsTo` property in `GET /` MUST be equal.
+
+        More details:
+        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially the conformance class "STAC API - Collections"
+        - [OGC APIs](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
       responses:
@@ -1176,14 +1216,7 @@ paths:
                   - conformsTo
                 properties:
                   conformsTo:
-                    type: array
-                    items:
-                      type: string
-                      format: uri
-                      example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
-              example:
-                conformsTo:
-                  - 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core'
+                    $ref: '#/components/schemas/conformsTo'
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
@@ -1199,10 +1232,9 @@ paths:
         To get the full metadata for a collection clients MUST
         request `GET /collections/{collection_id}`.
 
-        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
-        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
-        features / extensions and
+        This endpoint is compatible with [STAC API 0.9.0 and later](https://stacspec.org) and
+        [OGC API - Features 1.0](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API extensions](https://stac-api-extensions.github.io) and
         [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
 
@@ -1313,10 +1345,10 @@ paths:
                             - null
                     links:
                       - rel: license
-                        href: 'https://example.openeo.org/api/collections/MOD09Q1/license'
+                        href: 'https://openeo.example/api/v1/collections/MOD09Q1/license'
                 links:
                   - rel: alternate
-                    href: 'https://example.openeo.org/csw'
+                    href: 'https://openeo.example/csw'
                     title: openEO catalog (OGC Catalogue Services 3.0)
         4XX:
           $ref: '#/components/responses/client_error_auth'
@@ -1330,10 +1362,9 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
-        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
-        features / extensions and
+        This endpoint is compatible with [STAC API 0.9.0 and later](https://stacspec.org) and
+        [OGC API - Features 1.0](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API extensions](https://stac-api-extensions.github.io) and
         [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
 
@@ -1344,12 +1375,7 @@ paths:
         - {}
         - Bearer: []
       parameters:
-        - name: collection_id
-          in: path
-          description: Collection identifier
-          required: true
-          schema:
-            $ref: '#/components/schemas/collection_id'
+        - $ref: '#/components/parameters/collection_id'
       responses:
         '200':
           description: JSON object with the full collection metadata.
@@ -1365,7 +1391,7 @@ paths:
               example:
                 stac_version: 1.0.0
                 stac_extensions:
-                  - https://stac-extensions.github.io/datacube/v2.0.0/schema.json
+                  - https://stac-extensions.github.io/datacube/v2.2.0/schema.json
                 type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
@@ -1406,16 +1432,19 @@ paths:
                   - rel: license
                     href: https://scihub.copernicus.eu/twiki/pub/SciHubWebPortal/TermsConditions/Sentinel_Data_Terms_and_Conditions.pdf
                     type: application/pdf
+                  - rel: http://www.opengis.net/def/rel/ogc/1.0/queryables
+                    href: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
+                    type: application/schema+json
                   - rel: about
                     href: https://earth.esa.int/web/sentinel/user-guides/sentinel-2-msi/product-types/level-1c
                     type: text/html
                     title: ESA Sentinel-2 MSI Level-1C User Guide
                   - rel: example
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/true-color.json'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/examples/true-color.json'
                     type: application/json
                     title: Example Process for True-Color Visualization
                   - rel: example
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/examples/ndvi.json'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/examples/ndvi.json'
                     type: application/json
                     title: Example Process for NDVI Calculation and Visualization
                 'cube:dimensions':
@@ -1455,10 +1484,6 @@ paths:
                       - B10
                       - B11
                       - B12
-                'openeo:property_filters':
-                  - platform
-                  - eo:cloud_cover
-                  - sat:orbit_state
                 summaries:
                   'constellation':
                     - Sentinel-2
@@ -1532,18 +1557,79 @@ paths:
                     max: 32660
                 assets:
                   thumbnail:
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/thumbnail.png'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/thumbnail.png'
                     type: image/png
                     title: Preview
                     roles:
                       - thumbnail
                   inspire:
-                    href: 'https://example.openeo.org/api/collections/Sentinel-2/inspire.xml'
+                    href: 'https://openeo.example/api/v1/collections/Sentinel-2/inspire.xml'
                     type: application/xml
                     title: INSPIRE metadata
                     description: INSPIRE compliant XML metadata
                     roles:
                       - metadata
+        4XX:
+          $ref: '#/components/responses/client_error_auth'
+        5XX:
+          $ref: '#/components/responses/server_error'
+  '/collections/{collection_id}/queryables':
+    get:
+      summary: Metadata filters for a specific dataset
+      operationId: list-collection-queryables
+      description: |-
+        Lists **all** supported metadata filters (also called "queryables") for
+        a specific collection.
+
+        This endpoint is compatible with endpoint defined in the STAC API extension
+        [`filter`](https://github.com/stac-api-extensions/filter#queryables) and
+        [OGC API - Features - Part 3: Filtering](https://github.com/opengeospatial/ogcapi-features/tree/master/extensions/filtering).
+        For a precise definition please follow those specifications.
+
+        This endpoints provides a JSON Schema for each queryable that openEO
+        users can use in multiple scenarios:
+        1. For loading data from the collection, e.g. in the process `load_collection`.
+        2. For filtering items using CQL2 on the `/collections/{collection_id}/items` endpoint
+           (if [STAC API - Features is implemented in addition to the openEO API](#tag/EO-Data-Discovery/STAC)).
+
+        Note: Providing the Bearer token is REQUIRED for private collections.
+      tags:
+        - EO Data Discovery
+      security:
+        - {}
+        - Bearer: []
+      parameters:
+        - $ref: '#/components/parameters/collection_id'
+      responses:
+        '200':
+          description: |-
+            A JSON Schema defining the queryables.
+
+            It is RECOMMENDED to dereference all "$refs".
+          content:
+            application/schema+json:
+              schema:
+                $ref: '#/components/schemas/json_schema'
+              example:
+                $schema: https://json-schema.org/draft/2019-09/schema
+                $id: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
+                type: object
+                title: Sentinel 2A
+                properties:
+                  'eo:cloud_cover':
+                    title: Cloud Cover
+                    type: number
+                    minimum: 0
+                    maximum: 100
+                  platform:
+                    title: Platform
+                    description: The satellite platform.
+                    type: string
+                    enum:
+                      - sentinel-2a
+                      - sentinel-2b
+                additionalProperties: false
+
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -1602,7 +1688,7 @@ paths:
                         description: A data cube.
                         schema:
                           type: object
-                          subtype: raster-cube
+                          subtype: datacube
                       - name: process
                         description: 'A unary process to be applied on each value, may consist of multiple sub-processes.'
                         schema:
@@ -1617,7 +1703,7 @@ paths:
                       description: 'A data cube with the newly computed values. The resolution, cardinality and the number of dimensions are the same as for the original data cube.'
                       schema:
                         type: object
-                        subtype: raster-cube
+                        subtype: datacube
                   - id: multiply
                     summary: Multiplication of two numbers
                     description: |-
@@ -1672,7 +1758,7 @@ paths:
                         title: IEEE Standard 754-2019 for Floating-Point Arithmetic
                 links:
                   - rel: alternate
-                    href: 'https://provider.com/processes'
+                    href: 'https://openeo.example/processes'
                     type: text/html
                     title: HTML version of the processes
         4XX:
@@ -1838,7 +1924,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A **unique** identifier for the OpenID Connect Provider to
+                            A per-backend **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -2170,7 +2256,7 @@ paths:
               schema:
                 type: string
                 pattern: ^<[^>]+>;\s?rel="monitor"
-                example: <https://example.openeo.org/api/logs/258489231>; rel="monitor"
+                example: <https://openeo.example/api/v1/logs/258489231>; rel="monitor"
         4XX:
           $ref: '#/components/responses/client_error_auth'
         5XX:
@@ -2194,6 +2280,8 @@ paths:
                   $ref: '#/components/schemas/billing_plan_null_default'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2281,7 +2369,7 @@ paths:
     parameters:
       - name: process_graph_id
         in: path
-        description: Unique identifier for a user-defined process.
+        description: Per-user unique identifier for a user-defined process.
         required: true
         schema:
           $ref: '#/components/schemas/process_id'
@@ -2319,12 +2407,11 @@ paths:
       operationId: store-custom-process
       description: |-
         Stores a provided user-defined process with process graph that can be
-        reused in other processes. If a process with the specified 
-        `process_graph_id` exists, the process is fully replaced. The id can't
-        be changed for stored user-defined processes.
-
-        The id MUST be unique for the authenticated user, including all
-        predefined processes by the back-end.
+        reused in other processes.
+        
+        If a process with the specified `process_graph_id` exists, the process
+        is fully replaced. The id can't be changed for existing user-defined
+        processes. The id MUST be unique across its namespace.
 
         Partially updating user-defined processes is not supported.
 
@@ -2445,7 +2532,7 @@ paths:
                       description: List of parameters made available to user-defined processes.
                       type: array
                       items:
-                        $ref: '#/components/schemas/parameter'
+                        $ref: '#/components/schemas/process_parameter'
                     links:
                       description: |-
                         Links related to this service type, e.g. more
@@ -2613,7 +2700,7 @@ paths:
                   metadata endpoint in the property `url`.
                 format: uri
                 type: string
-                example: 'https://example.openeo.org/api/services/123'
+                example: 'https://openeo.example/api/v1/services/123'
             OpenEO-Identifier:
               required: true
               schema:
@@ -2642,7 +2729,9 @@ paths:
                 type:
                   $ref: '#/components/schemas/service_type'
                 enabled:
-                  $ref: '#/components/schemas/service_enabled_default'
+                  allOf:
+                    - $ref: '#/components/schemas/service_enabled'
+                    - default: true
                 configuration:
                   $ref: '#/components/schemas/service_configuration'
                 plan:
@@ -2651,6 +2740,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
         description: The base data for the secondary web service to create
   '/services/{service_id}':
     parameters:
@@ -2767,6 +2858,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/service_id'
         - $ref: '#/components/parameters/log_offset'
+        - $ref: '#/components/parameters/log_level'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -2844,7 +2936,7 @@ paths:
                   unique identifier (ID) of the created batch job.
                 format: uri
                 type: string
-                example: 'https://example.openeo.org/api/jobs/123'
+                example: 'https://openeo.example/api/v1/jobs/123'
             OpenEO-Identifier:
               required: true
               schema:
@@ -2875,6 +2967,8 @@ paths:
                   $ref: '#/components/schemas/budget'
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
+              additionalProperties: 
+                description: You can add additional back-end specific properties here.
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -2974,12 +3068,20 @@ paths:
       description: >-
         Calculates an estimate for a batch job. Back-ends can decide to
         either calculate the duration, the costs, the size or a combination of
-        them. This MUST be the upper limit of the incurring costs. Clients can
-        be charged less than specified, but never more. Back-end providers MAY
-        specify an expiry time for the estimate. Starting to process data
-        afterwards MAY be charged at a higher cost. Costs MAY NOT include
-        downloading costs. This can be indicated with the `downloads_included`
-        flag.
+        them.
+
+        Back-end providers MAY specify an expiry time for the estimate.
+        Starting to process data afterwards MAY be charged at a higher cost.
+        Costs do often not include download costs. Whether download costs are included or not can be indicated explicitly with the
+        `downloads_included` flag.
+        
+        The estimate SHOULD be the upper limit of the costs, but back-end are
+        free to use the field according to their terms of service.
+        
+        For some batch jobs it is not (easily) possible to estimate the costs
+        reliably, e.g. if a UDF or ML model is part of the process.
+        In this case, the server SHOULD return a `EstimateComplexity` error
+        with HTTP status code 500.
       tags:
         - Data Processing
         - Batch Jobs
@@ -3065,6 +3167,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/job_id'
         - $ref: '#/components/parameters/log_offset'
+        - $ref: '#/components/parameters/log_level'
         - $ref: '#/components/parameters/pagination_limit'
       responses:
         '200':
@@ -3077,7 +3180,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/job_id'
     get:
-      summary: Download results for a batch job
+      summary: List batch job results
       operationId: list-results
       description: |-
         Lists signed URLs pointing to the processed files, usually after the batch job
@@ -3095,10 +3198,10 @@ paths:
 
         STAC Collections can either (1) add all assets as collection-level assets or
         (2) link to STAC Catalogs and STAC Items with signed URLs, which will provide a full
-        STAC catalog structure a client has to go through. While (2) is overall the better 
+        STAC catalog structure a client has to go through. Option 2 is overall the better 
         architectural choice and allows a fine-grained description of the processed data,
-        (1) is not compliant with previous versions of the  openEO API.
-        **To maintain backward compatibility, it is REQUIRED for (2) to still copy
+        but it is not compliant with previous versions of the openEO API.
+        **To maintain backward compatibility, it is REQUIRED to still copy
         all assets in the STAC catalog structure into the collection-level assets.**
         This requirement is planned to be removed in openEO API version 2.0.0.
         A client can enforce that the server returns a GeoJSON through content negotiation
@@ -3183,13 +3286,13 @@ paths:
                       description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
                       license: Apache-2.0
                       providers:
-                        - name: Cool EO Cloud Corp
+                        - name: Example Cloud Corp.
                           description: No further processing applied.
                           roles:
                             - producer
                             - licensor
                             - host
-                          url: http://cool-eo-cloud-corp.com
+                          url: https://cloud.example
                       extent:
                         temporal:
                           interval:
@@ -3203,30 +3306,30 @@ paths:
                               - 90
                       assets:
                         preview.png:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/preview.png'
                           type: image/png
                           title: Thumbnail
                           roles:
                             - thumbnail
                         process.json:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/process.json'
                           type: application/json
                           title: Original Process
                           roles:
                             - process
                             - reproduction
                         1.tif:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/1.tif'
                           type: image/tiff; application=geotiff
                           roles:
                             - data
                         2.tif:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/2.tif'
                           type: image/tiff; application=geotiff
                           roles:
                             - data
                         inspire.xml:
-                          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+                          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/inspire.xml'
                           type: application/xml
                           title: INSPIRE metadata
                           description: INSPIRE compliant XML metadata
@@ -3235,13 +3338,13 @@ paths:
                       links:
                         - rel: canonical
                           type: application/json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/collection.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/collection.json
                         - rel: item
                           type: application/geo+json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_1.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item_1.json
                         - rel: item
                           type: application/geo+json
-                          href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item_2.json
+                          href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item_2.json
             application/geo+json:
               schema:
                 $ref: '#/components/schemas/batch_job_result'
@@ -3569,7 +3672,12 @@ paths:
                           to the user.
                         example: 1073741824
                   budget:
-                    $ref: '#/components/schemas/budget'
+                    type: number
+                    nullable: true
+                    description: |-
+                      The remaining budget a user has available.
+                      The value MUST be specified in the currency of the back-end.
+                      The value SHOULD be set to `null` if no explicit limit applies.
                   links:
                     description: |-
                       Links related to the user profile, e.g. where payments
@@ -3595,19 +3703,19 @@ paths:
                     items:
                       $ref: '#/components/schemas/link'
                     example:
-                      - href: 'https://example.openeo.org/john_doe/payment/'
+                      - href: 'https://openeo.example/john_doe/payment/'
                         rel: payment
-                      - href: 'https://example.openeo.org/john_doe/edit/'
+                      - href: 'https://openeo.example/john_doe/edit/'
                         rel: edit-form
-                      - href: 'https://example.openeo.org/john_doe/'
+                      - href: 'https://openeo.example/john_doe/'
                         rel: alternate
                         type: text/html
                         title: User profile
-                      - href: 'https://example.openeo.org/john_doe.vcf'
+                      - href: 'https://openeo.example/john_doe.vcf'
                         rel: alternate
                         type: text/vcard
                         title: vCard of John Doe
-                      - href: 'https://example.openeo.org/john_doe/invoices'
+                      - href: 'https://openeo.example/john_doe/invoices'
                         rel: related
                         type: text/html
                         title: Invoices
@@ -3617,6 +3725,25 @@ paths:
           $ref: '#/components/responses/server_error'
 components:
   schemas:
+    conformsTo:
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification.
+
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual openEO API extensions for their conformance classes.
+
+        This property is REQUIRED for STAC API versions 1.0.0-beta.1 and later.
+      type: array
+      items:
+        type: string
+        format: uri
+      example:
+        - https://api.openeo.org/1.1.0
+        - https://api.openeo.org/extensions/commercial-data/0.1.0
+        - https://api.openeo.org/extensions/federation/0.1.0
+        - https://api.stacspec.org/v1.0.0/collections
     udf_runtime:
       type: object
       required:
@@ -3768,6 +3895,12 @@ components:
       default: finished
     batch_job_result:
       title: Batch Job Results Response as STAC Item
+      description:
+        The STAC specification should be the main guidance for implementing this.
+
+        Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
+        but can be omitted if the result is unlocated and the `geometry`
+        is set to `null`.
       type: object
       required:
         - stac_version
@@ -3794,41 +3927,7 @@ components:
           enum:
             - Feature
         bbox:
-          description: |-
-            Potential *spatial extent* covered by the data.
-            
-            The bounding box is provided as four or six numbers. Six numbers are
-            specified, if the coordinate reference system includes a vertical axis
-            (height or depth). The order of the elements in the array:
-
-            - West (lower left corner, coordinate axis 1)
-            - South (lower left corner, coordinate axis 2)
-            - Base (optional, lower left corner, coordinate axis 3)
-            - East (upper right corner, coordinate axis 1)
-            - North (upper right corner, coordinate axis 2)
-            - Height (optional, upper right corner, coordinate axis 3)
-
-            The coordinate reference system of the values is WGS84
-            longitude/latitude.
-
-            Specifying the `bbox` is strongly RECOMMENDED for STAC compliance,
-            but can be omitted if the result is unlocated and the `geometry`
-            is set to `null`.
-          type: array
-          oneOf:
-            - title: 4 elements
-              minItems: 4
-              maxItems: 4
-            - title: 6 elements
-              minItems: 6
-              maxItems: 6
-          items:
-            type: number
-          example:
-            - -180
-            - -90
-            - 180
-            - 90
+          $ref: '#/components/schemas/bbox'
         geometry:
           description: |-
             Defines the full footprint of the asset represented by this item as
@@ -3934,7 +4033,7 @@ components:
           example:
             - rel: canonical
               type: application/geo+json
-              href: https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/item.json
+              href: https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/item.json
     file_format:
       x-additionalPropertiesName: File Format Name
       title: File Format
@@ -3962,6 +4061,7 @@ components:
               - raster
               - vector
               - table
+              - pointcloud
               - other
         deprecated:
           $ref: '#/components/schemas/deprecated'
@@ -4037,7 +4137,7 @@ components:
           type: string
           description: The value MUST be a valid URL.
           format: uri
-          example: 'https://example.openeo.org'
+          example: 'https://openeo.example'
         type:
           type: string
           description: >-
@@ -4099,11 +4199,13 @@ components:
         currency the back-end is working with. The currency can be retrieved by
         calling `GET /`. If no currency is set, this field MUST be `null`.
       type: number
+      minimum: 0
       example: 12.98
       nullable: true
       default: null
     budget:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4114,6 +4216,7 @@ components:
       default: null
     budget_update:
       type: number
+      minimum: 0
       nullable: true
       description: |-
         Maximum amount of costs the request is allowed to produce.
@@ -4214,7 +4317,7 @@ components:
             Version of the collection.
 
             This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
-            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            `https://stac-extensions.github.io/version/v1.2.0/schema.json` (STAC >= 1.0.0-rc.1)
             to the list of `stac_extensions`.
         deprecated:
           type: boolean
@@ -4228,7 +4331,7 @@ components:
             links and MUST refer to the collection that can be used instead.
 
             This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
-            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            `https://stac-extensions.github.io/version/v1.2.0/schema.json` (STAC >= 1.0.0-rc.1)
             to the list of `stac_extensions`.
         license:
           $ref: '#/components/schemas/stac_license'
@@ -4271,46 +4374,7 @@ components:
                   type: array
                   minItems: 1
                   items:
-                    description: |-
-                      Each bounding box is provided as four or six numbers,
-                      depending on whether the coordinate reference system
-                      includes a vertical axis (height or depth):
-
-                      * West (lower left corner, coordinate axis 1)
-                      * South (lower left corner, coordinate axis 2)
-                      * Base (optional, minimum value, coordinate axis 3)
-                      * East (upper right corner, coordinate axis 1)
-                      * North (upper right corner, coordinate axis 2)
-                      * Height (optional, maximum value, coordinate axis 3)
-
-                      The coordinate reference system of the values is WGS 84
-                      longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
-
-                      For WGS 84 longitude/latitude the values are in most cases
-                      the sequence of minimum longitude, minimum latitude, maximum
-                      longitude and maximum latitude.
-
-                      However, in cases where the box spans the antimeridian the
-                      first value (west-most box edge) is larger than the third value
-                      (east-most box edge).
-
-                      If the vertical axis is included, the third and the sixth
-                      number are the bottom and the top of the 3-dimensional bounding box.
-                    type: array
-                    oneOf:
-                      - title: 4 elements
-                        minItems: 4
-                        maxItems: 4
-                      - title: 6 elements
-                        minItems: 6
-                        maxItems: 6
-                    items:
-                      type: number
-                    example:
-                      - -180
-                      - -90
-                      - 180
-                      - 90
+                    $ref: '#/components/schemas/bbox'
             temporal:
               title: Collection Temporal Extent
               description: >-
@@ -4348,7 +4412,7 @@ components:
                       - '2011-11-11T12:22:11Z'
                       - null
         links:
-          description: >-
+          description: |-
             Links related to this collection.
             Could reference to licensing information, other meta data formats with
             additional information or a preview image.
@@ -4373,6 +4437,10 @@ components:
             catalog service such as OGC CSW, a human-readable HTML version or a
             metadata document following another standard such as ISO 19115 or DCAT.
 
+            6. `http://www.opengis.net/def/rel/ogc/1.0/queryables`: URL to the
+            queryables endpoint at `/collections/{collection_id}/queryables`.
+            For JSON Schema documents, the `type` field must be set to `application/schema+json`.
+
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking)
             and the STAC specification for Collections.
@@ -4382,7 +4450,8 @@ components:
         'cube:dimensions':
           title: STAC Collection Cube Dimensions
           description: |-
-            Uniquely named dimensions of the data cube.
+            The named default dimensions of the data cube.
+            Names must be unique per collection.
 
             The keys of the object are the dimension names. For
             interoperability, it is RECOMMENDED to use the
@@ -4394,29 +4463,15 @@ components:
             * `z` for the dimension of type `spatial` with the axis set to `z`
             * `t` for the dimension of type `temporal`
             * `bands` for dimensions of type `bands`
+            * `geometry` for dimensions of type `geometry`
 
-            This property REQUIRES to add `datacube` to the list
-            of `stac_extensions`.
+            This property REQUIRES to add a version of the data cube extension to the list
+            of `stac_extensions`, e.g. `https://stac-extensions.github.io/datacube/v2.2.0/schema.json`.
           type: object
           additionalProperties:
             x-additionalPropertiesName: Dimension Name
             allOf:
               - $ref: '#/components/schemas/dimension'
-        'openeo:property_filters':
-          description: |-
-            Gives a list of properties you can filter on when loading data from the collection.
-            Returning an empty array means that no property-based filters are available.
-
-            This is a guide for users to get an overview of available properties to filter on.
-            More metadata about the properties can be found in `summaries`.
-
-            If this property is not present, it means that the collections does 
-            not provide any collection-specific details about available property-based filters. 
-            It's then up to other means of documentation to inform the user,
-            e.g. there could be documentation about property filters that work across collections.
-          type: array
-          items:
-            type: string
         summaries:
           title: STAC Summaries (Collection Properties)
           description: |-
@@ -4424,9 +4479,9 @@ components:
             SAR, Satellite or Scientific) or even custom extensions.
 
             Summaries are either a unique set of all available
-            values *or* statistics. Statistics by default only
-            specify the range (minimum and maximum values), but
-            can optionally be accompanied by additional
+            values, statistics *or* a JSON Schema. Statistics only
+            specify the range (minimum and maximum values) by default,
+            but can optionally be accompanied by additional
             statistical values. The range can specify the
             potential range of values, but it is recommended to be
             as precise as possible. The set of values MUST contain
@@ -4454,6 +4509,7 @@ components:
                 items:
                   description: A value of any type.
               - $ref: '#/components/schemas/collection_summary_stats'
+              - $ref: '#/components/schemas/json_schema'
         assets:
           description: |-
             Dictionary of asset objects for data that can be downloaded,
@@ -4468,7 +4524,7 @@ components:
       type: string
       description: >-
         The [version of the STAC specification](https://github.com/radiantearth/stac-spec/releases),
-        which MAY not be equal to the [STAC API version](#section/STAC).
+        which MAY not be equal to the [STAC API version](#tag/EO-Data-Discovery/STAC).
         Supports versions 0.9.x and 1.x.x.
       pattern: '^(0\.9.\d+|1\.\d+.\d+)'
       example: 1.0.0
@@ -4484,7 +4540,7 @@ components:
           - title: Reference to a JSON Schema
             type: string
             format: uri
-            example: 'https://www.example.com/stac/custom-extemsion/v1.0/schema.json'
+            example: 'https://openeo.example/stac/custom-extemsion/v1.0.0/schema.json'
           - title: Reference to a core extension (STAC < 1.0.0-rc.1 only)
             type: string
             example: datacube
@@ -4518,7 +4574,7 @@ components:
           name:
             description: The name of the organization or the individual.
             type: string
-            example: Cool EO Cloud Corp
+            example: Example Cloud Corp.
           description:
             description: >-
               Multi-line description to add further provider information such as
@@ -4530,24 +4586,19 @@ components:
             type: string
             example: No further processing applied.
           roles:
-            description: >-
+            description: |-
               Roles of the provider.
-
 
               The provider's role(s) can be one or more of the following
               elements:
-
-              * licensor: The organization that is licensing the dataset under
+              * `licensor`: The organization that is licensing the dataset under
               the license specified in the collection's license field.
-
-              * producer: The producer of the data is the provider that
+              * `producer`: The producer of the data is the provider that
               initially captured and processed the source data, e.g. ESA for
               Sentinel-2 data.
-
-              * processor: A processor is any provider who processed data to a
+              * `processor`: A processor is any provider who processed data to a
               derived product.
-
-              * host: The host is the actual provider offering the data on their
+              * `host`: The host is the actual provider offering the data on their
               storage. There SHOULD be no more than one host, specified as last
               element of the list.
             type: array
@@ -4568,7 +4619,7 @@ components:
               contact information.
             type: string
             format: uri
-            example: http://cool-eo-cloud-corp.com
+            example: https://cloud.example
     stac_assets:
       type: object
       title: Assets
@@ -4579,32 +4630,32 @@ components:
         $ref: '#/components/schemas/asset'
       example:
         preview.png:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/preview.png'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/preview.png'
           type: image/png
           title: Thumbnail
           roles:
             - thumbnail
         process.json:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/process.json'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/process.json'
           type: application/json
           title: Original Process
           roles:
             - process
             - reproduction
         1.tif:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/1.tif'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/1.tif'
           type: image/tiff; application=geotiff
           title: Band 1
           roles:
             - data
         2.tif:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/2.tif'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/2.tif'
           type: image/tiff; application=geotiff
           title: Band 2
           roles:
             - data
         inspire.xml:
-          href: 'https://example.openeo.org/api/download/583fba8b2ce583fba8b2ce/inspire.xml'
+          href: 'https://openeo.example/api/v1/download/583fba8b2ce583fba8b2ce/inspire.xml'
           type: application/xml
           title: INSPIRE metadata
           description: INSPIRE compliant XML metadata
@@ -4612,7 +4663,7 @@ components:
             - metadata
     collection_summary_stats:
       type: object
-      title: Statistics
+      title: Statistics / Range
       description: >-
         By default, only ranges with a minimum and a
         maximum value can be specified. Ranges can be
@@ -4624,17 +4675,60 @@ components:
         to add other derived statistical values to the
         object, for example `mean` or `stddev`.
       required:
-        - min
-        - max
+        - minimum
+        - maximum
       properties:
-        min:
+        minimum:
+          description: The minimum value (inclusive).
           anyOf:
             - type: string
             - type: number
-        max:
+        maximum:
+          description: The maximum value (inclusive).
           anyOf:
             - type: string
             - type: number
+    bbox:
+      description: |-
+        Each bounding box is provided as four or six numbers,
+        depending on whether the coordinate reference system
+        includes a vertical axis (height or depth):
+
+        * West (lower left corner, coordinate axis 1)
+        * South (lower left corner, coordinate axis 2)
+        * Base (optional, minimum value, coordinate axis 3)
+        * East (upper right corner, coordinate axis 1)
+        * North (upper right corner, coordinate axis 2)
+        * Height (optional, maximum value, coordinate axis 3)
+
+        The coordinate reference system of the values is WGS 84
+        longitude/latitude (http://www.opengis.net/def/crs/OGC/1.3/CRS84).
+
+        For WGS 84 longitude/latitude the values are in most cases
+        the sequence of minimum longitude, minimum latitude, maximum
+        longitude and maximum latitude.
+
+        However, in cases where the box spans the antimeridian the
+        first value (west-most box edge) is larger than the third value
+        (east-most box edge).
+
+        If the vertical axis is included, the third and the sixth
+        number are the bottom and the top of the 3-dimensional bounding box.
+      type: array
+      oneOf:
+        - title: 4 elements
+          minItems: 4
+          maxItems: 4
+        - title: 6 elements
+          minItems: 6
+          maxItems: 6
+      items:
+        type: number
+      example:
+        - -180
+        - -90
+        - 180
+        - 90
     collection_id:
       type: string
       description: >-
@@ -4644,17 +4738,19 @@ components:
       example: Sentinel-2A
     dimension:
       title: Dimension
+      description: A dimension, each object represents a distinct dimension with the key being the dimension name.
       type: object
       required:
         - type
       properties:
         type:
-          description: 'Type of the dimension.'
+          description: Type of the dimension.
           type: string
           enum:
             - spatial
             - temporal
             - bands
+            - geometry
             - other
         description:
           $ref: '#/components/schemas/description'
@@ -4664,12 +4760,21 @@ components:
           spatial: '#/components/schemas/dimension_spatial'
           temporal: '#/components/schemas/dimension_temporal'
           bands: '#/components/schemas/dimension_bands'
+          geometry: '#/components/schemas/dimension_geometry'
           other: '#/components/schemas/dimension_other'
     dimension_other:
       allOf:
         - $ref: '#/components/schemas/dimension'
         - title: Additional Dimension
           type: object
+# This is not supported by ReDoc yet:
+#         oneOf:
+#           - title: Additional Dimension with Extent
+#             required:
+#               - extent
+#           - title: Additional Dimension with Values
+#             required:
+#               - values
           properties:
             extent:
               $ref: '#/components/schemas/collection_dimension_extent_open'
@@ -4680,8 +4785,40 @@ components:
             unit:
               $ref: '#/components/schemas/collection_dimension_unit'
             reference_system:
-              description: The reference system for the data.
+              description: The reference system for the dimension.
               type: string
+    dimension_geometry:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Geometry Dimension
+          type: object
+          required:
+            - bbox
+          properties:
+            axes:
+              description: Axes of the vector dimension as an ordered set of `x`, `y` and `z`. Defaults to `x` and `y`.
+              default:
+                - 'x'
+                - 'y'
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/dimension_axis_xyz'
+            bbox:
+              $ref: '#/components/schemas/bbox'
+            values:
+              description: Optionally, a representation of the vectors. This can be a list of WKT string or other free-form identifiers.
+              type: array
+              items:
+                type: string
+            geometry_types:
+              description: A set of all geometry types included in this dimension. If not present, mixed geometry types must be assumed.
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/geometry_type'
+            reference_system:
+              $ref: '#/components/schemas/collection_dimension_srs'
     dimension_bands:
       allOf:
         - $ref: '#/components/schemas/dimension'
@@ -4703,18 +4840,13 @@ components:
       allOf:
         - $ref: '#/components/schemas/dimension'
         - title: Spatial Dimension
-          description: A spatial dimension in one of the horizontal (x or y) or vertical (z) directions.
+          description: A spatial (raster) dimension in one of the horizontal (x or y) or vertical (z) directions.
           type: object
           required:
             - axis
           properties:
             axis:
-              description: 'Axis of the spatial dimension (`x`, `y` or `z`).'
-              type: string
-              enum:
-                - 'x'
-                - 'y'
-                - 'z'
+              $ref: '#/components/schemas/dimension_axis_xyz'
             extent:
               description: >-
                 Extent (lower and upper bounds) of the
@@ -4734,22 +4866,21 @@ components:
             step:
               $ref: '#/components/schemas/collection_dimension_step'
             reference_system:
-              description: >-
-                The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON object](https://proj.org/specifications/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
-              default: 4326
-              oneOf:
-                - type: number
-                  title: EPSG code
-                - type: string
-                  title: WKT2 or PROJ definition (deprecated)
-                - type: object
-                  title: PROJJSON
+              $ref: '#/components/schemas/collection_dimension_srs'
           discriminator:
             propertyName: axis
             mapping:
               x: '#/components/schemas/dimension_spatial_horizontal'
               y: '#/components/schemas/dimension_spatial_horizontal'
               z: '#/components/schemas/dimension_spatial_vertical'
+    dimension_axis_xyz:
+      title: Axis
+      description: Axis of a geometry or dimension (`x`, `y` or `z`)
+      type: string
+      enum:
+        - 'x'
+        - 'y'
+        - 'z'
     dimension_spatial_horizontal:
       allOf:
         - $ref: '#/components/schemas/dimension_spatial'
@@ -4817,6 +4948,18 @@ components:
                 spaced steps.
               type: string
               nullable: true
+    collection_dimension_srs:
+      title: Spatial reference system
+      description: >-
+        The spatial reference system for the data, specified as [EPSG code](http://www.epsg-registry.org/), [WKT2 (ISO 19162) string](http://docs.opengeospatial.org/is/18-010r7/18-010r7.html), [PROJJSON object](https://proj.org/specifications/projjson.html) or [PROJ definition (deprecated)](https://proj.org/usage/quickstart.html). Defaults to EPSG code 4326.
+      default: 4326
+      oneOf:
+        - type: number
+          title: EPSG code
+        - type: string
+          title: WKT2 or PROJ definition (deprecated)
+        - type: object
+          title: PROJJSON
     collection_dimension_extent_open:
       description: >-
         If the dimension consists of
@@ -5097,10 +5240,10 @@ components:
               arguments:
                 $ref: '#/components/schemas/process_arguments'
               returns:
-                nullable: true
+                description: The return value which can by of any data type.
         links:
           type: array
-          description: >-
+          description: |-
             Links related to this process, e.g. additional external documentation.
 
             It is RECOMMENDED to provide links with the following `rel` (relation) types:
@@ -5129,12 +5272,16 @@ components:
         - id
       properties:
         summary:
+          type: string
           nullable: true
         description:
+          type: string
           nullable: true
         parameters:
+          type: array
           nullable: true
         returns:
+          type: object
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
@@ -5146,14 +5293,19 @@ components:
         - process_graph
       properties:
         id:
+          type: string
           nullable: true
         summary:
+          type: string
           nullable: true
         description:
+          type: string
           nullable: true
         parameters:
+          type: array
           nullable: true
         returns:
+          type: object
           nullable: true
       allOf:
         - $ref: '#/components/schemas/process'
@@ -5208,7 +5360,7 @@ components:
         description:
           $ref: '#/components/schemas/process_description'
         schema:
-          $ref: '#/components/schemas/data_type_schema'
+          $ref: '#/components/schemas/process_schema'
     experimental:
       type: boolean
       description: >-
@@ -5328,7 +5480,6 @@ components:
           description: >-
             The default value for this parameter.
             Required parameters SHOULD NOT specify a default value. Optional parameters SHOULD always specify a default value.
-          nullable: true
     parameter:
       title: Parameter
       type: object
@@ -5346,7 +5497,7 @@ components:
         - schema
       properties:
         schema:
-          $ref: '#/components/schemas/parameter_schema'
+          $ref: '#/components/schemas/process_schema'
       allOf:
         - $ref: '#/components/schemas/base_parameter'
     batch_job:
@@ -5431,10 +5582,42 @@ components:
             - $ref: '#/components/schemas/usage'
         log_level:
           $ref: '#/components/schemas/min_log_level_default'
+        links:
+          type: array
+          description: |-
+            Links related to this batch job, e.g. a links to 
+            invoices, log files or results.
+
+            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+
+            1. `monitor`: If logs are available, a link to the [logs endpoint](#tag/Batch-Jobs/operation/debug-job).
+            2. `result`: If batch job results are available, a link to the [results endpoint](#tag/Batch-Jobs/operation/list-results).
+
+            The relation types `monitor` and `result` may occur for various batch job states:
+
+            1. `created`: When the batch job was executed before and has been reset to `created` after an
+               [update](#tag/Batch-Jobs/operation/update-job) there could still be results and logs available
+               until they get discarded by [queueing the batch job again](#tag/Batch-Jobs/operation/start-job).
+            2. `finished`: The full log and results are expected to be available.
+            3. `error` / `canceled`: Partial results and logs may be available.
+
+            For more relation types see the lists of
+            [common relation types in openEO](#section/API-Principles/Web-Linking).
+          items:
+            $ref: '#/components/schemas/link'
+          example:
+            - rel: result
+              type: application/json
+              title: Batch Job Results
+              href: https://openeo.example/api/v1/jobs/123/logs
+            - rel: result
+              type: application/json
+              title: Batch Job Logs
+              href: https://openeo.example/api/v1/jobs/123/logs
     job_id:
       type: string
       description: >-
-        Unique identifier of the batch job, generated by the
+        Per-backend unique identifier of the batch job, generated by the
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
@@ -5522,11 +5705,11 @@ components:
           description: >-
             URL at which the secondary web service is accessible. Doesn't
             necessarily need to be located within the API.
-          example: 'https://example.openeo.org/wms/wms-a3cca9'
+          example: 'https://openeo.example/wms/wms-a3cca9'
         type:
           $ref: '#/components/schemas/service_type'
         enabled:
-          $ref: '#/components/schemas/service_enabled_default'
+          $ref: '#/components/schemas/service_enabled'
         process:
           $ref: '#/components/schemas/process_graph_with_metadata'
         configuration:
@@ -5580,12 +5763,6 @@ components:
         any other service dependant configuration.
       example:
         version: 1.3.0
-    service_enabled_default:
-      type: boolean
-      description: >-
-        Describes whether a secondary web service is responding to requests
-        (true) or not (false). Disabled services don't produce any costs.
-      default: true
     service_enabled:
       type: boolean
       description: >-
@@ -5594,8 +5771,8 @@ components:
     service_id:
       type: string
       description: >-
-        Unique identifier of the secondary web service, generated by the
-        back-end during creation. MUST match the specified pattern.
+        A per-backend unique identifier of the secondary web service, generated
+        by the back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
     resource_parameter:
@@ -5634,9 +5811,8 @@ components:
             value MUST conform to the defined type for the parameter defined at
             the same level. For example, if type is string, then default can be
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
-          nullable: true
       allOf:
-        - $ref: '#/components/schemas/json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
     error:
       title: General Error
       description: >-
@@ -5686,7 +5862,7 @@ components:
       items:
         $ref: '#/components/schemas/link'
       example:
-        - href: 'https://example.openeo.org/docs/errors/SampleError'
+        - href: 'https://openeo.example/docs/errors/SampleError'
           rel: about
     log_level:
       description: |-
@@ -5735,58 +5911,29 @@ components:
       title: Data Types
       description: Either a single data type or a list of data types.
       oneOf:
-        - $ref: '#/components/schemas/json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
         - title: Multiple data types
           description: A list of data types this parameter supports, specified as JSON Schemas.
           type: array
           minItems: 1
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/json_schema'
-    parameter_schema:
-      title: Parameter Data Types
-      description: Either a single data type or a list of data types.
+            $ref: '#/components/schemas/process_json_schema'
+    process_schema:
+      title: Process Data types
+      description: Either a single data type or a list of data types for process parameter or process return values.
       oneOf:
-        - $ref: '#/components/schemas/parameter_json_schema'
+        - $ref: '#/components/schemas/process_json_schema'
         - title: Multiple data types
           description: A list of data types supported, specified as JSON Schemas.
           type: array
           minItems: 1
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/parameter_json_schema'
-    parameter_json_schema:
+            $ref: '#/components/schemas/process_json_schema'
+    process_json_schema:
+      type: object
       title: Single Data Type
-      type: object
-      properties:
-        parameters:
-          type: array
-          title: Process Graph Parameters
-          description: |-
-            A list of parameters passed to the child process graph.
-
-            The order in the array corresponds to the parameter order to
-            be used in clients that don't support named parameters.
-          items:
-            $ref: '#/components/schemas/parameter'
-        returns:
-          type: object
-          title: Process Graph Return Value
-          description: Description of the data that is returned by the child process graph.
-          required:
-            - schema
-          properties:
-            description:
-              $ref: '#/components/schemas/process_description'
-            schema:
-              $ref: '#/components/schemas/data_type_schema'
-          allOf:
-            - $ref: '#/components/schemas/json_schema'
-      allOf:
-        - $ref: '#/components/schemas/json_schema'
-    json_schema:
-      type: object
-      title: Single data type
       description: |-
         Specifies a data type supported by a parameter or return value.
 
@@ -5804,9 +5951,130 @@ components:
 
         Note: The specified schema is only a common subset of JSON Schema. Additional keywords MAY be used.
       properties:
+        subtype:
+          type: string
+          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
+        deprecated:
+          $ref: '#/components/schemas/deprecated'
+      allOf:
+        - $ref: '#/components/schemas/json_schema'
+      oneOf:
+        - title: Generic
+        - $ref: '#/components/schemas/process_graph_json_schema'
+        - $ref: '#/components/schemas/datacube_json_schema'
+    process_graph_json_schema:
+      title: Process Graph
+      type: object
+      properties:
+        subtype:
+          type: string
+          enum: 
+            - process-graph
+        parameters:
+          type: array
+          title: Process Graph Parameters
+          description: |-
+            A list of parameters passed to the child process graph.
+
+            The order in the array corresponds to the parameter order to
+            be used in clients that don't support named parameters.
+          items:
+            $ref: '#/components/schemas/parameter'
+        returns:
+          type: object
+          title: Process Graph Return Value
+          description: |-
+            Description of the data that is returned by the child process graph.
+          required:
+            - schema
+          properties:
+            description:
+              $ref: '#/components/schemas/process_description'
+            schema:
+              $ref: '#/components/schemas/data_type_schema'
+          allOf:
+            - $ref: '#/components/schemas/process_json_schema'
+    datacube_json_schema:
+      title: Datacube
+      properties:
+        subtype:
+          type: string
+          enum: 
+            - datacube
+        dimensions:
+          title: Datacube constraints
+          description: |-
+            Allows to specify requirements the data cube has to fulfill.
+            Right now, it only allows to specify the dimension types and 
+            adds for specific dimension types:
+            * axes for `spatial` dimensions in raster datacubes
+            * geometry types for `geometry` dimensions in vector datacubes
+          type: array
+          items:
+            type: object
+            required:
+              - type
+            oneOf:
+              - title: Spatial (raster)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - spatial
+                  axis:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/dimension_axis_xyz'
+              - title: Spatial (vector)
+                properties:
+                  type:
+                    type: string
+                    enum: 
+                      - geometry
+                  geometry_type:
+                    type: array
+                    minItems: 1
+                    items:
+                      $ref: '#/components/schemas/geometry_type'
+              - title: Other
+                properties:
+                  type:
+                    type: string
+                    enum:
+                      - bands
+                      - temporal
+                      - other
+    json_schema:
+      type: object
+      title: JSON Schema
+      description: |-
+        A JSON Schema compliant to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html) or later.
+
+        JSON Schemas SHOULD always be dereferenced (i.e. all `$refs` should be resolved).
+        This allows clients to consume the schemas much better.
+        Clients are not expected to support dereferencing `$refs`.
+
+        Note: The specified schema in the OpenAPI document is only a common subset of JSON Schema.
+        Additional keywords from the JSON Schema specification MAY be used.
+      properties:
+        $schema:
+          description: |-
+            The JSON Schema version. If not given in the context of openEO,
+            defaults to `draft-07`.
+          
+            You may need to add the default value for `$schema` property explicitly to the JSON Schema
+            object before passing it to a JSON Schema validator.
+          type: string
+          format: uri
+          default: http://json-schema.org/draft-07/schema#
+        $id:
+          description: ID of your JSON Schema.
+          type: string
+          format: uri
         type:
           description: |-
-            The allowed basic data type(s) for a value according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.1).
+            The allowed basic data type(s) for a value.
 
             If this property is not present, all data types are allowed.
           oneOf:
@@ -5816,43 +6084,41 @@ components:
               uniqueItems: true
               items:
                 $ref: '#/components/schemas/json_schema_type'
-        subtype:
-          type: string
-          description: The allowed sub data type for a value. See the chapter on [subtypes](#section/Processes/Defining-Processes) for more information.
         pattern:
           type: "string"
           format: "regex"
-          description: The regular expression a string value must match against. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.3.3).
+          description: The regular expression a string value must match against.
         enum:
           type: array
           items: {}
-          description: An exclusive list of allowed values. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.1.2).
+          description: An exclusive list of allowed values.
         minimum:
           type: number
-          description: The minimum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.4).
+          description: The minimum value (inclusive) allowed for a numerical value.
         maximum:
           type: number
-          description: The maximum value (inclusive) allowed for a numerical value. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.2.2).
+          description: The maximum value (inclusive) allowed for a numerical value.
         minItems:
           type: number
           minimum: 0
           default: 0
-          description: The minimum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.4).
+          description: The minimum number of items required in an array.
         maxItems:
           type: number
           minimum: 0
-          description: The maximum number of items required in an array. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.3).
+          description: The maximum number of items required in an array.
         items:
-          description: Specifies schemas for the items in an array according to [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.6.4.1).
+          description: Specifies schemas for the items in an array.
           anyOf:
             - type: array
               minItems: 1
               items:
                 $ref: '#/components/schemas/json_schema'
             - $ref: '#/components/schemas/json_schema'
-        deprecated:
-          $ref: '#/components/schemas/deprecated'
-      additionalProperties: true
+      additionalProperties:
+        description: >-
+          You can add any other property supported by the JSON Schema version that is given through the property `$schema`,
+          so either [draft-07](https://json-schema.org/draft-07/json-schema-validation.html) or any later version.
     json_schema_type:
       type: string
       enum:
@@ -5893,6 +6159,17 @@ components:
             Date and time the file has lastly been modified, formatted as a [RFC
             3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
           example: '2018-01-03T10:55:29Z'
+    geometry_type:
+      title: Geometry type
+      type: string
+      enum:
+        - Point
+        - MultiPoint
+        - LineString
+        - MultiLineString
+        - Polygon
+        - MultiPolygon
+        - GeometryCollection
     GeoJsonPoint3D:
       type: array
       description: Point in 3D space
@@ -5913,6 +6190,42 @@ components:
             - Point
         coordinates:
           $ref: '#/components/schemas/GeoJsonPoint3D'
+    GeoJsonFeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoJsonFeature'
+    GeoJsonFeature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        geometry:
+          $ref: '#/components/schemas/GeoJsonGeometry'
+        properties:
+          type: object
+          nullable: true
+    GeoJson:
+      title: GeoJSON
+      oneOf:
+        - $ref: '#/components/schemas/GeoJsonFeatureCollection'
+        - $ref: '#/components/schemas/GeoJsonFeature'
+        - $ref: '#/components/schemas/GeoJsonGeometry'
     GeoJsonGeometry:
       title: GeoJSON Geometry
       type: object
@@ -5920,15 +6233,7 @@ components:
         - type
       properties:
         type:
-          type: string
-          enum:
-            - Point
-            - LineString
-            - Polygon
-            - MultiPoint
-            - MultiLineString
-            - MultiPolygon
-            - GeometryCollection
+          $ref: '#/components/schemas/geometry_type'
       discriminator:
         propertyName: type
         mapping:
@@ -6040,9 +6345,16 @@ components:
           $ref: '#/components/schemas/log_level'
         message:
           type: string
-          description: A message explaining the log entry.
+          description: >-
+            A concise message explaining the log entry.
+
+            Messages do *not* explicitly support [CommonMark 0.29](http://commonmark.org/)
+            syntax as other descriptive fields in the openEO API do,
+            but the messages MAY contain line breaks or indentation.
+
+            It is NOT RECOMMENDED to add stacktraces to the `message`.
           example: >-
-            Can't load the UDF file from the URL `https://example.com/invalid/file.txt`.
+            Can't load the UDF file from the URL `https://openeo.example/invalid/file.txt`.
             Server responded with error 404.
         time:
           type: string
@@ -6056,10 +6368,9 @@ components:
             Data of any type. It is the back-ends task to decide how to best
             present passed data to a user.
 
-            For example, a raster-cube passed to the `inspect` SHOULD return the
+            For example, a datacube passed to the `inspect` SHOULD return the
             metadata similar to the collection metadata, including `cube:dimensions`.
             There are implementation guidelines available for the `inspect` process.
-          nullable: true
         path:
           description: |-
             Describes where the log entry originates from.
@@ -6168,11 +6479,13 @@ components:
               - logs
               - links
             properties:
-              log_level:
+              level:
                 description: |-
                   The minimum severity level for log entries that the back-end returns.
-                  This property MUST reflect the `log_level` that has been specified by the user
-                  for the processing request.
+                  This property MUST reflect the effective lowest `level` that may appear in the document,
+                  which is (if implemented) the highest level of:
+                  1. the `log_level` specified by the user for the processing request.
+                  2. the `level` specified by the user for the log request.
 
                   The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
                   That means if `warning` is set, the logs will only contain entries with the level `warning` and `error`.
@@ -6184,6 +6497,7 @@ components:
                   - debug
                 default: debug
               logs:
+                description: A chronological list of logs.
                 type: array
                 items:
                   $ref: '#/components/schemas/log_entry'
@@ -6280,23 +6594,50 @@ components:
       description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occurred after the specified identifier. If not provided or empty, start with the first entry.
       in: query
       allowEmptyValue: true
-      example: "log1234"
+      example: log1234
       schema:
         type: string
+    log_level:
+      name: level
+      description: |-
+        The minimum severity level for log entries that the back-end returns.
+
+        The order of the levels is as follows (from low to high severity): `debug`, `info`, `warning`, `error`.
+        That means if `warning` is set, the back-end will only return log entries with the level `warning` and `error`.
+
+        The default minimum log level is `debug`, which returns all log levels.
+      in: query
+      allowEmptyValue: true
+      example: error
+      schema:
+        type: string
+        enum:
+          - error
+          - warning
+          - info
+          - debug
+        default: info
     service_id:
       name: service_id
       in: path
-      description: Unique secondary web service identifier.
+      description: Identifier of the secondary web service.
       required: true
       schema:
         $ref: '#/components/schemas/service_id'
     job_id:
       name: job_id
       in: path
-      description: Unique job identifier.
+      description: Identifier of the batch job.
       required: true
       schema:
         $ref: '#/components/schemas/job_id'
+    collection_id:
+      name: collection_id
+      in: path
+      description: Collection identifier
+      required: true
+      schema:
+        $ref: '#/components/schemas/collection_id'
   examples:
     evi_user_defined_process:
       description: A user-defined process that computes the EVI.
