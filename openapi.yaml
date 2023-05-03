@@ -515,7 +515,7 @@ tags:
       The data discovery endpoints `GET /collections` and `GET /collections/{collection_id}` are compatible with OGC API - Features and STAC. Both specifications define additional endpoints that need to be implemented to be fully compatible. The additional endpoints can easily be integrated into an openEO API implementation. A rough list of actions for compatibility is available below, but please refer to their specifications to find out the full details.
 
       **Important:** [STAC specification](https://github.com/radiantearth/stac-spec) and [STAC API](https://github.com/radiantearth/stac-api-spec) are different specifications and have different version numbers after version 0.9.0.
-      The openEO API only implements [STAC API version 0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
+      The openEO API implements STAC API versions >= 0.9.0 (preferrably [STAC API version 1.0.0](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/README.md), but [0.9.0](https://github.com/radiantearth/stac-spec/blob/v0.9.0/api-spec/README.md) is allowed for backward compatibility), which allows to serve all STAC specification versions in the range of 0.9.x and 1.x.x (see the `stac_version` property).
       
       ### Content Extensions
       
@@ -534,6 +534,10 @@ tags:
       ### Provide data for download
       
       If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+
+      ### API Extensions
+      
+      STAC API has several [extensions](https://stac-api-extensions.github.io) that can be implemented on top of the openEO API to enrich the API functionality, e.g. for searching.
   - name: Process Discovery
     description: |-
       These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
@@ -1196,7 +1200,7 @@ paths:
         corresponding `conformsTo` property in `GET /` MUST be equal.
 
         More details:
-        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially "STAC API - Collections and Features Specification"
+        - [STAC API](https://github.com/radiantearth/stac-api-spec), especially the conformance class "STAC API - Collections"
         - [OGC APIs](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
@@ -1228,10 +1232,9 @@ paths:
         To get the full metadata for a collection clients MUST
         request `GET /collections/{collection_id}`.
 
-        This endpoint is compatible with [STAC API 0.9.0](https://stacspec.org) and
-        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
-        features / extensions and
+        This endpoint is compatible with [STAC API 0.9.0 and later](https://stacspec.org) and
+        [OGC API - Features 1.0](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API extensions](https://stac-api-extensions.github.io) and
         [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
 
@@ -1359,10 +1362,9 @@ paths:
         Lists **all** information about a specific collection specified by the
         identifier `collection_id`.
 
-        This endpoint is compatible with [STAC API](https://stacspec.org) and
-        [OGC API - Features](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
-        [STAC API](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec)
-        features / extensions and
+        This endpoint is compatible with [STAC API 0.9.0 and later](https://stacspec.org) and
+        [OGC API - Features 1.0](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html).
+        [STAC API extensions](https://stac-api-extensions.github.io) and
         [STAC extensions](https://stac-extensions.github.io)
         can be implemented in addition to what is documented here.
 
@@ -3727,6 +3729,8 @@ components:
 
         The general openEO conformance class is `https://api.openeo.org/1.1.0`.
         See the individual openEO API extensions for their conformance classes.
+
+        This property is REQUIRED for STAC API versions 1.0.0-beta.1 and later.
       type: array
       items:
         type: string
@@ -4309,7 +4313,7 @@ components:
             Version of the collection.
 
             This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
-            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            `https://stac-extensions.github.io/version/v1.2.0/schema.json` (STAC >= 1.0.0-rc.1)
             to the list of `stac_extensions`.
         deprecated:
           type: boolean
@@ -4323,7 +4327,7 @@ components:
             links and MUST refer to the collection that can be used instead.
 
             This property REQUIRES to add `version` (STAC < 1.0.0-rc.1) or
-            `https://stac-extensions.github.io/version/v1.0.0/schema.json` (STAC >= 1.0.0-rc.1)
+            `https://stac-extensions.github.io/version/v1.2.0/schema.json` (STAC >= 1.0.0-rc.1)
             to the list of `stac_extensions`.
         license:
           $ref: '#/components/schemas/stac_license'
