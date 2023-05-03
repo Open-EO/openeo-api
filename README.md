@@ -6,12 +6,13 @@ openEO develops an open API to connect R, Python and JavaScript clients to big E
 
 ## Versions / Branches
 
-The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.1.0** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
+The [master branch](https://github.com/Open-EO/openeo-api/tree/master) is the 'stable' version of the openEO API specification. It is currently version **1.2.0** of the specification. The [draft branch](https://github.com/Open-EO/openeo-api/tree/draft) is where active development takes place.
 
 | Version / Branch                                          | Status      | Description |
 | --------------------------------------------------------- | ----------- | ----------- |
 | [draft](https://api.openeo.org/draft)                     | planned     | *Unstable* - Next version. |
-| [**1.1.0**](https://api.openeo.org)                       | **current** | Clarifications, STAC updates, return value for child processes, more details for logs and jobs, default clients for OIDC. [Changelog](CHANGELOG.md#110---2021-06-15). |
+| [**1.2.0**](https://api.openeo.org)                       | **current** | Clarifications, new extensions, vector data cubes, STAC (API) updates, more link relation types, improved batch job results and logs. [Changelog](CHANGELOG.md#120---2023-05-31). |
+| [1.1.0](https://api.openeo.org/1.1.0)                     | legacy      | Clarifications, STAC updates, return value for child processes, more details for logs and jobs, default clients for OIDC. [Changelog](CHANGELOG.md#110---2021-06-15). |
 | [1.0.1](https://api.openeo.org/1.0.1)                     | legacy      | Clarifications, bugfixes and CORS improvements. [Changelog](CHANGELOG.md#101---2020-12-07). |
 | [1.0.0](https://api.openeo.org/1.0.0)                     | legacy      | First stable version of openEO. [Changelog](CHANGELOG.md#100---2020-07-17). |
 | [1.0.0-rc.2](https://api.openeo.org/1.0.0-rc.2)           | legacy      | Introduced user-defined processes. [Changelog](CHANGELOG.md#100-rc2---2020-02-20). |

@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+## [1.2.0] - 2021-05-31
+
 ### Added
 
 - **New extensions:**
@@ -428,6 +430,7 @@ Initial version.
 
 
 [Unreleased]: <https://github.com/Open-EO/openeo-api/compare/master...dev>
+[1.2.0]: <https://github.com/Open-EO/openeo-api/compare/1.1.0...1.2.0>
 [1.1.0]: <https://github.com/Open-EO/openeo-api/compare/1.0.1...1.1.0>
 [1.0.1]: <https://github.com/Open-EO/openeo-api/compare/1.0.0...1.0.1>
 [1.0.0]: <https://github.com/Open-EO/openeo-api/compare/0.4.2...1.0.0>
