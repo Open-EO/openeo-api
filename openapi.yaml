@@ -5,6 +5,8 @@ info:
   description: |-
     The openEO API specification for interoperable cloud-based processing of large Earth observation datasets.
 
+    **Conformance class:** `https://api.openeo.org/1.1.0`
+
     # API Principles
 
     ## Language
@@ -657,6 +659,8 @@ paths:
                       * Landsat 7/8
 
                       A free plan is available to test the service. For further information please contact our customer service at [support@cloud.example](mailto:support@cloud.example).
+                  conformsTo:
+                    $ref: '#/components/schemas/conformsTo'
                   production:
                     $ref: '#/components/schemas/production'
                   endpoints:
@@ -1186,7 +1190,10 @@ paths:
         the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
 
         The general openEO conformance class is `https://api.openeo.org/1.1.0`.
-        See the individual extensions for their conformance classes.
+        See the individual openEO API extensions for their conformance classes.
+
+        The conformance classes listed at this endpoint and listed in the 
+        corresponding `conformsTo` property in `GET /` MUST be equal.
 
         More details:
         - [STAC API](https://github.com/radiantearth/stac-api-spec), especially "STAC API - Collections and Features Specification"
@@ -1205,17 +1212,7 @@ paths:
                   - conformsTo
                 properties:
                   conformsTo:
-                    type: array
-                    items:
-                      type: string
-                      format: uri
-                      example: http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
-              example:
-                conformsTo:
-                  - https://api.openeo.org/1.1.0
-                  - https://api.openeo.org/extensions/commercial-data/0.1.0
-                  - https://api.openeo.org/extensions/federation/0.1.0
-                  - https://api.stacspec.org/v1.0.0-rc.2/collections
+                    $ref: '#/components/schemas/conformsTo'
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
@@ -3722,6 +3719,23 @@ paths:
           $ref: '#/components/responses/server_error'
 components:
   schemas:
+    conformsTo:
+      description: |-
+        Lists all conformance classes specified in various standards that the
+        implementation conforms to. Conformance classes are commonly used in
+        all OGC APIs and the STAC API specification.
+
+        The general openEO conformance class is `https://api.openeo.org/1.1.0`.
+        See the individual openEO API extensions for their conformance classes.
+      type: array
+      items:
+        type: string
+        format: uri
+      example:
+        - https://api.openeo.org/1.1.0
+        - https://api.openeo.org/extensions/commercial-data/0.1.0
+        - https://api.openeo.org/extensions/federation/0.1.0
+        - https://api.stacspec.org/v1.0.0/collections
     udf_runtime:
       type: object
       required:
