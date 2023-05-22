@@ -6,12 +6,26 @@ This document gives a brief overview over similarities and differences between
 
 In the following I use **OAP1** as an abbreviation for **OGC API - Processes - Part 1**.
 
-## General
+## Introduction (tl;dr)
 
 OCG API - Processes defines just processing, while the openEO API has a much broader scope.
 openEO covers many parts that other OGC API specifications define, some are aligned some are not.
 
+Conceptually the APIs are similar, but have some conflicts that can't be resolved easily
+(e.g. process description with multiple outputs in OAP1, job listing with different job status values).
+
+A key differentiator between OAP1 and openEO is that process chaining is a fundamental concept in openEO
+to build your own workflows while OAP1 is more meant to run larger "black box" workflows. You can add
+workflows with Part 3 of OGC API - Processes.
+
+Another key differentiator is that openEO has a list of 
+[pre-defined but extensible processes](https://processes.openeo.org) available
+while OGC API - Processes doesn't predefine processes.
+
+As such the target audience of OAP1 and openEO is probably only partially overlapping.
+
 The openEO API covers the following "categories" of endpoints:
+
 - [API discovery](#api-discovery) - partially covered by OGC API - Processes - Part 1
 - [Authentication](#authentication) - not defined by OGC
 - [Data Discovery](#data-discovery) - covered by various other OGC APIs (Coverages, EDR, Features, Records, ...)
@@ -23,6 +37,8 @@ The openEO API covers the following "categories" of endpoints:
   - [Batch Job processing](#batch-job-processing) - covered by OGC API - Processes - Part 1
   - [On-demand processing](#on-demand-processing) - covered by other OGC APIs (Maps, Tiles, ...)
 - [File Storage](#file-storage) - not covered by OGC APIs
+
+## General API mechanics
 
 Both APIs use HTTP as the basis and encourage HTTPS.
 HTTP 1.1 is required for OAP1, while openEO doesn't specify a specific HTTP version.
@@ -132,11 +148,18 @@ and OAP1 still provides a predefined set of fields which conflict with openEO (s
 
 The openEO API specifies a single encoding for process descriptions.
 
-An important difference is that in OAP1 you usually execute just one process
+An important difference is that in OAP1 you just execute one process
 (you can optionally chain them using OGC API - Processes - Part 3).
-This means a process in OAP1 are usually more complex.
-In openEO a process is usually very fine-granular (e.g. addition of two numbers)
+This means a process in OAP1 is often more complex.
+In openEO a process is often very fine-granular (e.g. addition of two numbers)
 and you usually chain multiple of them to a more complex process (graph).
+The process chaining into a full graph is fundamental in openEO.
+
+Another major difference is that in openEO there are
+[pre-defined process descriptions available for common use cases](https://processes.openeo.org).
+OGC API - Processes doesn't provide pre-defined process descriptions.
+In theory, you could re-use the openEO processes in OGC API - Processes
+if OGC API - Processes - Part 3 is implemented for chaining.
 
 ### Pre-defined processes
 
