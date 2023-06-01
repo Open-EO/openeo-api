@@ -2458,6 +2458,43 @@ paths:
           $ref: '#/components/responses/client_error_auth'
         5XX:
           $ref: '#/components/responses/server_error'
+  /processing_options:
+    get:
+      summary: Additional processing options
+      operationId: list-processing-options
+      description: |-
+        Lists additional custom processing options that a back-end offers for the
+        different processing modes (synchronous processing, batch jobs, secondary web services).
+
+        The options specified here can be added to the corresponding `POST` requests
+        at the top-level of the object that is sent as the payload.
+        All options SHOULD explicitly be made optional with reasonable defaults
+        as otherwise the interoperability between the implementations decreases.
+      tags:
+        - Capabilities
+        - Data Processing
+        - Batch Jobs
+        - Secondary Services
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: >-
+            An object with a list of parameters per processing mode.
+          content:
+            application/json:
+              schema:
+                description: Processing parameters per processing mode.
+                type: object
+                properties:
+                  create_job_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_service_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_synchronous_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+
   /service_types:
     get:
       summary: Supported secondary web service protocols
@@ -5813,7 +5850,23 @@ components:
             the same level. For example, if type is string, then default can be
             "foo" but cannot be 1. See [JSON Schema draft-07](https://json-schema.org/draft-07/json-schema-validation.html#rfc.section.10.2).
       allOf:
-        - $ref: '#/components/schemas/process_json_schema'
+        - $ref: '#/components/schemas/json_schema'
+    processing_create_parameters:
+      title: Creation Parameters
+      description: |-
+        List of additional custom parameters that a back-end offers during the creation
+        of batch jobs (`POST /jobs`) and secondary web services (`POST /services`) respectively.
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+      example:
+        - name: memory
+          description: Maximum amount of memory that will be allocated for processing, in gigabytes.
+          optional: true
+          default: 32
+          schema:
+            type: integer
+            minimum: 1
     error:
       title: General Error
       description: >-

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /file_formats`: Add `pointcloud` to the `gis_data_types`. [#475](https://github.com/Open-EO/openeo-api/issues/475)
 - `GET /me`: New Relation types `alternate` and `related` for user-specific external pages. [#404](https://github.com/Open-EO/openeo-api/issues/404)
 - `GET /credentials/oidc`: Allow `authorization_code` and `urn:ietf:params:oauth:grant-type:device_code` (both without PKCE) as grants for `default_clients`. [#410](https://github.com/Open-EO/openeo-api/issues/410)
+- Added `GET /processing_options` to define the parameters that can be submitted when creating jobs or services. [#276](https://github.com/Open-EO/openeo-api/issues/276)
 - `GET /jobs` and `GET /jobs/{job_id}`: Added a links property that can for example link to results and logs. [#453](https://github.com/Open-EO/openeo-api/issues/453)
 - `GET /jobs/{job_id}/results`:
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
