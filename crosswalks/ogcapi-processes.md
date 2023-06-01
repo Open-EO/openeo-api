@@ -31,7 +31,7 @@ The openEO API covers the following "categories" of endpoints:
 - [Data Discovery](#data-discovery) - covered by various other OGC APIs (Coverages, EDR, Features, Records, ...)
 - [Process Discovery](#process-discovery) - covered by OGC API - Processes - Part 1
   - [Pre-defined processes](#pre-defined-processes) - covered by OGC API - Processes - Part 1
-  - [User-defined processes](#user-defined-processes) - covered by OGC API - Processes - Part 2 and 3
+  - [User-defined processes / Workflows](#user-defined-processes-/-workflows)  - covered by OGC API - Processes - Part 2 and 3
 - [Data Processing](#data-processing) - covered by OGC API - Processes - Part 1 and 3
   - [Synchronous processing](#synchronous-processing) - covered by OGC API - Processes - Part 1
   - [Batch Job processing](#batch-job-processing) - covered by OGC API - Processes - Part 1
@@ -99,7 +99,7 @@ Some differences include:
   - A link with relation type `http://www.opengis.net/def/rel/ogc/1.0/job-list` to `/jobs` can be
     added in OAP1, but is not present in openEO.
 
-### Conformanc classes
+### Conformance classes
 
 - openEO: `GET /conformance` (optional)
 - OAP1: `GET /conformance` (required)
@@ -193,10 +193,19 @@ Below is a simple process encoded in the two variants discussed here:
 - [OGC Process Description](oap-echo-example.json)
 - [openEO Process](openeo-echo-example.json)
 
-### User-defined processes
+### User-defined processes / Workflows
 
-  TBD, lower priority as it's not covered by OAP1.
-  Instead it is defined in OGC API - Processes - Part 2.
+Workflows are not described in OGC API - Processes - Part 1. Instead Part 2 defines the deployment/management of workflows and Part 3 defines how to define the workflows. Part 2 defines how to chain/nest processes in OGC API - Processes and also defines their own "workflow language" ("Modular OGC API Workflow JSON", short: MOAW), but it seems to also allow providing other workflow languages such as openEO user-defined processes and CWL.
+
+openEO defines the `/process_graphs` endpoints and has workflows (called "user-defined processes" in openEO, i.e. a processes with a process graph) included in the core.
+
+Related documents:
+
+- MOAW: https://github.com/opengeospatial/ogcapi-processes/blob/master/extensions/workflows/sections/clause_6_overview.adoc (and following chapters)
+- openEO: https://github.com/opengeospatial/ogcapi-processes/blob/master/extensions/workflows/sections/clause_13_openeo_workflows.adoc
+- CWL: https://github.com/opengeospatial/ogcapi-processes/blob/master/extensions/workflows/sections/clause_12_cwl_workflows.adoc
+
+A comparison between MOAW and openEO user-defined processes is **TBD**.
 
 ## Data Processing
 
