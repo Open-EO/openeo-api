@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- Added `links` to `GET /jobs/{job_id}` [#495](https://github.com/Open-EO/openeo-api/issues/495)
+
 ## [1.2.0] - 2021-05-25
 
 ### Added
