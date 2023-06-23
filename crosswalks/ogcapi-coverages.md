@@ -71,7 +71,7 @@ An abstraction of real world phenomena.
 **`range`**
 Set of **feature** attribute values associated by a function with the elements of the **domain** of a 
 coverage, that means the stored values of a coverage like for instance the spectral bands;
-In the STAC [`datacube`](https://github.com/stac-extensions/datacube) extension, **range** and **domain**
+in the STAC [`datacube`](https://github.com/stac-extensions/datacube) extension, **range** and **domain**
 are condensed into the same **cube:dimensions** container.
 
 ### STAC
@@ -99,7 +99,7 @@ A set of dimensions that can be of different types: spatial, temporal, "other", 
 In this section we go through the available information on the API capabilities,
 very relevant for interoperability and "machine-actionable" services.
 
-#### Well-known URIs
+### Well-known URIs
 
 - openEO: [`GET /.well-known/openeo`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/connect) (optional)
 
@@ -111,7 +111,7 @@ and it is meant to help a client choose the most suitable endpoint (eg. producti
 Not available in **OAC1**.
 
 
-#### Landing page
+### Landing page
 
 - openEO: [`GET /`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/capabilities) (required)
 
@@ -120,7 +120,7 @@ Not available in **OAC1**.
 Both landing pages stem from the [OGC API - Common](https://ogcapi.ogc.org/common/) standard,
 and they only have minor differences in the returned schemas.
 
-#### Conformance
+### Conformance
 
 - openEO: [`GET /conformance`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/conformance) (optional) (only from v1.2.0)
 
@@ -130,40 +130,121 @@ Both endpoints are 100% equivalent (**openEO** additionally allows to list the c
 following the STAC API).
 
 
-#### API description
+### API description
 
 - openEO: `n/a` (?)
 
 - OAC1: `GET /api` (required)
 
-In **OAC1** this is contains the description of the API (eg. OpenAPI), and optionally some 
+In **OAC1** this contains the description of the API (eg. OpenAPI), and optionally some 
 documentation (eg. HTML).
 
 In **openEO** this is missing.
 
 
-### (Meta)data retrieval
+### Authentication
+
+- openEO: [GET /credentials/basic](https://api.openeo.org/1.2.0/#section/Authentication) 
+   and/or [GET /credentials/oidc](https://api.openeo.org/1.2.0/#section/Authentication)
+
+- OAP1: `n/a`
+
+**openEO** defines two authentication mechanisms:  
+[OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect) (primary)
+and HTTP Basic (for development/testing). **OAC1** does not define any authentication mechanisms,
+and while both mechanisms could be implemented, **OAC1** clients will likely not support them.
+
+The availability of the authentication mechanisms is detected through the endpoints in the
+[landing page](#landing-page) in **openEO**, while in **OAC1** you need to parse the 
+OpenAPI document for it (which implicitly requires a link to an OpenAPI 3.0 file with 
+relation type `service-desc` in the landing page).
+
+
+### Data discovery
+
+{datasetAPI}/collections
+-> abbreviated copy of Collection Resource (OGC API-Common Part 2 Standard.)
+...
+
+### Data description
+
+{datasetAPI}/collections/{collectionId}
+{datasetAPI}/collections/{collectionId}/coverage/rangetype
+{datasetAPI}/collections/{collectionId}/coverage/domainset
+{datasetAPI}/collections/{collectionId}/coverage/metadata
+-->  All of the collections described on a Coverages API will be be CIS covaerages
+
+Due to the multi-dimensional nature of coverages, it is desireable for an 
+API to describe the extent of a coverage along those additional dimensions. 
+OAC1 addresses this need through an extension of the Collection Resource which supports additional dimensions.
+This is accomplished by replacing the Extent module with the `Extent-UAD` module.
+
+coverage's metadata (may be empty) (wg. domain-specific)
 
 ...
 
-
-### Domain subsetting
-
-...
-
-### Range subsetting
+### Data access
 
 ...
 
+{datasetAPI}/collections/{collectionId}/coverage
+{datasetAPI}/collections/{collectionId}/coverage/rangeset
+Values can be represented in-line or by reference to an external file which may have any suitable encoding.
 
-### Scaling
+### Data subsetting
+
+#### Domain
+-> multi-dimensional coverage, thus:
+bbox: Bounding Box
+datetime: Date and Time
+subset: Subset
+
+BBOX: default WGS84 (alternative CRS can be specified) lat/lon + ellipsoidal height.
+Data that INTERSECTS with the bbox is returned + all resources in the collection that 
+are not associated with a spatial geometry.
+"Intersects" means that a coordinate that is part of the spatial geometry of the resource falls within the area specified in the parameter bbox. This includes the boundaries of the geometries.
+
+DATETIME: [ABNF](https://datatracker.ietf.org/doc/html/rfc5234) syntax is used to specify the intervals,
+or "temporal geometries", with double-dots '..' to specify open ranges.
+INTERSECTION as specified for the bbox, mutatis mutandis.
+
+SUBSET: general low:high either numeric or text-based interval definition (also single point slicing is allowed)
+with asterisks '*' used for open ranges.
+
+Also planned: Consider returing a URI instead of the content if the content is too large.
+Or - return a reduced resolution coverage with a URI to the full resolution response
+...
+
+#### Range
+`properties` parameter for selecting a subset of the DataRecord fields (defined in the Range Type, e.g. individual imagery bands) .
+filtering can be done via band names, or using numeric indexes (order of the band in the range set)
+
+
+### Data scaling
+
+
+= retrieving data from n-dimensional Range Sets at a resolution different than the original
+
+ parameters: scale-size or scale-factor or scale-axes
 
 ...
 
 ### Tiles
 
+.../{collectionId}/coverage/tiles -> list of tiles ("tileset")
+.../{collectionId}/coverage/tiles/{tileMatrixSetId} -> tileset description
+.../{collectionId}/coverage/tiles/{tileMatrixSetId}/{tileMatrix}/{tileRow}/{tileCol} -> data tile
+combine the OGC API - Tiles Part1:Core building blocks with the Coverages API to request coverage tiles
+
+RESULT = subset of the coverage trimmed on the axes defined by the 2D Tile Matrix Set to cover the exact geospatial extent of the tile.
 ...
 
+### Media encoding
+
+A description of the media types is mandatory for any OGC standard which involves data encodings. 
+
+OGC standard does not mandate any particular encoding or format (CIS JSON recommended),
+also binary formats (CIS RDF, NetCDF, GeoTIFF, PNG, JPEG, JPEG-2000, etc)
 
 ## References
 
@@ -173,5 +254,6 @@ In **openEO** this is missing.
 
 - **OGC Abstract Specification Topic 6** - *Schema for coverage geometry and functions* &mdash; https://portal.ogc.org/files/?artifact_id=19820
 
+- **OGC API - Tiles - Part 1: Core Standard 1.0.0** &mdash; https://docs.ogc.org/is/20-057/20-057.html
+
 - **OGC Web Coverage Service (WCS) 2.1 Interface Standard** &mdash; http://docs.opengeospatial.org/is/17-089r1/17-089r1.html
-interface standard (v2.1).
