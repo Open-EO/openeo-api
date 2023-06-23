@@ -4,6 +4,10 @@ This document gives a brief overview over similarities and differences between
 - [**openEO API, v1.2.0**](https://api.openeo.org/1.2.0/)
 - [**OGC API - Coverages - Part 1: Core, v0.0.6**](https://docs.ogc.org/DRAFTS/19-087.html)
 
+----
+
+**TABLE OF CONTENTS**
+
 [TOC]
 
 ## Introduction
@@ -167,8 +171,8 @@ In **openEO** this is missing.
 
 ### Authentication
 
-- openEO: [GET /credentials/basic](https://api.openeo.org/1.2.0/#section/Authentication) 
-   and/or [GET /credentials/oidc](https://api.openeo.org/1.2.0/#section/Authentication)
+- openEO: [`GET /credentials/basic`](https://api.openeo.org/1.2.0/#section/Authentication) 
+   and/or [`GET /credentials/oidc`](https://api.openeo.org/1.2.0/#section/Authentication)
 
 - OAP1: `n/a`
 
@@ -187,7 +191,7 @@ relation type `service-desc` in the landing page).
 
 - openEO:
   - [`GET /collections`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/list-collections) (required)
-  - [`GET/POST /search`]
+  - [`GET/POST /search`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/STAC) (optional)
 
 - OAC1:
   - `GET /collections` (required)
@@ -208,7 +212,7 @@ inside the collections, as per [STAC API repository](https://github.com/radiante
 
 - openEO:
   - [`GET /collections/{collectionId}`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/describe-collection) (required)
-  - [`GET /collections/{collectionId}/queryables`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/list-collection-queryables)
+  - [`GET /collections/{collectionId}/queryables`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/list-collection-queryables) (required?)
 
 - OAC1:
   - `GET /collections/{collectionId}` (required)
@@ -237,11 +241,11 @@ and [OGC API - Features - Part 3: Filtering](https://github.com/opengeospatial/o
 ### Data access
 
 - openEO:
-  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result)@
-[load_collection](https://processes.openeo.org/#load_collection) process
-  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job)@
-[resample_spatial](https://processes.openeo.org/#load_collection) process +
-[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job)
+  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result) @
+[`load_collection`](https://processes.openeo.org/#load_collection) process (sync)
+  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job) @
+[`load_collection`](https://processes.openeo.org/#load_collection) process +
+[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job) (async)
 
 - OAC1:
   - `GET /collections/{collectionId}/coverage` (required)
@@ -261,11 +265,11 @@ For pre-filtering / data subsetting options, see next section.
 ### Data subsetting
 
 - openEO: 
-  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result)@
-[load_collection](https://processes.openeo.org/#load_collection) process
-  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job)@
-[resample_spatial](https://processes.openeo.org/#load_collection) process +
-[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job)
+  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result) @
+[`load_collection`](https://processes.openeo.org/#load_collection) process (sync)
+  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job) @
+[`load_collection`](https://processes.openeo.org/#load_collection) process +
+[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job) (async)
 
 - OAC1:
   - `bbox` / `datetime` / `subset` query params (domain subsetting)
@@ -305,17 +309,17 @@ An **openEO** server can optionally provide a rough estimate of the time/cost
 of a stored job via [`/jobs/{jobId}/estimate`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/estimate-job).
 Server logs are also available in **openEO** either directly in the synchronous processing
 response (as a link), or via the API resources dedicated to the batch jobs
-(eg. `josb/{jobId}/logs`).
+(eg. [`jobs/{jobId}/logs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/debug-job)).
 
 
 ### Data scaling
 
 - openEO:
-  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result)@
-[resample_spatial](https://processes.openeo.org/#resample_spatial) process
-  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job)@
-[resample_spatial](https://processes.openeo.org/#resample_spatial) process +
-[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job)
+  - [`POST /result`](https://api.openeo.org/1.2.0/#tag/Data-Processing/operation/compute-result) @
+[`resample_spatial`](https://processes.openeo.org/#resample_spatial) process (sync)
+  -  [`POST /jobs`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/create-job) @
+[`resample_spatial`](https://processes.openeo.org/#resample_spatial) process +
+[`POST /jobs/{jobId}/results`](https://api.openeo.org/1.2.0/#tag/Batch-Jobs/operation/start-job) (async)
 
 - OAC1: 
   - `GET /collections/{collectionId}/coverage?scale-size=axisName({number})[,axisName({number})]*`
@@ -331,8 +335,8 @@ At the time of writing, the available **openEO** processes for data resampling a
 [`resample_spatial`](https://processes.openeo.org/#resample_spatial) &mdash; 
 that rescales the spatial dimensions to a target resolution, or to
 a target spatial coordinate reference system &mdash; and
-[resample_cube_spatial](https://processes.openeo.org/#resample_spatial)/
-[resample_cube_temporal](https://processes.openeo.org/#resample_cube_temporal), that
+[`resample_cube_spatial`](https://processes.openeo.org/#resample_spatial)/
+[`resample_cube_temporal`](https://processes.openeo.org/#resample_cube_temporal), that
 rescale the spatial/temporal dimensions to match the resolutions of a
 provided target datacube.
 
