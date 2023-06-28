@@ -1,6 +1,7 @@
 # Crosswalk between openEO API and OGC API - Coverages
 
-This document gives a brief overview over similarities and differences between
+This document gives a brief overview over similarities and differences between:
+
 - [**openEO API, v1.2.0**](https://api.openeo.org/1.2.0/)
 - [**OGC API - Coverages - Part 1: Core, v0.0.6**](https://docs.ogc.org/DRAFTS/19-087.html)
 
@@ -8,7 +9,26 @@ This document gives a brief overview over similarities and differences between
 
 **TABLE OF CONTENTS**
 
-[TOC_]
+  * [Introduction](#introduction)
+  * [Nomenclature](#nomenclature)
+    + [OGC](#ogc)
+    + [STAC](#stac)
+  * [Crosswalk](#crosswalk)
+    + [Meta / API capabilities](#meta-api-capabilities)
+    + [Well-known URIs](#well-known-uris)
+    + [Landing page](#landing-page)
+    + [Conformance](#conformance)
+    + [API description](#api-description)
+    + [Authentication](#authentication)
+    + [Data discovery](#data-discovery)
+    + [Data description](#data-description)
+    + [Data access](#data-access)
+    + [Data subsetting](#data-subsetting)
+    + [Data scaling](#data-scaling)
+    + [Tiles](#tiles)
+    + [Media encoding](#media-encoding)
+  * [References](#references)
+
 
 ## Introduction
 
@@ -120,6 +140,8 @@ The only **OAC1** capability that **openEO** does not directly provide (if not
 via cascade with a secondary tiles service) is to attach tilesets to coverages, and hence
 enable tiled access to the data.
 
+
+<a name="meta-api-capabilities"/>
 
 ### Meta / API capabilities
 
