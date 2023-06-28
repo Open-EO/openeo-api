@@ -8,7 +8,7 @@ This document gives a brief overview over similarities and differences between
 
 **TABLE OF CONTENTS**
 
-[TOC]
+[TOC_]
 
 ## Introduction
 
@@ -257,7 +257,9 @@ or by reference to an external file which may have any suitable encoding.
 
 **openEO** provides access to the actual data by means of the 
 [load_collection](https://processes.openeo.org/#load_collection) process, which can
-be submitted either synchronously or asynchronously as a batch job.
+be submitted either synchronously, or asynchronously as a batch job.
+The format of the resulting data shall always be specified by chaining a
+[save_result](https://processes.openeo.org/#save_result) process.
 
 For pre-filtering / data subsetting options, see next section.
 
@@ -354,7 +356,7 @@ for via query parameters of the URL.
 
 ### Tiles
 
-- openEO: `n/a` (?)
+- openEO: `n/a`
 
 - OAC1:
   - `GET /collections/{collectionId}/coverage/tiles` : list the available tilesets
@@ -367,25 +369,24 @@ coverage data in form of tiles, hence trimmed and resampled to match the
 boundaries and resolution of a given tile. More than one tilesets can be attached to a coverage.
 
 **openEO** does not provide tiled access directly, but can be easily cascaded to
-a dedicated secondary tile service (like [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames))
-thanks to the [`/service_types`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/list-service-types) resource. (?)
+a dedicated secondary tiles service (like [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames))
+thanks to the [`/service_types`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/list-service-types) resource.
 
 
 ### Media encoding
 
 - openEO: [`GET /file_formats`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/list-file-types)
 
-- OAC1: `GET /` (?)
+- OAC1: `GET /api`
 
-While not exposed as a dedicated API resource, **OAC1** requires a server to provide information about
-the supported media types (probably in the landing page).
+Both **OAC1** and **openEO** provide a list of data formats the server supports, both
+the data formats the server can read from (input), and write to (output).
 
-**OAC1** does not mandate any particular output encoding or format, although CIS JSON is recommended.
+**OAC1** embeds the information in the API description available in the `/api` endpoint.
+It does not mandate any particular output encoding or format, although CIS JSON is recommended.
 Binary formats of course are also alllowed (CIS RDF, NetCDF, GeoTIFF, PNG, JPEG, JPEG-2000, etc.)
 
-**openEO** returns a list of data formats the server supports, with the additional 
-information of the data formats the server can also read from (input), and not just 
-write to (output). Format names and parameters are aligned with the GDAL/OGR formats although
+In **openEO** format names and parameters are aligned with the GDAL/OGR formats although
 custom file formats are also permitted.
 
 
