@@ -234,7 +234,7 @@ inside the collections, as per [STAC API repository](https://github.com/radiante
 
 - openEO:
   - [`GET /collections/{collectionId}`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/describe-collection) (required)
-  - [`GET /collections/{collectionId}/queryables`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/list-collection-queryables) (required?)
+  - [`GET /collections/{collectionId}/queryables`](https://api.openeo.org/1.2.0/#tag/EO-Data-Discovery/operation/list-collection-queryables) (optional)
 
 - OAC1:
   - `GET /collections/{collectionId}` (required)
@@ -378,7 +378,7 @@ for via query parameters of the URL.
 
 ### Tiles
 
-- openEO: `n/a`
+- openEO: -> secondary web services
 
 - OAC1:
   - `GET /collections/{collectionId}/coverage/tiles` : list the available tilesets
@@ -390,7 +390,7 @@ for via query parameters of the URL.
 coverage data in form of tiles, hence trimmed and resampled to match the 
 boundaries and resolution of a given tile. More than one tilesets can be attached to a coverage.
 
-**openEO** does not provide tiled access directly, but can be easily cascaded to
+**openEO** does not provide tiled access directly, but can be easily cascaded by
 a dedicated secondary tiles service (like [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames))
 thanks to the [`/service_types`](https://api.openeo.org/1.2.0/#tag/Capabilities/operation/list-service-types) resource.
 
