@@ -181,14 +181,13 @@ following the STAC API).
 
 ### API description
 
-- openEO: `n/a` (?)
+- openEO: as per `service-desc` / `service-doc` relation types
 
 - OAC1: `GET /api` (required)
 
-In **OAC1** this contains the description of the API (eg. OpenAPI), and optionally some 
-documentation (eg. HTML).
-
-In **openEO** this is missing.
+Both **openEO** and **OAC1** can provide service descriptions (eg. OpenAPI documents) and
+human-readable documentation in the resources pointed by the standard `service-desc` and `service-doc` relation types.
+In **OAC1** such resources shall (both) point to the `/api` endpoint.
 
 
 ### Authentication
