@@ -155,7 +155,7 @@ Example request payload to `GET /search` for `PLEIADES` products from "Living Li
 
 ### Ordering products
 
-Backends should implement the following endpoints:
+Backends must implement the following endpoints:
 
 - `GET /orders`: Get a list of all created orders
 - `POST /orders`: Create an order

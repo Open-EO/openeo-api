@@ -155,8 +155,19 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality.
-This can also be embeded deeply into a hierarchical structure, e.g. for process or file format parameters.
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
+
+- `GET /collections/{id}`
+- `GET /processes` (per process, per parameter)
+- `GET /file_formats` (per file format)
+- `GET /udf_runtimes` (per UDF runtime, per version)
+- `POST /validation` (the back-ends that can run the process)
+- `GET /process_graphs/{id}`
+- `GET /jobs/{job_id}` (the back-ends that generated the result)
+- `GET /jobs/{job_id}/results` (the back-ends that generated the result)
+- `GET /services/{id}`
+
+This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
 ```yaml
 schema:
@@ -207,10 +218,7 @@ schema:
   "stac_version": "1.0.0",
   "id": "example",
   "description": "...",
-  "summaries": {
-    "federation:backends": ["vito", "eodc"],
-    ...
-  },
+  "federation:backends": ["vito", "eodc"],
   ...
 }
 ```
