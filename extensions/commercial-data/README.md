@@ -1,6 +1,6 @@
 # Commercial Data Extension
 
-The Commercial Data API extension provides an interface for discovering, ordering and using commercial data in the openEO API. 
+The Commercial Data Extension to the openEO API provides an interface for discovering, ordering and using commercial data in openEO. 
 
 - Version: **0.1.0**
 - Stability: **experimental**
