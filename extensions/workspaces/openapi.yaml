@@ -1,0 +1,410 @@
+openapi: 3.0.2
+info:
+  title: openEO API - Workspaces Extension
+  version: 0.1.0
+  description: |-
+    The Workspace Extension to the openEO API provides an interface for connecting external file storage such as cloud buckets to openEO back-end implementations.
+
+    This opens the possibility to register such a file storage system as a data source for new collections, so-called "User Collections".
+    Additionally, batch job results can be stored on such file storage systems.
+
+    The Workspace API is inspired by the [EOEPCA Workspace API](https://github.com/EOEPCA/rm-workspace-api) with regards to workspace management. The User Collections are not aligned with EOEPCA.
+  contact:
+    name: openEO Consortium
+    url: 'https://openeo.org'
+    email: openeo.psc@uni-muenster.de
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/workspaces/README.md
+tags:
+  - name: Workspaces
+    description: Management of User Workspaces
+  - name: User Collections
+    description: Management of User Collections
+servers:
+  - url: 'https://openeo.example/api/{version}'
+    description: >-
+      The URL of the API MAY freely be chosen by the back-end providers. The
+      path, including API versioning, is a *recommendation* only. Nevertheless,
+      all servers MUST support HTTPS as the authentication methods are not
+      secure with HTTP only!
+    variables:
+      version:
+        default: v1
+        description: >-
+          API versioning is RECOMMENDED. As the openEO API is following
+          [SemVer](https://semver.org/) only the MAJOR part of the stable
+          version numbers (i.e. versions >= 1.0.0) SHOULD be used for API
+          versioning in the URL. The reason is that backward-incompatible
+          changes are usually introduced by major changes. Therefore, the
+          version number in the URL MUST not be used by the clients to detect
+          the version number of the API. Use the version number returned from
+          `GET /` instead.
+paths:
+  /workspaces:
+    get:
+      summary: List all workspaces
+      operationId: list-workspaces
+      description: |-
+        Lists all workspaces that have been added by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all optional non-scalar values (i.e. arrays and objects) from objects in `workspaces`.
+        To get the full metadata for a workspace clients MUST request `GET /workspaces/{workspace_id}`.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      parameters:
+        - $ref: '../../openapi.yaml#/components/parameters/pagination_limit'
+      responses:
+        '200':
+          description: Array of workspace descriptions
+          content:
+            application/json:
+              schema:
+                title: Workspaces
+                type: object
+                required:
+                  - workspaces
+                  - links
+                properties:
+                  workspaces:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/workspace'
+                  links:
+                    $ref: '../../openapi.yaml#/components/schemas/links_pagination'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    post:
+      summary: Create Workspace
+      operationId: create-workspace
+      description: |-
+        Creates a new workspace.
+
+        This request queues the creation of a workspace. It directly registers an id at the back-end, but the workspace itself may have a status of `provisioning` until the workspace is ready to use.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - intent
+              properties:
+                intent:
+                  type: string
+                quota:
+                  $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+              oneOf:
+                - title: Create workspace
+                  properties:
+                    intent:
+                      enum:
+                        - create
+                      example: create
+                - title: Register existing workspace
+                  required:
+                    - url
+                    - credentials
+                  properties:
+                    intent:
+                      enum:
+                        - register
+                      example: register
+                    url:
+                      $ref: '#/components/schemas/workspace_url'
+                    credentials:
+                      $ref: '#/components/schemas/workspace_credentials'
+        required: true
+      responses:
+        '201':
+          description: The workspace creation has been queued successfully.
+          headers:
+            Location:
+              required: true
+              schema:
+                description: |-
+                  Absolute URL to the workspace metadata.
+                  
+                  The URL points to the endpoint
+                  `GET /workspaces/{workspace_id}` with the `{workspace_id}` being the
+                  id of the created workspace.
+                format: uri
+                type: string
+                example: 'https://openeo.example/api/v1/workspaces/my-workspace'
+            OpenEO-Identifier:
+              required: true
+              schema:
+                $ref: '#/components/schemas/workspace_id'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+  /workspaces/{workspace_id}:
+    parameters:
+      - $ref: '#/components/parameters/workspace_id'
+    get:
+      summary: Full metadata for a workspace
+      operationId: describe-workspace
+      description: >-
+        Returns the full metadata for a workspace.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/workspace'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    delete:
+      summary: Delete Workspace
+      operationId: delete-workspace
+      description: |-
+        Removes the workspace from the backend.
+
+        Associated User Collections MAY also be removed.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The workspace has been successfully deleted.
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    patch:
+      summary: Update workspace details
+      operationId: update-workspace
+      description: >-
+        Updates the workspace details.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quota:
+                  $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+        required: true
+      responses:
+        '204':
+          description: Changes to the workspace were applied successfully.
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+  /collections:
+    post:
+      summary: Create a new User Collection
+      operationId: create-collection
+      description: |-
+        Registers a new collection.
+
+        The data must be available in the workspace provided via the query parameter. The data must be a STAC catalog in the given https://github.com/Open-EO/openeo-api/blob/draft/extensions/workspaces/README.md
+        
+        The default entry point is a `catalog.json` or `collection.json` in the "root folder". The entry point can be customized by providing a relative link with the relation type `entrypoint` in the STAC metadata.
+
+        The collection metadata is provided via the request body. If no `id` is specified, the back-end assigns an ID.
+      tags:
+        - User Collections
+        - Workspaces
+      security:
+        - Bearer: []
+      parameters:
+        - name: workspace
+          in: query
+          required: true
+          description: The ID of the workspace where the data for the collection is located.
+          schema:
+            $ref: '#/components/schemas/workspace_id'
+      requestBody:
+        required: true
+        description: |-
+          The metadata to use for the specified User Collection.
+
+          **TODO:** The schema describes a generic collection. Required fields don't apply.
+        content:
+          application/json:
+            schema:
+              $ref: '../../openapi.yaml#/components/schemas/collection'
+      responses:
+        '201':
+          description: The collection has been created successfully.
+          headers:
+            Location:
+              required: true
+              schema:
+                description: |-
+                  Absolute URL to the newly created collection.
+                  
+                  The URL points to the metadata endpoint
+                  `GET /collections/{collection_id}` with the `{collection_id}` being the
+                  id of the created collection.
+                format: uri
+                type: string
+                example: 'https://openeo.example/api/v1/collections/my-collection'
+            OpenEO-Identifier:
+              required: true
+              schema:
+                $ref: '../../openapi.yaml#/components/schemas/collection_id'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+  /collections/{collection_id}:
+    parameters:
+      - $ref: '../../openapi.yaml#/components/parameters/collection_id'
+    patch:
+      summary: Modify a User Collection
+      operationId: update-collection
+      description: |-
+        Modifies an existing User Collection at the back-end,
+        but maintains the identifier and associated workspace. Changes can be grouped in a single request.
+
+        User have to create a new collection to change the associated workspace or the collection identifier.
+      tags:
+        - User Collections
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: Changes to the User Collection were applied successfully.
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+      requestBody:
+        required: true
+        description: |-
+          The metadata to change for the specified User Collection.
+
+          **TODO:** The schema describes a generic collection. Required fields don't apply. The `id` can't be updated.
+        content:
+          application/json:
+            schema:
+              $ref: '../../openapi.yaml#/components/schemas/collection_id'
+    delete:
+      summary: Delete a User Collection
+      operationId: delete-collection
+      description: |-
+        Deletes the User Collection.
+
+        Does NOT delete jobs or services that reference this User Collection. Also, does NOT remove any data from the workspace or the workspace itself.
+      tags:
+        - User Collections
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The User Collection has been successfully deleted
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+components:
+  parameters:
+    workspace_id:
+      name: workspace_id
+      in: path
+      required: true
+      description: The ID of the workspace.
+      schema:
+        $ref: '#/components/schemas/workspace_id'
+  schemas:
+    workspace_id:
+      type: string
+      pattern: '^[\w\-\.~]+$'
+      example: my-collection
+    workspace:
+      title: Workspace
+      required:
+        - id
+        - status
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/workspace_id'
+        status:
+          type: string
+          description: The status of the workspace.
+        details:
+          type: string
+          description: >-
+            A status message (e.g. error message) or any other free-text information about the workspace.
+        quota:
+          $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+      oneOf:
+        - title: Unavailable
+          description:
+            The workspace is not available, e.g. because it's still provisioning it
+            or the back-end can't connect to it / lost the connection / has been deleted externally, ...
+          properties:
+            status:
+              enum:
+                - provisioning
+                - unavailable
+              example: provisioning
+        - title: Ready
+          properties:
+            status:
+              enum:
+                - ready
+              example: ready
+            url:
+              $ref: '#/components/schemas/workspace_url'
+            credentials:
+              $ref: '#/components/schemas/workspace_credentials'
+            properties:
+              $ref: '#/components/schemas/workspace_properties'
+            free:
+              $ref: '../../openapi.yaml#/components/schemas/storage_quota_free'
+    workspace_url:
+      type: string
+      format: uri
+      description: The URL of the actual workspace, e.g. a bucket URL.
+      example: 'https://my-bucket.s3.eu-west-3.amazonaws.com'
+    workspace_credentials:
+      type: object
+      description: >-
+        Credentials to access the workspace as required by the workspace provider.
+        The structure is not specified by the API.
+      additionalProperties:
+        type: string
+      example:
+        username: john_doe
+        password: secret123
+    workspace_properties:
+      type: object
+      description: >-
+        Any additional metadata of the workspace provided by the workspace provider.
+        The structure is not specified by the API.
+      additionalProperties:
+        description: Any type
+      example:
+        region: eu-west-3
+        storage_class: standard
+  securitySchemes:
+    Bearer:
+      $ref: '../../openapi.yaml#/components/securitySchemes/Bearer'
