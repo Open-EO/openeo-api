@@ -100,6 +100,10 @@ paths:
               required:
                 - intent
               properties:
+                title:
+                  $ref: '#/components/schemas/workspace_title'
+                description:
+                  $ref: '#/components/schemas/workspace_description'
                 intent:
                   type: string
                 quota:
@@ -205,8 +209,10 @@ paths:
             schema:
               type: object
               properties:
-                quota:
-                  $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+                title:
+                  $ref: '#/components/schemas/workspace_title'
+                description:
+                  $ref: '#/components/schemas/workspace_description'
         required: true
       responses:
         '204':
@@ -337,6 +343,17 @@ components:
       type: string
       pattern: '^[\w\-\.~]+$'
       example: my-collection
+    workspace_title:
+      type: string
+      description: A short title for the workspace.
+    workspace_description:
+      type: string
+      format: commonmark
+      description: |-
+        A description that describes the workspace.
+
+        [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+        text representation.
     workspace:
       title: Workspace
       required:
@@ -346,6 +363,10 @@ components:
       properties:
         id:
           $ref: '#/components/schemas/workspace_id'
+        title:
+          $ref: '#/components/schemas/workspace_title'
+        description:
+          $ref: '#/components/schemas/workspace_description'
         status:
           type: string
           description: The status of the workspace.
