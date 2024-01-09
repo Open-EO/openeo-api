@@ -13,21 +13,21 @@ info:
 
     In the specification the key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html) and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174.html).
 
-    ## Casing
+    ## Literal Case
 
     Unless otherwise stated the API works **case sensitive**.
 
-    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields are generally case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2) and in the specification we follow their respective casing conventions, e.g. `Content-Type` or `OpenEO-Costs`, for better readability and consistency.
+    All names SHOULD be written in snake case, i.e. words are separated with one underscore character (`_`) and no spaces, with all letters lower-cased. Example: `hello_world`. This applies particularly to endpoints and JSON property names. HTTP header fields are generally case-insensitive according to [RFC 7230](https://www.rfc-editor.org/rfc/rfc7230.html#section-3.2) and their respective casing conventions are followed, e.g. `Content-Type` or `OpenEO-Costs`, for better readability and consistency.
 
     ## HTTP / REST
 
-    This uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) [Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
+    This specification uses [HTTP REST](https://en.wikipedia.org/wiki/Representational_state_transfer) [Level 2](https://martinfowler.com/articles/richardsonMaturityModel.html#level2) for communication between client and back-end server.
 
-    Public APIs MUST be available via HTTPS only. 
+    Public API implementations MUST be available via HTTPS only. 
     
-    Endpoints are made use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE) whenever technically possible. If there is a need to transfer big chunks of data for a GET requests to the back-end, POST requests MAY be used as a replacement as they support to send data via request body. Unless otherwise stated, PATCH requests are only defined to work on direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires to send the whole JSON object defined by the first-level property.
+    Endpoints are made use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE) whenever technically possible. If there is a need to transfer big chunks of data for a GET requests to the back-end, POST requests MAY be used as a replacement as they support to send data via request body. Unless otherwise stated, PATCH requests are only defined to work on direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires sending the whole JSON object defined by the first-level property.
 
-    Naming of endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
+    Naming rules of the API endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
 
     The openEO API makes use of [HTTP Content Negotiation](https://www.rfc-editor.org/rfc/rfc9110.html#name-content-negotiation),
     including, but not limited to, the request headers `Accept`, `Accept-Charset` and `Accept-Language`.
@@ -38,30 +38,30 @@ info:
 
     ### Charset
 
-    Services use [UTF-8](https://en.wikipedia.org/wiki/UTF-8) as the default charset if not negotiated otherwise with HTTP Content Negotiation ([`Accept-Charset` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept-charset)).
+    If not negotiated otherwise with HTTP Content Negotiation ([`Accept-Charset` header](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept-charset)), services use [UTF-8](https://en.wikipedia.org/wiki/UTF-8) as the default charset.
 
     ## Web Linking
     
-    The API is designed in a way that to most entities (e.g. collections and processes) a set of links can be added. These can be alternate representations, e.g. data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
+    The API is designed in a way that for most resources, such as collections and processes, a set of links can be added. These can be alternate representations such as data discovery via OGC WCS or OGC CSW, references to a license, references to actual raw data for downloading, detailed information about pre-processing and more. Clients should allow users to follow the links.
 
     Whenever links are utilized in the API, the description explains which relation (`rel` property) types are commonly used.
     A [list of standardized link relations types is provided by IANA](https://www.iana.org/assignments/link-relations/link-relations.xhtml) and the API tries to align whenever feasible.
 
     Some very common relation types - usually not mentioned explicitly in the description of `links` fields - are:
     
-    1. `self`: which allows link to the location that the resource can be (permanently) found online.This is particularly useful when the data is data is made available offline, so that the downstream user knows where the data has come from.
+    1. `self`: Refers to the location that the resource can be (permanently) found online. This is particularly useful when the data is made available offline, so that the downstream user knows the source of the data.
 
     2. `alternate`: An alternative representation of the resource, may it be another metadata standard the data is available in or simply a human-readable version in HTML or PDF.
 
-    3. `about`: A resource that is related or further explains the resource, e.g. a user guide.
+    3. `about`: A resource that is related to or further explains the resource, e.g. a user guide.
 
     4. `canonical`: This relation type usually points to a publicly accessible and more long-lived URL for a resource that otherwise often requires (Bearer) authentication with a short-lived token.
-    This way the the exposed resources can be used by non-openEO clients without additional authentication steps.
+    This way the exposed resources can be used by non-openEO clients without additional authentication steps.
     For example, a shared user-defined process or batch job results could be exposed via a canonical link.
     If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://openeo.example/processes/john_doe/ndvi`.
     For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://openeo.example/processes/81zjh1tc2pt52gbx/ndvi`.
 
-    Generally, it is RECOMMENDED to add descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
+    Generally, it is RECOMMENDED adding descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
 
     ## Error Handling
 
@@ -92,7 +92,7 @@ info:
     * The `code` is either one of the [standardized textual openEO error codes](errors.json) or a proprietary error code.
     * The `message` explains the reason the server is rejecting the request. For "4xx" error codes the message explains how the client needs to modify the request.
 
-      By default the message MUST be sent in English language. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
+      By default, the message MUST be in English. Content Negotiation is used to localize the error messages: If an `Accept-Language` header is sent by the client and a translation is available, the message should be translated accordingly, and the `Content-Language` header must be present in the response. See "[How to localize your API](http://apiux.com/2013/04/25/how-to-localize-your-api/)" for more information.
     * `url` is an OPTIONAL attribute and contains a link to a resource that is explaining the error and potential solutions in-depth.
 
     ### Standardized status codes
@@ -108,7 +108,7 @@ info:
     - **204 No Content**:
       Indicates a successful request **without** a response body being sent.
 
-    The openEO API has some commonly used HTTP status codes for failed requests: 
+    The openEO API reuses commonly used HTTP status codes for failed requests: 
 
     - **400 Bad Request**:
       The back-end responds with this error code whenever the error has its origin on client side and no other HTTP status code in the 400 range is suitable.
@@ -117,11 +117,11 @@ info:
       The client did not provide any authentication details for a resource requiring authentication or the provided authentication details are not correct.
 
     - **403 Forbidden**:
-      The client did provided correct authentication details, but the privileges/permissions of the provided credentials do not allow to request the resource.
+      The client did provide correct authentication details, but the privileges/permissions of the provided credentials do not allow requesting the resource.
 
     - **404 Not Found**:
-      The resource specified by the path does not exist, i.e. one of the resources belonging to the specified identifiers are not available at the back-end.
-      *Note:* Unsupported endpoints MAY also return HTTP status code 501.
+      The resource specified by the path does not exist. One of the resources belonging to the specified identifiers are not available at the back-end.
+      *Note:* Unsupported endpoints MAY also return an HTTP status code 501.
 
     - **500 Internal Server Error**:
       The error has its origin on server side and no other status code in the 500 range is suitable.
@@ -131,13 +131,13 @@ info:
       *Note:* Unsupported endpoints MAY also return HTTP status code 404.
 
 
-    If a HTTP status code in the 400 range is returned, the client SHOULD NOT repeat the request without modifications. For HTTP status code in the 500 range, the client MAY repeat the same request later.
+    If a HTTP status code in the 400 range is returned, the client SHOULD modify the request and repeat the request. For HTTP status code in the 500 range, the client MAY repeat the same request later.
 
     All HTTP status codes defined in RFC 7231 in the 400 and 500 ranges can be used as openEO error code in addition to the most used status codes mentioned here. Responding with openEO error codes 400 and 500 SHOULD be avoided in favor of any more specific standardized or proprietary openEO error code.
 
     ## Temporal data
 
-    Date, time, intervals and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
+    Date, time, time intervals, and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
 
     # Authentication
 
@@ -151,19 +151,19 @@ info:
 
     <SecurityDefinitions />
 
-    **Note:** Although it is possible to request several public endpoints for capabilities and discovery that don't require authorization, it is RECOMMENDED that clients (re-)request the public endpoints that support Bearer authentication with the Bearer token once available to also retrieve any private data that is made available specifically for the authenticated user.
+    **Note:** Although it is possible to request several public endpoints for capabilities and discovery that do not require authorization, it is RECOMMENDED that clients (re-)request the public endpoints that support Bearer authentication with the Bearer token once available to also retrieve any private data that is made available specifically for the authenticated user.
     This may require that clients clear any cached data they retrieved from public endpoints before.
 
     # Cross-Origin Resource Sharing (CORS)
 
     > Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources [...] on a web page to be requested from another domain outside the domain from which the first resource was served. [...]
-    > CORS defines a way in which a browser and server can interact to determine whether or not it is safe to allow the cross-origin request. It allows for more freedom and functionality than purely same-origin requests, but is more secure than simply allowing all cross-origin requests.
+    > CORS defines a way in which a browser and server can interact to determine whether it is safe to allow the cross-origin request. This allows for more freedom and functionality than purely same-origin requests, but is more secure than simply allowing all cross-origin requests.
     
     Source: [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
     
-    openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library and any browser-based application can't access back-ends. Therefore, all back-end providers SHOULD support CORS to enable browser-based applications to access back-ends. [CORS is a recommendation of the W3C organization](https://www.w3.org/TR/cors/). The following chapters will explain how back-end providers can implement CORS support.
+    openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore, most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library and any browser-based application can not access back-ends. Therefore, all back-end providers SHOULD support CORS to enable browser-based applications to access back-ends. [CORS is a recommendation of the W3C organization](https://www.w3.org/TR/cors/). The following chapters explain how back-end providers can implement CORS support.
 
-    **Tip**: Most servers can send the required headers and the responses to the OPTIONS requests automatically for all endpoints. Otherwise you may also use a proxy server to add the headers and OPTIONS responses.
+    **Tip**: Most servers can send the required headers and the responses to the OPTIONS requests automatically for all endpoints. Otherwise, a proxy server may be used to add the headers and OPTIONS responses.
     
     ## CORS headers
     
@@ -171,8 +171,8 @@ info:
     
     | Name                             | Description                                                  | Example |
     | -------------------------------- | ------------------------------------------------------------ | ------- |
-    | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port or `*` for all origins. It is RECOMMENDED to return the value `*` to allow requests from browser-based implementations such as the Web Editor. | `*` |
-    | Access-Control-Expose-Headers    | Some endpoints require to send additional HTTP response headers such as `OpenEO-Identifier` and `Location`. To make these headers available to browser-based clients, they MUST be white-listed with this CORS header. The following HTTP headers are white-listed by browsers and MUST NOT be included: `Cache-Control`, `Content-Language`, `Content-Length`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma`. At least the following headers MUST be listed in this version of the openEO API: `Link`, `Location`, `OpenEO-Costs` and `OpenEO-Identifier`. | `Link, Location, OpenEO-Costs, OpenEO-Identifier` |
+    | Access-Control-Allow-Origin      | Allowed origin for the request, including protocol, host and port or `*` for all origins. Returning the value `*` to allow requests from browser-based implementations is RECOMMENDED. | `*` |
+    | Access-Control-Expose-Headers    | Some endpoints require sending additional HTTP response headers such as `OpenEO-Identifier` and `Location`. To make these headers available to browser-based clients, they MUST be white-listed with this CORS header. The following HTTP headers are white-listed by browsers and MUST NOT be included: `Cache-Control`, `Content-Language`, `Content-Length`, `Content-Type`, `Expires`, `Last-Modified` and `Pragma`. At least the following headers MUST be listed in this version of the openEO API: `Link`, `Location`, `OpenEO-Costs` and `OpenEO-Identifier`. | `Link, Location, OpenEO-Costs, OpenEO-Identifier` |
     
     
     
@@ -200,7 +200,7 @@ info:
     
     ## OPTIONS method
     
-    All endpoints must respond to the `OPTIONS` HTTP method. This is a response for the preflight requests made by web browsers before sending the actual request (e.g. `POST /jobs`). It needs to respond with a status code of `204` and no response body.
+    All endpoints defined in the API specification must additionally respond to the `OPTIONS` HTTP method. This is a response for the preflight requests made by web browsers before sending the actual request (e.g. `POST /jobs`). It needs to respond with a status code of `204` and no response body.
     **In addition** to the HTTP headers shown in the table above, the following HTTP headers MUST be included with every response to an `OPTIONS` request:
     
     | Name                             | Description                                                  | Example |
@@ -484,7 +484,7 @@ externalDocs:
   url: 'https://openeo.org/documentation/1.0/'
 tags:
   - name: Capabilities
-    description: General information about the API implementation and other supported capabilities at the back-end.
+    description: General information about the API implementation and other supported capabilities provided by the back-end.
   - name: Account Management
     description: |-
       The following endpoints handle user profiles, accounting and authentication. See also [Authentication](#section/Authentication). In general, the openEO API only defines a minimum subset of user management and accounting functionality. It allows to
@@ -533,14 +533,14 @@ tags:
       
       ### Provide data for download
       
-      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
+      If you'd like to provide your data for download in addition to offering the cloud processing service, you can implement the full STAC API. Therefore, you can implement the endpoints `GET /collections/{collection_id}/items` and `GET /collections/{collection_id}/items/{feature_id}` to support retrieval of individual items. To benefit from the STAC ecosystem and allow searching for items you can also implement `POST /search` and `GET /search`. Further information can be found in the [STAC API repository](https://github.com/radiantearth/stac-spec/tree/v0.9.0/api-spec).
 
       ### API Extensions
       
       STAC API has several [extensions](https://stac-api-extensions.github.io) that can be implemented on top of the openEO API to enrich the API functionality, e.g. for searching.
   - name: Process Discovery
     description: |-
-      These endpoints allow to list the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
+      The process discovery endpoints provide details about the predefined processes that are available at the back-end. To list user-defined processes see '[User-Defined Processes](#tag/User-Defined-Processes)'.
   - name: User-Defined Processes
     description: These endpoints allow to store and manage user-defined processes with their process graphs at the back-end.
   - name: Data Processing
@@ -738,7 +738,7 @@ paths:
                       billing related API functionalities, e.g. budgeting or
                       estimates.
                       
-                      The absence of this property doesn't mean the back-end is
+                      The absence of this property does not mean the back-end is
                       necessarily free to use for all. Providers may choose to
                       bill users outside of the API, e.g. with a monthly fee
                       that is not depending on individual API interactions.
@@ -753,7 +753,7 @@ paths:
                           ISO-4217 or a back-end specific unit that is used for
                           billing such as credits, tiles or CPU hours.
                           If set to `null`, budget and costs are not supported
-                          by the back-end and users can't be charged.
+                          by the back-end and users can not be charged.
                         type: string
                         nullable: true
                         example: USD
@@ -1042,15 +1042,15 @@ paths:
         formats not available through GDAL may be defined centrally for openEO.
         Custom file formats or parameters MAY be defined.
 
-        The format descriptions must describe how the file formats relate to 
-        data cubes. Input file formats must describe how the files have to be
-        structured to be transformed into data cubes. Output file formats must
+        The format descriptions MUST describe how the file formats relate to 
+        data cubes. Input file formats MUST describe how the files have to be
+        structured to be transformed into data cubes. Output file formats MUST
         describe how the data cubes are stored at the back-end and how the 
         resulting file structure looks like.
 
         Back-ends MUST NOT support aliases, for example it is not allowed to
         support `geotiff` instead of `gtiff`. Nevertheless, openEO Clients MAY
-        translate user input input for convenience (e.g. translate `geotiff` to
+        translate user input for convenience (e.g. translate `geotiff` to
         `gtiff`). Also, for a better user experience the back-end can specify a
         `title`.
 
@@ -1102,7 +1102,7 @@ paths:
                 output:
                   GTiff:
                     title: GeoTiff
-                    description: Export to GeoTiff. Doesn't support cloud-optimized GeoTiffs (COGs) yet.
+                    description: Export to GeoTiff. Does not support cloud-optimized GeoTiffs (COGs) yet.
                     gis_data_types:
                       - raster
                     parameters:
@@ -1188,7 +1188,7 @@ paths:
       description: |-
         Lists all conformance classes specified in various standards that the
         implementation conforms to. Conformance classes are commonly used in
-        all OGC APIs and the STAC API specification. openEO adds relatively
+        all OGC API standards and the STAC API specification. openEO adds relatively
         broadly defined conformance classes, especially for the extensions.
         Otherwise, the implemented functionality can usually be retrieved from
         the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
@@ -1201,7 +1201,7 @@ paths:
 
         More details:
         - [STAC API](https://github.com/radiantearth/stac-api-spec), especially the conformance class "STAC API - Collections"
-        - [OGC APIs](https://ogcapi.ogc.org/)
+        - [OGC API standards](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
       responses:
@@ -1581,7 +1581,7 @@ paths:
         Lists **all** supported metadata filters (also called "queryables") for
         a specific collection.
 
-        This endpoint is compatible with endpoint defined in the STAC API extension
+        This endpoint is compatible with the endpoint defined in the STAC API extension
         [`filter`](https://github.com/stac-api-extensions/filter#queryables) and
         [OGC API - Features - Part 3: Filtering](https://github.com/opengeospatial/ogcapi-features/tree/master/extensions/filtering).
         For a precise definition please follow those specifications.
@@ -1911,7 +1911,7 @@ paths:
                     description: >-
                       The first provider in this list is the default provider for authentication.
                       Clients can either pre-select or directly use the default provider for authentication
-                      if the user doesn't specify a specific value.
+                      if the user does not specify a specific value.
                     minItems: 1
                     items:
                       title: OpenID Connect Provider
@@ -1988,7 +1988,7 @@ paths:
                             As such, openEO clients SHOULD NOT store or cache default OpenID Connect client information
                             for long term usage.
                             A default OpenID Connect client is intended to simplify authentication for novice users.
-                            For production use cases, it is RECOMMENDED to set up a dedicated OpenID Connect client.
+                            Setting up a dedicated OpenID Connect client is RECOMMENDED for production-ready back-ends.
                           uniqueItems: true
                           items:
                             title: Default OpenID Connect Client
@@ -2281,7 +2281,7 @@ paths:
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
               additionalProperties: 
-                description: You can add additional back-end specific properties here.
+                description: Aditional back-end specific properties are allowed.
   /process_graphs:
     get:
       summary: List all user-defined processes
@@ -2410,13 +2410,13 @@ paths:
         reused in other processes.
         
         If a process with the specified `process_graph_id` exists, the process
-        is fully replaced. The id can't be changed for existing user-defined
+        is fully replaced. The id can not be changed for existing user-defined
         processes. The id MUST be unique across its namespace.
 
         Partially updating user-defined processes is not supported.
 
         To simplify exchanging user-defined processes, the property `id` can be part of
-        the request body. If the values don't match, the value for `id` gets
+        the request body. If the values do not match, the value for `id` gets
         replaced with the value from the `process_graph_id` parameter in the
         path.
       tags:
@@ -2477,7 +2477,7 @@ paths:
           reference) in the user-defined process that is used to compute web service
           results.
           The appropriate arguments MUST be provided to the user-defined process,
-          usually at runtime from the context of the web service,
+          usually at runtime from the context of the web service.
           For example, a map service such as a WMS would
           need to inject the spatial extent into the user-defined process so that the
           back-end can compute the corresponding tile correctly.
@@ -2741,8 +2741,8 @@ paths:
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
               additionalProperties: 
-                description: You can add additional back-end specific properties here.
-        description: The base data for the secondary web service to create
+                description: Additional back-end specific properties are allowed.
+        description: The base data required to create the secondary web service.
   '/services/{service_id}':
     parameters:
       - $ref: '#/components/parameters/service_id'
@@ -2751,9 +2751,9 @@ paths:
       operationId: update-service
       description: |-
         Modifies an existing secondary web service at the back-end,
-        but maintains the identifier. Changes can be grouped in a single request.
+        but maintains the identifier. Changes can be grouped into a single request.
 
-        User have to create a new service to change the service type.
+        User MUST create a new service to change the service type.
       tags:
         - Secondary Services
       security:
@@ -2790,7 +2790,7 @@ paths:
                 log_level:
                   $ref: '#/components/schemas/min_log_level_update'
               additionalProperties: 
-                description: You can add additional back-end specific properties here.
+                description: Additional back-end specific properties are allowed.
         description: The data to change for the specified secondary web service.
     get:
       summary: Full metadata for a service
@@ -2824,9 +2824,9 @@ paths:
       operationId: delete-service
       description: >-
         Deletes all data related to this secondary web service.
-        Computations are stopped, computed results are deleted and access to
-        this is not possible any more. This service won't generate additional
-        costs.
+        Computations are stopped, computed results are deleted, and access to
+        this service is no longer possible. This service will not generate
+        additional costs.
       tags:
         - Secondary Services
       security:
@@ -2918,7 +2918,7 @@ paths:
         Creates a new batch processing task (job) from one or more (chained)
         processes at the back-end.
 
-        Processing the data doesn't start yet. The job status gets initialized
+        Processing the data does not start yet. The job status gets initialized
         as `created` by default.
       tags:
         - Data Processing
@@ -2972,7 +2972,7 @@ paths:
                 log_level:
                   $ref: '#/components/schemas/min_log_level_default'
               additionalProperties: 
-                description: You can add additional back-end specific properties here.
+                description: Additional back-end specific properties are allowed.
         description: 'Specifies the job details, e.g. the user-defined process and billing details.'
   '/jobs/{job_id}':
     parameters:
@@ -3022,7 +3022,7 @@ paths:
                 log_level:
                   $ref: '#/components/schemas/min_log_level_update'
               additionalProperties: 
-                description: You can add additional back-end specific properties here.
+                description: Additional back-end specific properties are allowed.
         description: Specifies the job details to update.
     get:
       summary: Full metadata for a batch job
@@ -3054,8 +3054,8 @@ paths:
       summary: Delete a batch job
       operationId: delete-job
       description: >-
-        Deletes all data related to this job. Computations are stopped and
-        computed results are deleted. This job won't generate additional costs
+        Deletes all data related to a given batch job. Computations are stopped and
+        computed results are deleted. This job will not generate additional costs
         for processing.
       tags:
         - Data Processing
@@ -3201,7 +3201,7 @@ paths:
         [STAC Collection](https://github.com/radiantearth/stac-spec/tree/v1.0.0/collection-spec)
         (supported since openEO API version 1.1.0).
         The assets to download are in both cases available in the property `assets`
-        and have the same structure. All additional metadata is not strictly required
+        and have the same structure. Additional metadata is not strictly required
         to download the files, but are helpful for users to understand the data.
 
         STAC Collections can either (1) add all assets as collection-level assets or
@@ -3233,8 +3233,8 @@ paths:
         but regenerated with new expiration time.
         Signed URLs that expired MAY return the openEO error `ResultLinkExpired`.
 
-        It is **strongly recommended** to add a link with relation type `canonical`
-        to the STAC Item or STAC Collection (see the `links` property for details).
+        Adding a link with relation type `canonical` to the STAC Item or STAC Collection
+        is STRONGLY RECOMMENDED (see the `links` property for details).
 
         If processing has not finished yet and the `partial` parameter is not set to `true`
         requests to this endpoint MUST be rejected with openEO error `JobNotFinished`.
@@ -3259,7 +3259,7 @@ paths:
       responses:
         '200':
           description: >-
-            Valid download links have been returned. The download links doesn't
+            Valid download links have been returned. The download links does not
             necessarily need to be located under the API base url.
           headers:
             OpenEO-Costs:
@@ -3358,7 +3358,7 @@ paths:
                 $ref: '#/components/schemas/batch_job_result'
         '424':
           description: >-
-            The request can't be fulfilled as the batch job failed. This request
+            The request can not be fulfilled as the batch job failed. This request
             will deliver the last error message that was produced by the batch job.
 
 
@@ -3380,10 +3380,10 @@ paths:
         The result will be stored in the format specified in the process.
         To specify the format use a process such as `save_result`.
 
-        The job status is set to `queued`, if processing doesn't start
+        The job status is set to `queued`, if processing does not start
         instantly. The same applies if the job status is `canceled`, `finished`,
         or `error`, which restarts the job and discards previous results if the
-        back-end doesn't reject the request with an error.
+        back-end does not reject the request with an error.
         Clients SHOULD warn users and ask for confirmation if results may get
         discarded.
 
@@ -3394,8 +3394,8 @@ paths:
         `error`.
 
         This endpoint has no effect if the job status is already `queued` or
-        `running`. In particular, it doesn't restart a running job. To restart
-        a queued or running job, processing MUST have been canceled before.
+        `running`. In particular, it does not restart a running job. To restart
+        a queued or running job, processing MUST have been canceled.
 
         Back-ends SHOULD reject queueing jobs with openEO error `PaymentRequired`,
         if the back-end is able to detect that the budget is too low to fully
@@ -3556,7 +3556,7 @@ paths:
         file at the path exists.
 
 
-        Folders are created once required by a file upload. Empty folders can't
+        Folders are created once required by a file upload. Empty folders can not
         be created.
       tags:
         - File Storage
@@ -3607,7 +3607,7 @@ paths:
       summary: Information about the authenticated user
       operationId: describe-account
       description: >-
-        Lists information about the authenticated user, e.g. the user id.
+        Lists information about the authenticated user such as the user id.
 
         The endpoint MAY return the disk quota available to the user.
         The endpoint MAY also return links related to user management
@@ -3692,7 +3692,7 @@ paths:
                       Links related to the user profile, e.g. where payments
                       are handled or the user profile could be edited.
 
-                      It is RECOMMENDED to provide links with the following `rel` (relation) types:
+                      Providing links with the following `rel` (relation) types is RECOMMENDED:
 
                       1. `payment`: A page where users can recharge their user account with money or credits.
 
@@ -3738,7 +3738,7 @@ components:
       description: |-
         Lists all conformance classes specified in various standards that the
         implementation conforms to. Conformance classes are commonly used in
-        all OGC APIs and the STAC API specification.
+        all OGC API standards and the STAC API specification.
 
         The general openEO conformance class is `https://api.openeo.org/1.2.0`.
         See the individual openEO API extensions for their conformance classes.
@@ -4251,7 +4251,7 @@ components:
         Back-ends MUST resolve the billing plan in the following way if billing is supported:
 
         * If a value is given and it is not `null`: Persist the `plan` that has been provided in the request.
-        * Otherwise, don't change the billing plan.
+        * Otherwise, do not change the billing plan.
 
         Billing plans not on the list of available plans MUST be rejected with
         openEO error `BillingPlanInvalid`.
@@ -4426,8 +4426,7 @@ components:
             Could reference to licensing information, other meta data formats with
             additional information or a preview image.
 
-            It is RECOMMENDED to provide links with the following
-            `rel` (relation) types:
+            Providing links with the following `rel` (relation) types is RECOMMENDED:
 
             1. `root` and `parent`: URL to the data discovery endpoint at `/collections`.
 
@@ -5255,7 +5254,7 @@ components:
           description: |-
             Links related to this process, e.g. additional external documentation.
 
-            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+            Providing links with the following `rel` (relation) types is RECOMMENDED:
 
             1. `latest-version`: If a process has been marked as deprecated, a link SHOULD
             point to the preferred version of the process. The relation types `predecessor-version`
@@ -5334,7 +5333,7 @@ components:
            This allows users to add missing predefined processes for portability,
            e.g. common processes from [processes.openeo.org](https://processes.openeo.org)
            that have a process graph included.
-           It is RECOMMENDED to log the namespace selected by the back-end for debugging purposes.
+           Logging the namespace selected by the back-end for debugging purposes is RECOMMENDED.
         * `backend`: Uses exclusively the predefined processes listed at `GET /processes`.
         * `user`: Uses exclusively the user-defined processes listed at `GET /process_graphs`.
 
@@ -5374,7 +5373,7 @@ components:
       type: boolean
       description: >-
         Declares that the specified entity is experimental, which means that
-        it is likely to change or may produce unpredictable behaviour. Users
+        it is likely to change or may produce unpredictable behavior. Users
         should refrain from using it in production, but still feel encouraged
         to try it out and give feedback.
       default: false
@@ -5448,7 +5447,7 @@ components:
         A list of parameters.
 
         The order in the array corresponds to the parameter order to
-        be used in clients that don't support named parameters.
+        be used in clients that do not support named parameters.
 
         **Note:** Specifying an empty array is different from (if allowed)
         `null` or the property being absent.
@@ -5469,7 +5468,7 @@ components:
           description: |-
             A unique name for the parameter. 
 
-            It is RECOMMENDED to use [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`).
+            Using [snake case](https://en.wikipedia.org/wiki/Snake_case) (e.g. `window_size` or `scale_factor`) is RECOMMENDED.
           pattern: '^\w+$'
         description:
           $ref: '#/components/schemas/process_description'
@@ -5543,7 +5542,7 @@ components:
             The following status changes can occur:
             * `POST /jobs`: The status is initialized as `created`.
             * `POST /jobs/{job_id}/results`: The status is set to `queued`, if
-            processing doesn't start instantly.
+            processing does not start instantly.
                 * Once the processing starts the status is set to `running`.
                 * Once the data is available to download the status is set to `finished`.
                 * Whenever an error occurs during processing, the status MUST be set to `error`.
@@ -5556,11 +5555,11 @@ components:
         progress:
           type: number
           description: >-
-            Indicates the process of a running batch job in percent.
+            Indicates the process of a running batch job, in percent.
 
             Can also be set for a job which stopped due to an error or was
             canceled by the user. In this case, the value indicates
-            the progress at which the job stopped. The Property may not be
+            the progress at which the job stopped. This property may not be
             available for the status codes `created` and `queued`.
 
             Submitted and queued jobs only allow the value `0`,
@@ -5594,10 +5593,10 @@ components:
         links:
           type: array
           description: |-
-            Links related to this batch job, e.g. a links to 
+            Links related to this batch job such as links to 
             invoices, log files or results.
 
-            It is RECOMMENDED to provide links with the following `rel` (relation) types:
+            Providing links with the following `rel` (relation) types is RECOMMENDED:
 
             1. `monitor`: If logs are available, a link to the [logs endpoint](#tag/Batch-Jobs/operation/debug-job).
             2. `result`: If batch job results are available, a link to the [results endpoint](#tag/Batch-Jobs/operation/list-results).
@@ -5712,7 +5711,7 @@ components:
           type: string
           format: uri
           description: >-
-            URL at which the secondary web service is accessible. Doesn't
+            URL at which the secondary web service is accessible. Does not
             necessarily need to be located within the API.
           example: 'https://openeo.example/wms/wms-a3cca9'
         type:
@@ -5728,7 +5727,7 @@ components:
           type: object
           description: >-
             Additional attributes of the secondary web service, e.g.
-            available layers for a WMS based on the bands in the
+            available layers for a WMS instance based on the bands in the
             underlying GeoTiff.
           example:
             layers:
@@ -5769,14 +5768,14 @@ components:
         web service combined with actual values. See `GET /service_types` for
         supported configuration settings. For example, this could
         specify the required version of the service, visualization details or
-        any other service dependant configuration.
+        any other service dependent configuration.
       example:
         version: 1.3.0
     service_enabled:
       type: boolean
       description: >-
         Describes whether a secondary web service is responding to requests
-        (true) or not (false). Disabled services don't produce any costs.
+        (true) or not (false). Disabled services do not produce any costs.
     service_id:
       type: string
       description: >-
@@ -5908,7 +5907,7 @@ components:
       description: |-
         Updates the minimum severity level for log entries that the back-end stores for the processing requests.
 
-        The back-end doesn't need to update existing log entries.
+        The back-end does not need to update existing log entries.
       type: string
       enum:
         - error
@@ -5986,7 +5985,7 @@ components:
             A list of parameters passed to the child process graph.
 
             The order in the array corresponds to the parameter order to
-            be used in clients that don't support named parameters.
+            be used in clients that do not support named parameters.
           items:
             $ref: '#/components/schemas/parameter'
         returns:
@@ -6070,9 +6069,9 @@ components:
         $schema:
           description: |-
             The JSON Schema version. If not given in the context of openEO,
-            defaults to `draft-07`.
+            defaults to JSON Schema draft-07: `http://json-schema.org/draft-07/schema#`
           
-            You may need to add the default value for `$schema` property explicitly to the JSON Schema
+            The default value for `$schema` property may have to be added to the JSON Schema
             object before passing it to a JSON Schema validator.
           type: string
           format: uri
@@ -6083,7 +6082,7 @@ components:
           format: uri
         type:
           description: |-
-            The allowed basic data type(s) for a value.
+            The allowed data type(s) for a value.
 
             If this property is not present, all data types are allowed.
           oneOf:
@@ -6126,8 +6125,7 @@ components:
             - $ref: '#/components/schemas/json_schema'
       additionalProperties:
         description: >-
-          You can add any other property supported by the JSON Schema version that is given through the property `$schema`,
-          so either [draft-07](https://json-schema.org/draft-07/json-schema-validation.html) or any later version.
+          Any other property supported by the JSON Schema version that is given through the property `$schema` are allowed. Defaults to JSON Schema [draft-07](https://json-schema.org/draft-07/json-schema-validation.html), but can also be any later version of JSON Schema.
     json_schema_type:
       type: string
       enum:
@@ -6363,7 +6361,7 @@ components:
 
             It is NOT RECOMMENDED to add stacktraces to the `message`.
           example: >-
-            Can't load the UDF file from the URL `https://openeo.example/invalid/file.txt`.
+            Can not load the UDF file from the URL `https://openeo.example/invalid/file.txt`.
             Server responded with error 404.
         time:
           type: string
@@ -6514,7 +6512,7 @@ components:
                 $ref: '#/components/schemas/links_pagination'
     client_error:
       description: |-
-        The request can't be fulfilled due to an error on client-side, i.e. the
+        The request can not be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client SHOULD NOT repeat the request without
         modifications.
         
@@ -6534,7 +6532,7 @@ components:
             $ref: '#/components/schemas/error'
     client_error_auth:
       description: |-
-        The request can't be fulfilled due to an error on client-side, i.e. the
+        The request can not be fulfilled due to an error on client-side, i.e. the
         request is invalid. The client SHOULD NOT repeat the request without
         modifications.
         
@@ -6554,7 +6552,7 @@ components:
             $ref: '#/components/schemas/error'
     server_error:
       description: |-
-        The request can't be fulfilled due to an error at the back-end. The
+        The request can not be fulfilled due to an error at the back-end. The
         error is never the client’s fault and therefore it is reasonable for the
         client to retry the exact same request that triggered this response.
         
@@ -6581,14 +6579,14 @@ components:
         If the parameter is not provided or empty, all elements are returned.
 
         Pagination is OPTIONAL: back-ends or clients may not support it.
-        Therefore it MUST be implemented in a way that clients not supporting
+        Therefore, it MUST be implemented in a way that clients not supporting
         pagination get all resources regardless. Back-ends not supporting
         pagination MUST return all resources.
 
         If the response is paginated, the `links` array MUST be used to communicate the
         links for browsing the pagination with predefined `rel` types. See the `links` array schema
         for supported `rel` types.
-        Back-end implementations can, unless specified otherwise, use all kind of pagination techniques,
+        Back-end implementations can, unless specified otherwise, use any kind of pagination technique,
         depending on what is supported best by their infrastructure: page-based, offset-based, token-based
         or something else. The clients SHOULD use whatever is specified
         in the links with the corresponding `rel` types.
@@ -6600,7 +6598,7 @@ components:
         minimum: 1
     log_offset:
       name: offset
-      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-ends only sends the entries that occurred after the specified identifier. If not provided or empty, start with the first entry.
+      description: The last identifier (property `id` of a log entry) the client has received. If provided, the back-end MUST only send the entries that occurred after the specified identifier. If not provided or empty, the back-end MUST start with the first entry.
       in: query
       allowEmptyValue: true
       example: log1234
@@ -6649,7 +6647,7 @@ components:
         $ref: '#/components/schemas/collection_id'
   examples:
     evi_user_defined_process:
-      description: A user-defined process that computes the EVI.
+      description: A user-defined process that computes the Enhanced Vegetation Index (EVI).
       value:
         id: evi
         summary: Enhanced Vegetation Index
