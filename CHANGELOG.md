@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GET /file_formats`: Base paramater on top of normal JSON Schema, not Process JSON Schema
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
+- Clarified for log levels which default values apply
 
 ## [1.2.0] - 2021-05-25
 
