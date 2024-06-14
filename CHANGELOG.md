@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
 - Clarified for log levels which default values apply
+- Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
 
 ## [1.2.0] - 2021-05-25
 
