@@ -1,0 +1,65 @@
+# Remote UDP Extension
+
+The openEO API is a specification for interoperable cloud-based processing of large Earth observation datasets.
+
+This extension enables user to load user-defined processes that are hosted on other hosts through the process namespace into process graphs.
+
+- Version: **0.1.0**
+- Stability: **experimental**
+- Conformance class: `https://api.openeo.org/extensions/remote-udp/0.1.0`
+
+## Justification
+
+The openEO API defines the `namespace` property in a process node of a process graph as follows:
+>  The following options are predefined by the openEO API, but additional namespaces may be introduced by back-ends or in a future version of the API.
+> * `null` [...]
+> * `backend` [...]
+> * `user` [...]
+
+This makes it possible that this extension adds additional allowed values to the `namespace` property.
+
+## Specification
+
+This extension extends the `namespace` property of process graph nodes so that it accepts **absolute** URL with the protocols `https` (**recommended**) and `http` (discouraged). The URLs specified MUST either return
+
+1. a single process (compatible to the endpoint `GET /process_graphs/{process_graph_id}`)
+2. a list of processes (compatible to the endpoint `GET /process_graphs`)
+
+If a URL is provided for the `namespace` property, the `id` property of the process graph node MUST be set to the `id` of the process.
+
+### Compatibility
+
+Compatible means in this context that the requests and responses must comply to the openEO API specification with the following exceptions:
+
+- The `Authorization` header is not required and will usually not be sent.
+- Lists of processes MUST NOT paginate and the full process description MUST be provided for each process (i.e., the recommendation to omit large properties such as `process_graph` doesn't apply).
+
+### Client Considerations
+
+Clients MUST only offer this functionality to users if the conformance class of this extension is listed in the `conformsTo` property of the `GET /` endpoint.
+
+The protocol `http` is discouraged for URLs as web-based clients may not be able to retrieve HTTP URLs from a HTTPS context.
+For the same reason it is also RECOMMENDED to enable CORS for all URLs.
+
+### Error Handling
+
+The following error SHOULD be reported if the namespace can't be resolved:
+
+- Code: `ProcessNamespaceInvalid`
+- Message: `The value passed for namespace '{namespace}' in process '{process}' is invalid: {reason}`
+- HTTP Status Code: 400
+
+## Example
+
+An exemplary process graph node:
+
+```json
+{
+    "process_id": "echo",
+    "namespace": "https://hub.openeo.org/processes/echo",
+    "arguments": {
+    	"message": "Hello World"
+	},
+    "result": true
+}
+```

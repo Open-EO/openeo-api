@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- **New extensions:**
+    - [Remote UDP Extension](./extensions/remote-udp/README.md)
+
 ### Fixed
 
 - `GET /file_formats`: Base paramater on top of normal JSON Schema, not Process JSON Schema

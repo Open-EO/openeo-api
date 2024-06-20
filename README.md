@@ -33,6 +33,7 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 | ---------------------------------------------- | ------- | ------------ | ----------- |
 | [Commercial Data](extensions/commercial-data/) | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data. |
 | [Federation](extensions/federation/)           | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+| [Remote UDP](extensions/remote-udp/)           | 0.1.0   | experimental | Load user-defined processes that are hosted externally through the process namespace into process graphs. |
 
 ## Repository
 
