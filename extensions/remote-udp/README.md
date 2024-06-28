@@ -2,7 +2,7 @@
 
 The openEO API is a specification for interoperable cloud-based processing of large Earth observation datasets.
 
-This extension enables user to load user-defined processes that are hosted on other hosts through the process namespace into process graphs.
+This extension enables user to load user-defined processes that are hosted external to the openEO API (e.g., GitHub or cloud storage) through the process namespace into process graphs.
 
 - Version: **0.1.0**
 - Stability: **experimental**
@@ -16,22 +16,24 @@ The openEO API defines the `namespace` property in a process node of a process g
 > * `backend` [...]
 > * `user` [...]
 
-This makes it possible that this extension adds additional allowed values to the `namespace` property.
+This makes it possible for this extension to add additional allowed values to the `namespace` property.
 
 ## Specification
 
-This extension extends the `namespace` property of process graph nodes so that it accepts **absolute** URL with the protocols `https` (**recommended**) and `http` (discouraged). The URLs specified MUST either return
+This extension extends the `namespace` property of process graph nodes so that it accepts **absolute** URL with the protocols `https` (**recommended**) and `http` (discouraged). The URLs specified MUST return one of the following two options:
 
-1. a single process (compatible to the endpoint `GET /process_graphs/{process_graph_id}`)
-2. a list of processes (compatible to the endpoint `GET /process_graphs`)
-
-If a URL is provided for the `namespace` property, the `id` property of the process graph node MUST be set to the `id` of the process.
+1. A single process, compatible to the endpoint `GET /process_graphs/{process_graph_id}`.
+   In this case, the `id` property of the process graph node MUST be equal to the `id` of the process, 
+   otherwise a `ProcessNamespaceInvalid` error is thrown
+2. A list of processes, compatible to the endpoint `GET /process_graphs`.
+   In this case, the `id` property of the process graph node is used to identify the process from the list.
+   If not found a `ProcessNamespaceInvalid` error is thrown
 
 ### Compatibility
 
 Compatible means in this context that the requests and responses must comply to the openEO API specification with the following exceptions:
 
-- The `Authorization` header is not required and will usually not be sent.
+- The `Authorization` header MUST NOT not be sent.
 - Lists of processes MUST NOT paginate and the full process description MUST be provided for each process (i.e., the recommendation to omit large properties such as `process_graph` doesn't apply).
 
 ### Client Considerations
@@ -59,7 +61,7 @@ An exemplary process graph node:
     "namespace": "https://hub.openeo.org/processes/echo",
     "arguments": {
     	"message": "Hello World"
-	},
+    },
     "result": true
 }
 ```
