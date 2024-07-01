@@ -60,7 +60,7 @@ An exemplary process graph node:
 ```json
 {
   "process_id": "echo",
-  "namespace": "https://hub.openeo.org/processes/echo",
+  "namespace": "https://openeo.example/processes/echo",
   "arguments": {
     "message": "Hello World"
   },
