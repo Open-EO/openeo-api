@@ -1,4 +1,4 @@
-# Remote UDP Extension
+# Remote Process Definition Extension
 
 The openEO API is a specification for interoperable cloud-based processing of large Earth observation datasets.
 
@@ -6,12 +6,13 @@ This extension enables user to load user-defined processes that are hosted exter
 
 - Version: **0.1.0**
 - Stability: **experimental**
-- Conformance class: `https://api.openeo.org/extensions/remote-udp/0.1.0`
+- Conformance class: `https://api.openeo.org/extensions/remote-process-definition/0.1.0`
 
 ## Justification
 
 The openEO API defines the `namespace` property in a process node of a process graph as follows:
->  The following options are predefined by the openEO API, but additional namespaces may be introduced by back-ends or in a future version of the API.
+
+> The following options are predefined by the openEO API, but additional namespaces may be introduced by back-ends or in a future version of the API.
 > * `null` [...]
 > * `backend` [...]
 > * `user` [...]

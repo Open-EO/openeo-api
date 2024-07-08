@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New extensions:**
-    - [Remote UDP Extension](./extensions/remote-udp/README.md)
+  - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
 
 ### Fixed
 
@@ -24,8 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **New extensions:**
-    - [Commercial Data Extension](./extensions/commercial-data/README.md)
-    - [Federation Extension](./extensions/federation/README.md)
+  - [Commercial Data Extension](./extensions/commercial-data/README.md)
+  - [Federation Extension](./extensions/federation/README.md)
 - `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
