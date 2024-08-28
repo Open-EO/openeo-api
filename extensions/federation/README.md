@@ -115,9 +115,11 @@ Applies to:
 - `GET /processes`
 - `GET /file_formats`
 - `GET /process_graphs`
+- `GET /files`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
 - `GET /jobs/{job_id}/results`
+- `GET /jobs/{job_id}/logs`
 - `GET /services`
 
 The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
@@ -160,6 +162,7 @@ Every discoverable resource that is defined as an object and allows to contain a
 - `GET /collections/{id}`
 - `GET /processes` (per process, per parameter)
 - `GET /file_formats` (per file format)
+- `GET /service_types` (per service)
 - `GET /udf_runtimes` (per UDF runtime, per version)
 - `POST /validation` (the back-ends that can run the process)
 - `GET /process_graphs/{id}`
