@@ -233,22 +233,22 @@ Each job complies to the structure discussed in [Job status](#job-status).
 - OAP1: `GET /jobs/{jobID}`
 
 Similar properties in OAP1 and openEO:
-- `jobID` (required) / `id` (required)
-- `processID` (string) / `process` (required, object containing chained processes)
-- `status` (required, below: OAP1 | openEO)
+- `jobID` (required) / `id` (required) -> OAP1 changes to `id`
+- `processID` (string) / `process` (required, object containing chained processes) -> openEO doesn't require it
+- `status` (required, below: OAP1 | openEO) -> OAP1 switches to openEO status codes
   - *n/a* | created
   - accepted | queued
   - running | running
   - successful | finished
   - failed | error
   - dismissed | canceled
-- `created` (required in openEO only)
+- `created` (required in openEO only) -> OAP1 to require `created`
 - `updated`
 - `progress`
 - `links` ([to be added to openEO](https://github.com/Open-EO/openeo-api/issues/495))
 
 Additional properties in OAP1:
-- `type` (required) (always: `process`)
+- `type` (required) (always: `process`) -> openEO to add `type: "openeo"` (potentially not required with default value `openeo`)
 - `messsage` (-> use logs in openEO)
 - `started` (-> use logs in openEO)
 - `finished` (-> use logs in openEO)
