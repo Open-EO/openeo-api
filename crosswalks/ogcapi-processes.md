@@ -236,8 +236,8 @@ Similar properties in OAP1 and openEO:
 - `jobID` (required) / `id` (required)
 - `processID` (string) / `process` (required, object containing chained processes)
 - `status` (required, below: OAP1 | openEO)
-  - accepted | created
-  - *n/a* | queued
+  - *n/a* | created
+  - accepted | queued
   - running | running
   - successful | finished
   - failed | error
