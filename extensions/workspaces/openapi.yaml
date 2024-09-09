@@ -38,6 +38,93 @@ servers:
           the version number of the API. Use the version number returned from
           `GET /` instead.
 paths:
+  /workspace_providers:
+    get:
+      summary: Supported workspace providers
+      operationId: list-workspace-providers
+      description: |-
+        Lists supported workspace providers such as Amazon S3, Google Cloud Storage or Azure Blob Storage.
+        The response is an object of all available workspace providers with their supported parameters,
+        e.g. credentials for registering an existing workspace.
+
+        The parameters for the workspace provider MUST be defined upon creation
+        of a workspace and the workspace will be set up accordingly.
+
+        Workspace provider names MUST be accepted in a *case insensitive* manner throughout the API.
+      tags:
+        - Workspaces
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: >-
+            An object with a map containing all workspace provider names as keys and an
+            object that defines supported parameters, e.g. credentials.
+          content:
+            application/json:
+              schema:
+                title: Workspace Providers
+                type: object
+                properties:
+                  providers:
+                    type: object
+                    description: Map of supported workspace providers
+                    additionalProperties:
+                      x-additionalPropertiesName: Provider Name
+                      title: Provider
+                      type: object
+                      required:
+                        - parameters
+                      properties:
+                        title:
+                          $ref: '../../openapi.yaml#/components/schemas/object_title'
+                        description:
+                          $ref: '../../openapi.yaml#/components/schemas/description'
+                        deprecated:
+                          $ref: '../../openapi.yaml#/components/schemas/deprecated'
+                        experimental:
+                          $ref: '../../openapi.yaml#/components/schemas/experimental'
+                        intents:
+                          type: array
+                          minItems: 1
+                          items:
+                            type: string
+                            enum:
+                              - create
+                              - register
+                        parameters:
+                          title: Provider specific parameters
+                          description: Map of supported parameters made available to the creator of the workspace.
+                          type: object
+                          additionalProperties:
+                            $ref: '../../openapi.yaml#/components/schemas/resource_parameter'
+                        links:
+                          description: |-
+                            Links related to this workspace provider, e.g. more information about the parameters.
+
+                            For relation types see the lists of
+                            [common relation types in openEO](#section/API-Principles/Web-Linking).
+                          type: array
+                          items:
+                            $ref: '../../openapi.yaml#/components/schemas/link'
+              example:
+                providers:
+                  S3:
+                    title: Amazon S3
+                    description: >-
+                      Amazon S3 is a cloud storage service provided by Amazon Web Services.
+                    intents:
+                      - create
+                      - register
+                    parameters:
+                      username:
+                        title: Username
+                        type: string
+                      password:
+                        title: Password
+                        type: string
+                    links: []    
   /workspaces:
     get:
       summary: List all workspaces
@@ -104,26 +191,14 @@ paths:
                 quota:
                   $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
               oneOf:
-                - title: Create workspace
-                  properties:
-                    intent:
-                      enum:
-                        - create
-                      example: create
-                - title: Register existing workspace
-                  required:
-                    - url
-                    - credentials
-                  properties:
-                    intent:
-                      enum:
-                        - register
-                      example: register
-                    url:
-                      $ref: '#/components/schemas/workspace_url'
-                    credentials:
-                      $ref: '#/components/schemas/workspace_credentials'
-        required: true
+                - $ref: '#/components/schemas/create_workspace'
+                - $ref: '#/components/schemas/register_workspace'
+              discriminator:
+                propertyName: intent
+                mapping:
+                  create: '#/components/schemas/create_workspace'
+                  register: '#/components/schemas/register_workspace'
+                required: true
       responses:
         '201':
           description: The workspace creation has been queued successfully.
@@ -244,6 +319,7 @@ components:
       required:
         - id
         - status
+        - type
       type: object
       properties:
         id:
@@ -252,9 +328,15 @@ components:
           $ref: '#/components/schemas/workspace_title'
         description:
           $ref: '#/components/schemas/workspace_description'
+        type:
+          type: string
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+          example: S3
         status:
           type: string
           description: The status of the workspace.
+          example: ready
         details:
           type: string
           description: >-
@@ -280,8 +362,6 @@ components:
               example: ready
             url:
               $ref: '#/components/schemas/workspace_url'
-            credentials:
-              $ref: '#/components/schemas/workspace_credentials'
             properties:
               $ref: '#/components/schemas/workspace_properties'
             free:
@@ -291,13 +371,13 @@ components:
       format: uri
       description: The URL of the actual workspace, e.g. a bucket URL.
       example: 'https://my-bucket.s3.eu-west-3.amazonaws.com'
-    workspace_credentials:
+    workspace_parameters:
       type: object
       description: >-
-        Credentials to access the workspace as required by the workspace provider.
+        Additional parameters to register the workspace as defined in `GET /workspace_types`.
         The structure is not specified by the API.
       additionalProperties:
-        type: string
+        description: Any type
       example:
         username: john_doe
         password: secret123
@@ -311,6 +391,40 @@ components:
       example:
         region: eu-west-3
         storage_class: standard
+    create_workspace:
+      title: Create workspace
+      properties:
+        intent:
+          enum:
+            - create
+          example: create
+        type:
+          type: string
+          nullable: true
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+            If not provided or `null`, the back-end chooses a default provider.
+          default: null
+        parameters:
+          $ref: '#/components/schemas/workspace_parameters'
+    register_workspace:
+      required:
+        - type
+        - url
+        - credentials
+      properties:
+        intent:
+          enum:
+            - register
+          example: register
+        type:
+          type: string
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+        url:
+          $ref: '#/components/schemas/workspace_url'
+        parameters:
+          $ref: '#/components/schemas/workspace_parameters'
   securitySchemes:
     Bearer:
       $ref: '../../openapi.yaml#/components/securitySchemes/Bearer'
