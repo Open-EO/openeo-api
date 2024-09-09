@@ -29,10 +29,11 @@ See also the [changelog](CHANGELOG.md) and the [milestones](https://github.com/O
 
 ## Extensions
 
-| Name                                           | Version | Stability    | Description |
-| ---------------------------------------------- | ------- | ------------ | ----------- |
-| [Commercial Data](extensions/commercial-data/) | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data. |
-| [Federation](extensions/federation/)           | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+| Name                                                               | Version | Stability    | Description |
+| ------------------------------------------------------------------ | ------- | ------------ | ----------- |
+| [Commercial Data](extensions/commercial-data/)                     | 0.1.0   | experimental | Provides an interface for discovering, ordering and using commercial data. |
+| [Federation](extensions/federation/)                               | 0.1.0   | experimental | Covers federation aspects, i.e. where multiple back-ends are exposed as a single API. |
+| [Remote Process Definition](extensions/remote-process-definition/) | 0.1.0   | experimental | Load user-defined processes that are hosted externally through the process namespace into process graphs. |
 
 ## Repository
 
@@ -43,7 +44,7 @@ This repository contains a set of files formally describing the openEO API, each
 * The [assets](assets/) folder contains some useful additional files such as examples or schemas. All of these are non-binding additions. The source of truth are the top-level specification files.
 * The [extensions](extensions/) folder contains extensions to the openEO API.
 
-# Development
+## Development
 
 The `draft` branch is the latest version and is the one to create Pull Requests against.
 
