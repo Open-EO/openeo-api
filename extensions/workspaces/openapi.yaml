@@ -1,0 +1,430 @@
+openapi: 3.0.2
+info:
+  title: openEO API - Workspaces Extension
+  version: 0.1.0
+  description: |-
+    The Workspace Extension to the openEO API provides an interface for connecting external file storage such as cloud buckets to openEO back-end implementations. This allows for example to store batch job results on such file storage systems.
+
+    The Workspace API is inspired by the [EOEPCA Workspace API](https://github.com/EOEPCA/rm-workspace-api) with regards to workspace management.
+  contact:
+    name: openEO Consortium
+    url: 'https://openeo.org'
+    email: openeo.psc@uni-muenster.de
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/workspaces/README.md
+tags:
+  - name: Workspaces
+    description: Management of User Workspaces
+servers:
+  - url: 'https://openeo.example/api/{version}'
+    description: >-
+      The URL of the API MAY freely be chosen by the back-end providers. The
+      path, including API versioning, is a *recommendation* only. Nevertheless,
+      all servers MUST support HTTPS as the authentication methods are not
+      secure with HTTP only!
+    variables:
+      version:
+        default: v1
+        description: >-
+          API versioning is RECOMMENDED. As the openEO API is following
+          [SemVer](https://semver.org/) only the MAJOR part of the stable
+          version numbers (i.e. versions >= 1.0.0) SHOULD be used for API
+          versioning in the URL. The reason is that backward-incompatible
+          changes are usually introduced by major changes. Therefore, the
+          version number in the URL MUST not be used by the clients to detect
+          the version number of the API. Use the version number returned from
+          `GET /` instead.
+paths:
+  /workspace_providers:
+    get:
+      summary: Supported workspace providers
+      operationId: list-workspace-providers
+      description: |-
+        Lists supported workspace providers such as Amazon S3, Google Cloud Storage or Azure Blob Storage.
+        The response is an object of all available workspace providers with their supported parameters,
+        e.g. credentials for registering an existing workspace.
+
+        The parameters for the workspace provider MUST be defined upon creation
+        of a workspace and the workspace will be set up accordingly.
+
+        Workspace provider names MUST be accepted in a *case insensitive* manner throughout the API.
+      tags:
+        - Workspaces
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: >-
+            An object with a map containing all workspace provider names as keys and an
+            object that defines supported parameters, e.g. credentials.
+          content:
+            application/json:
+              schema:
+                title: Workspace Providers
+                type: object
+                properties:
+                  providers:
+                    type: object
+                    description: Map of supported workspace providers
+                    additionalProperties:
+                      x-additionalPropertiesName: Provider Name
+                      title: Provider
+                      type: object
+                      required:
+                        - parameters
+                      properties:
+                        title:
+                          $ref: '../../openapi.yaml#/components/schemas/object_title'
+                        description:
+                          $ref: '../../openapi.yaml#/components/schemas/description'
+                        deprecated:
+                          $ref: '../../openapi.yaml#/components/schemas/deprecated'
+                        experimental:
+                          $ref: '../../openapi.yaml#/components/schemas/experimental'
+                        intents:
+                          type: array
+                          minItems: 1
+                          items:
+                            type: string
+                            enum:
+                              - create
+                              - register
+                        parameters:
+                          title: Provider specific parameters
+                          description: Map of supported parameters made available to the creator of the workspace.
+                          type: object
+                          additionalProperties:
+                            $ref: '../../openapi.yaml#/components/schemas/resource_parameter'
+                        links:
+                          description: |-
+                            Links related to this workspace provider, e.g. more information about the parameters.
+
+                            For relation types see the lists of
+                            [common relation types in openEO](#section/API-Principles/Web-Linking).
+                          type: array
+                          items:
+                            $ref: '../../openapi.yaml#/components/schemas/link'
+              example:
+                providers:
+                  S3:
+                    title: Amazon S3
+                    description: >-
+                      Amazon S3 is a cloud storage service provided by Amazon Web Services.
+                    intents:
+                      - create
+                      - register
+                    parameters:
+                      username:
+                        title: Username
+                        type: string
+                      password:
+                        title: Password
+                        type: string
+                    links: []    
+  /workspaces:
+    get:
+      summary: List all workspaces
+      operationId: list-workspaces
+      description: |-
+        Lists all workspaces that have been added by a user.
+        
+        It is **strongly RECOMMENDED** to keep the response size small by
+        omitting all optional non-scalar values (i.e. arrays and objects) from objects in `workspaces`.
+        To get the full metadata for a workspace clients MUST request `GET /workspaces/{workspace_id}`.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      parameters:
+        - $ref: '../../openapi.yaml#/components/parameters/pagination_limit'
+      responses:
+        '200':
+          description: Array of workspace descriptions
+          content:
+            application/json:
+              schema:
+                title: Workspaces
+                type: object
+                required:
+                  - workspaces
+                  - links
+                properties:
+                  workspaces:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/workspace'
+                  links:
+                    $ref: '../../openapi.yaml#/components/schemas/links_pagination'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    post:
+      summary: Create Workspace
+      operationId: create-workspace
+      description: |-
+        Creates a new workspace.
+
+        This request queues the creation of a workspace. It directly registers an id at the back-end, but the workspace itself may have a status of `provisioning` until the workspace is ready to use.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - intent
+              properties:
+                title:
+                  $ref: '#/components/schemas/workspace_title'
+                description:
+                  $ref: '#/components/schemas/workspace_description'
+                intent:
+                  type: string
+                quota:
+                  $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+              oneOf:
+                - $ref: '#/components/schemas/create_workspace'
+                - $ref: '#/components/schemas/register_workspace'
+              discriminator:
+                propertyName: intent
+                mapping:
+                  create: '#/components/schemas/create_workspace'
+                  register: '#/components/schemas/register_workspace'
+                required: true
+      responses:
+        '201':
+          description: The workspace creation has been queued successfully.
+          headers:
+            Location:
+              required: true
+              schema:
+                description: |-
+                  Absolute URL to the workspace metadata.
+                  
+                  The URL points to the endpoint
+                  `GET /workspaces/{workspace_id}` with the `{workspace_id}` being the
+                  id of the created workspace.
+                format: uri
+                type: string
+                example: 'https://openeo.example/api/v1/workspaces/my-workspace'
+            OpenEO-Identifier:
+              required: true
+              schema:
+                $ref: '#/components/schemas/workspace_id'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+  /workspaces/{workspace_id}:
+    parameters:
+      - $ref: '#/components/parameters/workspace_id'
+    get:
+      summary: Full metadata for a workspace
+      operationId: describe-workspace
+      description: >-
+        Returns the full metadata for a workspace.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/workspace'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    delete:
+      summary: Delete Workspace
+      operationId: delete-workspace
+      description: |-
+        Removes the workspace from the backend.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The workspace has been successfully deleted.
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+    patch:
+      summary: Update workspace details
+      operationId: update-workspace
+      description: >-
+        Updates the workspace details.
+      tags:
+        - Workspaces
+      security:
+        - Bearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  $ref: '#/components/schemas/workspace_title'
+                description:
+                  $ref: '#/components/schemas/workspace_description'
+        required: true
+      responses:
+        '204':
+          description: Changes to the workspace were applied successfully.
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error_auth'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+components:
+  parameters:
+    workspace_id:
+      name: workspace_id
+      in: path
+      required: true
+      description: The ID of the workspace.
+      schema:
+        $ref: '#/components/schemas/workspace_id'
+  schemas:
+    workspace_id:
+      type: string
+      pattern: '^[\w\-\.~]+$'
+      example: my-workspace
+    workspace_title:
+      type: string
+      description: A short title for the workspace.
+    workspace_description:
+      type: string
+      format: commonmark
+      description: |-
+        A description that describes the workspace.
+
+        [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
+        text representation.
+    workspace:
+      title: Workspace
+      required:
+        - id
+        - status
+        - type
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/workspace_id'
+        title:
+          $ref: '#/components/schemas/workspace_title'
+        description:
+          $ref: '#/components/schemas/workspace_description'
+        type:
+          type: string
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+          example: S3
+        status:
+          type: string
+          description: The status of the workspace.
+          example: ready
+        details:
+          type: string
+          description: >-
+            A status message (e.g. error message) or any other free-text information about the workspace.
+        quota:
+          $ref: '../../openapi.yaml#/components/schemas/max_storage_quota'
+      oneOf:
+        - title: Unavailable
+          description:
+            The workspace is not available, e.g. because it's still provisioning it
+            or the back-end can't connect to it / lost the connection / has been deleted externally, ...
+          properties:
+            status:
+              enum:
+                - provisioning
+                - unavailable
+              example: provisioning
+        - title: Ready
+          properties:
+            status:
+              enum:
+                - ready
+              example: ready
+            url:
+              $ref: '#/components/schemas/workspace_url'
+            properties:
+              $ref: '#/components/schemas/workspace_properties'
+            free:
+              $ref: '../../openapi.yaml#/components/schemas/storage_quota_free'
+    workspace_url:
+      type: string
+      format: uri
+      description: The URL of the actual workspace, e.g. a bucket URL.
+      example: 'https://my-bucket.s3.eu-west-3.amazonaws.com'
+    workspace_parameters:
+      type: object
+      description: >-
+        Additional parameters to register the workspace as defined in `GET /workspace_types`.
+        The structure is not specified by the API.
+      additionalProperties:
+        description: Any type
+      example:
+        username: john_doe
+        password: secret123
+    workspace_properties:
+      type: object
+      description: >-
+        Any additional metadata of the workspace provided by the workspace provider.
+        The structure is not specified by the API.
+      additionalProperties:
+        description: Any type
+      example:
+        region: eu-west-3
+        storage_class: standard
+    create_workspace:
+      title: Create workspace
+      properties:
+        intent:
+          enum:
+            - create
+          example: create
+        type:
+          type: string
+          nullable: true
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+            If not provided or `null`, the back-end chooses a default provider.
+          default: null
+        parameters:
+          $ref: '#/components/schemas/workspace_parameters'
+    register_workspace:
+      required:
+        - type
+        - url
+        - credentials
+      properties:
+        intent:
+          enum:
+            - register
+          example: register
+        type:
+          type: string
+          description: >-
+            The workspace provider name as defined in `GET /workspace_providers`.
+        url:
+          $ref: '#/components/schemas/workspace_url'
+        parameters:
+          $ref: '#/components/schemas/workspace_parameters'
+  securitySchemes:
+    Bearer:
+      $ref: '../../openapi.yaml#/components/securitySchemes/Bearer'
