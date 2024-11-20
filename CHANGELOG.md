@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 
 ### Fixed
 
