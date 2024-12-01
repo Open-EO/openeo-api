@@ -41,7 +41,7 @@ This extension extends the `namespace` property of process graph nodes so that i
 
 ### Client Considerations
 
-If a client is conncected to a specific backend, the client MUST only offer this functionality to users if the conformance class of this extension is listed in the `conformsTo` property of the `GET /` endpoint.
+If a client is conncected to a specific back-end, the client MUST only offer this functionality to users if the conformance class of this extension is listed in the `conformsTo` property of the `GET /` endpoint.
 
 The protocol `http` is discouraged for URLs as web-based clients may not be able to retrieve HTTP URLs from a HTTPS context.
 For the same reason it is also RECOMMENDED to enable CORS for all URLs.

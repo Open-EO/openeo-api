@@ -11,7 +11,7 @@ This is an extension for federation aspects, i.e. where multiple back-ends are e
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
 
-## Backend details
+## Back-end details
 
 A new required field `federation` is added to `GET /` to enable federation.
 
@@ -157,7 +157,7 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the back-ends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
 
 - `GET /collections/{id}`
 - `GET /processes` (per process, per parameter)
