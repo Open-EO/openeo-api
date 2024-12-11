@@ -117,7 +117,7 @@ info:
     If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://openeo.example/processes/john_doe/ndvi`.
     For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://openeo.example/processes/81zjh1tc2pt52gbx/ndvi`.
 
-    Generally, it is RECOMMENDED adding descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
+    Generally, it is RECOMMENDED adding descriptive titles (property `title`) and media type information (property `type`) for a better user experience.
 
     ## Error Handling
 
@@ -193,7 +193,7 @@ info:
 
     ## Temporal data
 
-    Date, time, time intervals, and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
+    Date, time, time intervals, and durations are formatted based on [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
 
     # Authentication
 
@@ -493,7 +493,7 @@ info:
 
     ### Full example for an EVI computation
 
-    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, child process graphs in yellow:
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel-2 imagery. The main process graph in blue, child process graphs in yellow:
 
     ![Graph with processing instructions](assets/pg-evi-example.png)
 
@@ -507,7 +507,7 @@ info:
     
     2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs), [OGC API - Features](https://www.ogc.org/standards/ogcapi-features) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). Some protocols such as the OGC WMS or XYZ tiles allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
     
-    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/guides/long-polling/).
 
     ### Validation
 
@@ -671,7 +671,7 @@ paths:
                   api_version:
                     type: string
                     description: >-
-                      Version number of the openEO specification this back-end
+                      Version number of the openEO specification the back-end
                       implements.
                     enum:
                       - 1.2.0
@@ -1003,7 +1003,7 @@ paths:
            path. Make sure to correctly handle leading/trailing slashes.
         3. Send a request to the new URI.
            A. On success: Detect the most suitable API instance/version (see above)
-              and read the [capabilites](#tag/Capabilities/operation/capabilities)
+              and read the [capabilities](#tag/Capabilities/operation/capabilities)
               from there.
            B. On failure: Directly try to read the capabilities from the original URI
               given by the user.
@@ -1247,7 +1247,7 @@ paths:
         all OGC API standards and the STAC API specification. openEO adds relatively
         broadly defined conformance classes, especially for the extensions.
         Otherwise, the implemented functionality can usually be retrieved from
-        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
+        the [capabilities](#tag/Capabilities/operation/capabilities) in openEO.
 
         The general openEO conformance class is `https://api.openeo.org/1.2.0`.
         See the individual openEO API extensions for their conformance classes.
@@ -1670,7 +1670,7 @@ paths:
                 $schema: https://json-schema.org/draft/2019-09/schema
                 $id: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
                 type: object
-                title: Sentinel 2A
+                title: Sentinel-2A
                 properties:
                   'eo:cloud_cover':
                     title: Cloud Cover
@@ -1953,7 +1953,7 @@ paths:
         - {}
       responses:
         '200':
-          description: Lists the the OpenID Connect Providers.
+          description: Lists the OpenID Connect Providers.
           content:
             application/json:
               schema:
@@ -2270,7 +2270,7 @@ paths:
         can be used to generate small previews or test user-defined processes before
         starting a batch job.
         
-        Timeouts on either client- or server-side are to be expected for complex
+        Timeouts on either client-side or server-side are to be expected for complex
         computations. Back-ends MAY send the openEO error `ProcessGraphComplexity`
         immediately if the computation is expected to time out. Otherwise requests
         MAY time-out after a certain amount of time by sending openEO error `RequestTimeout`.
@@ -3177,8 +3177,8 @@ paths:
                   duration:
                     type: string
                     description: >-
-                      Estimated duration for the operation. Duration MUST be
-                      specified as a ISO 8601 duration.
+                      Estimated duration for the operation. Duration MUST be specified as an
+                      [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations).
                     example: P1Y2M10DT2H30M
                   size:
                     type: integer
@@ -3346,8 +3346,8 @@ paths:
                     example:
                       stac_version: 1.0.0
                       id: a3cca2b2aa1e3b5b
-                      title: NDVI based on Sentinel 2
-                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+                      title: NDVI based on Sentinel-2
+                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel-2
                       license: Apache-2.0
                       providers:
                         - name: Example Cloud Corp.
@@ -5006,9 +5006,8 @@ components:
                 nullable: true
             step:
               description: >-
-                The space between the temporal instances as
-                [ISO 8601
-                duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
+                The space between the temporal instances as an
+                [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
                 e.g. `P1D`. Use `null` for irregularly
                 spaced steps.
               type: string
@@ -5723,7 +5722,7 @@ components:
       description: A short description to easily distinguish entities.
       type: string
       nullable: true
-      example: NDVI based on Sentinel 2
+      example: NDVI based on Sentinel-2
     eo_description:
       type: string
       format: commonmark
@@ -5734,7 +5733,7 @@ components:
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
         text representation.
       nullable: true
-      example: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+      example: Deriving minimum NDVI measurements over pixel time series of Sentinel-2
     process_description:
       type: string
       format: commonmark
