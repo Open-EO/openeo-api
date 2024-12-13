@@ -164,11 +164,11 @@ Every discoverable resource that is defined as an object and allows to contain a
 - `GET /file_formats` (per file format)
 - `GET /service_types` (per service)
 - `GET /udf_runtimes` (per UDF runtime, per version)
-- `POST /validation` (the back-ends that can run the process)
+- `POST /validation` (the back-ends that can run the process, see below)
 - `GET /process_graphs/{id}`
 - `GET /jobs/{job_id}` (the back-ends that generated the result)
 - `GET /jobs/{job_id}/results` (the back-ends that generated the result)
-- `GET /services/{id}`
+- `GET /services/{id}` (the back-ends that host the service)
 
 This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
@@ -188,6 +188,18 @@ schema:
 ```
 
 **Note:** In Collections this should generally be provided on the top-level of the object.
+
+### Validation
+
+If this property is returned through the `POST /validation` endpoint, it has the meaning as listed below.
+This also covers the case where the federation supports splitting a process into pieces so that different parts can run on different back-ends.
+
+- Endpoint returns *without* errors:
+  - `federation:backends` is included in the response: The listed back-ends support the workflow (either partially if splitting is supported, or in full).
+  - `federation:backends` is *not* included in the response: At least one of the back-ends support the workflow.
+- Endpoint returns errors:
+  - `federation:backends` is included in the response: The listed back-ends were checked and none of the back-ends can run the workflow as is (neither splitted if supported, nor in full).
+  - `federation:backends` is *not* included in the response: None of the back-ends can run the workflow as is.
 
 ### Examples
 
