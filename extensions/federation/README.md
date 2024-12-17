@@ -199,7 +199,7 @@ This also covers the case where the federation supports splitting a process into
   - `federation:backends` is *not* included in the response: At least one of the back-ends support the workflow.
 - Endpoint returns errors:
   - `federation:backends` is included in the response: The listed back-ends were checked and none of the back-ends can run the workflow as is (neither splitted if supported, nor in full).
-  - `federation:backends` is *not* included in the response: None of the back-ends can run the workflow as is.
+  - `federation:backends` is *not* included in the response: the workflow could not be validated successfully by any of the back-ends or the federation component itself.
 
 ### Examples
 
