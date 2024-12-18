@@ -6,21 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- **New extensions:**
+  - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
+- `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
+
 ### Fixed
 
 - `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
 - Clarified for log levels which default values apply
-- `POST /result`: Standardize response header "OpenEO-Identifier" to expose a (correlation) identifier associated with a synchronous processing request.
+- Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
+- Clarified the behaviour of `federation:backends` for `POST /validation`
 
 ## [1.2.0] - 2021-05-25
 
 ### Added
 
 - **New extensions:**
-    - [Commercial Data Extension](./extensions/commercial-data/README.md)
-    - [Federation Extension](./extensions/federation/README.md)
+  - [Commercial Data Extension](./extensions/commercial-data/README.md)
+  - [Federation Extension](./extensions/federation/README.md)
 - `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.

@@ -25,7 +25,7 @@ info:
 
     Public API implementations MUST be available via HTTPS only. 
     
-    Endpoints are made use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE) whenever technically possible. If there is a need to transfer big chunks of data for a GET requests to the back-end, POST requests MAY be used as a replacement as they support to send data via request body. Unless otherwise stated, PATCH requests are only defined to work on direct (first-level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires sending the whole JSON object defined by the first-level property.
+    Endpoints are made use meaningful HTTP verbs (e.g. GET, POST, PUT, PATCH, DELETE) whenever technically possible. If there is a need to transfer big chunks of data for a GET requests to the back-end, POST requests MAY be used as a replacement as they support to send data via request body. Unless otherwise stated, PATCH requests are only defined to work on direct (first level) children of the full JSON object. Therefore, changing a property on a deeper level of the full JSON object always requires sending the whole JSON object defined by the first-level property.
 
     Naming rules of the API endpoints follow the REST principles. Therefore, endpoints are centered around resources. Resource identifiers MUST be named with a noun in plural form except for single actions that can not be modelled with the regular HTTP verbs. Single actions MUST be single endpoints with a single HTTP verb (POST is RECOMMENDED) and no other endpoints beneath it.
 
@@ -61,7 +61,7 @@ info:
     If a URL should be publicly available to everyone, it can simply a user-specific URL, e.g. `https://openeo.example/processes/john_doe/ndvi`.
     For resources that should only be accessible to a certain group of user, a signed URL could be given, e.g. `https://openeo.example/processes/81zjh1tc2pt52gbx/ndvi`.
 
-    Generally, it is RECOMMENDED adding descriptive titles (propertty `title`) and media type information (propertty `type`) for a better user experience.
+    Generally, it is RECOMMENDED adding descriptive titles (property `title`) and media type information (property `type`) for a better user experience.
 
     ## Error Handling
 
@@ -137,7 +137,7 @@ info:
 
     ## Temporal data
 
-    Date, time, time intervals, and durations are formatted based on ISO 8601 or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
+    Date, time, time intervals, and durations are formatted based on [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html) or its profile [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) whenever there is an appropriate encoding available in the standard. All temporal data are specified based on the Gregorian calendar.
 
     # Authentication
 
@@ -161,7 +161,7 @@ info:
     
     Source: [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
     
-    openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore, most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library and any browser-based application can not access back-ends. Therefore, all back-end providers SHOULD support CORS to enable browser-based applications to access back-ends. [CORS is a recommendation of the W3C organization](https://www.w3.org/TR/cors/). The following chapters explain how back-end providers can implement CORS support.
+    openEO-based back-ends are usually hosted on a different domain / host than the client that is requesting data from the back-end. Therefore, most requests to the back-end are blocked by all modern browsers. This leads to the problem that the JavaScript library and any browser-based application can not access back-ends. Therefore, all back-end providers SHOULD support CORS to enable browser-based applications to access back-ends. [CORS is a recommendation of the W3C organization](https://www.w3.org/TR/2020/SPSD-cors-20200602/). The following chapters explain how back-end providers can implement CORS support.
 
     **Tip**: Most servers can send the required headers and the responses to the OPTIONS requests automatically for all endpoints. Otherwise, a proxy server may be used to add the headers and OPTIONS responses.
     
@@ -437,7 +437,7 @@ info:
 
     ### Full example for an EVI computation
 
-    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel 2 imagery. The main process graph in blue, child process graphs in yellow:
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel-2 imagery. The main process graph in blue, child process graphs in yellow:
 
     ![Graph with processing instructions](assets/pg-evi-example.png)
 
@@ -451,7 +451,7 @@ info:
     
     2. A more dynamic way of processing and accessing data is to create a **secondary web service**. They allow web-based access using different protocols such as [OGC WMS](http://www.opengeospatial.org/standards/wms), [OGC WCS](http://www.opengeospatial.org/standards/wcs), [OGC API - Features](https://www.ogc.org/standards/ogcapi-features) or [XYZ tiles](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames). Some protocols such as the OGC WMS or XYZ tiles allow users to change the viewing extent or level of detail (zoom level). Therefore, computations often run *on demand* so that the requested data is calculated during the request. Back-ends should make sure to cache processed data to avoid additional/high costs and reduce waiting times for the user.
     
-    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/blog/2014-12-01-http-long-polling/).
+    3. Processes can also be executed **on-demand** (i.e. synchronously). Results are delivered with the request itself and no job is created. Only lightweight computations, for example previews, should be executed using this approach as timeouts are to be expected for [long-polling HTTP requests](https://www.pubnub.com/guides/long-polling/).
 
     ### Validation
 
@@ -473,7 +473,7 @@ info:
 
     Please be aware that the result node (`result` set to `true`) is not necessarily the last node that is executed. The author of the process graph may choose to set a non-end node to the result node!
   contact:
-    name: openEO Consortium
+    name: openEO Project Steering Committee
     url: 'https://openeo.org'
     email: openeo.psc@uni-muenster.de
   license:
@@ -615,7 +615,7 @@ paths:
                   api_version:
                     type: string
                     description: >-
-                      Version number of the openEO specification this back-end
+                      Version number of the openEO API specification the back-end
                       implements.
                     enum:
                       - 1.2.0
@@ -947,7 +947,7 @@ paths:
            path. Make sure to correctly handle leading/trailing slashes.
         3. Send a request to the new URI.
            A. On success: Detect the most suitable API instance/version (see above)
-              and read the [capabilites](#tag/Capabilities/operation/capabilities)
+              and read the [capabilities](#tag/Capabilities/operation/capabilities)
               from there.
            B. On failure: Directly try to read the capabilities from the original URI
               given by the user.
@@ -1191,7 +1191,7 @@ paths:
         all OGC API standards and the STAC API specification. openEO adds relatively
         broadly defined conformance classes, especially for the extensions.
         Otherwise, the implemented functionality can usually be retrieved from
-        the [capabilties](#tag/Capabilities/operation/capabilities) in openEO.
+        the [capabilities](#tag/Capabilities/operation/capabilities) in openEO.
 
         The general openEO conformance class is `https://api.openeo.org/1.2.0`.
         See the individual openEO API extensions for their conformance classes.
@@ -1614,7 +1614,7 @@ paths:
                 $schema: https://json-schema.org/draft/2019-09/schema
                 $id: https://openeo.example/api/v1/collections/Sentinel-2A/queryables
                 type: object
-                title: Sentinel 2A
+                title: Sentinel-2A
                 properties:
                   'eo:cloud_cover':
                     title: Cloud Cover
@@ -1660,6 +1660,17 @@ paths:
                   - processes
                   - links
                 properties:
+                  version:
+                    type: string
+                    nullable: true
+                    description: >-
+                      Version number of the openEO process specification this back-end
+                      targets.
+                      If not provided or `null`, the version is either unknown or multiple versions are implemented.
+                      Clients must be able to handle multiple process specification versions at the same time.
+                      
+                      This is **not** the openEO API specification version.
+                    example: 1.2.0
                   processes:
                     type: array
                     items:
@@ -1897,7 +1908,7 @@ paths:
         - {}
       responses:
         '200':
-          description: Lists the the OpenID Connect Providers.
+          description: Lists the OpenID Connect Providers.
           content:
             application/json:
               schema:
@@ -1924,7 +1935,7 @@ paths:
                         id:
                           type: string
                           description: >-
-                            A per-backend **unique** identifier for the OpenID Connect Provider to
+                            A per-back-end **unique** identifier for the OpenID Connect Provider to
                             be as prefix for the Bearer token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
@@ -2214,7 +2225,7 @@ paths:
         can be used to generate small previews or test user-defined processes before
         starting a batch job.
         
-        Timeouts on either client- or server-side are to be expected for complex
+        Timeouts on either client-side or server-side are to be expected for complex
         computations. Back-ends MAY send the openEO error `ProcessGraphComplexity`
         immediately if the computation is expected to time out. Otherwise requests
         MAY time-out after a certain amount of time by sending openEO error `RequestTimeout`.
@@ -3127,8 +3138,8 @@ paths:
                   duration:
                     type: string
                     description: >-
-                      Estimated duration for the operation. Duration MUST be
-                      specified as a ISO 8601 duration.
+                      Estimated duration for the operation. Duration MUST be specified as an
+                      [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations).
                     example: P1Y2M10DT2H30M
                   size:
                     type: integer
@@ -3296,8 +3307,8 @@ paths:
                     example:
                       stac_version: 1.0.0
                       id: a3cca2b2aa1e3b5b
-                      title: NDVI based on Sentinel 2
-                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+                      title: NDVI based on Sentinel-2
+                      description: Deriving minimum NDVI measurements over pixel time series of Sentinel-2
                       license: Apache-2.0
                       providers:
                         - name: Example Cloud Corp.
@@ -3673,19 +3684,9 @@ paths:
                       - quota
                     properties:
                       free:
-                        type: integer
-                        description: >-
-                          Free storage space in bytes, which is still available
-                          to the user. Effectively, this is the disk quota minus
-                          the used space by the user, e.g. user-uploaded files
-                          and job results.
-                        example: 536870912
+                        $ref: '#/components/schemas/storage_quota_free'
                       quota:
-                        type: integer
-                        description: >-
-                          Maximum storage space (disk quota) in bytes available
-                          to the user.
-                        example: 1073741824
+                        $ref: '#/components/schemas/max_storage_quota'
                   budget:
                     type: number
                     nullable: true
@@ -4287,6 +4288,20 @@ components:
       example: free
       nullable: true
       default: null
+    storage_quota_free:
+      type: integer
+      description: >-
+        Free storage space in bytes, which is still available
+        to the user. Effectively, this is the disk quota minus
+        the used space by the user, e.g. user-uploaded files
+        and job results.
+      example: 536870912
+    max_storage_quota:
+      type: integer
+      description: >-
+        Maximum storage space (disk quota) in bytes available
+        to the user.
+      example: 1073741824
     collection:
       title: Collection
       type: object
@@ -4956,9 +4971,8 @@ components:
                 nullable: true
             step:
               description: >-
-                The space between the temporal instances as
-                [ISO 8601
-                duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
+                The space between the temporal instances as an
+                [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations),
                 e.g. `P1D`. Use `null` for irregularly
                 spaced steps.
               type: string
@@ -5268,10 +5282,20 @@ components:
             (link to older version) and `successor-version` (link to newer version) can also be used
             to show the relation between versions.
 
-            2. `example`: Links to examples of other processes that use this process.
+            2. `version-history`: A link to a changelog and/or a list of versions of the process
+            (see also the relation types `latest-version` etc.).
 
-            3. `cite-as`: For all DOIs associated with the process, the respective DOI
+            3. `example`: Links to examples of other processes that use this process.
+
+            4. `cite-as`: For all DOIs associated with the process, the respective DOI
             links SHOULD be added.
+
+            5. `license`: Links to applicable license(s). The link titles should reflect the license names.
+
+            6. `author`: Links to authors of the process. The `href` can use the `mailto:` protocol to
+            link to an email address. The link titles should reflect the author names and affiliations.
+
+            7. `canonical`: Points to a publicly accessible and more long-lived URL.
 
             For additional relation types see also the lists of
             [common relation types in openEO](#section/API-Principles/Web-Linking).
@@ -5632,7 +5656,7 @@ components:
     job_id:
       type: string
       description: >-
-        Per-backend unique identifier of the batch job, generated by the
+        Per-back-end unique identifier of the batch job, generated by the
         back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: a3cca2b2aa1e3b5b
@@ -5673,7 +5697,7 @@ components:
       description: A short description to easily distinguish entities.
       type: string
       nullable: true
-      example: NDVI based on Sentinel 2
+      example: NDVI based on Sentinel-2
     eo_description:
       type: string
       format: commonmark
@@ -5684,7 +5708,7 @@ components:
         [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich
         text representation.
       nullable: true
-      example: Deriving minimum NDVI measurements over pixel time series of Sentinel 2
+      example: Deriving minimum NDVI measurements over pixel time series of Sentinel-2
     process_description:
       type: string
       format: commonmark
@@ -5786,7 +5810,7 @@ components:
     service_id:
       type: string
       description: >-
-        A per-backend unique identifier of the secondary web service, generated
+        A per-back-end unique identifier of the secondary web service, generated
         by the back-end during creation. MUST match the specified pattern.
       pattern: '^[\w\-\.~]+$'
       example: wms-a3cca9
