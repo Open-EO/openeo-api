@@ -36,8 +36,8 @@ additionalProperties:
   description: Any type
 ```
 
-The keys of the object are the respecive parameter names.
-The values of the object are the (default) values for the parameters.
+The keys of the object are the respective parameter names.
+The values of the object are the default values for the parameters.
 Schematic restrictions are not defined for the object, but the schemas for the parameters as defined in `GET /processing_options` apply to the given values.
 These values provide the defaults unless a user overrides them in the actual data processing request (e.g. `POST /jobs`, see below).
 
