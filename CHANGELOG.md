@@ -10,13 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+- `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
 - Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 - Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
 - Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
 
 ### Fixed
 
-- `GET /file_formats`: Base paramater on top of normal JSON Schema, not Process JSON Schema
+- `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
 - `GET /jobs/{job_id}/results`: Clarify that signed URLs (used as "canonical" link) should be regenerated each time.
