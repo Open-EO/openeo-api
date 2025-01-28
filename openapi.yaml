@@ -3294,6 +3294,18 @@ paths:
                     required:
                       - assets
                     properties:
+                      created:
+                        $ref: '#/components/schemas/created'
+                      updated:
+                        $ref: '#/components/schemas/updated'
+                      queued: 
+                        $ref: '#/components/schemas/queued'
+                      started:
+                        $ref: '#/components/schemas/started'
+                      expires:
+                        $ref: '#/components/schemas/expires'
+                      unpublished:
+                        $ref: '#/components/schemas/unpublished'
                       'openeo:status':
                         $ref: '#/components/schemas/result_status'
                     allOf:
@@ -4016,6 +4028,8 @@ components:
               $ref: '#/components/schemas/started'
             expires:
               $ref: '#/components/schemas/expires'
+            unpublished:
+              $ref: '#/components/schemas/unpublished'
             'openeo:status':
               $ref: '#/components/schemas/result_status'
         assets:
@@ -5314,6 +5328,7 @@ components:
         parameters:
           type: array
           nullable: true
+          items: {}
         returns:
           type: object
           nullable: true
@@ -5338,6 +5353,7 @@ components:
         parameters:
           type: array
           nullable: true
+          items: {}
         returns:
           type: object
           nullable: true
@@ -5601,8 +5617,8 @@ components:
           $ref: '#/components/schemas/queued'
         started:
           $ref: '#/components/schemas/started'
-        expires:
-          $ref: '#/components/schemas/expires'
+        unpublished:
+          $ref: '#/components/schemas/unpublished'
         plan:
           $ref: '#/components/schemas/billing_plan'
         costs:
@@ -5676,7 +5692,7 @@ components:
         formatted as an [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
         If the status is `error`, `canceled` or `finished`,
         this is the time when the job has ended.
-      example: '2017-01-01T09:36:18Z'
+      example: '2017-01-01T09:54:18Z'
     queued:
       type: string
       format: date-time
@@ -5695,9 +5711,19 @@ components:
       type: string
       format: date-time
       description: >-
-        Time until which the assets are accessible, in UTC. Formatted as
-        an [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
-      example: '2020-11-01T00:00:00Z'
+        Time in UTC until which the assets and this document are accessible via the signed URL
+        that is provided with the relation type `canonical` in the links.
+        Formatted as an [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+        After expiration, a document with new signed URLs can be retrieved through an authenticated
+        request to this endpoint.
+      example: '2017-02-01T09:54:18Z'
+    unpublished:
+      type: string
+      format: date-time
+      description: >-
+        Time until which the batch job results are stored on the back-end, in UTC.
+        Formatted as an [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339.html) date-time.
+      example: '2018-01-01T09:54:18Z'
     description:
       type: string
       format: commonmark

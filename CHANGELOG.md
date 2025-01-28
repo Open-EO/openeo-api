@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
 - Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
-- Added `queued`, `started` and `expires` to the batch job metadata and the corresponding STAC results. [#542](https://github.com/Open-EO/openeo-api/issues/542)
+- Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
+- Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
 
 ### Fixed
 
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified for log levels which default values apply
 - Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
 - Clarified the behaviour of `federation:backends` for `POST /validation`
+- Clarified the meaning of `expires` in batch job results
 
 ## [1.2.0] - 2021-05-25
 
