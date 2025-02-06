@@ -22,12 +22,12 @@ which includes:
 
 The parameters and its values are provided separately for each processing mode.
 
-## Processing Parameters in UDPs
+## Embedding default processing options in UDPs
 
 UDPs can provide default values for specific processing parameters.
 
 The values for each parameter (so called 'options') are provided separately for each processing mode.
-The following properties are added to the top-level of a UDP for the respective processing modes:
+The following properties are added to the top-level of a UDP (e.g. as sibling nodes to the "process_graph" property) for the respective processing modes:
 
 - `default_synchronous_options` for synchronous processing
 - `default_job_options` for batch jobs
