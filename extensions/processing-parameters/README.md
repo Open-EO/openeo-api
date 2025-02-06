@@ -16,7 +16,7 @@ to discover the additional processing parameters that a back-end offers.
 Additionally, this extension allows to provide specific default values for user-defined processes (UDPs),
 which includes:
 
-- UDPs submitted directly for synchronouzs processing, as batch jobs, or as secondary webservices
+- UDPs submitted directly for synchronous processing, as batch jobs, or as secondary web services
 - UDPs stored through the `/process_graphs` endpoints
 - UDPs stored external to the API and retrieved through the [Remote Process Definition Extension](../remote-process-definition/README.md)
 
