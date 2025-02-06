@@ -11,7 +11,7 @@ This is an extension for federation aspects, i.e. where multiple back-ends are e
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
 
-## Backend details
+## Back-end details
 
 A new required field `federation` is added to `GET /` to enable federation.
 
@@ -115,9 +115,11 @@ Applies to:
 - `GET /processes`
 - `GET /file_formats`
 - `GET /process_graphs`
+- `GET /files`
 - `GET /jobs`
 - `GET /jobs/{job_id}`
 - `GET /jobs/{job_id}/results`
+- `GET /jobs/{job_id}/logs`
 - `GET /services`
 
 The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
@@ -155,17 +157,18 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the back-ends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
 
 - `GET /collections/{id}`
 - `GET /processes` (per process, per parameter)
 - `GET /file_formats` (per file format)
+- `GET /service_types` (per service)
 - `GET /udf_runtimes` (per UDF runtime, per version)
-- `POST /validation` (the back-ends that can run the process)
+- `POST /validation` (the back-ends that can run the process, see below)
 - `GET /process_graphs/{id}`
 - `GET /jobs/{job_id}` (the back-ends that generated the result)
 - `GET /jobs/{job_id}/results` (the back-ends that generated the result)
-- `GET /services/{id}`
+- `GET /services/{id}` (the back-ends that host the service)
 
 This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
@@ -185,6 +188,18 @@ schema:
 ```
 
 **Note:** In Collections this should generally be provided on the top-level of the object.
+
+### Validation
+
+If this property is returned through the `POST /validation` endpoint, it has the meaning as listed below.
+This also covers the case where the federation supports splitting a process into pieces so that different parts can run on different back-ends.
+
+- Endpoint returns *without* errors:
+  - `federation:backends` is included in the response: The listed back-ends support the workflow (either partially if splitting is supported, or in full).
+  - `federation:backends` is *not* included in the response: At least one of the back-ends support the workflow.
+- Endpoint returns errors:
+  - `federation:backends` is included in the response: The listed back-ends were checked and none of the back-ends can run the workflow as is (neither splitted if supported, nor in full).
+  - `federation:backends` is *not* included in the response: the workflow could not be validated successfully by any of the back-ends or the federation component itself.
 
 ### Examples
 

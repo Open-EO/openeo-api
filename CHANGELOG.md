@@ -6,20 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased / Draft
 
+### Added
+
+- **New extensions:**
+  - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+  - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
+- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
+- `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
+
 ### Fixed
 
-- `GET /file_formats`: Base paramater on top of normal JSON Schema, not Process JSON Schema
+- `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
 - `GET /jobs/{job_id}/results`: Clarify that "canonical" job result link should include query parameters
+- `GET /jobs/{job_id}/results`: Clarify that signed URLs (used as "canonical" link) should be regenerated each time.
+- Clarified for log levels which default values apply
+- Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
+- Clarified the behaviour of `federation:backends` for `POST /validation`
 
 ## [1.2.0] - 2021-05-25
 
 ### Added
 
 - **New extensions:**
-    - [Commercial Data Extension](./extensions/commercial-data/README.md)
-    - [Federation Extension](./extensions/federation/README.md)
+  - [Commercial Data Extension](./extensions/commercial-data/README.md)
+  - [Federation Extension](./extensions/federation/README.md)
 - `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
@@ -31,9 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
   - Added metadata field `openeo:status` to indicate the job status (and whether the result is complete or not).
   - Added parameter `partial` to allow retrieving incomplete results, which must also add the new property `openeo:status` to the metadata. [#430](https://github.com/Open-EO/openeo-api/issues/430)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
 - Added property `log_level` to secondary web service, batch job and synchronous processing endpoints to indicate the minimum severity level that should be stored for logs. [#329](https://github.com/Open-EO/openeo-api/issues/329)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
