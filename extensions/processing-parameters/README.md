@@ -13,9 +13,14 @@ Extensions can not change or break existing behavior of the openEO API.
 This extension adds a new endpoint (`GET /processing_parameters`, see [OpenAPI document](openapi.yaml))
 to discover the additional processing parameters that a back-end offers.
 
-Additionally, this extension allows to provide specific default values for user-defined processes (UDPs, see below).
+Additionally, this extension allows to provide specific default values for user-defined processes (UDPs),
+which includes:
 
-In both cases, the parameters and its values are provided separately for each processing mode.
+- UDPs submitted directly for synchronouzs processing, as batch jobs, or as secondary webservices
+- UDPs stored through the `/process_graphs` endpoints
+- UDPs stored external to the API and retrieved through the [Remote Process Definition Extension](../remote-process-definition/README.md)
+
+The parameters and its values are provided separately for each processing mode.
 
 ## Processing Parameters in UDPs
 
