@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+  - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
 - `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
 - Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 - Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
@@ -44,9 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
   - Added metadata field `openeo:status` to indicate the job status (and whether the result is complete or not).
   - Added parameter `partial` to allow retrieving incomplete results, which must also add the new property `openeo:status` to the metadata. [#430](https://github.com/Open-EO/openeo-api/issues/430)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
 - Added property `log_level` to secondary web service, batch job and synchronous processing endpoints to indicate the minimum severity level that should be stored for logs. [#329](https://github.com/Open-EO/openeo-api/issues/329)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)

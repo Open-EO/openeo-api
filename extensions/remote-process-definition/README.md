@@ -13,9 +13,10 @@ This extension enables user to load user-defined processes that are hosted exter
 The openEO API defines the `namespace` property in a process node of a process graph as follows:
 
 > The following options are predefined by the openEO API, but additional namespaces may be introduced by back-ends or in a future version of the API.
-> * `null` [...]
-> * `backend` [...]
-> * `user` [...]
+>
+> - `null` [...]
+> - `backend` [...]
+> - `user` [...]
 
 This makes it possible for this extension to add additional allowed values to the `namespace` property.
 
