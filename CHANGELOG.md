@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
   - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
-- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 - `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
+- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
+- Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
+- Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
 
 ### Fixed
 
@@ -20,10 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
 - `GET /jobs/{job_id}/results`: Clarify that signed URLs (used as "canonical" link) should be regenerated each time.
+- `GET /jobs/{job_id}/results`: Clarify that "canonical" job result link should include/encode the original query parameters
 - Clarified for log levels which default values apply
 - Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
 - Clarified the behaviour of `federation:backends` for `POST /validation`
-- `GET /jobs/{job_id}/results`: Clarify that "canonical" job result link should include/encode the original query parameters
+- Clarified the meaning of `expires` in batch job results
 
 ## [1.2.0] - 2021-05-25
 
