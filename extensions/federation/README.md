@@ -59,10 +59,9 @@ schema:
             format: date-time
             description: The time at which the status of the back-end was checked last.
           last_successful_check:
-            type:
-              - type: string
-                format: date-time
-              - type: null
+            type: string
+            format: date-time
+            nullable: true
             description: >-
               If the `status` is `offline`: The time at which the back-end was checked and available the last time
               or `null` when the back-end was never observed to be available.
