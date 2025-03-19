@@ -61,8 +61,10 @@ schema:
           last_successful_check:
             type: string
             format: date-time
+            nullable: true
             description: >-
-              If the `status` is `offline`: The time at which the back-end was checked and available the last time.
+              If the `status` is `offline`: The time at which the back-end was checked and available the last time
+              or `null` when the back-end was never observed to be available.
               Otherwise, this is equal to the property `last_status_check`.
           experimental:
             type: boolean

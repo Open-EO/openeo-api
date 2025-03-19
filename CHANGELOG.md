@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
 - Clarified the behaviour of `federation:backends` for `POST /validation`
 - Clarified the meaning of `expires` in batch job results
+- Clarified that `last_successful_check` (from Federation Extension) can be null.
 
 ## [1.2.0] - 2021-05-25
 
