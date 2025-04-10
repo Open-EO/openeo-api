@@ -159,7 +159,8 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the back-ends that support or host the exposed resource/functionality. Examples of where this could apply to (**not** comprehensive):
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the subset of back-ends that support or host the exposed resource/functionality.
+Examples of where this could apply to (**not** comprehensive):
 
 - `GET /collections/{id}`
 - `GET /processes` (per process, per parameter)
@@ -180,7 +181,7 @@ schema:
   properties:
     'federation:backends':
       description: >-
-        Lists all back-ends that support or host the resource.
+        Lists the subset of back-ends that support or host the resource.
         If not given, all back-ends support the resource.
       type: array
       minItems: 1
