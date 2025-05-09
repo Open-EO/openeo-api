@@ -106,12 +106,14 @@ schema:
 }
 ```
 
-## Lists of resources
+## Temporarily uavailable resources
 
+Resources and back-ends can be temporarily be unavailable.
+It is especially important to communicate to users missing resources when compiling lists of resources across multiple back-ends.
 Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
-Federated APIs can expose if any of the back-ends is not available and thus is not part of the response.
+Federated APIs can expose if any of the back-ends is temporarily not available and thus is not part of the response.
 
-Applies to:
+Examples of where this could apply to (**not** comprehensive):
 
 - `GET /collections`
 - `GET /processes`
@@ -124,12 +126,6 @@ Applies to:
 - `GET /jobs/{job_id}/logs`
 - `GET /services`
 
-The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
-Consequently, they are not extensible with additional properties for federation purposes.
-
-- `GET /udf_runtimes`
-- `GET /service_types`
-
 ### OpenAPI fragment
 
 ```yaml
@@ -138,8 +134,8 @@ schema:
   properties:
     'federation:missing':
       description: >-
-        Lists all back-ends that were not considered in the response (e.g. because they were not accessible).
-        If not given or empty, all back-ends were considered for creating the response.
+        Lists all back-ends that were temporarily not considered in the response (e.g. because they were not accessible).
+        If not given or empty, all back-ends supporting this endpoint were considered for creating the response.
         Back-ends that were listed as offline in the capabilities still need to be listed here.
       type: array
       items:
@@ -159,18 +155,23 @@ schema:
 
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the subset of back-ends that support or host the exposed resource/functionality.
+Every discoverable resource that is defined as an object and allows to contain additional properties, can list the subset of back-ends that permanently support or host the exposed resource/functionality.
 Examples of where this could apply to (**not** comprehensive):
 
+- `GET /collctions`
 - `GET /collections/{id}`
-- `GET /processes` (per process, per parameter)
-- `GET /file_formats` (per file format)
+- `GET /processes` (global, per process, per parameter)
+- `GET /file_formats` (global, per file format)
 - `GET /service_types` (per service)
 - `GET /udf_runtimes` (per UDF runtime, per version)
 - `POST /validation` (the back-ends that can run the process, see below)
+- `GET /files`
+- `GET /process_graphs`
 - `GET /process_graphs/{id}`
+- `GET /jobs`
 - `GET /jobs/{job_id}` (the back-ends that generated the result)
 - `GET /jobs/{job_id}/results` (the back-ends that generated the result)
+- `GET /services`
 - `GET /services/{id}` (the back-ends that host the service)
 
 This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
@@ -240,3 +241,11 @@ This also covers the case where the federation supports splitting a process into
   ...
 }
 ```
+
+## Endpoints that can't list federation details
+
+The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
+Consequently, they are not extensible with additional properties for federation purposes.
+
+- `GET /udf_runtimes`
+- `GET /service_types`
