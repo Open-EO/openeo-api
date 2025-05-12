@@ -106,53 +106,6 @@ schema:
 }
 ```
 
-## Temporarily unavailable resources
-
-Resources and back-ends can be temporarily unavailable.
-It is especially important to communicate to users missing resources when compiling lists of resources across multiple back-ends.
-Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
-Federated APIs can expose if any of the back-ends is temporarily not available and thus is not part of the response.
-
-Examples of where this could apply to (**not** comprehensive):
-
-- `GET /collections`
-- `GET /processes`
-- `GET /file_formats`
-- `GET /process_graphs`
-- `GET /files`
-- `GET /jobs`
-- `GET /jobs/{job_id}`
-- `GET /jobs/{job_id}/results`
-- `GET /jobs/{job_id}/logs`
-- `GET /services`
-
-### OpenAPI fragment
-
-```yaml
-schema:
-  type: object
-  properties:
-    'federation:missing':
-      description: >-
-        Lists all back-ends that were temporarily not considered in the response (e.g. because they were not accessible).
-        If not given or empty, all back-ends supporting this endpoint were considered for creating the response.
-        Back-ends that were listed as offline in the capabilities still need to be listed here.
-      type: array
-      items:
-        type: string
-        description: The ID of a back-end.
-```
-
-### Example
-
-```json
-{
-  "federation:missing": ["wwu"],
-  "collections": [...],
-  "links": [...]
-}
-```
-
 ## Resources supported only by a subset of back-ends
 
 Every discoverable resource that is defined as an object and allows to contain additional properties, can list the subset of back-ends that permanently support or host the exposed resource/functionality.
@@ -239,6 +192,53 @@ This also covers the case where the federation supports splitting a process into
   "description": "...",
   "federation:backends": ["vito", "eodc"],
   ...
+}
+```
+
+## Temporarily or unintentionally unavailable resources
+
+Resources and back-ends can be temporarily or unintentionally unavailable.
+It is especially important to communicate to users missing resources when compiling lists of resources across multiple back-ends.
+Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
+Federated APIs can expose if any of the back-ends is temporarily not available and thus is not part of the response.
+
+Examples of where this could apply to (**not** comprehensive):
+
+- `GET /collections`
+- `GET /processes`
+- `GET /file_formats`
+- `GET /process_graphs`
+- `GET /files`
+- `GET /jobs`
+- `GET /jobs/{job_id}`
+- `GET /jobs/{job_id}/results`
+- `GET /jobs/{job_id}/logs`
+- `GET /services`
+
+### OpenAPI fragment
+
+```yaml
+schema:
+  type: object
+  properties:
+    'federation:missing':
+      description: >-
+        Lists all back-ends that were temporarily not considered in the response (e.g. because they were not accessible).
+        If not given or empty, all back-ends supporting this endpoint were considered for creating the response.
+        Back-ends that were listed as offline in the capabilities still need to be listed here.
+      type: array
+      items:
+        type: string
+        description: The ID of a back-end.
+```
+
+### Example
+
+```json
+{
+  "federation:missing": ["wwu"],
+  "collections": [...],
+  "links": [...]
 }
 ```
 
