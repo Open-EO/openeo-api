@@ -106,9 +106,9 @@ schema:
 }
 ```
 
-## Temporarily uavailable resources
+## Temporarily unavailable resources
 
-Resources and back-ends can be temporarily be unavailable.
+Resources and back-ends can be temporarily unavailable.
 It is especially important to communicate to users missing resources when compiling lists of resources across multiple back-ends.
 Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
 Federated APIs can expose if any of the back-ends is temporarily not available and thus is not part of the response.
