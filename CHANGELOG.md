@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
 - Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
 
+### Deprecated
+
+- STAC 0.9.x
+
+### Changed
+
+- `GET /`: Requires the fields `type` and `conformsTo`
+
 ### Fixed
 
 - `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
