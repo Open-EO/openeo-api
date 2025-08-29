@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 - Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
 - Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
-- Support for JWT-based Bearer tokens [#558](https://github.com/Open-EO/openeo-api/issues/558)
+- Support for standard JSON Web Tokens (JWT) being used as Bearer tokens [#558](https://github.com/Open-EO/openeo-api/issues/558)
 
 ### Deprecated
 
