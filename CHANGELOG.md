@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `GET /`: Requires the fields `type` and `conformsTo`
+- `GET /udf_runtimes`: Requires at least one UDF runtime to be provided. [#511](https://github.com/Open-EO/openeo-api/issues/511)
 
 ### Fixed
 
