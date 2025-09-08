@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Migrate from openEO-specific tokens to JWT [#558](https://github.com/Open-EO/openeo-api/issues/558)
+- Migrate from openEO-specific tokens to JWT, i.e. deprecating the openEO-specific format in favor of JWT [#558](https://github.com/Open-EO/openeo-api/issues/558)
 
 ### Deprecated
 
