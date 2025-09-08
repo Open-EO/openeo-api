@@ -1209,6 +1209,9 @@ paths:
         - [OGC API standards](https://ogcapi.ogc.org/)
       tags:
         - Capabilities
+      security:
+        - {}
+        - Bearer: []
       responses:
         '200':
           description: The URIs of all conformance classes supported by the server.
@@ -1222,6 +1225,8 @@ paths:
                 properties:
                   conformsTo:
                     $ref: '#/components/schemas/conformsTo'
+        4XX:
+          $ref: '#/components/responses/client_error'
         5XX:
           $ref: '#/components/responses/server_error'
   /collections:
@@ -3962,12 +3967,13 @@ components:
         bbox:
           $ref: '#/components/schemas/bbox'
         geometry:
+          type: object
+          nullable: true
           description: |-
             Defines the full footprint of the asset represented by this item as
             GeoJSON Geometry.
 
             Results without a known location can set this value to `null`.
-          nullable: true
           allOf:
             - $ref: '#/components/schemas/GeoJsonGeometry'
           example:
@@ -5057,7 +5063,6 @@ components:
     process_argument_value:
       title: Process Argument Value
       description: Arguments for a process. See the API documentation for more information.
-      nullable: true
       anyOf:
         - type: object
           nullable: true
@@ -6114,6 +6119,9 @@ components:
             type: object
             required:
               - type
+            properties:
+              type:
+                type: string
             oneOf:
               - title: Spatial (raster)
                 properties:
@@ -6218,6 +6226,11 @@ components:
       additionalProperties:
         description: >-
           Any other property supported by the JSON Schema version that is given through the property `$schema` are allowed. Defaults to JSON Schema [draft-07](https://json-schema.org/draft-07/json-schema-validation.html), but can also be any later version of JSON Schema.
+      example:
+        type: string
+        enum:
+          - a
+          - b
     json_schema_type:
       type: string
       enum:
@@ -6246,7 +6259,7 @@ components:
             Note: The pattern only specifies a minimal subset of invalid characters.
             The back-ends MAY enforce additional restrictions depending on their OS/environment.
           example: folder/file.txt
-          pattern: "^[^/\r\n\\:'\"][^\r\n\\:'\"]*$"
+          pattern: "^[^/\\r\\n\\t\\\\:'\"][^\\r\\n\\t\\\\:'\"]*$"
         size:
           type: integer
           description: File size in bytes.
@@ -6289,42 +6302,6 @@ components:
             - Point
         coordinates:
           $ref: '#/components/schemas/GeoJsonPoint3D'
-    GeoJsonFeatureCollection:
-      type: object
-      required:
-        - type
-        - features
-      properties:
-        type:
-          type: string
-          enum:
-            - FeatureCollection
-        features:
-          type: array
-          items:
-            $ref: '#/components/schemas/GeoJsonFeature'
-    GeoJsonFeature:
-      type: object
-      required:
-        - type
-        - geometry
-        - properties
-      properties:
-        type:
-          type: string
-          enum:
-            - Feature
-        geometry:
-          $ref: '#/components/schemas/GeoJsonGeometry'
-        properties:
-          type: object
-          nullable: true
-    GeoJson:
-      title: GeoJSON
-      oneOf:
-        - $ref: '#/components/schemas/GeoJsonFeatureCollection'
-        - $ref: '#/components/schemas/GeoJsonFeature'
-        - $ref: '#/components/schemas/GeoJsonGeometry'
     GeoJsonGeometry:
       title: GeoJSON Geometry
       type: object

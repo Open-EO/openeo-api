@@ -12,13 +12,12 @@ jobs:
     steps:
       - name: Inject env variables
         uses: rlespinasse/github-slug-action@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 'lts/*'
-      - uses: actions/checkout@v4
-      - run: |
-          npm install
-          npm run build
+      - uses: actions/checkout@v5
+      - run: npm install
+      - run: npm run build
       - name: clone gh-pages and clean-up
         if: ${{ env.GITHUB_REF_SLUG == 'master' }}
         run: |
@@ -29,7 +28,7 @@ jobs:
         if: ${{ env.GITHUB_REF_SLUG != 'master' }}
         run: mkdir gh-pages
       - run: |
-          cp redoc.html gh-pages/index.html
+          cp *.html gh-pages/
           cp errors.json gh-pages/errors.json
           cp openapi.yaml gh-pages/openapi.yaml
           cp -rv assets/. gh-pages/assets/

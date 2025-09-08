@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `GET /conformance`: Added missing security definitions
 - `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
 - `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
 - `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified the behaviour of `federation:backends` for `POST /validation`
 - Clarified the meaning of `expires` in batch job results
 - Clarified that `last_successful_check` (from Federation Extension) can be null.
+- Fixed various OpenAPI issues reported by redocly lint
 
 ## [1.2.0] - 2021-05-25
 

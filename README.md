@@ -53,6 +53,6 @@ For development some tools can be used:
 
 1. Install [node and npm](https://nodejs.org) - should run with any recent version
 2. Run `npm install` in this folder to install the dependencies
-3. Run the linter for the OpenAPI file with `npm test`. This will lint the files and check against some best-practices. It uses `spectral` in the background.
+3. Run the linter for the OpenAPI file with `npm test`. This will lint the files and check against some best-practices. It uses `spectral` and `redocly` in the background.
 4. To show the files nicely formatted in a web browser, run `npm start`. It starts a server and opens the API specification rendered with ReDoc in a web browser.
-5. To create a static HTML page (e.g. for hosting it on GitHub Pages), you can run `npm run build` and it will create a `redoc.html` in this folder.
+5. To create a static HTML page (e.g. for hosting it on GitHub Pages), you can run `npm run build` and it will create a `index.html` in this folder and additional files for the extensions.
