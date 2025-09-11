@@ -3824,6 +3824,9 @@ components:
             [common relation types in openEO](#section/API-Principles/Web-Linking).
           items:
             $ref: '#/components/schemas/link'
+      oneOf:
+        - $ref: '#/components/schemas/udf_programming_language'
+        - $ref: '#/components/schemas/udf_docker'
       discriminator:
         propertyName: type
         mapping:
@@ -3834,8 +3837,13 @@ components:
         - $ref: '#/components/schemas/udf_runtime'
         - title: Programming language
           required:
+            - type
             - versions
           properties:
+            type:
+              type: string
+              enum:
+                - language
             default:
               type: string
               description: The default version. MUST be one of the keys in the `versions` object.
@@ -3899,9 +3907,14 @@ components:
         - $ref: '#/components/schemas/udf_runtime'
         - title: Docker container
           required:
+            - type
             - docker
             - tags
           properties:
+            type:
+              type: string
+              enum:
+                - docker
             docker:
               type: string
               description: >-
@@ -4809,6 +4822,12 @@ components:
             - other
         description:
           $ref: '#/components/schemas/description'
+      oneOf:
+        - $ref: '#/components/schemas/dimension_spatial'
+        - $ref: '#/components/schemas/dimension_temporal'
+        - $ref: '#/components/schemas/dimension_bands'
+        - $ref: '#/components/schemas/dimension_geometry'
+        - $ref: '#/components/schemas/dimension_other'
       discriminator:
         propertyName: type
         mapping:
@@ -4822,15 +4841,20 @@ components:
         - $ref: '#/components/schemas/dimension'
         - title: Additional Dimension
           type: object
-# This is not supported by ReDoc yet:
-#         oneOf:
-#           - title: Additional Dimension with Extent
-#             required:
-#               - extent
-#           - title: Additional Dimension with Values
-#             required:
-#               - values
+          required:
+            - type
+          oneOf:
+            - title: Additional Dimension with Extent
+              required:
+                - extent
+            - title: Additional Dimension with Values
+              required:
+                - values
           properties:
+            type:
+              type: string
+              enum:
+                - other
             extent:
               $ref: '#/components/schemas/collection_dimension_extent_open'
             values:
@@ -4848,8 +4872,13 @@ components:
         - title: Geometry Dimension
           type: object
           required:
+            - type
             - bbox
           properties:
+            type:
+              type: string
+              enum:
+                - geometry
             axes:
               description: Axes of the vector dimension as an ordered set of `x`, `y` and `z`. Defaults to `x` and `y`.
               default:
@@ -4887,8 +4916,13 @@ components:
             `eo:bands` in the `summaries` property.
           type: object
           required:
+            - type
             - values
           properties:
+            type:
+              type: string
+              enum:
+                - bands
             values:
               $ref: '#/components/schemas/collection_dimension_values'
     dimension_spatial:
@@ -4898,8 +4932,13 @@ components:
           description: A spatial (raster) dimension in one of the horizontal (x or y) or vertical (z) directions.
           type: object
           required:
+            - type
             - axis
           properties:
+            type:
+              type: string
+              enum:
+                - spatial
             axis:
               $ref: '#/components/schemas/dimension_axis_xyz'
             extent:
@@ -4967,8 +5006,13 @@ components:
             `temporal`.
           type: object
           required:
+            - type
             - extent
           properties:
+            type:
+              type: string
+              enum:
+                - temporal
             values:
               description: >-
                 If the dimension consists of set of specific
@@ -6310,6 +6354,14 @@ components:
       properties:
         type:
           $ref: '#/components/schemas/geometry_type'
+      oneOf:
+        - $ref: '#/components/schemas/GeoJsonPoint'
+        - $ref: '#/components/schemas/GeoJsonLineString'
+        - $ref: '#/components/schemas/GeoJsonPolygon'
+        - $ref: '#/components/schemas/GeoJsonMultiPoint'
+        - $ref: '#/components/schemas/GeoJsonMultiLineString'
+        - $ref: '#/components/schemas/GeoJsonMultiPolygon'
+        - $ref: '#/components/schemas/GeoJsonGeometryCollection'
       discriminator:
         propertyName: type
         mapping:
