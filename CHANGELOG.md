@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified the behaviour of `federation:backends` for `POST /validation`
 - Clarified the meaning of `expires` in batch job results
 - Clarified that `last_successful_check` (from Federation Extension) can be null.
+- Clarified the relation between result and end nodes, the usage of the result flag, and the relation between the outermost ("root") and child process graphs [#547](https://github.com/Open-EO/openeo-api/issues/547)
 - Fixed various OpenAPI issues reported by redocly lint
 
 ## [1.2.0] - 2021-05-25

@@ -323,9 +323,13 @@ info:
     ```
     A process node MUST always contain key-value-pairs named `process_id` and `arguments`. It MAY contain a `description`.
 
-    One of the nodes in a map of processes (the final one) MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Having such a node is important as multiple end nodes are possible, but in most use cases it is important to exactly specify the return value to be used by other processes. Each child process graph must also specify a result node similar to the "main" process graph.
-
     `process_id` MUST be a valid process ID in the `namespace` given. Clients SHOULD warn the user if a user-defined process is added with the same identifier as one of the predefined process.
+
+    In the following, "end node" (also known as "leaf node") defines a node that is not referenced by any other node in the same process graph. The "root process graph" is the outermost process graph, which is not part of any other process graph.
+
+    A "result node" is a node that defines the return value of the process graph and has the `result` flag set to `true`. Exactly one of the nodes in a map of processes MUST have the `result` flag set to `true`, all the other nodes can omit it as the default value is `false`. Each child process graph MUST specify its own result node. The root process graph MUST also specify a result node although not strictly needed in all use cases.
+    
+    Having a result node is important as multiple end nodes are possible and in many use cases it is important to identify a specific return value for the process graph that is passed to other processes. The result node is not necessarily an end node.
 
     ### Arguments
 
@@ -437,7 +441,7 @@ info:
 
     ### Full example for an EVI computation
 
-    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel-2 imagery. The main process graph in blue, child process graphs in yellow:
+    Deriving minimum EVI (Enhanced Vegetation Index) measurements over pixel time series of Sentinel-2 imagery. The root process graph in blue, child process graphs in yellow:
 
     ![Graph with processing instructions](assets/pg-evi-example.png)
 
