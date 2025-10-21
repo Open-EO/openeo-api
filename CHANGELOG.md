@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
   - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
+- `GET /credentials/oidc`: Added `authorization_parameters` property to enforce specific parameters for the authorization endpoint [#534](https://github.com/Open-EO/openeo-api/issues/534)
 - `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
+- Added `stacktrace` to log entries (e.g. for `GET /jobs/{job_id}/logs`) [#512](https://github.com/Open-EO/openeo-api/issues/512)
 - Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
 - Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
+- Added a status diagram that explains the status changes of batch jobs [#436](https://github.com/Open-EO/openeo-api/issues/436)
 - Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
 - Support for standard JSON Web Tokens (JWT) being used as Bearer tokens [#558](https://github.com/Open-EO/openeo-api/issues/558)
 
@@ -47,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified the behaviour of `federation:backends` for `POST /validation`
 - Clarified the meaning of `expires` in batch job results
 - Clarified that `last_successful_check` (from Federation Extension) can be null.
+- Clarified the relation between result and end nodes, the usage of the result flag, and the relation between the outermost ("root") and child process graphs [#547](https://github.com/Open-EO/openeo-api/issues/547)
 - Fixed various OpenAPI issues reported by redocly lint
 
 ## [1.2.0] - 2021-05-25
