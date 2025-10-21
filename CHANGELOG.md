@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
   - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
+- `GET /`: New relation type `web-editor` [#577](https://github.com/Open-EO/openeo-api/issues/577)
 - `GET /credentials/oidc`: Added `authorization_parameters` property to enforce specific parameters for the authorization endpoint [#534](https://github.com/Open-EO/openeo-api/issues/534)
 - `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
 - Added `stacktrace` to log entries (e.g. for `GET /jobs/{job_id}/logs`) [#512](https://github.com/Open-EO/openeo-api/issues/512)
