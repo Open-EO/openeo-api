@@ -1909,18 +1909,7 @@ paths:
         openEO clients MUST use the **access token** as part of the Bearer token
         for authorization in subsequent API calls (see also the information
         about Bearer tokens in this document). Clients MUST NOT use the id token
-        or the authorization code. The access token provided by an OpenID Connect
-        Provider does not necessarily provide information about the issuer (i.e. the
-        OpenID Connect provider) and therefore a prefix MUST be added to the Bearer
-        Token sent in subsequent API calls to protected endpoints. The Bearer
-        Token sent to protected endpoints MUST consist of the authentication
-        method (here `oidc`), the provider ID and the access token itself. All
-        separated by a forward slash `/`. The provider ID corresponds to the
-        value specified for `id` for each provider in the response body of this
-        endpoint.  The header in subsequent API calls for a provider with `id`
-        `ms` would look as follows: `Authorization: Bearer oidc/ms/TOKEN`
-        (replace `TOKEN` with the actual access token received from the OpenID
-        Connect Provider).
+        or the authorization code.
 
         Back-ends MAY request user information ([including Claims](https://openid.net/specs/openid-connect-core-1_0.html#Claims))
         from the [OpenID Connect Userinfo endpoint](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
@@ -1959,14 +1948,15 @@ paths:
                       properties:
                         id:
                           type: string
-                          description: >-
-                            A per-back-end **unique** identifier for the OpenID Connect Provider to
-                            be as prefix for the Bearer token.
+                          description: |-
+                            A per-back-end **unique** identifier for the OpenID Connect provider.
+
+                            Is used as prefix for the openEO token.
                           pattern: '[\d\w]{1,20}'
                         issuer:
                           type: string
                           format: uri
-                          description: >-
+                          description: |-
                             The [issuer location](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
                             (also referred to as 'authority' in some client libraries) is the URL of the
                             OpenID Connect provider, which conforms to a set of rules:
@@ -1980,7 +1970,6 @@ paths:
                             OpenID Connect.
 
                             2. The URL MUST NOT contain a terminating forward slash `/`.
-
                           example: 'https://accounts.google.com'
                         scopes:
                           type: array
@@ -2133,11 +2122,10 @@ paths:
     get:
       summary: HTTP Basic authentication
       operationId: authenticate-basic
-      description: >-
+      description: |-
         Checks the credentials provided through [HTTP Basic Authentication
-        according to RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) and returns
-        an access token for valid credentials.
-
+        according to RFC 7617](https://www.rfc-editor.org/rfc/rfc7617.html) and
+        returns an access token in exchange for providing valid credentials.
 
         The credentials (username and password) MUST be sent in the HTTP header
         `Authorization` with type `Basic` and the Base64 encoded string
@@ -2145,15 +2133,9 @@ paths:
         header would look as follows for username `user` and password `pw`:
         `Authorization: Basic dXNlcjpwdw==`.
 
-
         The access token has to be used in the Bearer token for authorization in
         subsequent API calls (see also the information about Bearer tokens in
-        this document). The access token returned by this request MUST NOT be
-        provided with `basic//` prefix, but the Bearer Token sent in subsequent
-        API calls to protected endpoints MUST be prefixed with `basic//`. The
-        header in subsequent API calls would look as follows: `Authorization:
-        Bearer basic//TOKEN` (replace `TOKEN` with the actual access token).
-
+        this document).
 
         It is RECOMMENDED to implement this authentication method for non-public
         services only.
@@ -2174,9 +2156,8 @@ paths:
                 properties:
                   access_token:
                     description: >-
-                      The access token (without `basic//` prefix) to be used in
-                      the Bearer token for authorization in subsequent API
-                      calls.
+                      The access token to be used in the Bearer token for authorization
+                      in subsequent API calls (without the custom `basic//` prefix).
                     type: string
                     example: b34ba2bdf9ac9ee1
         4XX:
@@ -6820,14 +6801,49 @@ components:
     Bearer:
       type: http
       scheme: bearer
-      bearerFormat: >-
-        The Bearer Token MUST consist of the authentication method, a provider
-        ID (if available) and the token itself. All separated by a forward slash
-        `/`. Examples (replace `TOKEN` with the actual access token): (1) Basic
-        authentication (no provider ID available): `basic//TOKEN` (2) OpenID
-        Connect (provider ID is `ms`): `oidc/ms/TOKEN`. For OpenID Connect, the
-        provider ID corresponds to the value specified for `id` for each
-        provider in `GET /credentials/oidc`.
+      bearerFormat: JWT or openEO
+      description: >-
+        A Bearer token can be provided in two different formats:
+
+        1. **JSON Web Token (JWT) - RECOMMENDED**
+
+           - Conformance class: `https://api.openeo.org/1.2.0/authentication/jwt`
+           
+           The Bearer token is an access token in [JWT](https://datatracker.ietf.org/doc/html/rfc7519) format
+           as defined in RFC 7519. For openEO, it MUST include the issuer in the
+           `iss` claim although being optional in RFC 7519.
+           If the concept of an issuer does not exist in an authentication method (e.g. in HTTP Basic),
+           implementations could use the endpoint for Basic Authentication as the issuer, for example.
+
+           openEO backend implementations MUST signal their support for JWT by listing the given
+           conformance class. Likewise, openEO clients SHOULD only use JWT when the openEO backend
+           lists the conformance class.
+
+        2. **openEO Tokens - DEPRECATED**
+
+           - Conformance class: *None*
+
+           The Bearer Token is constructed from the authentication method, a
+           provider ID (if available) and the access token. All separated by a
+           forward slash `/`.
+
+           Examples (replace `TOKEN` with the actual access token):
+
+           - Basic authentication (no provider ID available): `basic//TOKEN`
+           - OpenID Connect (provider ID is `ms`): `oidc/ms/TOKEN`.
+             For OpenID Connect, the provider ID corresponds to the value
+             specified for `id` for each provider in `GET /credentials/oidc`.
+
+           All openEO backends MUST accept this method for backward compatibility
+           until version 2.0 of the specification.
+
+           The access tokens provided by the identity provider do not include
+           the prefix that includes the authentication method and provider ID.
+           The Bearer Token sent to the openEO backend MUST have the prefix, e.g. `basic//` for Basic authentication.
+           This means that the clients have to prepend the prefix.
+        
+        JWT and openEO tokens can be distinguished by the presence of a slash
+        `/` in the token, which JWT can never contain due to the Base64 encoding.
     Basic:
       type: http
       scheme: basic
