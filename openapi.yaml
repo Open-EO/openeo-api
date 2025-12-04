@@ -2521,6 +2521,9 @@ paths:
         [OGC Schema Repository](http://schemas.opengis.net/) for the respective
         services.
 
+        It is RECOMMENDED to use the values provided in the `specification` property as
+        the service names.
+
         Service names MUST be accepted in a *case insensitive* manner throughout the API.
       tags:
         - Capabilities
@@ -2555,6 +2558,8 @@ paths:
                       $ref: '#/components/schemas/deprecated'
                     experimental:
                       $ref: '#/components/schemas/experimental'
+                    specification:
+                      $ref: '#/components/schemas/service_specification'
                     configuration:
                       title: Service Configuration
                       description: Map of supported configuration settings made available to the creator of the service.
@@ -5860,6 +5865,38 @@ components:
             - $ref: '#/components/schemas/usage'
         log_level:
           $ref: '#/components/schemas/min_log_level_default'
+    service_specification:
+      type: string
+      description: |-
+        The type of the service that is implemented.
+        Provides an indication of what clients can expect for the service.
+        It is REQUIRED to use the official abbreviations as shown as otherwise
+        client software might not recognize the service type.
+        
+        - OGC WCS: wcs
+        - OGC WFS: wfs
+        - OGC WMS: wms
+        - OGC WMTS: wmts
+        - OGC API - Discrete Global Grid Systems (DGGS) - ogcapi-dggs
+        - OGC API - Environmental Data Retrieval (EDR): ogcapi-edr
+        - OGC API - Features: ogcapi-features
+        - OGC API - Coverages: ogcapi-coverages
+        - OGC API - Maps: ogcapi-maps
+        - OGC API - Tiles: ogcapi-tiles
+        - OSGeo Tile Map Service (TMS): tms
+        - STAC: stac
+        - XYZ: xyz
+
+        For other OGC APIs, use the the result of the following regular expression applied
+        to the external identifier of respective OGC document:
+        `^http://www.opengis.net/doc/IS/([\w-]+)-\d+/`
+
+        For other legacy OGC specifications, use the abbreviations used in the official
+        [OGC Schema Repository](http://schemas.opengis.net/) for the respective specification.
+
+        For other missing service types, please open an issue in the
+        [openEO API repository](https://github.com/Open-EO/openeo-api).
+      example: xyz
     service_type:
       description: >-
         Definition of the service type to access result data. All available
