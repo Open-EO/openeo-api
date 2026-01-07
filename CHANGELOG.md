@@ -4,13 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased / Draft
+## [Unreleased] / Draft
+
+### Added
+
+### Deprecated
+
+### Changed
+
+### Fixed
+
+## [1.3.0] - 2026-02-02
 
 ### Added
 
 - **New extensions:**
   - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
   - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
+  - [Workspaces Extension](./extensions/workspaces/README.md)
 - `GET /`: New relation type `web-editor` [#577](https://github.com/Open-EO/openeo-api/issues/577)
 - `GET /credentials/oidc`: Added `authorization_parameters` property to enforce specific parameters for the authorization endpoint [#534](https://github.com/Open-EO/openeo-api/issues/534)
 - `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
@@ -24,17 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - Deprecated the openEO-specific Bearer token format (authentication mechanism/provider id/access token) [#558](https://github.com/Open-EO/openeo-api/issues/558)
-
-### Changed
-
-- Migrate from openEO-specific tokens to JWT, i.e. deprecating the openEO-specific format in favor of JWT [#558](https://github.com/Open-EO/openeo-api/issues/558)
-
-### Deprecated
-
 - STAC 0.9.x
 
 ### Changed
 
+- Updated Federation Extension to v0.2.0
+- Migrate from openEO-specific tokens to JWT, i.e. deprecating the openEO-specific format in favor of JWT [#558](https://github.com/Open-EO/openeo-api/issues/558)
 - `GET /`: Requires the fields `type` and `conformsTo`
 - `GET /udf_runtimes`: Requires at least one UDF runtime to be provided. [#511](https://github.com/Open-EO/openeo-api/issues/511)
 
@@ -479,6 +485,7 @@ Initial version.
 
 
 [Unreleased]: <https://github.com/Open-EO/openeo-api/compare/master...dev>
+[1.3.0]: <https://github.com/Open-EO/openeo-api/compare/1.2.0...1.3.0>
 [1.2.0]: <https://github.com/Open-EO/openeo-api/compare/1.1.0...1.2.0>
 [1.1.0]: <https://github.com/Open-EO/openeo-api/compare/1.0.1...1.1.0>
 [1.0.1]: <https://github.com/Open-EO/openeo-api/compare/1.0.0...1.0.1>

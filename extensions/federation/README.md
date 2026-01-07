@@ -4,9 +4,9 @@ The openEO API is a specification for interoperable cloud-based processing of la
 
 This is an extension for federation aspects, i.e. where multiple back-ends are exposed as a single API.
 
-- Version: **0.1.0**
+- Version: **0.2.0**
 - Stability: **experimental**
-- Conformance class: `https://api.openeo.org/extensions/federation/0.1.0`
+- Conformance class: `https://api.openeo.org/extensions/federation/0.2.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
@@ -84,7 +84,7 @@ schema:
 
 ```json
 {
-  "api_version": "1.2.0",
+  "api_version": "1.3.0",
   "federation": {
     "vito": {
       "title": "VITO",
