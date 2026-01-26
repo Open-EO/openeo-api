@@ -1,6 +1,6 @@
 # Commercial Data Extension
 
-The Commercial Data API extension provides an interface for discovering, ordering and using commercial data in the openEO API. 
+The Commercial Data Extension to the openEO API provides an interface for discovering, ordering and using commercial data in openEO. 
 
 - Version: **0.1.0**
 - Stability: **experimental**
@@ -12,7 +12,7 @@ Extensions can not change or break existing behavior of the openEO API.
 
 ## Overview of the workflow
 
-All the available datasets provided by a backend are listed on the `GET /collections` endpoint. The collections are normally freely accessible. This extension adds capabilities for providing collections that are not free of charge and require purchasing data products that can thereupon be used in processing. Commercial data collections usually allow purchasing small subsets of the data (products), for example, a single observation of an area.
+All the available datasets provided by a back-end are listed on the `GET /collections` endpoint. The collections are normally freely accessible. This extension adds capabilities for providing collections that are not free of charge and require purchasing data products that can thereupon be used in processing. Commercial data collections usually allow purchasing small subsets of the data (products), for example, a single observation of an area.
 
 Therefore, the client must have an ability to search the available products that match their desired criteria and inspect their metadata to decide whether the products should be purchased.
 
@@ -22,7 +22,7 @@ When the order is completed, the data is ingested in a collection and its ID is 
 
 ### Collection discovery
 
-A backend should add general information about a commercial data collection to the `/collections` and `/collections/{collection_id}` endpoints, the same as with freely available collections. Only the metadata about the entire dataset needs to be provided, not about the specific data products that a user has already purchased. 
+A back-end should add general information about a commercial data collection to the `/collections` and `/collections/{collection_id}` endpoints, the same as with freely available collections. Only the metadata about the entire dataset needs to be provided, not about the specific data products that a user has already purchased. 
 
 Commercial data collections are distinguished from freely available collections by including `"order:status": "orderable"` as specified in the [STAC Order extension](https://github.com/stac-extensions/order/tree/v1.0.0).
 
@@ -82,7 +82,7 @@ Commercial data collections must also include human-readable pricing information
 
 ### Filtering parameters discovery
 
-Searching for products can support refining the search by filtering with general or collection-specific attributes. Backends should implement a top level `/queryables` endpoint for attributes available for all collections, and collection-specific attributes should be provided at `/collections/{collection_id}/queryables` according to [OGC Queryables specification](https://portal.ogc.org/files/96288#filter-queryables) and [STAC Filter extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter).
+Searching for products can support refining the search by filtering with general or collection-specific attributes. Back-ends should implement a top level `/queryables` endpoint for attributes available for all collections, and collection-specific attributes should be provided at `/collections/{collection_id}/queryables` according to [OGC Queryables specification](https://portal.ogc.org/files/96288#filter-queryables) and [STAC Filter extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter).
 
 #### Example
 
@@ -125,7 +125,7 @@ Example response from `GET /collections/PLEIADES/queryables`:
 
 ### Searching available products
 
-Backends should implement the top-level `GET /search` endpoint as specified in the [STAC Item Search API specification](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/item-search). This should include the [Filter Extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter), which enables filtering the available products by attributes specified in `GET /queryables` and `GET /collections/{collection-id}/queryables`.
+Back-ends should implement the top-level `GET /search` endpoint as specified in the [STAC Item Search API specification](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/item-search). This should include the [Filter Extension](https://github.com/radiantearth/stac-api-spec/tree/v1.0.0-rc.1/fragments/filter), which enables filtering the available products by attributes specified in `GET /queryables` and `GET /collections/{collection-id}/queryables`.
 The endpoint returns a list of [STAC Items](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) that match the criteria. The products should be aligned with the STAC specification, utilising the existing [STAC extensions](https://github.com/radiantearth/stac-spec/blob/v1.0.0/extensions/README.md) as much as possible, and trying avoiding custom attributes, if a generally accepted definition does not exist. 
 
 #### Example
@@ -155,7 +155,7 @@ Example request payload to `GET /search` for `PLEIADES` products from "Living Li
 
 ### Ordering products
 
-Backends should implement the following endpoints:
+Back-ends must implement the following endpoints:
 
 - `GET /orders`: Get a list of all created orders
 - `POST /orders`: Create an order
@@ -163,13 +163,14 @@ Backends should implement the following endpoints:
 - `POST /orders/{order_id}`: Confirm a created order
 
 Optionally, they can also implement:
+
 - `DELETE /orders/{order_id}`: Delete an order
 
 See the [OpenAPI document](openapi.yaml) for details.
 
 ### Product metadata
 
-The backend can provide full product metadata as STAC Items following [STAC API Features specification](https://github.com/radiantearth/stac-api-spec/tree/main/ogcapi-features). This requires implementing two additional endpoints, `/collections/{collection_id}/items` and `/collections/{collection_id}/items/{item_id}`. 
+The back-end can provide full product metadata as STAC Items following [STAC API Features specification](https://github.com/radiantearth/stac-api-spec/tree/main/ogcapi-features). This requires implementing two additional endpoints, `/collections/{collection_id}/items` and `/collections/{collection_id}/items/{item_id}`. 
 
 `/collections/{collection_id}/items/{item_id}` may return an error if the data has not been ingested yet.
 
@@ -177,7 +178,7 @@ Items should contain links to the respective orders that made them available usi
 
 ### Payment
 
-Payment should be done in the currency used by the backend, listed at `GET /` under `billing`. When an order is created, the backend should return the full final cost of the order. 
+Payment should be done in the currency used by the back-end, listed at `GET /` under `billing`. When an order is created, the back-end should return the full final cost of the order. 
 
 ### Example usage with Python client
 

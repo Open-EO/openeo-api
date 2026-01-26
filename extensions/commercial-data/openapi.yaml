@@ -1,10 +1,10 @@
 openapi: 3.0.2
 info:
-  title: openEO Commercial Data API extension
+  title: openEO API - Commercial Data Extension
   version: 0.1.0
   description: >-
-    The Commercial Data API extension provides an interface for discovering,
-    ordering and using commercial data in the openEO API.
+    The Commercial Data Extension to the openEO API provides an interface for discovering,
+    ordering and using commercial data in openEO.
   contact:
     name: openEO Consortium
     url: 'https://openeo.org'
@@ -13,7 +13,7 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 externalDocs:
-  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/federation/README.md
+  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/commercial-data/README.md
 tags:
   - name: Orders
     description: Management of commercial data orders
@@ -87,7 +87,7 @@ paths:
         The order can contain additional parameters that specify how the items should be delivered.
         For example, it might be possible to set the projection, resampling method, bit depth etc. of the delivered data.
 
-        Backends SHOULD expose the available ordering parameters in `GET /collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
+        Back-ends SHOULD expose the available ordering parameters in `GET /collections/{collection_id}` in the `order_parameters` field, following the `process_parameters` schema of [`GET /service_types`](https://openeo.org/documentation/1.0/developers/api/reference.html#tag/Secondary-Services/operation/list-service-types). 
 
         Returns `Location` and `OpenEO-Identifier` header with the link to the detailed information about the order.
       tags:
@@ -148,7 +148,7 @@ paths:
       description: |-
         Get full metadata of the order.
 
-        Backends can optionally link to the spatial and temporal extent information and other metadata about the items using the relation type `item`, preferrably by implementing and linking to `GET /collections/{collection_id}/items/{item_id}`.
+        Back-ends can optionally link to the spatial and temporal extent information and other metadata about the items using the relation type `item`, preferrably by implementing and linking to `GET /collections/{collection_id}/items/{item_id}`.
       tags:
         - Orders
       security:
@@ -159,11 +159,9 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 allOf:
                   - $ref: '#/components/schemas/order'
-                  - type: object
-                    required:
-                      - items
         4XX:
           $ref: '../../openapi.yaml#/components/responses/client_error_auth'
         5XX:
@@ -176,7 +174,7 @@ paths:
 
         When an order is created through `POST /order`, the data isn't yet ordered from the commercial data provider. The client MUST explicitly confirm the order whereupon the order is executed, the costs are deducted from the client's account and the data is ingested in the target collection.
 
-        The target collection is the collection through which the ordered data is made available. The source and the target collection can be the same or different, it's up to the backend if the ordered data id ingested into a new target collection or the existing source collection. Additionally, if the backend creates new target collections, it can provide access to the union of all purchased products through the source collection.
+        The target collection is the collection through which the ordered data is made available. The source and the target collection can be the same or different, it's up to the back-end if the ordered data id ingested into a new target collection or the existing source collection. Additionally, if the back-end creates new target collections, it can provide access to the union of all purchased products through the source collection.
 
         This endpoint only has an effect if `order:status` is `orderable`.
         

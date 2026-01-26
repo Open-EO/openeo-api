@@ -1,0 +1,104 @@
+openapi: 3.0.2
+info:
+  title: openEO API - Processing Parameters Extension
+  version: 0.1.0
+  description: >-
+    The Processing Parameters Extension to the openEO API provides an interface to explore and handle additional processing parameters that a back-end can offer for the three processing modes (synchronous processing, batch jobs, and secondary web services).
+    The openEO API specification allows back-ends to accept "additional back-end specific properties" for each of the processing modes.
+    As the openEO API specification does not define the name and schemas of these properties, this extension provides a standardized way to define and document these properties.
+  contact:
+    name: openEO Consortium
+    url: 'https://openeo.org'
+    email: openeo.psc@uni-muenster.de
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  url: https://github.com/Open-EO/openeo-api/blob/draft/extensions/workspaces/README.md
+tags:
+  - name: Capabilities
+    description: General information about the API implementation and other supported capabilities provided by the back-end.
+  - name: Data Processing
+    description: Organizes and manages data processing on the back-end, either as synchronous on-demand computation or batch jobs.
+  - name: Batch Jobs
+    description: Management of batch processing tasks (jobs) and their results.
+  - name: Secondary Services
+    description: On-demand access to data using other web service protocols.
+servers:
+  - url: 'https://openeo.example/api/{version}'
+    description: >-
+      The URL of the API MAY freely be chosen by the back-end providers. The
+      path, including API versioning, is a *recommendation* only. Nevertheless,
+      all servers MUST support HTTPS as the authentication methods are not
+      secure with HTTP only!
+    variables:
+      version:
+        default: v1
+        description: >-
+          API versioning is RECOMMENDED. As the openEO API is following
+          [SemVer](https://semver.org/) only the MAJOR part of the stable
+          version numbers (i.e. versions >= 1.0.0) SHOULD be used for API
+          versioning in the URL. The reason is that backward-incompatible
+          changes are usually introduced by major changes. Therefore, the
+          version number in the URL MUST not be used by the clients to detect
+          the version number of the API. Use the version number returned from
+          `GET /` instead.
+paths:
+  /processing_parameters:
+    get:
+      summary: Additional processing parameters
+      operationId: list-processing-parameters
+      description: |-
+        Lists additional custom processing parameters
+        that a back-end offers for the different processing modes (synchronous processing, batch jobs, secondary web services).
+        The parameters specified here can be added to the corresponding `POST` requests at the top-level of the object that is sent as the payload.
+        All parameters SHOULD explicitly be made optional with reasonable defaults as otherwise the interoperability between the implementations decreases.
+      tags:
+        - Capabilities
+        - Data Processing
+        - Batch Jobs
+        - Secondary Services
+      security:
+        - {}
+        - Bearer: []
+      responses:
+        '200':
+          description: >-
+            An object with a list of parameters per processing mode.
+          content:
+            application/json:
+              schema:
+                description: Processing parameters per processing mode.
+                type: object
+                properties:
+                  create_job_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_service_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+                  create_synchronous_parameters:
+                    $ref: '#/components/schemas/processing_create_parameters'
+        4XX:
+          $ref: '../../openapi.yaml#/components/responses/client_error'
+        5XX:
+          $ref: '../../openapi.yaml#/components/responses/server_error'
+components:
+  schemas:
+    processing_create_parameters:
+      title: Creation Parameters
+      description: |-
+        List of additional custom parameters that a back-end offers during the creation
+        of batch jobs (`POST /jobs`) and secondary web services (`POST /services`) respectively.
+      type: array
+      items:
+        $ref: '../../openapi.yaml#/components/schemas/parameter'
+      example:
+        - name: memory
+          description: Maximum amount of memory that will be allocated for processing, in gigabytes.
+          optional: true
+          default: 32
+          schema:
+            type: integer
+            minimum: 1
+  securitySchemes:
+    Bearer:
+      $ref: '../../openapi.yaml#/components/securitySchemes/Bearer'

@@ -11,14 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Inject env variables
-        uses: rlespinasse/github-slug-action@v3.x
-      - uses: actions/setup-node@v3
+        uses: rlespinasse/github-slug-action@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 'lts/*'
-      - uses: actions/checkout@v3
-      - run: |
-          npm install
-          npm run build
+      - uses: actions/checkout@v5
+      - run: npm install
+      - run: npm run build
       - name: clone gh-pages and clean-up
         if: ${{ env.GITHUB_REF_SLUG == 'master' }}
         run: |
@@ -29,11 +28,12 @@ jobs:
         if: ${{ env.GITHUB_REF_SLUG != 'master' }}
         run: mkdir gh-pages
       - run: |
-          cp redoc.html gh-pages/index.html
+          cp *.html gh-pages/
           cp errors.json gh-pages/errors.json
+          cp openapi.yaml gh-pages/openapi.yaml
           cp -rv assets/. gh-pages/assets/
       - name: deploy to root (master)
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         if: ${{ env.GITHUB_REF_SLUG == 'master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
           user_name: 'openEO CI'
           user_email: openeo.ci@uni-muenster.de
       - name: deploy to ${{ env.GITHUB_REF_SLUG }}
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         if: ${{ env.GITHUB_REF_SLUG != 'master' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

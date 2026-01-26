@@ -4,14 +4,14 @@ The openEO API is a specification for interoperable cloud-based processing of la
 
 This is an extension for federation aspects, i.e. where multiple back-ends are exposed as a single API.
 
-- Version: **0.1.0**
+- Version: **0.2.0**
 - Stability: **experimental**
-- Conformance class: `https://api.openeo.org/extensions/federation/0.1.0`
+- Conformance class: `https://api.openeo.org/extensions/federation/0.2.0`
 
 **Note:** This document only documents the additions to the specification.
 Extensions can not change or break existing behavior of the openEO API.
 
-## Backend details
+## Back-end details
 
 A new required field `federation` is added to `GET /` to enable federation.
 
@@ -61,8 +61,10 @@ schema:
           last_successful_check:
             type: string
             format: date-time
+            nullable: true
             description: >-
-              If the `status` is `offline`: The time at which the back-end was checked and available the last time.
+              If the `status` is `offline`: The time at which the back-end was checked and available the last time
+              or `null` when the back-end was never observed to be available.
               Otherwise, this is equal to the property `last_status_check`.
           experimental:
             type: boolean
@@ -82,7 +84,7 @@ schema:
 
 ```json
 {
-  "api_version": "1.2.0",
+  "api_version": "1.3.0",
   "federation": {
     "vito": {
       "title": "VITO",
@@ -104,59 +106,30 @@ schema:
 }
 ```
 
-## Lists of resources
-
-Clients will assume that all lists of resources are the a combination of all back-ends listed in `GET /`.
-Federated APIs can expose if any of the back-ends is not available and thus is not part of the response.
-
-Applies to:
-
-- `GET /collections`
-- `GET /processes`
-- `GET /file_formats`
-- `GET /process_graphs`
-- `GET /jobs`
-- `GET /jobs/{job_id}`
-- `GET /jobs/{job_id}/results`
-- `GET /services`
-
-The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
-Consequently, they are not extensible with additional properties for federation purposes.
-
-- `GET /udf_runtimes`
-- `GET /service_types`
-
-### OpenAPI fragment
-
-```yaml
-schema:
-  type: object
-  properties:
-    'federation:missing':
-      description: >-
-        Lists all back-ends that were not considered in the response (e.g. because they were not accessible).
-        If not given or empty, all back-ends were considered for creating the response.
-        Back-ends that were listed as offline in the capabilities still need to be listed here.
-      type: array
-      items:
-        type: string
-        description: The ID of a back-end.
-```
-
-### Example
-
-```json
-{
-  "federation:missing": ["wwu"],
-  "collections": [...],
-  "links": [...]
-}
-```
-
 ## Resources supported only by a subset of back-ends
 
-Every discoverable resource that is defined as an object and allows to contain additional properties, can list the backends that support or host the exposed resource/functionality.
-This can also be embeded deeply into a hierarchical structure, e.g. for process or file format parameters.
+Discoverable resources can explicitly list the subset of back-ends that support or host the exposed resource or functionality with the property `federation:backends`.
+
+Schema-wise, this only applies to resources that are defined as an object and allow to contain additional properties.
+For example (**not** comprehensive):
+
+- `GET /collections`
+- `GET /collections/{id}`
+- `GET /processes` (global, per process, per parameter)
+- `GET /file_formats` (global, per file format)
+- `GET /service_types` (per service)
+- `GET /udf_runtimes` (per UDF runtime, per version)
+- `POST /validation` (the back-ends that can run the process, see below)
+- `GET /files`
+- `GET /process_graphs`
+- `GET /process_graphs/{id}`
+- `GET /jobs`
+- `GET /jobs/{job_id}` (the back-ends that generated the result)
+- `GET /jobs/{job_id}/results` (the back-ends that generated the result)
+- `GET /services`
+- `GET /services/{id}` (the back-ends that host the service)
+
+This can also be embedded deeply into a hierarchical structure, e.g. for process or file format parameters.
 
 ```yaml
 schema:
@@ -164,7 +137,7 @@ schema:
   properties:
     'federation:backends':
       description: >-
-        Lists all back-ends that support or host the resource.
+        Lists the subset of back-ends that support or host the resource.
         If not given, all back-ends support the resource.
       type: array
       minItems: 1
@@ -174,6 +147,18 @@ schema:
 ```
 
 **Note:** In Collections this should generally be provided on the top-level of the object.
+
+### Validation
+
+If this property is returned through the `POST /validation` endpoint, it has the meaning as listed below.
+This also covers the case where the federation supports splitting a process into pieces so that different parts can run on different back-ends.
+
+- Endpoint returns *without* errors:
+  - `federation:backends` is included in the response: The listed back-ends support the workflow (either partially if splitting is supported, or in full).
+  - `federation:backends` is *not* included in the response: At least one of the back-ends support the workflow.
+- Endpoint returns errors:
+  - `federation:backends` is included in the response: The listed back-ends were checked and none of the back-ends can run the workflow as is (neither splitted if supported, nor in full).
+  - `federation:backends` is *not* included in the response: the workflow could not be validated successfully by any of the back-ends or the federation component itself. This includes any kind of failed validation attempt, including network and server errors.
 
 ### Examples
 
@@ -207,10 +192,62 @@ schema:
   "stac_version": "1.0.0",
   "id": "example",
   "description": "...",
-  "summaries": {
-    "federation:backends": ["vito", "eodc"],
-    ...
-  },
+  "federation:backends": ["vito", "eodc"],
   ...
 }
 ```
+
+## Temporarily or unintentionally unavailable resources
+
+Resources and back-ends can be temporarily or unintentionally unavailable.
+It is especially important to communicate to users missing resources when compiling a **list of resources** across multiple back-ends.
+Clients will assume that all lists of resources are a combination of all back-ends listed under `federation` in `GET /`.
+Federated APIs can expose if any of the back-ends was not available when building the resource listing response with the property `federation:missing`.
+
+Examples of where this could apply to (**not** comprehensive):
+
+- `GET /collections`
+- `GET /processes`
+- `GET /file_formats`
+- `GET /process_graphs`
+- `GET /files`
+- `GET /jobs`
+- `GET /jobs/{job_id}`
+- `GET /jobs/{job_id}/results`
+- `GET /jobs/{job_id}/logs`
+- `GET /services`
+
+### OpenAPI fragment
+
+```yaml
+schema:
+  type: object
+  properties:
+    'federation:missing':
+      description: >-
+        Lists all back-ends that were unexpectedly unavailable during compilation of the response.
+        If not given or empty, all back-ends supporting this endpoint were considered for creating the response.
+        Back-ends that are listed as offline in the capabilities still need to be listed here.
+      type: array
+      items:
+        type: string
+        description: The ID of a back-end.
+```
+
+### Example
+
+```json
+{
+  "federation:missing": ["wwu"],
+  "collections": [...],
+  "links": [...]
+}
+```
+
+## Endpoints that can't list federation details
+
+The following endpoints define the resources (UDF runtimes / service types) at the top level of their response as key-value pairs.
+Consequently, they are not extensible with additional properties for federation purposes.
+
+- `GET /udf_runtimes`
+- `GET /service_types`

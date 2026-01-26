@@ -1,6 +1,6 @@
 {
   "name": "@openeo/api",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": "openEO Consortium",
   "license": "Apache-2.0",
   "description": "The openEO API specification.",
@@ -13,12 +13,19 @@
     "url": "git+https://github.com/Open-EO/openeo-api.git"
   },
   "devDependencies": {
-    "@stoplight/spectral-cli": "^6.6.0",
-    "redoc-cli": "^0.13.18"
+    "@stoplight/spectral-cli": "^6.15.0",
+    "@redocly/cli": "^2.0.8",
+    "http-server": "^14.1.1"
   },
   "scripts": {
-    "start": "redoc-cli serve openapi.yaml --watch --options.expandResponses \"200,201,202,203,204\" --options.pathInMiddlePanel true",
-    "build": "redoc-cli build openapi.yaml -o redoc.html --title \"openEO API\" --cdn --options.expandResponses \"200,201,202,203,204\" --options.pathInMiddlePanel true",
-    "test": "spectral lint openapi.yaml"
+    "start": "npm run build && http-server -o index.html",
+    "build": "npm run build:core && npm run build:commercial-data && npm run build:processing-parameters && npm run build:workspaces",
+    "build:core": "redocly build-docs core --config=.redocly.yaml -o=index.html",
+    "build:commercial-data": "redocly build-docs commercial-data --config=.redocly.yaml -o=commercial-data.html",
+    "build:processing-parameters": "redocly build-docs processing-parameters --config=.redocly.yaml -o=processing-parameters.html",
+    "build:workspaces": "redocly build-docs workspaces --config=.redocly.yaml -o=workspaces.html",
+    "test": "npm run spectral-lint && npm run redocly-lint",
+    "spectral-lint": "spectral lint openapi.yaml extensions/*/openapi.yaml",
+    "redocly-lint": "redocly lint --config=.redocly.yaml"
   }
 }

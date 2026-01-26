@@ -4,15 +4,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased / Draft
+## [Unreleased] / Draft
 
-## [1.2.0] - 2021-05-31
+### Added
+
+### Deprecated
+
+### Changed
+
+### Fixed
+
+## [1.3.0] - 2026-02-02
 
 ### Added
 
 - **New extensions:**
-    - [Commercial Data Extension](./extensions/commercial-data/README.md)
-    - [Federation Extension](./extensions/federation/README.md)
+  - [Remote Process Definition Extension](./extensions/remote-process-definition/README.md)
+  - [Processing Parameters Extension](./extensions/processing-parameters/README.md)
+  - [Workspaces Extension](./extensions/workspaces/README.md)
+- `GET /`: New relation type `web-editor` [#577](https://github.com/Open-EO/openeo-api/issues/577)
+- `GET /credentials/oidc`: Added `authorization_parameters` property to enforce specific parameters for the authorization endpoint [#534](https://github.com/Open-EO/openeo-api/issues/534)
+- `POST /result`: Added response header "OpenEO-Identifier" to expose an identifier associated with a synchronous processing request.
+- Added `stacktrace` to log entries (e.g. for `GET /jobs/{job_id}/logs`) [#512](https://github.com/Open-EO/openeo-api/issues/512)
+- Added `version` property to `GET /processes` [#517](https://github.com/Open-EO/openeo-api/issues/517)
+- Added `queued`, `started` and `unpublished` to the batch job metadata and the corresponding STAC results [#542](https://github.com/Open-EO/openeo-api/issues/542)
+- Added a status diagram that explains the status changes of batch jobs [#436](https://github.com/Open-EO/openeo-api/issues/436)
+- Added all the batch job timestamps (including the new timestamps above) to the Collection type of batch job results
+- Support for standard JSON Web Tokens (JWT) being used as Bearer tokens [#558](https://github.com/Open-EO/openeo-api/issues/558)
+
+### Deprecated
+
+- Deprecated the openEO-specific Bearer token format (authentication mechanism/provider id/access token) [#558](https://github.com/Open-EO/openeo-api/issues/558)
+- STAC 0.9.x
+
+### Changed
+
+- Updated Federation Extension to v0.2.0
+- Migrate from openEO-specific tokens to JWT, i.e. deprecating the openEO-specific format in favor of JWT [#558](https://github.com/Open-EO/openeo-api/issues/558)
+- `GET /`: Requires the fields `type` and `conformsTo`
+- `GET /udf_runtimes`: Requires at least one UDF runtime to be provided. [#511](https://github.com/Open-EO/openeo-api/issues/511)
+
+### Fixed
+
+- `GET /conformance`: Added missing security definitions
+- `GET /file_formats`: Base parameter on top of normal JSON Schema, not Process JSON Schema
+- `PATCH /services/{service_id}` and `PATCH /jobs/{job_id}`: Explicitly allow updating back-end specific properties (as in `POST`)
+- `GET /services/{service_id}` and `GET /jobs/{job_id}`: Explicitly allow listing back-end specific properties (as provided in `POST`)
+- `GET /jobs/{job_id}/results`: Clarify that signed URLs (used as "canonical" link) should be regenerated each time.
+- `GET /jobs/{job_id}/results`: Clarify that "canonical" job result link should include/encode the original query parameters
+- Clarified for log levels which default values apply
+- Clarified how the relation types `license`, `version-history` and `author` can be used to enrich the process metadata. [#531](https://github.com/Open-EO/openeo-api/issues/531)
+- Clarified the behaviour of `federation:backends` for `POST /validation`
+- Clarified the meaning of `expires` in batch job results
+- Clarified that `last_successful_check` (from Federation Extension) can be null.
+- Clarified the relation between result and end nodes, the usage of the result flag, and the relation between the outermost ("root") and child process graphs [#547](https://github.com/Open-EO/openeo-api/issues/547)
+- Fixed various OpenAPI issues reported by redocly lint
+
+## [1.2.0] - 2021-05-25
+
+### Added
+
+- **New extensions:**
+  - [Commercial Data Extension](./extensions/commercial-data/README.md)
+  - [Federation Extension](./extensions/federation/README.md)
 - `GET /`: New Relation types: [#404](https://github.com/Open-EO/openeo-api/issues/404)
   - `create-form` to link to the registration page
   - `recovery-form` to link to the credentials recovery page.
@@ -24,9 +78,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Recommendation to add a link with relation type `canonical` which points to a signed URL with the same content as the response. [#397](https://github.com/Open-EO/openeo-api/issues/397)
   - Added metadata field `openeo:status` to indicate the job status (and whether the result is complete or not).
   - Added parameter `partial` to allow retrieving incomplete results, which must also add the new property `openeo:status` to the metadata. [#430](https://github.com/Open-EO/openeo-api/issues/430)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` parameter to requests to set the minimum log level returned by the response. [#485](https://github.com/Open-EO/openeo-api/issues/485)
 - Added property `log_level` to secondary web service, batch job and synchronous processing endpoints to indicate the minimum severity level that should be stored for logs. [#329](https://github.com/Open-EO/openeo-api/issues/329)
-- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs` and `POST /result`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
+- `GET /jobs/{job_id}/logs`, `GET /services/{service_id}/logs`: Added `level` property in responses to reflect the minimum log level that may appear in the response. [#329](https://github.com/Open-EO/openeo-api/issues/329)
 - Recommendation to add media types and titles to links for a better user experience.
 - Allow the relation type `canonical` to be used generally for (shared) resources (e.g. UDPs or batch jobs) without requiring Bearer authentication. [#405](https://github.com/Open-EO/openeo-api/issues/405)
 - Recommendation for UDF runtime names. [#409](https://github.com/Open-EO/openeo-api/issues/409)
@@ -431,6 +485,7 @@ Initial version.
 
 
 [Unreleased]: <https://github.com/Open-EO/openeo-api/compare/master...dev>
+[1.3.0]: <https://github.com/Open-EO/openeo-api/compare/1.2.0...1.3.0>
 [1.2.0]: <https://github.com/Open-EO/openeo-api/compare/1.1.0...1.2.0>
 [1.1.0]: <https://github.com/Open-EO/openeo-api/compare/1.0.1...1.1.0>
 [1.0.1]: <https://github.com/Open-EO/openeo-api/compare/1.0.0...1.0.1>
