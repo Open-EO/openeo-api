@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove suggestion to use (STAC) asset keys directly as file name [#579](https://github.com/Open-EO/openeo-api/issues/579)
+
 ### Fixed
 
 ## [1.3.0] - 2026-02-02
