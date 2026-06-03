@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove suggestion to use (STAC) asset keys directly as file name [#579](https://github.com/Open-EO/openeo-api/issues/579)
+- Align collection `license` field with current STAC spec: use `other` instead of deprecated `proprietary`/`various` [#592](https://github.com/Open-EO/openeo-api/issues/592)
 
 ### Fixed
 
