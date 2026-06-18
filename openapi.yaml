@@ -1415,7 +1415,7 @@ paths:
               example:
                 stac_version: 1.0.0
                 stac_extensions:
-                  - https://stac-extensions.github.io/datacube/v2.2.0/schema.json
+                  - https://stac-extensions.github.io/datacube/v2.4.0/schema.json
                 type: Collection
                 id: Sentinel-2
                 title: Sentinel-2 MSI L2A
@@ -4530,9 +4530,10 @@ components:
             * `t` for the dimension of type `temporal`
             * `bands` for dimensions of type `bands`
             * `geometry` for dimensions of type `geometry`
+            * `zone` for the dimension of type `dggs`
 
             This property REQUIRES to add a version of the data cube extension to the list
-            of `stac_extensions`, e.g. `https://stac-extensions.github.io/datacube/v2.2.0/schema.json`.
+            of `stac_extensions`, e.g. `https://stac-extensions.github.io/datacube/v2.4.0/schema.json`.
           type: object
           additionalProperties:
             x-additionalPropertiesName: Dimension Name
@@ -4813,6 +4814,7 @@ components:
             - temporal
             - bands
             - geometry
+            - dggs
             - other
         description:
           $ref: '#/components/schemas/description'
@@ -4823,6 +4825,7 @@ components:
           temporal: '#/components/schemas/dimension_temporal'
           bands: '#/components/schemas/dimension_bands'
           geometry: '#/components/schemas/dimension_geometry'
+          dggs: '#/components/schemas/dimension_dggs'
           other: '#/components/schemas/dimension_other'
     dimension_other:
       allOf:
@@ -4898,11 +4901,63 @@ components:
           properties:
             values:
               $ref: '#/components/schemas/collection_dimension_values'
+    dimension_dggs:
+      allOf:
+        - $ref: '#/components/schemas/dimension'
+        - title: Spatial DGGS Dimension
+          description: >-
+            A spatial dimension based on a Discrete Global Grid System (DGGS).
+          type: object
+          required:
+            - reference_system
+          properties:
+            extent:
+              allOf:
+                - $ref: '#/components/schemas/bbox'
+              description: >-
+                The spatial extent of the DGGS zones as a GeoJSON-style bounding
+                box: `[west, south, east, north]` or
+                `[west, south, minz, east, north, maxz]`.
+            values:
+              description: >-
+                An ordered list of DGGS zone identifiers, useful when
+                enumerating a known set of zones.
+              type: array
+              minItems: 1
+              items:
+                type: string
+            resolution:
+              type: integer
+              minimum: 0
+              description: >-
+                The DGGS refinement level used by the zone identifiers.
+            step:
+              type: integer
+              nullable: true
+              minimum: 1
+              description: >-
+                The spacing between refinement levels when multiple levels are
+                represented. Use `null` for irregular level spacing.
+            reference_system:
+              type: string
+              description: >-
+                Identifier of the DGGS reference system (DGGRS), preferably a
+                URI such as
+                `https://www.opengis.net/def/dggrs/OGC/1.0/HEALPix`.
+      example:
+        type: dggs
+        reference_system: https://www.opengis.net/def/dggrs/OGC/1.0/HEALPix
+        values:
+          - C1A
+          - C1B
+          - C1C
+        resolution: 6
+        step: 1
     dimension_spatial:
       allOf:
         - $ref: '#/components/schemas/dimension'
         - title: Spatial Dimension
-          description: A spatial (raster) dimension in one of the horizontal (x or y) or vertical (z) directions.
+          description: A spatial raster dimension in one of the horizontal (x or y) or vertical (z) directions.
           type: object
           required:
             - axis
@@ -6125,6 +6180,7 @@ components:
             Right now, it only allows to specify the dimension types and 
             adds for specific dimension types:
             * axes for `spatial` dimensions in raster datacubes
+            * reference systems and resolution metadata for `dggs` dimensions
             * geometry types for `geometry` dimensions in vector datacubes
           type: array
           items:
@@ -6164,6 +6220,7 @@ components:
                     enum:
                       - bands
                       - temporal
+                      - dggs
                       - other
     json_schema:
       type: object
