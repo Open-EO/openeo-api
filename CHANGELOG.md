@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove suggestion to use (STAC) asset keys directly as file name [#579](https://github.com/Open-EO/openeo-api/issues/579)
+- `DELETE /jobs/{job_id}/results`: Canceling a running batch job sets the status to `canceled` regardless of whether partial results are available, canceling a queued batch job sets it to `created`
+- `PATCH /jobs/{job_id}`: Clarified that the status of a batch job that has been processed before SHOULD be reset to `created` if the update changes what the job computes
 
 ### Fixed
 
