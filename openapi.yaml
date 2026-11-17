@@ -3018,7 +3018,12 @@ paths:
         Modifies an existing job at the back-end, but maintains the identifier.
         Changes can be grouped in a single request.
 
-        The job status does not change.
+        The job status does not change, with one exception: If a job has been
+        processed before (status `finished`, `error` or `canceled`) and the
+        update changes what the job computes (i.e. the process or other
+        properties that influence the results, but not metadata such as the
+        title or description), the back-end SHOULD reset the status to
+        `created`, because the results don't reflect the job any longer.
 
         Jobs can only be modified when the job is not queued and not running.
         Otherwise, requests to this endpoint MUST be rejected with openEO error
@@ -3479,8 +3484,9 @@ paths:
         `running`.
 
         The job status is set to `canceled` if the status was `running`
-        beforehand and partial or preliminary results are available to be
-        downloaded. Otherwise the status is set to `created`. 
+        beforehand, regardless of whether partial or preliminary results are
+        available to be downloaded. If the status was `queued`, the processing
+        has not started yet and the status is set to `created`.
       tags:
         - Data Processing
         - Batch Jobs
@@ -5612,9 +5618,12 @@ components:
                 * Once the data is available to download the status is set to `finished`.
                 * Whenever an error occurs during processing, the status MUST be set to `error`.
             * `DELETE /jobs/{job_id}/results`: The status is set to `canceled` if
-            the status was `running` beforehand and partial or preliminary results
-            are available to be downloaded. Otherwise the status is set to
-            `created`.
+            the status was `running` beforehand. If the status was `queued`, the
+            status is set to `created`.
+            * `PATCH /jobs/{job_id}`: The status doesn't change, except that the
+            status of a job that has been processed before (`finished`, `error`
+            or `canceled`) SHOULD be reset to `created` if the update changes
+            what the job computes.
 
             The following state diagram shows the possible status changes:
 
